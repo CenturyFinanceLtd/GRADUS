@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Select from "react-select";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const HeaderThree = () => {
   let { pathname } = useLocation();
@@ -29,6 +30,11 @@ const HeaderThree = () => {
   ];
 
   const [selectedOption, setSelectedOption] = useState(options[0]);
+  const { isAuthenticated, user } = useAuth();
+  const profileLink = isAuthenticated ? "/profile" : "/sign-in";
+  const profileLabel = isAuthenticated
+    ? `Open profile (${user?.firstName || user?.email || "account"})`
+    : "Sign in";
 
   const toggleMenu = () => {
     setIsMenuActive(!isMenuActive);
@@ -236,7 +242,9 @@ const HeaderThree = () => {
                 </span>
               </Link>
               <Link
-                to='/sign-in'
+                to={profileLink}
+                title={profileLabel}
+                aria-label={profileLabel}
                 className='info-action w-52 h-52 bg-white hover-bg-main-600 border border-neutral-30 rounded-circle flex-center text-2xl text-neutral-500 hover-text-white hover-border-main-600'
               >
                 <i className='ph ph-user-circle' />
@@ -329,3 +337,8 @@ const HeaderThree = () => {
 };
 
 export default HeaderThree;
+
+
+
+
+

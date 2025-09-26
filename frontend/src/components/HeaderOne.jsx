@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Select from "react-select";
+import { useAuth } from "../context/AuthContext.jsx";
 const HeaderOne = () => {
   let { pathname } = useLocation();
   const [scroll, setScroll] = useState(false);
@@ -28,6 +29,11 @@ const HeaderOne = () => {
   ];
 
   const [selectedOption, setSelectedOption] = useState(options[0]);
+  const { isAuthenticated, user } = useAuth();
+  const profileLink = isAuthenticated ? "/profile" : "/sign-in";
+  const profileLabel = isAuthenticated
+    ? `Open profile (${user?.firstName || user?.email || "account"})`
+    : "Sign in";
 
   const toggleMenu = () => {
     setIsMenuActive(!isMenuActive);
@@ -223,7 +229,9 @@ const HeaderOne = () => {
                 </button>
               </form>
               <Link
-                to='/sign-in'
+                to={profileLink}
+                title={profileLabel}
+                aria-label={profileLabel}
                 className='info-action w-52 h-52 bg-main-25 hover-bg-main-600 border border-neutral-30 rounded-circle flex-center text-2xl text-neutral-500 hover-text-white hover-border-main-600'
               >
                 <i className='ph ph-user-circle' />
@@ -315,3 +323,11 @@ const HeaderOne = () => {
 };
 
 export default HeaderOne;
+
+
+
+
+
+
+
+

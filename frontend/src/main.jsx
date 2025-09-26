@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
+import { AuthProvider } from "./context/AuthContext.jsx";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "animate.css";
 import "react-modal-video/css/modal-video.css";
@@ -14,7 +15,7 @@ import "animate.css/animate.css";
 import "./globals.css";
 
 createRoot(document.getElementById("root")).render(
-  <>
+  <AuthProvider>
     <App />
-  </>
+  </AuthProvider>
 );

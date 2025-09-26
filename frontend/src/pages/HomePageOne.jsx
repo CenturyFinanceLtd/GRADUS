@@ -1,20 +1,20 @@
+import AboutThree from "../components/AboutThree";
+import BannerThree from "../components/BannerThree";
+import BlogTwo from "../components/BlogTwo";
+import BrandTwo from "../components/BrandTwo";
+import ChooseUsTwo from "../components/ChooseUsTwo";
+import CounterTwo from "../components/CounterTwo";
+import EventOne from "../components/EventOne";
+import FacultyOne from "../components/FacultyOne";
+import FooterThree from "../components/FooterThree";
 import HeaderOne from "../components/HeaderOne";
-import AboutOne from "../components/AboutOne";
-import BannerOne from "../components/BannerOne";
-import BlogOne from "../components/BlogOne";
-import BrandOne from "../components/BrandOne";
-import CertificateOne from "../components/CertificateOne";
-import ChooseUsOne from "../components/ChooseUsOne";
-import CounterOne from "../components/CounterOne";
-import ExploreCourseOne from "../components/ExploreCourseOne";
-import FeaturesOne from "../components/FeaturesOne";
-import FooterOne from "../components/FooterOne";
-import InstructorOne from "../components/InstructorOne";
-import TestimonialsOne from "../components/TestimonialsOne";
+import InfoTwo from "../components/InfoTwo";
+import TestimonialsThree from "../components/TestimonialsThree";
+import VideoOne from "../components/VideoOne";
 import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
 
-const HomePageOne = () => {
+const HomePageThree = () => {
   return (
     <>
       {/* Preloader */}
@@ -26,43 +26,43 @@ const HomePageOne = () => {
       {/* Animation */}
       <Animation />
 
-      {/* BannerOne */}
-      <BannerOne />
+      {/* BannerThree */}
+      <BannerThree />
 
-      {/* BrandOne */}
-      <BrandOne />
+      {/* InfoTwo */}
+      <InfoTwo />
 
-      {/* FeaturesOne */}
-      <FeaturesOne />
+      {/* AboutThree */}
+      <AboutThree />
 
-      {/* ExploreCourseOne */}
-      <ExploreCourseOne />
+      {/* VideoOne */}
+      <VideoOne />
 
-      {/* AboutOne */}
-      <AboutOne />
+      {/* CounterTwo */}
+      <CounterTwo />
 
-      {/* InstructorOne */}
-      <InstructorOne />
+      {/* FacultyOne */}
+      <FacultyOne />
 
-      {/* CHooseUsOne */}
-      <ChooseUsOne />
+      {/* ChooseUsTwo */}
+      <ChooseUsTwo />
 
-      {/* CounterOne */}
-      <CounterOne />
+      {/* TestimonialsThree */}
+      <TestimonialsThree />
 
-      {/* TestimonialsOne */}
-      <TestimonialsOne />
+      {/* EventOne */}
+      <EventOne />
 
-      {/* BlogOne */}
-      <BlogOne />
+      {/* BlogTwo */}
+      <BlogTwo />
 
-      {/* CertificateOne */}
-      <CertificateOne />
+      {/* BrandTwo */}
+      <BrandTwo />
 
-      {/* FooterOne */}
-      <FooterOne />
+      {/* FooterThree */}
+      <FooterThree />
     </>
   );
 };
 
-export default HomePageOne;
+export default HomePageThree;
