@@ -31,6 +31,7 @@ const HomePageThree = () => {
 
       {/* InfoTwo */}
       <InfoTwo />
+      
 
       {/* AboutThree */}
       <AboutThree />

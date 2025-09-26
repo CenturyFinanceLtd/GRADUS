@@ -3,7 +3,7 @@ const CertificateTwo = () => {
     <section className='certificate-two py-120 position-relative z-1 mash-bg-main mash-bg-main-two mash-reverse'>
       <div className='section-heading text-center'>
         <h2 className='mb-24 wow bounceIn'>
-          Skills Certificate from the EduAll
+          Skills Certificate from the Gradus
         </h2>
         <p className=' wow bounceInUp'>
           Online courses certification section design for showcase your

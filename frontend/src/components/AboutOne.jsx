@@ -99,13 +99,13 @@ const AboutOne = () => {
                 <div className='mb-40'>
                   <div className='flex-align gap-8 mb-16 wow bounceInDown'>
                     <span className='w-8 h-8 bg-main-600 rounded-circle' />
-                    <h5 className='text-main-600 mb-0 '>About EduAll</h5>
+                    <h5 className='text-main-600 mb-0 '>About Gradus</h5>
                   </div>
                   <h2 className='mb-24 wow bounceIn'>
                     The Place Where You Can Achieve
                   </h2>
                   <p className='text-neutral-500 text-line-2 wow bounceInUp'>
-                    Welcome to EduAll, where learning knows no bounds. Whether
+                    Welcome to Gradus, where learning knows no bounds. Whether
                     you're a student, professional, or lifelong learner...
                   </p>
                 </div>

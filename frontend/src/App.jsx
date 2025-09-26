@@ -1,3 +1,4 @@
+import OurCoursesPage from "./pages/OurCoursesPage.jsx";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import RouteScrollToTop from "./helper/RouteScrollToTop.jsx";
 import RequireAuth from "./components/RequireAuth.jsx";
@@ -73,7 +74,8 @@ function App() {
         <Route exact path='/cart' element={<CartPage />} />
         <Route exact path='/checkout' element={<CheckoutPage />} />
         <Route exact path='/contact' element={<ContactPage />} />
-        <Route exact path='/course' element={<CoursePage />} />
+        <Route exact path='/course-grid-view' element={<CoursePage />} />
+        <Route exact path='/our-courses' element={<OurCoursesPage />} />
         <Route exact path='/course-details' element={<CourseDetailsPage />} />
         <Route
           exact
@@ -118,6 +120,9 @@ function App() {
 }
 
 export default App;
+
+
+
 
 
 

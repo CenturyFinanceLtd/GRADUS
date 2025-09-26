@@ -77,10 +77,10 @@ const TestimonialsOne = () => {
                   <h5 className='text-main-600 mb-0'>What Our Students Say</h5>
                 </div>
                 <h2 className='mb-24 wow bounceIn'>
-                  Testimonials from Happy Learners for EduAll
+                  Testimonials from Happy Learners for Gradus
                 </h2>
                 <p className='text-neutral-500 text-line-2 wow bounceInUp'>
-                  16+ million Students are already learning on EduAll Platform
+                  16+ million Students are already learning on Gradus Platform
                 </p>
               </div>
               <div className='testimonials__slider '>
@@ -112,7 +112,7 @@ const TestimonialsOne = () => {
                       data-aos='fade-left'
                       data-aos-duration={1200}
                     >
-                      "Enrolling in courses at EduAll was one of the best
+                      "Enrolling in courses at Gradus was one of the best
                       decisions I've made for my career. The flexibility of the
                       online learning platform allowed me to study at my own
                       pace while balancing my work”
@@ -151,7 +151,7 @@ const TestimonialsOne = () => {
                       data-aos='fade-left'
                       data-aos-duration={1200}
                     >
-                      "Signing up for courses at EduAll was quite possibly of
+                      "Signing up for courses at Gradus was quite possibly of
                       the best choice I've made for my vocation. The
                       adaptability of the internet learning stage permitted me
                       to learn at my own speed while adjusting my work"

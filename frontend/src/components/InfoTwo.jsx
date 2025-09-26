@@ -14,14 +14,12 @@ const InfoTwo = () => {
                   <img
                     src='assets/images/icons/info-two-icon1.png'
                     className='animate__heartBeat'
-                    alt=''
+                    alt='Placement support icon'
                   />
                 </span>
                 <div>
-                  <h4 className='mb-16'>Scholarship Facility</h4>
-                  <p className='text-neutral-700'>
-                    These facilities provide students with an inspiring{" "}
-                  </p>
+                  <h4 className='mb-12'>Placement Track</h4>
+                  <p className='text-neutral-700 mb-0'>Dedicated placement cell with interview mentoring, hiring drives, and employer partnerships to secure your first role.</p>
                 </div>
               </div>
             </div>
@@ -35,14 +33,12 @@ const InfoTwo = () => {
                   <img
                     src='assets/images/icons/info-two-icon2.png'
                     className='animate__heartBeat'
-                    alt=''
+                    alt='Certified courses icon'
                   />
                 </span>
                 <div>
-                  <h4 className='mb-16'>Esteemed Faculty</h4>
-                  <p className='text-neutral-700'>
-                    Our university boasts a team of renowned faculty members
-                  </p>
+                  <h4 className='mb-12'>Certified Mentors</h4>
+                  <p className='text-neutral-700 mb-0'>Earn industry-recognised credentials from SEBI-certified mentors with rigorous assessments and project-based evaluations.</p>
                 </div>
               </div>
             </div>
@@ -56,14 +52,12 @@ const InfoTwo = () => {
                   <img
                     src='assets/images/icons/info-two-icon3.png'
                     className='animate__heartBeat'
-                    alt=''
+                    alt='Skills development icon'
                   />
                 </span>
                 <div>
-                  <h4 className='mb-16'>Diverse Programs</h4>
-                  <p className='text-neutral-700'>
-                    From undergraduate degrees to postgraduate research{" "}
-                  </p>
+                  <h4 className='mb-12'>Ready Skills</h4>
+                  <p className='text-neutral-700 mb-0'>Hands-on trading simulations, soft-skill mastery, and portfolio storytelling so you walk into interviews with confidence.</p>
                 </div>
               </div>
             </div>

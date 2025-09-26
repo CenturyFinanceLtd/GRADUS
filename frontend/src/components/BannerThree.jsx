@@ -103,7 +103,7 @@ const BannerThree = () => {
                       Futures
                     </h1>
                     <p className='text-white text-line-2 wow bounceInDown'>
-                      Welcome to EduAll, where learning knows no bounds. Whether
+                      Welcome to Gradus, where learning knows no bounds. Whether
                       you're a student, professional, or lifelong learner...
                     </p>
                   </div>
@@ -173,7 +173,7 @@ const BannerThree = () => {
                       Fates
                     </h1>
                     <p className='text-white text-line-2 wow bounceInDown'>
-                      Welcome to EduAll, where learning knows no bounds. Whether
+                      Welcome to Gradus, where learning knows no bounds. Whether
                       you're a student, professional, or lifelong learner...
                     </p>
                   </div>
@@ -244,7 +244,7 @@ const BannerThree = () => {
                       Fates
                     </h1>
                     <p className='text-white text-line-2 wow bounceInDown'>
-                      Welcome to EduAll, where learning knows no bounds. Whether
+                      Welcome to Gradus, where learning knows no bounds. Whether
                       you're a student, professional, or lifelong learner...
                     </p>
                   </div>

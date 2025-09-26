@@ -9,7 +9,7 @@ const JoinCommunityOne = () => {
                 <div className='join-community__content'>
                   <div className='mb-40'>
                     <h2 className='mb-24 wow bounceIn'>
-                      Join the EduAll Community: Start Now
+                      Join the Gradus Community: Start Now
                     </h2>
                     <p className='text-neutral-500 text-line-2 wow bounceInUp'>
                       Ready to explore our courses firsthand? Sign up for a free

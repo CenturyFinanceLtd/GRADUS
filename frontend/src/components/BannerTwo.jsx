@@ -53,7 +53,7 @@ const BannerTwo = () => {
                 And Succeed
               </h1>
               <p className='text-neutral-500 text-line-2 wow bounceInUp'>
-                Welcome to EduAll, where learning knows no bounds. Whether
+                Welcome to Gradus, where learning knows no bounds. Whether
                 you're a student, professional, or lifelong learner...
               </p>
               <div className='buttons-wrapper flex-align flex-wrap gap-24 mt-40'>

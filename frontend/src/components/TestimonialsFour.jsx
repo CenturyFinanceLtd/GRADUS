@@ -58,7 +58,7 @@ const TestimonialsFour = () => {
         </h2>
         <p className='text-16 fw-normal wow bounceInUp'>
           Welcome to our testimonial section, where members of our university
-          community share their experiences and insights about life at EduAll.
+          community share their experiences and insights about life at Gradus.
         </p>
       </div>
       <Slider className='testimonial-five-slider' ref={sliderRef} {...settings}>

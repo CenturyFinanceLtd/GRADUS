@@ -15,7 +15,7 @@ const CertificateOne = () => {
                       <h5 className='text-white mb-0'>Get Certificate</h5>
                     </div>
                     <h2 className='text-white mb-40 fw-medium wow bounceIn'>
-                      Get Quality Skills Certificate From the EduAll
+                      Get Quality Skills Certificate From the Gradus
                     </h2>
                     <Link
                       to='#'

@@ -73,7 +73,7 @@ const FooterFour = () => {
                     </li>
                     <li className='item-hover position-relative mb-16'>
                       <Link
-                        to='/courses'
+                        to='/course-grid-view'
                         className='hover-margin-left d-flex align-items-center text-white text-16 fw-semibold hover-text-warning-600'
                       >
                         <span className='position-absolute top-50 start-0 translate-middle w-8 h-8 bg-warning-600 rounded-circle transition-03 hidden group-hover-visible' />
@@ -204,7 +204,7 @@ const FooterFour = () => {
                   className='mb-24'
                 />
                 <p className='mb-24 text-neutral-30'>
-                  EduAll exceeded all my expectations! The instructors were not
+                  Gradus exceeded all my expectations! The instructors were not
                   only experts.
                 </p>
                 <ul className='d-flex align-items-center gap-12 justify-content-center'>
@@ -253,7 +253,7 @@ const FooterFour = () => {
             <div data-aos='fade-right'>
               <p className='text-md text-white'>
                 Copyright ©2025
-                <span className='text-warning-600'>Eduall</span>. Designed By
+                <span className='text-warning-600'>Gradus</span>. Designed By
                 Wowtheme7
               </p>
             </div>

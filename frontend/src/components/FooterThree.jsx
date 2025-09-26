@@ -36,7 +36,7 @@ const FooterThree = () => {
                   </li>
                   <li className='mb-16'>
                     <Link
-                      to='/courses'
+                      to='/course-grid-view'
                       className='text-white hover-text-main-600 hover-text-decoration-underline'
                     >
                       Courses
@@ -81,7 +81,7 @@ const FooterThree = () => {
                 <ul className='footer-menu'>
                   <li className='mb-16'>
                     <Link
-                      to='/courses'
+                      to='/course-grid-view'
                       className='text-white hover-text-main-600 hover-text-decoration-underline'
                     >
                       UI/UX Design
@@ -89,7 +89,7 @@ const FooterThree = () => {
                   </li>
                   <li className='mb-16'>
                     <Link
-                      to='/courses'
+                      to='/course-grid-view'
                       className='text-white hover-text-main-600 hover-text-decoration-underline'
                     >
                       Web Development
@@ -97,7 +97,7 @@ const FooterThree = () => {
                   </li>
                   <li className='mb-16'>
                     <Link
-                      to='/courses'
+                      to='/course-grid-view'
                       className='text-white hover-text-main-600 hover-text-decoration-underline'
                     >
                       Python Development
@@ -105,7 +105,7 @@ const FooterThree = () => {
                   </li>
                   <li className='mb-16'>
                     <Link
-                      to='/courses'
+                      to='/course-grid-view'
                       className='text-white hover-text-main-600 hover-text-decoration-underline'
                     >
                       Digital Marketing
@@ -113,7 +113,7 @@ const FooterThree = () => {
                   </li>
                   <li className='mb-16'>
                     <Link
-                      to='/courses'
+                      to='/course-grid-view'
                       className='text-white hover-text-main-600 hover-text-decoration-underline'
                     >
                       Graphic Design
@@ -162,10 +162,10 @@ const FooterThree = () => {
                       dwallo@gmail.com
                     </Link>
                     <Link
-                      to='/mailto:eduAll@gmail.com'
+                      to='/mailto:Gradus@gmail.com'
                       className='text-white d-block hover-text-main-600 mb-0'
                     >
-                      eduAll@gmail.com
+                      Gradus@gmail.com
                     </Link>
                   </div>
                 </div>
@@ -232,7 +232,7 @@ const FooterThree = () => {
               >
                 {" "}
                 Copyright © 2025 <span className='fw-semibold'>
-                  EduAll{" "}
+                  Gradus{" "}
                 </span>{" "}
                 All Rights Reserved.
               </p>

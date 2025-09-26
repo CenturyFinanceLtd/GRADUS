@@ -25,7 +25,7 @@ const FooterOne = () => {
                   </Link>
                 </div>
                 <p className='my-32'>
-                  EduAll exceeded all my expectations! The instructors were not
+                  Gradus exceeded all my expectations! The instructors were not
                   only experts
                 </p>
                 <ul className='social-list flex-align gap-24'>
@@ -79,7 +79,7 @@ const FooterOne = () => {
                   </li>
                   <li className='mb-16'>
                     <Link
-                      to='/courses'
+                      to='/course-grid-view'
                       className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
                     >
                       Courses
@@ -118,7 +118,7 @@ const FooterOne = () => {
                 <ul className='footer-menu'>
                   <li className='mb-16'>
                     <Link
-                      to='/courses'
+                      to='/course-grid-view'
                       className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
                     >
                       UI/UX Design
@@ -126,7 +126,7 @@ const FooterOne = () => {
                   </li>
                   <li className='mb-16'>
                     <Link
-                      to='/courses'
+                      to='/course-grid-view'
                       className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
                     >
                       Web Development
@@ -134,7 +134,7 @@ const FooterOne = () => {
                   </li>
                   <li className='mb-16'>
                     <Link
-                      to='/courses'
+                      to='/course-grid-view'
                       className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
                     >
                       Python Development
@@ -142,7 +142,7 @@ const FooterOne = () => {
                   </li>
                   <li className='mb-16'>
                     <Link
-                      to='/courses'
+                      to='/course-grid-view'
                       className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
                     >
                       Digital Marketing
@@ -150,7 +150,7 @@ const FooterOne = () => {
                   </li>
                   <li className='mb-16'>
                     <Link
-                      to='/courses'
+                      to='/course-grid-view'
                       className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
                     >
                       Graphic Design
@@ -193,10 +193,10 @@ const FooterOne = () => {
                       dwallo@gmail.com
                     </Link>
                     <Link
-                      to='/mailto:eduAll@gmail.com'
+                      to='/mailto:Gradus@gmail.com'
                       className='text-neutral-500 d-block hover-text-main-600 mb-0'
                     >
-                      eduAll@gmail.com
+                      Gradus@gmail.com
                     </Link>
                   </div>
                 </div>
@@ -248,7 +248,7 @@ const FooterOne = () => {
               <p className='bottom-footer__text'>
                 {" "}
                 Copyright © 2025 <span className='fw-semibold'>
-                  EduAll{" "}
+                  Gradus{" "}
                 </span>{" "}
                 All Rights Reserved.
               </p>

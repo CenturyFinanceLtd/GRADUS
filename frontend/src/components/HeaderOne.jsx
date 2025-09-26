@@ -67,26 +67,10 @@ const HeaderOne = () => {
   };
 
   const menuItems = [
-    {
-      label: "Home",
-      links: [
-        { to: "/", label: "Home LMS" },
-        { to: "/index-2", label: "Home Online Course" },
-        { to: "/index-3", label: "Home University" },
-        { to: "/index-4", label: "Home Tutor" },
-        { to: "/index-5", label: "Home Kindergarten" },
-        { to: "/index-6", label: " Home Kindergarten two" },
-      ],
-    },
-    {
-      label: "Courses",
-      links: [
-        { to: "/course", label: "Course Grid View" },
-        { to: "/course-list-view", label: "Course List View" },
-        { to: "/course-details", label: "Course Details" },
-        { to: "/lesson-details", label: "Lesson Details" },
-      ],
-    },
+    { to: "/", label: "Home" },
+    { to: "/about", label: "About Us" },
+    { to: "/our-courses", label: "Our Courses" },
+    
     {
       label: "Pages",
       links: [
@@ -114,6 +98,15 @@ const HeaderOne = () => {
         { to: "/favorite-course", label: "Favorite Course" },
         { to: "/find-tutors", label: "Find Best Tutors" },
         { to: "/book-online-class", label: "Book Online Class" },
+        { to: "/index-2", label: "Home Online Course" },
+        { to: "/index-3", label: "Home LMS" },
+        { to: "/index-4", label: "Home Tutor" },
+        { to: "/index-5", label: "Home Kindergarten" },
+        { to: "/index-6", label: " Home Kindergarten two" },
+        { to: "/course-grid-view", label: "Course Grid View" },
+        { to: "/course-list-view", label: "Course List View" },
+        { to: "/course-details", label: "Course Details" },
+        { to: "/lesson-details", label: "Lesson Details" },
       ],
     },
 
@@ -323,6 +316,7 @@ const HeaderOne = () => {
 };
 
 export default HeaderOne;
+
 
 
 

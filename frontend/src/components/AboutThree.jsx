@@ -100,7 +100,7 @@ const AboutThree = () => {
                     <span className='text-main-600 text-2xl d-flex'>
                       <i className='ph-bold ph-book-open' />
                     </span>
-                    <h5 className='text-main-600 mb-0'>About University Us</h5>
+                    <h5 className='text-main-600 mb-0'>About Us</h5>
                   </div>
                   <h2 className='mb-24 wow bounceInRight'>
                     Our Commitment to Diversity Leadership and Governance

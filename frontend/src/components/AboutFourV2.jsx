@@ -86,7 +86,7 @@ const AboutFourV2 = () => {
                   </h2>
                   <p className='text-neutral-500 text-line-2 wow bounceInUp'>
                     If teaching jobs interests you, then you are on the right
-                    place. EduAll, we often have&nbsp;500+&nbsp;open home
+                    place. Gradus, we often have&nbsp;500+&nbsp;open home
                     tuition jobs that are genuine and&nbsp;100%&nbsp;verified.
                   </p>
                 </div>

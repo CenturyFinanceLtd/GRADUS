@@ -212,7 +212,7 @@ const TestimonialsThree = () => {
             <p className='text-neutral-500 text-line-4 wow bounceInUp'>
               Welcome to our testimonial section, where members of our
               university community share their experiences and insights about
-              life at EduAll. We invite you to join us and be part of our
+              life at Gradus. We invite you to join us and be part of our
               inspiring journey of learning, growth, and achievement.
             </p>
             <div className='flex-align gap-16 mt-40'>

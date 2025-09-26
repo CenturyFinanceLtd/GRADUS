@@ -10,9 +10,9 @@ const PrivacyPolicyInner = () => {
               <div className=''>
                 <h1 className='mb-16'>Information We Collect</h1>
                 <p className='text-neutral-700'>
-                  Thank you for choosing EduAll! Your privacy is important to
+                  Thank you for choosing Gradus! Your privacy is important to
                   us, and we are committed to protecting your personal
-                  information. This Privacy Policy explains how EduAll collects,
+                  information. This Privacy Policy explains how Gradus collects,
                   uses, discloses, and safeguards your information when you use
                   our education and online course platform, including any
                   community features.
