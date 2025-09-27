@@ -1,6 +1,102 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 const ContactInner = () => {
+  const initialFormState = {
+    name: "",
+    email: "",
+    phone: "",
+    region: "",
+    organization: "",
+    inquiryType: "",
+    courseName: "",
+    message: "",
+  };
+
+  const regionOptions = [
+    "Africa",
+    "Asia",
+    "Europe",
+    "Middle East",
+    "North America",
+    "Oceania",
+    "South America",
+  ];
+
+  const inquiryTypeOptions = [
+    "General Inquiry",
+    "Admissions",
+    "Course Information",
+    "Partnership",
+    "Support",
+    "Other",
+  ];
+
+  const [formData, setFormData] = useState(initialFormState);
+  const [submitting, setSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setFeedback(null);
+
+    const trimmedName = formData.name.trim();
+    const trimmedEmail = formData.email.trim();
+    const trimmedPhone = formData.phone.trim();
+    const trimmedMessage = formData.message.trim();
+
+    if (!trimmedName) {
+      setFeedback({ type: "danger", message: "Please enter your name." });
+      return;
+    }
+
+    if (!trimmedEmail && !trimmedPhone) {
+      setFeedback({
+        type: "danger",
+        message: "Please provide an email address or phone number so we can reach you.",
+      });
+      return;
+    }
+
+    if (trimmedMessage.length === 0) {
+      setFeedback({ type: "danger", message: "Please include a brief message." });
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      await submitInquiry({
+        ...formData,
+        name: trimmedName,
+        email: trimmedEmail,
+        phone: trimmedPhone,
+        message: trimmedMessage,
+      });
+
+      setFeedback({
+        type: "success",
+        message: "Thanks for reaching out! Our team will contact you shortly.",
+      });
+      setFormData(initialFormState);
+    } catch (error) {
+      setFeedback({
+        type: "danger",
+        message: error?.message || "We could not send your message. Please try again.",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <>
       <section className='contact py-120'>
@@ -164,7 +260,7 @@ const ContactInner = () => {
             <div className='col-xl-5 col-lg-6'>
               <div className='p-24 bg-white rounded-12 box-shadow-md'>
                 <div className='border border-neutral-30 rounded-8 bg-main-25 p-24'>
-                  <form action='#' id='commentForm'>
+                  <form id='contactForm' onSubmit={handleSubmit} noValidate>
                     <h4 className='mb-0'>Get In Touch</h4>
                     <span className='d-block border border-neutral-30 my-24 border-dashed' />
                     <div className='mb-24'>
@@ -179,6 +275,10 @@ const ContactInner = () => {
                         className='common-input rounded-pill border-transparent focus-border-main-600'
                         id='name'
                         placeholder='Enter Name...'
+                        value={formData.name}
+                        onChange={handleChange}
+                        disabled={submitting}
+                        required
                       />
                     </div>
                     <div className='mb-24'>
@@ -193,6 +293,9 @@ const ContactInner = () => {
                         className='common-input rounded-pill border-transparent focus-border-main-600'
                         id='email'
                         placeholder='Enter Email...'
+                        value={formData.email}
+                        onChange={handleChange}
+                        disabled={submitting}
                       />
                     </div>
                     <div className='mb-24'>
@@ -207,7 +310,115 @@ const ContactInner = () => {
                         className='common-input rounded-pill border-transparent focus-border-main-600'
                         id='phone'
                         placeholder='Enter Your Number...'
+                        value={formData.phone}
+                        onChange={handleChange}
+                        disabled={submitting}
                       />
+                    </div>
+                    <div className='mb-24'>
+                      <label
+                        htmlFor='region'
+                        className='text-neutral-700 text-lg fw-medium mb-12'
+                      >
+                        Region
+                      </label>
+                      <select
+                        id='region'
+                        name='region'
+                        className='common-input rounded-pill border-transparent focus-border-main-600'
+                        value={formData.region}
+                        onChange={handleChange}
+                        disabled={submitting}
+                      >
+                        <option value=''>Select Region</option>
+                        {regionOptions.map((region) => (
+                          <option key={region} value={region}>
+                            {region}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className='mb-24'>
+                      <label
+                        htmlFor='organization'
+                        className='text-neutral-700 text-lg fw-medium mb-12'
+                      >
+                        College / University
+                      </label>
+                      <input
+                        type='text'
+                        className='common-input rounded-pill border-transparent focus-border-main-600'
+                        id='organization'
+                        name='organization'
+                        placeholder='Enter College or University...'
+                        value={formData.organization}
+                        onChange={handleChange}
+                        disabled={submitting}
+                      />
+                    </div>
+                    <div className='mb-24'>
+                      <label
+                        htmlFor='inquiryType'
+                        className='text-neutral-700 text-lg fw-medium mb-12'
+                      >
+                        Inquiry
+                      </label>
+                      <select
+                        id='inquiryType'
+                        name='inquiryType'
+                        className='common-input rounded-pill border-transparent focus-border-main-600'
+                        value={formData.inquiryType}
+                        onChange={handleChange}
+                        disabled={submitting}
+                      >
+                        <option value=''>Select an option</option>
+                        {inquiryTypeOptions.map((type) => (
+                          <option key={type} value={type}>
+                            {type}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className='mb-24'>
+                      <label
+                        htmlFor='courseName'
+                        className='text-neutral-700 text-lg fw-medium mb-12'
+                      >
+                        Course Name
+                      </label>
+                      <input
+                        type='text'
+                        className='common-input rounded-pill border-transparent focus-border-main-600'
+                        id='courseName'
+                        name='courseName'
+                        placeholder='Enter Course Name...'
+                        value={formData.courseName}
+                        onChange={handleChange}
+                        disabled={submitting}
+                      />
+                    </div>
+                    <div className='mb-24'>
+                      <label
+                        htmlFor='course'
+                        className='text-neutral-700 text-lg fw-medium mb-12'
+                      >
+                        Inquiry
+                      </label>
+                      <select
+                        id='course'
+                        name='course'
+                        value={formData.course}
+                        onChange={handleChange}
+                        className='common-input rounded-pill border-transparent focus-border-main-600'
+                        required
+                      >
+                        <option value=''>Select a Course</option>
+                        {courseOptions.map((course) => (
+                          <option key={course} value={course}>
+                            {course}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div className='mb-24'>
                       <label
@@ -220,15 +431,29 @@ const ContactInner = () => {
                         id='desc'
                         className='common-input rounded-24 border-transparent focus-border-main-600 h-110'
                         placeholder='Enter Your Message...'
-                        defaultValue={""}
+                        value={formData.message}
+                        onChange={handleChange}
+                        disabled={submitting}
+                        required
                       />
                     </div>
+                    {status && (
+                      <div
+                        className={`alert mt-24 mb-0 ${
+                          status.type === "success" ? "alert-success" : "alert-danger"
+                        }`}
+                        role='alert'
+                      >
+                        {status.message}
+                      </div>
+                    )}
                     <div className='mb-0'>
                       <button
                         type='submit'
                         className='btn btn-main rounded-pill flex-center gap-8 mt-40'
+                        disabled={submitting}
                       >
-                        Send Message
+                        {submitting ? "Sending..." : "Send Message"}
                         <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
                       </button>
                     </div>
