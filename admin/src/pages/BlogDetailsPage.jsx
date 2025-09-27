@@ -1,19 +1,20 @@
+import { useState } from "react";
 import MasterLayout from "../masterLayout/MasterLayout";
 import Breadcrumb from "../components/Breadcrumb";
 import BlogDetailsLayer from "../components/BlogDetailsLayer";
 
 const BlogDetailsPage = () => {
-  return (
-    <>
-      {/* MasterLayout */}
-      <MasterLayout>
-        {/* Breadcrumb */}
-        <Breadcrumb title='Blog Details' />
+  const [breadcrumbTitle, setBreadcrumbTitle] = useState("Blog Details");
 
-        {/* BlogDetailsLayer */}
-        <BlogDetailsLayer />
-      </MasterLayout>
-    </>
+  const handleBlogLoaded = (blog) => {
+    setBreadcrumbTitle(blog?.title || "Blog Details");
+  };
+
+  return (
+    <MasterLayout>
+      <Breadcrumb title={breadcrumbTitle} />
+      <BlogDetailsLayer onBlogLoaded={handleBlogLoaded} />
+    </MasterLayout>
   );
 };
 

@@ -1,662 +1,190 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import useAuth from "../hook/useAuth";
+import { fetchBlogs } from "../services/adminBlogs";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+const ASSET_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
+const PUBLIC_SITE_BASE = import.meta.env.VITE_PUBLIC_SITE_URL || "http://localhost:5173";
+const PLACEHOLDER_IMAGE = "/assets/images/blog/blog-placeholder.png";
 
 const BlogLayer = () => {
+  const { token } = useAuth();
+  const [blogs, setBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadBlogs = async () => {
+      if (!token) {
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetchBlogs({ token });
+        if (!isMounted) {
+          return;
+        }
+        setBlogs(response?.items || []);
+      } catch (err) {
+        if (!isMounted) {
+          return;
+        }
+        setError(err?.message || "Failed to load blogs");
+        setBlogs([]);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadBlogs();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [token]);
+
+  const categories = useMemo(() => {
+    const unique = new Set();
+    blogs.forEach((blog) => {
+      if (blog.category) {
+        unique.add(blog.category);
+      }
+    });
+    return Array.from(unique).sort();
+  }, [blogs]);
+
+  const resolveImage = (path) => {
+    if (!path) {
+      return PLACEHOLDER_IMAGE;
+    }
+    return path.startsWith("http") ? path : ASSET_BASE_URL + path;
+  };
+
+  const filteredBlogs = useMemo(() => {
+    return blogs.filter((blog) => {
+      const matchesSearch = search
+        ? (blog.title || "").toLowerCase().includes(search.toLowerCase()) ||
+          (blog.slug || "").toLowerCase().includes(search.toLowerCase())
+        : true;
+      const matchesCategory = categoryFilter ? blog.category === categoryFilter : true;
+      return matchesSearch && matchesCategory;
+    });
+  }, [blogs, search, categoryFilter]);
+
   return (
-    <div className='row gy-4'>
-      <div className='col-xxl-3 col-lg-4 col-sm-6'>
-        <div className='card h-100 p-0 radius-12 overflow-hidden'>
-          <div className='card-body p-24'>
-            <Link
-              to='/blog-details'
-              className='w-100 max-h-194-px radius-8 overflow-hidden'
-            >
-              <img
-                src='assets/images/blog/blog1.png'
-                alt='WowDash React Vite'
-                className='w-100 h-100 object-fit-cover'
-              />
-            </Link>
-            <div className='mt-20'>
-              <div className='d-flex align-items-center gap-6 justify-content-between flex-wrap mb-16'>
-                <Link
-                  href='blog-details'
-                  className='px-20 py-6 bg-neutral-100 rounded-pill bg-hover-neutral-300 text-neutral-600 fw-medium'
-                >
-                  Workshop
-                </Link>
-                <div className='d-flex align-items-center gap-8 text-neutral-500 fw-medium'>
-                  <i className='ri-calendar-2-line' />
-                  Jan 17, 2024
-                </div>
-              </div>
-              <h6 className='mb-16'>
-                <Link
-                  to='/blog-details'
-                  className='text-line-2 text-hover-primary-600 text-xl transition-2'
-                >
-                  Discover Endless Possibilities in Real Estate Live Your Best
-                  Life in a
-                </Link>
-              </h6>
-              <p className='text-line-3 text-neutral-500'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis
-                dolores explicabo corrupti, fuga necessitatibus fugiat adipisci
-                quidem eveniet enim minus.
-              </p>
-              <Link
-                to='/blog-details'
-                className='d-flex align-items-center gap-8 fw-semibold text-neutral-900 text-hover-primary-600 transition-2'
-              >
-                Read More
-                <i className='ri-arrow-right-double-line text-xl d-flex line-height-1' />
-              </Link>
-            </div>
-          </div>
+    <div className='card p-24'>
+      <div className='d-flex flex-wrap gap-16 justify-content-between align-items-center mb-24'>
+        <div>
+          <h5 className='mb-8'>Blogs Overview</h5>
+          <p className='text-neutral-500 mb-0'>Manage published blogs, views, and comment activity.</p>
+        </div>
+        <div className='d-flex flex-wrap gap-12'>
+          <input
+            type='search'
+            className='form-control border-neutral-30 radius-8'
+            placeholder='Search by title or slug'
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+          <select
+            className='form-select border-neutral-30 radius-8'
+            value={categoryFilter}
+            onChange={(event) => setCategoryFilter(event.target.value)}
+          >
+            <option value=''>All Categories</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+          <Link to='/add-blog' className='btn btn-primary-600 radius-8'>
+            Add Blog
+          </Link>
         </div>
       </div>
-      <div className='col-xxl-3 col-lg-4 col-sm-6'>
-        <div className='card h-100 p-0 radius-12 overflow-hidden'>
-          <div className='card-body p-24'>
-            <Link
-              to='/blog-details'
-              className='w-100 max-h-194-px radius-8 overflow-hidden'
-            >
-              <img
-                src='assets/images/blog/blog2.png'
-                alt='WowDash React Vite'
-                className='w-100 h-100 object-fit-cover'
-              />
-            </Link>
-            <div className='mt-20'>
-              <div className='d-flex align-items-center gap-6 justify-content-between flex-wrap mb-16'>
-                <Link
-                  href='blog-details'
-                  className='px-20 py-6 bg-neutral-100 rounded-pill bg-hover-neutral-300 text-neutral-600 fw-medium'
-                >
-                  Hiring
-                </Link>
-                <div className='d-flex align-items-center gap-8 text-neutral-500 fw-medium'>
-                  <i className='ri-calendar-2-line' />
-                  Jan 17, 2024
-                </div>
-              </div>
-              <h6 className='mb-16'>
-                <Link
-                  to='/blog-details'
-                  className='text-line-2 text-hover-primary-600 text-xl transition-2'
-                >
-                  Turn Your Real Estate Dreams Into Reality Embrace the Real
-                  Estate
-                </Link>
-              </h6>
-              <p className='text-line-3 text-neutral-500'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis
-                dolores explicabo corrupti, fuga necessitatibus fugiat adipisci
-                quidem eveniet enim minus.
-              </p>
-              <Link
-                to='/blog-details'
-                className='d-flex align-items-center gap-8 fw-semibold text-neutral-900 text-hover-primary-600 transition-2'
-              >
-                Read More
-                <i className='ri-arrow-right-double-line text-xl d-flex line-height-1' />
-              </Link>
-            </div>
+
+      {loading ? (
+        <div className='d-flex justify-content-center py-64'>
+          <div className='spinner-border text-primary' role='status'>
+            <span className='visually-hidden'>Loading...</span>
           </div>
         </div>
-      </div>
-      <div className='col-xxl-3 col-lg-4 col-sm-6'>
-        <div className='card h-100 p-0 radius-12 overflow-hidden'>
-          <div className='card-body p-24'>
-            <Link
-              to='/blog-details'
-              className='w-100 max-h-194-px radius-8 overflow-hidden'
-            >
-              <img
-                src='assets/images/blog/blog3.png'
-                alt='WowDash React Vite'
-                className='w-100 h-100 object-fit-cover'
-              />
-            </Link>
-            <div className='mt-20'>
-              <div className='d-flex align-items-center gap-6 justify-content-between flex-wrap mb-16'>
-                <Link
-                  href='blog-details'
-                  className='px-20 py-6 bg-neutral-100 rounded-pill bg-hover-neutral-300 text-neutral-600 fw-medium'
-                >
-                  Workshop
-                </Link>
-                <div className='d-flex align-items-center gap-8 text-neutral-500 fw-medium'>
-                  <i className='ri-calendar-2-line' />
-                  Jan 17, 2024
-                </div>
-              </div>
-              <h6 className='mb-16'>
-                <Link
-                  to='/blog-details'
-                  className='text-line-2 text-hover-primary-600 text-xl transition-2'
-                >
-                  Your satisfaction is our top the best priority
-                </Link>
-              </h6>
-              <p className='text-line-3 text-neutral-500'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis
-                dolores explicabo corrupti, fuga necessitatibus fugiat adipisci
-                quidem eveniet enim minus.
-              </p>
-              <Link
-                to='/blog-details'
-                className='d-flex align-items-center gap-8 fw-semibold text-neutral-900 text-hover-primary-600 transition-2'
-              >
-                Read More
-                <i className='ri-arrow-right-double-line text-xl d-flex line-height-1' />
-              </Link>
-            </div>
-          </div>
+      ) : error ? (
+        <div className='alert alert-danger mb-0' role='alert'>
+          {error}
         </div>
-      </div>
-      <div className='col-xxl-3 col-lg-4 col-sm-6'>
-        <div className='card h-100 p-0 radius-12 overflow-hidden'>
-          <div className='card-body p-24'>
-            <Link
-              to='/blog-details'
-              className='w-100 max-h-194-px radius-8 overflow-hidden'
-            >
-              <img
-                src='assets/images/blog/blog4.png'
-                alt='WowDash React Vite'
-                className='w-100 h-100 object-fit-cover'
-              />
-            </Link>
-            <div className='mt-20'>
-              <div className='d-flex align-items-center gap-6 justify-content-between flex-wrap mb-16'>
-                <Link
-                  href='blog-details'
-                  className='px-20 py-6 bg-neutral-100 rounded-pill bg-hover-neutral-300 text-neutral-600 fw-medium'
-                >
-                  Workshop
-                </Link>
-                <div className='d-flex align-items-center gap-8 text-neutral-500 fw-medium'>
-                  <i className='ri-calendar-2-line' />
-                  Jan 17, 2024
-                </div>
-              </div>
-              <h6 className='mb-16'>
-                <Link
-                  to='/blog-details'
-                  className='text-line-2 text-hover-primary-600 text-xl transition-2'
-                >
-                  Your journey to home ownership starts here
-                </Link>
-              </h6>
-              <p className='text-line-3 text-neutral-500'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis
-                dolores explicabo corrupti, fuga necessitatibus fugiat adipisci
-                quidem eveniet enim minus.
-              </p>
-              <Link
-                to='/blog-details'
-                className='d-flex align-items-center gap-8 fw-semibold text-neutral-900 text-hover-primary-600 transition-2'
-              >
-                Read More
-                <i className='ri-arrow-right-double-line text-xl d-flex line-height-1' />
-              </Link>
-            </div>
-          </div>
+      ) : filteredBlogs.length === 0 ? (
+        <div className='alert alert-info mb-0' role='alert'>
+          No blogs found.
         </div>
-      </div>
-      {/* Style Two */}
-      <div className='col-xxl-3 col-lg-4 col-sm-6'>
-        <div className='card h-100 p-0 radius-12 overflow-hidden'>
-          <div className='card-body p-0'>
-            <Link
-              to='/blog-details'
-              className='w-100 max-h-266-px radius-0 overflow-hidden'
-            >
-              <img
-                src='assets/images/blog/blog5.png'
-                alt='WowDash React Vite'
-                className='w-100 h-100 object-fit-cover'
-              />
-            </Link>
-            <div className='p-20'>
-              <h6 className='mb-16'>
-                <Link
-                  to='/blog-details'
-                  className='text-line-2 text-hover-primary-600 text-xl transition-2'
-                >
-                  How to hire a right business executive for your company
-                </Link>
-              </h6>
-              <p className='text-line-3 text-neutral-500 mb-0'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis
-                dolores explicabo corrupti, fuga necessitatibus fugiat adipisci
-                quidem eveniet enim minus.
-              </p>
-              <span className='d-block border-bottom border-neutral-300 border-dashed my-20' />
-              <div className='d-flex align-items-center justify-content-between flex-wrap gap-6'>
-                <div className='d-flex align-items-center gap-8'>
-                  <img
-                    src='assets/images/user-list/user-list1.png'
-                    alt='WowDash React Vite'
-                    className='w-40-px h-40-px rounded-circle object-fit-cover'
-                  />
-                  <div className='d-flex flex-column'>
-                    <h6 className='text-sm mb-0'>John Doe</h6>
-                    <span className='text-xs text-neutral-500'>1 day ago</span>
-                  </div>
-                </div>
-                <Link
-                  to='/blog-details'
-                  className='btn btn-sm btn-primary-600 d-flex align-items-center gap-1 text-xs px-8 py-6'
-                >
-                  Read More
-                </Link>
-              </div>
-            </div>
-          </div>
+      ) : (
+        <div className='table-responsive'>
+          <table className='table align-middle'>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Views</th>
+                <th>Comments</th>
+                <th>Published</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredBlogs.map((blog) => (
+                <tr key={blog.id}>
+                  <td>
+                    <div className='d-flex align-items-center gap-12'>
+                      <img
+                        src={resolveImage(blog.featuredImage)}
+                        alt={blog.title}
+                        className='rounded-8 object-fit-cover'
+                        style={{ width: '56px', height: '56px' }}
+                      />
+                      <div className='d-flex flex-column'>
+                        <Link to={'/blog-details/' + blog.id} className='fw-semibold text-neutral-900 text-hover-primary-600'>
+                          {blog.title}
+                        </Link>
+                        <span className='text-sm text-neutral-500'>{blog.slug}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{blog.category || 'Uncategorized'}</td>
+                  <td>{blog.meta?.views ?? 0}</td>
+                  <td>{blog.meta?.comments ?? 0}</td>
+                  <td>{blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString() : '—'}</td>
+                  <td className='text-end'>
+                    <div className='d-flex gap-8 justify-content-end'>
+                      <Link to={'/blog-details/' + blog.id} className='btn btn-sm btn-primary-600 radius-8'>
+                        Manage
+                      </Link>
+                      <a
+                        href={PUBLIC_SITE_BASE + '/blogs/' + blog.slug}
+                        target='_blank'
+                        rel='noreferrer'
+                        className='btn btn-sm btn-outline-primary radius-8'
+                      >
+                        View Public
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </div>
-      <div className='col-xxl-3 col-lg-4 col-sm-6'>
-        <div className='card h-100 p-0 radius-12 overflow-hidden'>
-          <div className='card-body p-0'>
-            <Link
-              to='/blog-details'
-              className='w-100 max-h-266-px radius-0 overflow-hidden'
-            >
-              <img
-                src='assets/images/blog/blog6.png'
-                alt='WowDash React Vite'
-                className='w-100 h-100 object-fit-cover'
-              />
-            </Link>
-            <div className='p-20'>
-              <h6 className='mb-16'>
-                <Link
-                  to='/blog-details'
-                  className='text-line-2 text-hover-primary-600 text-xl transition-2'
-                >
-                  The Gig Economy: Adapting to a Flexible Workforce
-                </Link>
-              </h6>
-              <p className='text-line-3 text-neutral-500 mb-0'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis
-                dolores explicabo corrupti, fuga necessitatibus fugiat adipisci
-                quidem eveniet enim minus.
-              </p>
-              <span className='d-block border-bottom border-neutral-300 border-dashed my-20' />
-              <div className='d-flex align-items-center justify-content-between flex-wrap gap-6'>
-                <div className='d-flex align-items-center gap-8'>
-                  <img
-                    src='assets/images/user-list/user-list2.png'
-                    alt='WowDash React Vite'
-                    className='w-40-px h-40-px rounded-circle object-fit-cover'
-                  />
-                  <div className='d-flex flex-column'>
-                    <h6 className='text-sm mb-0'>Robiul Hasan</h6>
-                    <span className='text-xs text-neutral-500'>1 day ago</span>
-                  </div>
-                </div>
-                <Link
-                  to='/blog-details'
-                  className='btn btn-sm btn-primary-600 d-flex align-items-center gap-1 text-xs px-8 py-6'
-                >
-                  Read More
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className='col-xxl-3 col-lg-4 col-sm-6'>
-        <div className='card h-100 p-0 radius-12 overflow-hidden'>
-          <div className='card-body p-0'>
-            <Link
-              to='/blog-details'
-              className='w-100 max-h-266-px radius-0 overflow-hidden'
-            >
-              <img
-                src='assets/images/blog/blog7.png'
-                alt='WowDash React Vite'
-                className='w-100 h-100 object-fit-cover'
-              />
-            </Link>
-            <div className='p-20'>
-              <h6 className='mb-16'>
-                <Link
-                  to='/blog-details'
-                  className='text-line-2 text-hover-primary-600 text-xl transition-2'
-                >
-                  The Future of Remote Work: Strategies for Success
-                </Link>
-              </h6>
-              <p className='text-line-3 text-neutral-500 mb-0'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis
-                dolores explicabo corrupti, fuga necessitatibus fugiat adipisci
-                quidem eveniet enim minus.
-              </p>
-              <span className='d-block border-bottom border-neutral-300 border-dashed my-20' />
-              <div className='d-flex align-items-center justify-content-between flex-wrap gap-6'>
-                <div className='d-flex align-items-center gap-8'>
-                  <img
-                    src='assets/images/user-list/user-list3.png'
-                    alt='WowDash React Vite'
-                    className='w-40-px h-40-px rounded-circle object-fit-cover'
-                  />
-                  <div className='d-flex flex-column'>
-                    <h6 className='text-sm mb-0'>John Doe</h6>
-                    <span className='text-xs text-neutral-500'>1 day ago</span>
-                  </div>
-                </div>
-                <Link
-                  to='/blog-details'
-                  className='btn btn-sm btn-primary-600 d-flex align-items-center gap-1 text-xs px-8 py-6'
-                >
-                  Read More
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className='col-xxl-3 col-lg-4 col-sm-6'>
-        <div className='card h-100 p-0 radius-12 overflow-hidden'>
-          <div className='card-body p-0'>
-            <Link
-              to='/blog-details'
-              className='w-100 max-h-266-px radius-0 overflow-hidden'
-            >
-              <img
-                src='assets/images/blog/blog6.png'
-                alt='WowDash React Vite'
-                className='w-100 h-100 object-fit-cover'
-              />
-            </Link>
-            <div className='p-20'>
-              <h6 className='mb-16'>
-                <Link
-                  to='/blog-details'
-                  className='text-line-2 text-hover-primary-600 text-xl transition-2'
-                >
-                  Lorem ipsum dolor sit amet consectetur adipisicing.
-                </Link>
-              </h6>
-              <p className='text-line-3 text-neutral-500 mb-0'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis
-                dolores explicabo corrupti, fuga necessitatibus fugiat adipisci
-                quidem eveniet enim minus.
-              </p>
-              <span className='d-block border-bottom border-neutral-300 border-dashed my-20' />
-              <div className='d-flex align-items-center justify-content-between flex-wrap gap-6'>
-                <div className='d-flex align-items-center gap-8'>
-                  <img
-                    src='assets/images/user-list/user-list5.png'
-                    alt='WowDash React Vite'
-                    className='w-40-px h-40-px rounded-circle object-fit-cover'
-                  />
-                  <div className='d-flex flex-column'>
-                    <h6 className='text-sm mb-0'>John Doe</h6>
-                    <span className='text-xs text-neutral-500'>1 day ago</span>
-                  </div>
-                </div>
-                <Link
-                  to='/blog-details'
-                  className='btn btn-sm btn-primary-600 d-flex align-items-center gap-1 text-xs px-8 py-6'
-                >
-                  Read More
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* Style Three */}
-      <div className='col-xxl-3 col-lg-4 col-sm-6'>
-        <div className='card h-100 p-0 radius-12 overflow-hidden'>
-          <div className='card-body p-24'>
-            <h6 className='mb-16'>
-              <Link
-                to='/blog-details'
-                className='text-line-2 text-hover-primary-600 text-xl transition-2'
-              >
-                Discover Endless Possibilities in Real Estate Live Your Best
-                Life in a
-              </Link>
-            </h6>
-            <div className='d-flex align-items-center gap-6 justify-content-between flex-wrap mb-16'>
-              <div className='d-flex align-items-center gap-8 text-neutral-500 fw-medium'>
-                <i className='ri-chat-3-line' />
-                10 Comments
-              </div>
-              <div className='d-flex align-items-center gap-8 text-neutral-500 fw-medium'>
-                <i className='ri-calendar-2-line' />
-                Jan 17, 2024
-              </div>
-            </div>
-            <Link
-              to='/blog-details'
-              className='w-100 max-h-194-px radius-8 overflow-hidden'
-            >
-              <img
-                src='assets/images/blog/blog1.png'
-                alt='WowDash React Vite'
-                className='w-100 h-100 object-fit-cover'
-              />
-            </Link>
-            <div className='mt-20'>
-              <p className='text-line-3 text-neutral-500'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis
-                dolores explicabo corrupti, fuga necessitatibus fugiat adipisci
-                quidem eveniet enim minus.
-              </p>
-              <span className='d-block border-bottom border-neutral-300 border-dashed my-20' />
-              <div className='d-flex align-items-center justify-content-between flex-wrap gap-6'>
-                <div className='d-flex align-items-center gap-8'>
-                  <img
-                    src='assets/images/user-list/user-list1.png'
-                    alt='WowDash React Vite'
-                    className='w-40-px h-40-px rounded-circle object-fit-cover'
-                  />
-                  <div className='d-flex flex-column'>
-                    <h6 className='text-sm mb-0'>John Doe</h6>
-                    <span className='text-xs text-neutral-500'>1 day ago</span>
-                  </div>
-                </div>
-                <Link
-                  to='/blog-details'
-                  className='btn btn-sm btn-primary-600 d-flex align-items-center gap-1 text-xs px-8 py-6'
-                >
-                  Read More
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className='col-xxl-3 col-lg-4 col-sm-6'>
-        <div className='card h-100 p-0 radius-12 overflow-hidden'>
-          <div className='card-body p-24'>
-            <h6 className='mb-16'>
-              <Link
-                to='/blog-details'
-                className='text-line-2 text-hover-primary-600 text-xl transition-2'
-              >
-                Turn Your Real Estate Dreams Into Reality Embrace the Real
-                Estate
-              </Link>
-            </h6>
-            <div className='d-flex align-items-center gap-6 justify-content-between flex-wrap mb-16'>
-              <div className='d-flex align-items-center gap-8 text-neutral-500 fw-medium'>
-                <i className='ri-chat-3-line' />
-                10 Comments
-              </div>
-              <div className='d-flex align-items-center gap-8 text-neutral-500 fw-medium'>
-                <i className='ri-calendar-2-line' />
-                Jan 17, 2024
-              </div>
-            </div>
-            <Link
-              to='/blog-details'
-              className='w-100 max-h-194-px radius-8 overflow-hidden'
-            >
-              <img
-                src='assets/images/blog/blog2.png'
-                alt='WowDash React Vite'
-                className='w-100 h-100 object-fit-cover'
-              />
-            </Link>
-            <div className='mt-20'>
-              <p className='text-line-3 text-neutral-500'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis
-                dolores explicabo corrupti, fuga necessitatibus fugiat adipisci
-                quidem eveniet enim minus.
-              </p>
-              <span className='d-block border-bottom border-neutral-300 border-dashed my-20' />
-              <div className='d-flex align-items-center justify-content-between flex-wrap gap-6'>
-                <div className='d-flex align-items-center gap-8'>
-                  <img
-                    src='assets/images/user-list/user-list1.png'
-                    alt='WowDash React Vite'
-                    className='w-40-px h-40-px rounded-circle object-fit-cover'
-                  />
-                  <div className='d-flex flex-column'>
-                    <h6 className='text-sm mb-0'>John Doe</h6>
-                    <span className='text-xs text-neutral-500'>1 day ago</span>
-                  </div>
-                </div>
-                <Link
-                  to='/blog-details'
-                  className='btn btn-sm btn-primary-600 d-flex align-items-center gap-1 text-xs px-8 py-6'
-                >
-                  Read More
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className='col-xxl-3 col-lg-4 col-sm-6'>
-        <div className='card h-100 p-0 radius-12 overflow-hidden'>
-          <div className='card-body p-24'>
-            <h6 className='mb-16'>
-              <Link
-                to='/blog-details'
-                className='text-line-2 text-hover-primary-600 text-xl transition-2'
-              >
-                Your satisfaction is our top the best priority
-              </Link>
-            </h6>
-            <div className='d-flex align-items-center gap-6 justify-content-between flex-wrap mb-16'>
-              <div className='d-flex align-items-center gap-8 text-neutral-500 fw-medium'>
-                <i className='ri-chat-3-line' />
-                10 Comments
-              </div>
-              <div className='d-flex align-items-center gap-8 text-neutral-500 fw-medium'>
-                <i className='ri-calendar-2-line' />
-                Jan 17, 2024
-              </div>
-            </div>
-            <Link
-              to='/blog-details'
-              className='w-100 max-h-194-px radius-8 overflow-hidden'
-            >
-              <img
-                src='assets/images/blog/blog3.png'
-                alt='WowDash React Vite'
-                className='w-100 h-100 object-fit-cover'
-              />
-            </Link>
-            <div className='mt-20'>
-              <p className='text-line-3 text-neutral-500'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis
-                dolores explicabo corrupti, fuga necessitatibus fugiat adipisci
-                quidem eveniet enim minus.
-              </p>
-              <span className='d-block border-bottom border-neutral-300 border-dashed my-20' />
-              <div className='d-flex align-items-center justify-content-between flex-wrap gap-6'>
-                <div className='d-flex align-items-center gap-8'>
-                  <img
-                    src='assets/images/user-list/user-list1.png'
-                    alt='WowDash React Vite'
-                    className='w-40-px h-40-px rounded-circle object-fit-cover'
-                  />
-                  <div className='d-flex flex-column'>
-                    <h6 className='text-sm mb-0'>John Doe</h6>
-                    <span className='text-xs text-neutral-500'>1 day ago</span>
-                  </div>
-                </div>
-                <Link
-                  to='/blog-details'
-                  className='btn btn-sm btn-primary-600 d-flex align-items-center gap-1 text-xs px-8 py-6'
-                >
-                  Read More
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className='col-xxl-3 col-lg-4 col-sm-6'>
-        <div className='card h-100 p-0 radius-12 overflow-hidden'>
-          <div className='card-body p-24'>
-            <h6 className='mb-16'>
-              <Link
-                to='/blog-details'
-                className='text-line-2 text-hover-primary-600 text-xl transition-2'
-              >
-                Your journey to home ownership starts here
-              </Link>
-            </h6>
-            <div className='d-flex align-items-center gap-6 justify-content-between flex-wrap mb-16'>
-              <div className='d-flex align-items-center gap-8 text-neutral-500 fw-medium'>
-                <i className='ri-chat-3-line' />
-                10 Comments
-              </div>
-              <div className='d-flex align-items-center gap-8 text-neutral-500 fw-medium'>
-                <i className='ri-calendar-2-line' />
-                Jan 17, 2024
-              </div>
-            </div>
-            <Link
-              to='/blog-details'
-              className='w-100 max-h-194-px radius-8 overflow-hidden'
-            >
-              <img
-                src='assets/images/blog/blog4.png'
-                alt='WowDash React Vite'
-                className='w-100 h-100 object-fit-cover'
-              />
-            </Link>
-            <div className='mt-20'>
-              <p className='text-line-3 text-neutral-500'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis
-                dolores explicabo corrupti, fuga necessitatibus fugiat adipisci
-                quidem eveniet enim minus.
-              </p>
-              <span className='d-block border-bottom border-neutral-300 border-dashed my-20' />
-              <div className='d-flex align-items-center justify-content-between flex-wrap gap-6'>
-                <div className='d-flex align-items-center gap-8'>
-                  <img
-                    src='assets/images/user-list/user-list1.png'
-                    alt='WowDash React Vite'
-                    className='w-40-px h-40-px rounded-circle object-fit-cover'
-                  />
-                  <div className='d-flex flex-column'>
-                    <h6 className='text-sm mb-0'>John Doe</h6>
-                    <span className='text-xs text-neutral-500'>1 day ago</span>
-                  </div>
-                </div>
-                <Link
-                  to='/blog-details'
-                  className='btn btn-sm btn-primary-600 d-flex align-items-center gap-1 text-xs px-8 py-6'
-                >
-                  Read More
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

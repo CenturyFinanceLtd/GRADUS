@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import apiClient from "../services/apiClient";
+import "./BlogDetailsInner.css";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 const ASSETS_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
@@ -21,6 +22,17 @@ const formatPublishedDate = (dateString) => {
   return { day, month };
 };
 
+const formatCommentDate = (value) => {
+  if (!value) {
+    return "";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+};
+
 const BlogDetailsInner = ({ onBlogLoaded }) => {
   const { slug } = useParams();
   const [blog, setBlog] = useState(null);
@@ -32,6 +44,13 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [categoriesError, setCategoriesError] = useState(null);
+  const [commentList, setCommentList] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(true);
+  const [commentsError, setCommentsError] = useState(null);
+  const [commentForm, setCommentForm] = useState({ name: "", email: "", content: "" });
+  const [commentFeedback, setCommentFeedback] = useState(null);
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [replyTo, setReplyTo] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -164,6 +183,144 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
     };
   }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+    const effectiveSlug = slug || blog?.slug;
+
+    if (!effectiveSlug) {
+      setCommentList([]);
+      setCommentsLoading(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    const fetchComments = async () => {
+      setCommentsLoading(true);
+      setCommentsError(null);
+
+      try {
+        const { items } = await apiClient.get(`/blogs/${effectiveSlug}/comments`);
+        if (!isMounted) {
+          return;
+        }
+        setCommentList(items || []);
+      } catch (err) {
+        if (!isMounted) {
+          return;
+        }
+        setCommentsError(err?.message || "Failed to load comments");
+        setCommentList([]);
+      } finally {
+        if (isMounted) {
+          setCommentsLoading(false);
+        }
+      }
+    };
+
+    fetchComments();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [slug, blog?.slug]);
+
+  const handleCommentInputChange = (event) => {
+    const { name, value } = event.target;
+    setCommentForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCommentSubmit = async (event) => {
+    event.preventDefault();
+
+    if (isSubmittingComment) {
+      return;
+    }
+
+    const currentSlug = slug || blog?.slug;
+    if (!currentSlug) {
+      setCommentFeedback({ type: "error", message: "Unable to submit comment for this post." });
+      return;
+    }
+
+    const name = commentForm.name.trim();
+    const email = commentForm.email.trim();
+    const content = commentForm.content.trim();
+
+    if (!name || !email || !content) {
+      setCommentFeedback({ type: "error", message: "Name, email, and comment are required." });
+      return;
+    }
+
+    try {
+      setIsSubmittingComment(true);
+      setCommentFeedback(null);
+
+      const response = await apiClient.post(`/blogs/${currentSlug}/comments`, {
+        name,
+        email,
+        content,
+        parentCommentId: replyTo ? replyTo.id : null,
+      });
+
+      setCommentList((prev) => {
+        if (replyTo && replyTo.id) {
+          let replyInserted = false;
+          const addReply = (comments) =>
+            comments.map((comment) => {
+              if (comment.id === replyTo.id) {
+                replyInserted = true;
+                return {
+                  ...comment,
+                  replies: [response, ...(comment.replies || [])],
+                };
+              }
+              if (comment.replies && comment.replies.length > 0) {
+                return { ...comment, replies: addReply(comment.replies) };
+              }
+              return comment;
+            });
+
+          const updated = addReply(prev);
+          if (!replyInserted) {
+            return [response, ...prev];
+          }
+          return updated;
+        }
+        return [response, ...prev];
+      });
+      setCommentFeedback({ type: "success", message: "Comment submitted successfully." });
+      setCommentForm({ name: "", email: "", content: "" });
+      setReplyTo(null);
+      setBlog((prev) =>
+        prev
+          ? {
+              ...prev,
+              meta: {
+                ...(prev.meta || {}),
+                comments: (prev.meta?.comments || 0) + 1,
+              },
+            }
+          : prev
+      );
+    } catch (err) {
+      setCommentFeedback({ type: "error", message: err?.message || "Failed to submit comment." });
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
+
+  const handleReplyClick = (comment) => {
+    setReplyTo({ id: comment.id, name: comment.name });
+  };
+
+  const handleCancelReply = () => {
+    setReplyTo(null);
+  };
+
+  const countComments = (comments) =>
+    comments.reduce((sum, comment) => sum + 1 + (comment.replies ? countComments(comment.replies) : 0), 0);
+
   const featuredImage = useMemo(() => {
     if (!blog || !blog.featuredImage) {
       return FALLBACK_IMAGE;
@@ -212,7 +369,38 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
     ? blog.tags.filter((tag) => typeof tag === "string" && tag.trim().length > 0)
     : [];
   const views = blog.meta && typeof blog.meta.views === "number" ? blog.meta.views : 0;
-  const comments = blog.meta && typeof blog.meta.comments === "number" ? blog.meta.comments : 0;
+  const totalComments = countComments(commentList);
+  const commentsCount = Math.max(blog.meta && typeof blog.meta.comments === "number" ? blog.meta.comments : 0, totalComments);
+
+  const renderComment = (comment, depth = 0) => (
+    <div
+      key={comment.id}
+      className={`comment-item px-32 py-20 align-items-start border-bottom border-neutral-40 ${
+        depth > 0 ? 'comment-item--reply' : ''
+      }`}
+    >
+      <div className='comment-avatar rounded-circle bg-main-50 text-main-600 d-flex align-items-center justify-content-center'>
+        <i className='ph ph-user' />
+      </div>
+      <div className='comment-body'>
+        <div className='d-flex justify-content-between align-items-center gap-12'>
+          <span className='fw-semibold text-neutral-900'>{comment.name}</span>
+          <span className='text-neutral-400 text-sm'>{formatCommentDate(comment.createdAt)}</span>
+        </div>
+        <p className='text-neutral-600 mb-2 mt-3'>{comment.content}</p>
+        <div className='comment-actions'>
+          <button type='button' onClick={() => handleReplyClick(comment)} className='comment-action-btn'>
+            Reply
+          </button>
+        </div>
+        {comment.replies && comment.replies.length > 0 ? (
+          <div className='comment-replies'>
+            {comment.replies.map((reply) => renderComment(reply, depth + 1))}
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
 
   return (
     <div className='blog-page-section py-120'>
@@ -260,7 +448,7 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
                     <span className='text-neutral-500 text-2xl d-flex'>
                       <i className='ph ph-chat-dots' />
                     </span>
-                    <span className='text-neutral-500 text-lg'>{comments}</span>
+                    <span className='text-neutral-500 text-lg'>{commentsCount}</span>
                   </div>
                 </div>
                 <h2 className='mb-16'>{blog.title}</h2>
@@ -277,83 +465,87 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
                 ) : null}
               </div>
             </div>
-            <div className='border border-neutral-30 rounded-12 bg-main-25 p-32 mt-24'>
-              <div className='flex-between gap-16 flex-wrap mb-24'>
-                <h4 className='mb-0'>All Comments</h4>
-                <div className='flex-align gap-16'>
-                  <div className='flex-align gap-8'>
-                    <span className='text-neutral-500 flex-shrink-0'>Sort By :</span>
-                    <select className='form-select ps-20 pe-28 py-8 fw-medium rounded-pill bg-white border border-neutral-30 text-neutral-700'>
-                      <option value='newest'>Newest</option>
-                    </select>
-                  </div>
-                </div>
+            <div className='border border-neutral-30 rounded-12 bg-main-25 p-0 mt-24 overflow-hidden instagram-comments'>
+              <div className='p-32 border-bottom border-neutral-50 d-flex justify-content-between align-items-center'>
+                <h4 className='mb-0'>Comments</h4>
+                <span className='text-neutral-500 fw-medium'>{commentsCount}</span>
               </div>
-              <div className='d-flex gap-16'>
-                <div className='flex-shrink-0'>
-                  <img src='/assets/images/thumbs/commentor-img.png' alt='Commenter' className='rounded-circle object-fit-cover' />
-                </div>
-                <div className='flex-grow-1'>
-                  <h6 className='mb-8'>Aida N.</h6>
-                  <div className='d-flex align-items-center gap-12 mb-16 flex-wrap'>
-                    <div className='d-flex align-items-center gap-8'>
-                      <span className='text-warning-500'>
-                        <i className='ph-fill ph-star' />
-                        <i className='ph-fill ph-star' />
-                        <i className='ph-fill ph-star' />
-                        <i className='ph-fill ph-star' />
-                        <i className='ph-fill ph-star' />
-                      </span>
-                      <span className='text-neutral-500'>5.0</span>
+              <div className='comments-scrollable'>
+                {commentsLoading ? (
+                  <div className='d-flex justify-content-center py-4'>
+                    <div className='spinner-border text-primary' role='status'>
+                      <span className='visually-hidden'>Loading...</span>
                     </div>
-                    <span className='text-neutral-500'>March 12, 2024</span>
                   </div>
-                  <p className='text-neutral-600'>
-                    I love this course! The instructor explains complex topics in a simple, easy-to-follow way, and the examples are very helpful. Highly recommended for anyone starting out in AI.
-                  </p>
-                </div>
+                ) : commentsError ? (
+                  <div className='alert alert-danger m-4' role='alert'>
+                    {commentsError}
+                  </div>
+                ) : commentList.length === 0 ? (
+                  <div className='alert alert-info m-4' role='alert'>
+                    No comments yet. Be the first to share your thoughts!
+                  </div>
+                ) : (
+                  commentList.map((comment) => renderComment(comment))
+                )}
               </div>
-              <div className='d-flex gap-16 mt-24'>
-                <div className='flex-shrink-0'>
-                  <img src='/assets/images/thumbs/commentor-img.png' alt='Commenter' className='rounded-circle object-fit-cover' />
+              <form className='comment-form border-top border-neutral-50 p-24' onSubmit={handleCommentSubmit} noValidate>
+                {commentFeedback ? (
+                  <div
+                    className={`alert ${commentFeedback.type === "success" ? "alert-success" : "alert-danger"}`}
+                    role='alert'
+                  >
+                    {commentFeedback.message}
+                  </div>
+                ) : null}
+                <div className='comment-form__row'>
+                  <input
+                    type='text'
+                    className='comment-form__input'
+                    placeholder='Your Name'
+                    name='name'
+                    value={commentForm.name}
+                    onChange={handleCommentInputChange}
+                    disabled={isSubmittingComment}
+                    required
+                  />
+                  <input
+                    type='email'
+                    className='comment-form__input'
+                    placeholder='Email Address'
+                    name='email'
+                    value={commentForm.email}
+                    onChange={handleCommentInputChange}
+                    disabled={isSubmittingComment}
+                    required
+                  />
                 </div>
-                <div className='flex-grow-1'>
-                  <h6 className='mb-8'>Devon Lane</h6>
-                  <div className='d-flex align-items-center gap-12 mb-16 flex-wrap'>
-                    <div className='d-flex align-items-center gap-8'>
-                      <span className='text-warning-500'>
-                        <i className='ph-fill ph-star' />
-                        <i className='ph-fill ph-star' />
-                        <i className='ph-fill ph-star' />
-                        <i className='ph-fill ph-star' />
-                        <i className='ph-fill ph-star-half' />
-                      </span>
-                      <span className='text-neutral-500'>4.5</span>
-                    </div>
-                    <span className='text-neutral-500'>March 9, 2024</span>
-                  </div>
-                  <p className='text-neutral-600'>
-                    Great content and clear explanations. I appreciate the real-world projects that help solidify the concepts.
-                  </p>
+                <div className='comment-form__row comment-form__row--textarea'>
+                  <textarea
+                    className='comment-form__textarea'
+                    placeholder='Add a comment...'
+                    name='content'
+                    value={commentForm.content}
+                    onChange={handleCommentInputChange}
+                    disabled={isSubmittingComment}
+                    required
+                  />
+                  <button
+                    type='submit'
+                    className='comment-form__submit'
+                    disabled={isSubmittingComment}
+                  >
+                    {isSubmittingComment ? 'Posting...' : 'Post'}
+                  </button>
                 </div>
-              </div>
-              <form className='mt-32'>
-                <div className='row g-3'>
-                  <div className='col-md-6'>
-                    <input type='text' className='form-control py-12 px-20 radius-12 border border-neutral-30' placeholder='Your Name' />
-                  </div>
-                  <div className='col-md-6'>
-                    <input type='email' className='form-control py-12 px-20 radius-12 border border-neutral-30' placeholder='Email Address' />
-                  </div>
-                  <div className='col-12'>
-                    <textarea className='form-control py-12 px-20 radius-12 border border-neutral-30' rows='4' placeholder='Write a comment' />
-                  </div>
-                  <div className='col-12'>
-                    <button type='button' className='btn btn-primary-600 radius-12 px-32'>
-                      Post Comment
+                {replyTo ? (
+                  <div className='comment-form__replying'>
+                    Replying to <strong>{replyTo.name}</strong>
+                    <button type='button' onClick={handleCancelReply} className='comment-reply-cancel'>
+                      Cancel
                     </button>
                   </div>
-                </div>
+                ) : null}
               </form>
             </div>
           </div>

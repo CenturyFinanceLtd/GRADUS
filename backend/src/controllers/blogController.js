@@ -1,5 +1,7 @@
 const asyncHandler = require('express-async-handler');
+const mongoose = require('mongoose');
 const Blog = require('../models/Blog');
+const BlogComment = require('../models/BlogComment');
 const slugify = require('../utils/slugify');
 
 const buildUniqueSlug = async (title, currentId) => {
@@ -64,6 +66,78 @@ const normalizeTags = (input) => {
     .filter((tag) => tag.length > 0)
     .map((tag) => (tag.startsWith('#') ? tag : `#${tag}`))
     .filter((tag, index, array) => array.findIndex((value) => value.toLowerCase() === tag.toLowerCase()) === index);
+};
+
+const buildCommentTreeData = (comments, { includeEmail = false, includeStatus = false } = {}) => {
+  const commentMap = new Map();
+  const roots = [];
+
+  comments.forEach((comment) => {
+    const id = comment._id.toString();
+    commentMap.set(id, {
+      id,
+      name: comment.name,
+      email: comment.email,
+      content: comment.content,
+      status: comment.status,
+      createdAt: comment.createdAt,
+      parentCommentId: comment.parentComment ? comment.parentComment.toString() : null,
+      replies: [],
+      latestActivity: new Date(comment.createdAt).getTime(),
+    });
+  });
+
+  commentMap.forEach((comment) => {
+    if (comment.parentCommentId && commentMap.has(comment.parentCommentId)) {
+      commentMap.get(comment.parentCommentId).replies.push(comment);
+    } else {
+      roots.push(comment);
+    }
+  });
+
+  const computeLatestActivity = (node) => {
+    if (!node.replies || node.replies.length === 0) {
+      return node.latestActivity;
+    }
+
+    node.replies.forEach((reply) => {
+      const childLatest = computeLatestActivity(reply);
+      if (childLatest > node.latestActivity) {
+        node.latestActivity = childLatest;
+      }
+    });
+
+    node.replies.sort((a, b) => b.latestActivity - a.latestActivity);
+    return node.latestActivity;
+  };
+
+  roots.forEach((root) => computeLatestActivity(root));
+  roots.sort((a, b) => b.latestActivity - a.latestActivity);
+
+  const stripMeta = (items) =>
+    items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      email: includeEmail ? item.email : undefined,
+      status: includeStatus ? item.status : undefined,
+      content: item.content,
+      createdAt: item.createdAt,
+      replies: item.replies && item.replies.length > 0 ? stripMeta(item.replies) : [],
+    }));
+
+  return stripMeta(roots);
+};
+
+const findBlogByIdentifier = (identifier, projection) => {
+  const query = mongoose.Types.ObjectId.isValid(identifier)
+    ? Blog.findById(identifier)
+    : Blog.findOne({ slug: identifier });
+
+  if (projection) {
+    query.select(projection);
+  }
+
+  return query;
 };
 
 const createBlog = asyncHandler(async (req, res) => {
@@ -171,8 +245,274 @@ const getBlogBySlug = asyncHandler(async (req, res) => {
   res.json(blog);
 });
 
+const listBlogComments = asyncHandler(async (req, res) => {
+  const { slug } = req.params;
+  const blog = await Blog.findOne({ slug }).select('_id');
+
+  if (!blog) {
+    res.status(404);
+    throw new Error('Blog not found');
+  }
+
+  const comments = await BlogComment.find({ blog: blog._id, status: 'approved' })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  res.json({ items: buildCommentTreeData(comments) });
+});
+
+const createBlogComment = asyncHandler(async (req, res) => {
+  const { slug } = req.params;
+  const { name, email, content, parentCommentId } = req.body;
+
+  if (!name || !name.trim()) {
+    res.status(400);
+    throw new Error('Name is required');
+  }
+
+  if (!email || !email.trim()) {
+    res.status(400);
+    throw new Error('Email is required');
+  }
+
+  if (!content || !content.trim()) {
+    res.status(400);
+    throw new Error('Comment content is required');
+  }
+
+  const blog = await Blog.findOne({ slug }).select('_id');
+
+  if (!blog) {
+    res.status(404);
+    throw new Error('Blog not found');
+  }
+
+  let parentComment = null;
+
+  if (parentCommentId) {
+    parentComment = await BlogComment.findOne({ _id: parentCommentId, blog: blog._id });
+    if (!parentComment) {
+      res.status(400);
+      throw new Error('Invalid parent comment');
+    }
+  }
+
+  const comment = await BlogComment.create({
+    blog: blog._id,
+    name: name.trim(),
+    email: email.trim().toLowerCase(),
+    content: content.trim(),
+    parentComment: parentComment ? parentComment._id : null,
+  });
+
+  try {
+    await Blog.updateOne({ _id: blog._id }, { $inc: { 'meta.comments': 1 } });
+  } catch (error) {
+    // ignore comment count increment failure
+  }
+
+  res.status(201).json({
+    id: comment._id.toString(),
+    name: comment.name,
+    content: comment.content,
+    createdAt: comment.createdAt,
+    parentCommentId: comment.parentComment ? comment.parentComment.toString() : null,
+    replies: [],
+  });
+});
+
+const listAdminBlogs = asyncHandler(async (req, res) => {
+  const { search, category } = req.query;
+  const filter = {};
+
+  if (search) {
+    filter.title = new RegExp(search, 'i');
+  }
+
+  if (category) {
+    filter.category = new RegExp('^' + category + '$', 'i');
+  }
+
+  const blogs = await Blog.find(filter)
+    .sort({ createdAt: -1 })
+    .lean()
+    .select('title slug category author tags excerpt featuredImage meta publishedAt createdAt');
+
+  res.json({
+    items: blogs.map((blog) => ({
+      id: blog._id.toString(),
+      title: blog.title,
+      slug: blog.slug,
+      category: blog.category,
+      author: blog.author,
+      tags: blog.tags || [],
+      excerpt: blog.excerpt,
+      featuredImage: blog.featuredImage,
+      meta: {
+        views: blog.meta?.views || 0,
+        comments: blog.meta?.comments || 0,
+      },
+      publishedAt: blog.publishedAt,
+      createdAt: blog.createdAt,
+    })),
+  });
+});
+
+const getAdminBlogDetails = asyncHandler(async (req, res) => {
+  const { blogId } = req.params;
+  const blog = await findBlogByIdentifier(blogId);
+
+  if (!blog) {
+    res.status(404);
+    throw new Error('Blog not found');
+  }
+
+  res.json({
+    blog: {
+      id: blog._id.toString(),
+      title: blog.title,
+      slug: blog.slug,
+      category: blog.category,
+      author: blog.author,
+      tags: blog.tags || [],
+      excerpt: blog.excerpt,
+      content: blog.content,
+      featuredImage: blog.featuredImage,
+      meta: {
+        views: blog.meta?.views || 0,
+        comments: blog.meta?.comments || 0,
+      },
+      publishedAt: blog.publishedAt,
+      createdAt: blog.createdAt,
+    },
+  });
+});
+
+const listAdminBlogComments = asyncHandler(async (req, res) => {
+  const { blogId } = req.params;
+  const blog = await findBlogByIdentifier(blogId, '_id');
+
+  if (!blog) {
+    res.status(404);
+    throw new Error('Blog not found');
+  }
+
+  const comments = await BlogComment.find({ blog: blog._id })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  res.json({ items: buildCommentTreeData(comments, { includeEmail: true, includeStatus: true }) });
+});
+
+const createAdminBlogComment = asyncHandler(async (req, res) => {
+  const { blogId } = req.params;
+  const { content, parentCommentId } = req.body;
+
+  if (!content || !content.trim()) {
+    res.status(400);
+    throw new Error('Comment content is required');
+  }
+
+  const blog = await findBlogByIdentifier(blogId, '_id');
+
+  if (!blog) {
+    res.status(404);
+    throw new Error('Blog not found');
+  }
+
+  let parentComment = null;
+
+  if (parentCommentId) {
+    parentComment = await BlogComment.findOne({ _id: parentCommentId, blog: blog._id });
+    if (!parentComment) {
+      res.status(400);
+      throw new Error('Invalid parent comment');
+    }
+  }
+
+  const admin = req.admin;
+  const comment = await BlogComment.create({
+    blog: blog._id,
+    name: admin?.fullName || admin?.name || admin?.email || 'Admin',
+    email: admin?.email || 'admin@gradus.local',
+    content: content.trim(),
+    parentComment: parentComment ? parentComment._id : null,
+  });
+
+  await Blog.updateOne({ _id: blog._id }, { $inc: { 'meta.comments': 1 } }).catch(() => {});
+
+  res.status(201).json({
+    id: comment._id.toString(),
+    name: comment.name,
+    email: comment.email,
+    content: comment.content,
+    createdAt: comment.createdAt,
+    parentCommentId: comment.parentComment ? comment.parentComment.toString() : null,
+    replies: [],
+  });
+});
+
+const collectDescendantIds = (commentRelations, rootId) => {
+  const childrenMap = new Map();
+
+  commentRelations.forEach((comment) => {
+    const parentId = comment.parentComment ? comment.parentComment.toString() : null;
+    if (!childrenMap.has(parentId)) {
+      childrenMap.set(parentId, []);
+    }
+    childrenMap.get(parentId).push(comment._id.toString());
+  });
+
+  const traverse = (id) => {
+    const ids = [id];
+    const children = childrenMap.get(id) || [];
+    children.forEach((childId) => {
+      ids.push(...traverse(childId));
+    });
+    return ids;
+  };
+
+  return traverse(rootId);
+};
+
+const deleteAdminBlogComment = asyncHandler(async (req, res) => {
+  const { blogId, commentId } = req.params;
+  const blog = await findBlogByIdentifier(blogId, '_id');
+
+  if (!blog) {
+    res.status(404);
+    throw new Error('Blog not found');
+  }
+
+  const comment = await BlogComment.findOne({ _id: commentId, blog: blog._id });
+
+  if (!comment) {
+    res.status(404);
+    throw new Error('Comment not found');
+  }
+
+  const relations = await BlogComment.find({ blog: blog._id })
+    .select('_id parentComment')
+    .lean();
+
+  const idsToDelete = collectDescendantIds(relations, comment._id.toString());
+
+  await BlogComment.deleteMany({ _id: { $in: idsToDelete } });
+  const totalComments = await BlogComment.countDocuments({ blog: blog._id });
+  await Blog.updateOne({ _id: blog._id }, { 'meta.comments': totalComments }).catch(() => {});
+
+  res.json({ removed: idsToDelete.length });
+});
+
 module.exports = {
   createBlog,
   getBlogs,
   getBlogBySlug,
+  listBlogComments,
+  createBlogComment,
+  listAdminBlogs,
+  getAdminBlogDetails,
+  listAdminBlogComments,
+  createAdminBlogComment,
+  deleteAdminBlogComment,
 };

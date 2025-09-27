@@ -151,7 +151,8 @@ function App() {
         <Route exact path='/gallery-hover' element={<GalleryHoverPage />} />
 
         <Route exact path='/blog' element={<BlogPage />} />
-        <Route exact path='/blog-details' element={<BlogDetailsPage />} />
+        <Route exact path='/blog/:blogId' element={<BlogDetailsPage />} />
+        <Route exact path='/blog-details/:blogId' element={<BlogDetailsPage />} />
         <Route exact path='/add-blog' element={<AddBlogPage />} />
 
         <Route exact path='/testimonials' element={<TestimonialsPage />} />

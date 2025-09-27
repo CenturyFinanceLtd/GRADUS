@@ -1,0 +1,176 @@
+.instagram-comments {
+  background-color: #f5f7ff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.instagram-comments .comments-scrollable {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+
+.instagram-comments .comment-item {
+  display: flex;
+  gap: 16px;
+  padding-left: 32px;
+  padding-right: 32px;
+  transition: background-color 0.2s ease;
+}
+
+.instagram-comments .comment-item:hover {
+  background-color: rgba(99, 102, 241, 0.08);
+}
+
+.comment-item--reply {
+  padding-left: 56px !important;
+  background: rgba(99, 102, 241, 0.04);
+}
+
+.comment-item--reply .comment-avatar {
+  background: rgba(99, 102, 241, 0.2);
+  color: #4c51bf;
+}
+
+.comment-body {
+  flex: 1 1 auto;
+}
+
+.comment-actions {
+  margin-top: 8px;
+}
+
+.comment-action-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #6366f1;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.comment-action-btn:hover {
+  text-decoration: underline;
+}
+
+.comment-replies {
+  margin-top: 12px;
+  border-left: 2px solid rgba(99, 102, 241, 0.15);
+}
+
+.comment-replies .comment-item {
+  padding-left: 24px !important;
+  background: transparent;
+}
+
+.instagram-comments .comment-avatar {
+  width: 48px;
+  height: 48px;
+  font-size: 20px;
+  border-radius: 999px;
+}
+
+.instagram-comments .comment-form {
+  background-color: rgba(255, 255, 255, 0.85);
+}
+
+.comment-form__row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.comment-form__row--textarea {
+  display: flex;
+  width: 100%;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.comment-form__input {
+  flex: 1 1 220px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  border: 1px solid #cbd5f5;
+  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.comment-form__input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  outline: none;
+}
+
+.comment-form__textarea {
+  flex: 1 1 auto;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid #cbd5f5;
+  min-height: 120px;
+  resize: vertical;
+  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.comment-form__textarea:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  outline: none;
+}
+
+.comment-form__submit {
+  align-self: flex-end;
+  padding: 12px 24px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #fff;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.comment-form__replying {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.comment-reply-cancel {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.comment-reply-cancel:hover {
+  text-decoration: underline;
+}
+
+.comment-form__submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(99, 102, 241, 0.2);
+}
+
+.comment-form__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 576px) {
+  .comments-scrollable {
+    max-height: 260px;
+  }
+
+  .comment-form__row {
+    flex-direction: column;
+  }
+
+  .comment-form__input {
+    width: 100%;
+  }
+}

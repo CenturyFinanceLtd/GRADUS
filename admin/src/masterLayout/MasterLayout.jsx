@@ -319,8 +319,18 @@ const MasterLayout = ({ children }) => {
                 to='/assign-role'
                 className={(navData) => (navData.isActive ? "active-page" : "")}
               >
-                <Icon icon='ri-user-settings-line' className='menu-icon' />
+                <Icon icon='flowbite:users-group-outline' className='menu-icon' />
                 <span>Roles</span>
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink
+                to='/blog'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='ri-user-settings-line' className='menu-icon' />
+                <span>Blogs</span>
               </NavLink>
             </li>
 
@@ -1021,52 +1031,9 @@ const MasterLayout = ({ children }) => {
               </NavLink>
             </li>
 
-            {/* Blog */}
+           
 
-            <li className='dropdown'>
-              <Link to='#' onClick={handleDropdownToggle}>
-                <Icon
-                  icon='flowbite:users-group-outline'
-                  className='menu-icon'
-                />
-                <span>Blog</span>
-              </Link>
-              <ul className='sidebar-submenu'>
-                <li>
-                  <NavLink
-                    to='/blog'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-primary-600 w-auto' />{" "}
-                    Blog
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to='/blog-details'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-warning-main w-auto' />{" "}
-                    Blog Details
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to='/add-blog'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-info-main w-auto' />{" "}
-                    Add Blog
-                  </NavLink>
-                </li>
-              </ul>
-            </li>
+            
 
             <li>
               <NavLink

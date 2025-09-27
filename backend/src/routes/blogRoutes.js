@@ -1,9 +1,16 @@
 const express = require('express');
-const { getBlogs, getBlogBySlug } = require('../controllers/blogController');
+const {
+  getBlogs,
+  getBlogBySlug,
+  listBlogComments,
+  createBlogComment,
+} = require('../controllers/blogController');
 
 const router = express.Router();
 
 router.get('/', getBlogs);
+router.get('/:slug/comments', listBlogComments);
+router.post('/:slug/comments', createBlogComment);
 router.get('/:slug', getBlogBySlug);
 
 module.exports = router;
