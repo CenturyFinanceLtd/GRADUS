@@ -1,6 +1,7 @@
 ﻿import { useEffect, useRef, useState } from "react";
 import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
+import { Link } from "react-router-dom";
 
 const AnimatedSpoiler = ({ isExpanded, children }) => {
   const innerRef = useRef(null);
@@ -132,7 +133,15 @@ const AboutOne = () => {
                   </h2>
                   <div className='wow bounceInUp'>
                     <p className='text-neutral-500 mb-16'>
-                      Gradus, an ambitious initiative of Century Finance Limited, is conceived as a premier career accelerator that forges a decisive link between academic instruction and professional ascendancy. Every pathway is meticulously curated for management aspirants, engineering graduates, and finance enthusiasts, transforming theoretical acumen into demonstrable competence.
+                      Gradus, an ambitious initiative of
+                      {" "}
+                      <Link
+                        to='/know-CFL'
+                        className='text-main-600 fw-semibold hover-text-decoration-underline'
+                      >
+                        Century Finance Limited
+                      </Link>
+                      , is conceived as a premier career accelerator that forges a decisive link between academic instruction and professional ascendancy. Every pathway is meticulously curated for management aspirants, engineering graduates, and finance enthusiasts, transforming theoretical acumen into demonstrable competence.
                     </p>
                     <AnimatedSpoiler isExpanded={isExpanded}>
                       <p className='text-neutral-500 mb-16'>

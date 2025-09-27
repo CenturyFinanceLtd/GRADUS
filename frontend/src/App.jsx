@@ -51,6 +51,7 @@ import VisitorPrivacyNotesPage from "./pages/VisitorPrivacyNotesPage.jsx";
 import VendorsPrivacyPage from "./pages/VendorsPrivacyPage.jsx";
 import HomePageFive from "./pages/HomePageFive.jsx";
 import HomePageSix from "./pages/HomePageSix.jsx";
+import KnowCFLPage from "./pages/KnowCFLPage.jsx";
 
 function App() {
   return (
@@ -69,6 +70,7 @@ function App() {
         <Route exact path='/about-two' element={<AboutTwoPage />} />
         <Route exact path='/about-three' element={<AboutThreePage />} />
         <Route exact path='/about-four' element={<AboutFourPage />} />
+        <Route exact path='/know-CFL' element={<KnowCFLPage />} />
         <Route exact path='/apply-admission' element={<ApplyAdmissionPage />} />
         <Route exact path='/blogs' element={<BlogPage />} />
         <Route exact path='/blog-classic' element={<BlogClassicPage />} />
