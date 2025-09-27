@@ -17,6 +17,11 @@ const buildAdminAuthResponse = (admin) => {
   return { token, admin: safeAdmin };
 };
 
+const ADMIN_ROLE_OPTIONS = {
+  admin: 'Admin',
+  programmer_admin: 'Programmer(Admin)',
+};
+
 const normaliseLanguages = (languages) => {
   if (!languages) {
     return [];
@@ -34,7 +39,7 @@ const normaliseLanguages = (languages) => {
 };
 
 const startAdminSignup = asyncHandler(async (req, res) => {
-  const { fullName, email, phoneNumber, department, designation, languages, bio, role } = req.body;
+  const { fullName, email, phoneNumber, department, designation, languages, bio } = req.body;
 
   const normalizedEmail = email.toLowerCase().trim();
 
@@ -54,7 +59,6 @@ const startAdminSignup = asyncHandler(async (req, res) => {
     designation: designation ? designation.trim() : '',
     languages: normaliseLanguages(languages),
     bio: bio ? bio.trim() : '',
-    role: role ? role.trim() : 'admin',
   };
 
   const session = await VerificationSession.create({
@@ -65,14 +69,17 @@ const startAdminSignup = asyncHandler(async (req, res) => {
     payload,
   });
 
-  const approvalUrl = `${config.serverUrl}/api/admin/auth/signup/decision?sessionId=${session._id.toString()}&token=${approvalToken}&decision=approve`;
   const rejectionUrl = `${config.serverUrl}/api/admin/auth/signup/decision?sessionId=${session._id.toString()}&token=${approvalToken}&decision=reject`;
+  const approvalOptions = Object.entries(ADMIN_ROLE_OPTIONS).map(([roleKey, label]) => ({
+    label,
+    url: `${config.serverUrl}/api/admin/auth/signup/decision?sessionId=${session._id.toString()}&token=${approvalToken}&decision=approve&role=${roleKey}`,
+  }));
 
   try {
     await sendAdminApprovalEmail({
       to: config.admin.approverEmail,
-      requester: { ...payload, email: normalizedEmail },
-      approvalUrl,
+      requester: { ...payload, email: normalizedEmail, role: 'To be selected by approver' },
+      approvalOptions,
       rejectionUrl,
       portalName: config.admin.portalName,
     });
@@ -138,6 +145,18 @@ const handleAdminSignupDecision = asyncHandler(async (req, res) => {
     res.send('<h2>Request rejected</h2><p>No verification email was sent to the requester.</p>');
     return;
   }
+
+  const roleKey = (req.query.role || '').toLowerCase();
+  if (!ADMIN_ROLE_OPTIONS[roleKey]) {
+    res.status(400);
+    res.send('<h2>Missing role</h2><p>Please select a valid role for this admin (Admin or Programmer(Admin)).</p>');
+    return;
+  }
+
+  session.payload = session.payload || {};
+  session.payload.role = roleKey;
+  session.payload.roleLabel = ADMIN_ROLE_OPTIONS[roleKey];
+  session.markModified('payload');
 
   const otp = generateOtp();
   session.otpHash = await bcrypt.hash(otp, 10);
@@ -260,6 +279,9 @@ const completeAdminSignup = asyncHandler(async (req, res) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 12);
+  const assignedRole = session.payload.role && ADMIN_ROLE_OPTIONS[session.payload.role]
+    ? session.payload.role
+    : 'admin';
 
   const admin = await AdminUser.create({
     fullName: session.payload.fullName,
@@ -269,7 +291,7 @@ const completeAdminSignup = asyncHandler(async (req, res) => {
     designation: session.payload.designation,
     languages: session.payload.languages || [],
     bio: session.payload.bio,
-    role: session.payload.role,
+    role: assignedRole,
     password: hashedPassword,
     emailVerified: true,
   });
@@ -297,6 +319,11 @@ const adminLogin = asyncHandler(async (req, res) => {
   if (!isMatch) {
     res.status(401);
     throw new Error('Invalid email or password.');
+  }
+
+  if (admin.status && admin.status !== 'active') {
+    res.status(403);
+    throw new Error('Your admin account is inactive. Please contact a Programmer(Admin).');
   }
 
   if (!admin.emailVerified) {
@@ -584,6 +611,148 @@ const verifyAdminEmailChangeNew = asyncHandler(async (req, res) => {
   res.status(200).json({ admin: admin.toJSON() });
 });
 
+const startAdminPasswordReset = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    res.status(400);
+    throw new Error('An email address is required.');
+  }
+
+  const normalizedEmail = email.toLowerCase().trim();
+  const admin = await AdminUser.findOne({ email: normalizedEmail });
+
+  if (!admin) {
+    return res.status(200).json({
+      sessionId: null,
+      email: normalizedEmail,
+      message: 'If an account with this email exists, we have sent a verification code.',
+    });
+  }
+
+  await VerificationSession.deleteMany({ type: 'ADMIN_PASSWORD_RESET', user: admin._id });
+
+  const otp = generateOtp();
+  const otpHash = await bcrypt.hash(otp, 10);
+  const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+  const session = await VerificationSession.create({
+    type: 'ADMIN_PASSWORD_RESET',
+    email: normalizedEmail,
+    user: admin._id,
+    otpHash,
+    otpExpiresAt,
+    status: 'OTP_PENDING',
+  });
+
+  let emailResult;
+  try {
+    emailResult = await sendOtpEmail({
+      to: normalizedEmail,
+      otp,
+      context: {
+        title: 'Reset your Gradus admin password',
+        action: 'resetting your Gradus admin account password',
+      },
+    });
+  } catch (error) {
+    console.error('[admin-auth] Failed to send password reset OTP:', error.message);
+    await session.deleteOne();
+    throw new Error('We could not send a verification code. Please try again later.');
+  }
+
+  const responsePayload = {
+    sessionId: session._id.toString(),
+    email: normalizedEmail,
+  };
+
+  if (emailResult?.mocked && deliveryMode !== 'live') {
+    responsePayload.devOtp = otp;
+  }
+
+  res.status(200).json(responsePayload);
+});
+
+const verifyAdminPasswordResetOtp = asyncHandler(async (req, res) => {
+  const { sessionId, otp } = req.body;
+
+  if (!Types.ObjectId.isValid(sessionId)) {
+    res.status(400);
+    throw new Error('Invalid session identifier.');
+  }
+
+  const session = await VerificationSession.findById(sessionId).select('+otpHash');
+
+  if (!session || session.type !== 'ADMIN_PASSWORD_RESET') {
+    res.status(400);
+    throw new Error('Password reset session could not be found.');
+  }
+
+  if (session.status !== 'OTP_PENDING') {
+    res.status(400);
+    throw new Error('Password reset verification has already been completed.');
+  }
+
+  if (!session.otpHash || session.otpExpiresAt.getTime() < Date.now()) {
+    await session.deleteOne();
+    res.status(410);
+    throw new Error('The verification code has expired. Please restart the password reset.');
+  }
+
+  const isMatch = await bcrypt.compare(otp, session.otpHash);
+  if (!isMatch) {
+    res.status(401);
+    throw new Error('Invalid verification code.');
+  }
+
+  const verificationToken = crypto.randomBytes(24).toString('hex');
+  session.verificationToken = verificationToken;
+  session.status = 'OTP_VERIFIED';
+  await session.save();
+
+  res.status(200).json({ sessionId: session._id.toString(), verificationToken });
+});
+
+const completeAdminPasswordReset = asyncHandler(async (req, res) => {
+  const { sessionId, verificationToken, password } = req.body;
+
+  if (!Types.ObjectId.isValid(sessionId)) {
+    res.status(400);
+    throw new Error('Invalid session identifier.');
+  }
+
+  const session = await VerificationSession.findById(sessionId);
+
+  if (!session || session.type !== 'ADMIN_PASSWORD_RESET') {
+    res.status(400);
+    throw new Error('Password reset session could not be found.');
+  }
+
+  if (session.status !== 'OTP_VERIFIED') {
+    res.status(400);
+    throw new Error('Email verification is still pending.');
+  }
+
+  if (!verificationToken || session.verificationToken !== verificationToken) {
+    res.status(400);
+    throw new Error('Verification token mismatch. Please restart the password reset.');
+  }
+
+  const admin = await AdminUser.findById(session.user);
+  if (!admin) {
+    await session.deleteOne();
+    res.status(404);
+    throw new Error('Admin account not found.');
+  }
+
+  admin.password = await bcrypt.hash(password, 12);
+  await admin.save();
+
+  await session.deleteOne();
+
+  res.status(200).json({ message: 'Password reset successfully.' });
+});
+
 const getAdminSignupSession = asyncHandler(async (req, res) => {
   const { sessionId } = req.params;
 
@@ -620,5 +789,11 @@ module.exports = {
   startAdminEmailChange,
   verifyAdminEmailChangeCurrent,
   verifyAdminEmailChangeNew,
+  startAdminPasswordReset,
+  verifyAdminPasswordResetOtp,
+  completeAdminPasswordReset,
   getAdminSignupSession,
 };
+
+
+

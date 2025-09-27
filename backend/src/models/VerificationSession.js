@@ -4,7 +4,7 @@ const verificationSessionSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ['SIGNUP', 'EMAIL_CHANGE', 'ACCOUNT_DELETE', 'ADMIN_SIGNUP', 'ADMIN_EMAIL_CHANGE'],
+      enum: ['SIGNUP', 'EMAIL_CHANGE', 'ACCOUNT_DELETE', 'ADMIN_SIGNUP', 'ADMIN_EMAIL_CHANGE', 'ADMIN_PASSWORD_RESET'],
       required: true,
     },
     email: {
@@ -39,6 +39,8 @@ const verificationSessionSchema = new mongoose.Schema(
         'APPROVAL_PENDING',
         'APPROVED',
         'REJECTED',
+        'CURRENT_OTP_PENDING',
+        'NEW_OTP_PENDING',
       ],
       default: 'OTP_PENDING',
     },

@@ -1,19 +1,24 @@
+import { Navigate } from "react-router-dom";
 import MasterLayout from "../masterLayout/MasterLayout";
 import Breadcrumb from "../components/Breadcrumb";
 import AssignRoleLayer from "../components/AssignRoleLayer";
+import useAuth from "../hook/useAuth";
+
+const normalizeRole = (role) => (role ? String(role).toLowerCase() : "");
 
 const AssignRolePage = () => {
-  return (
-    <>
-      {/* MasterLayout */}
-      <MasterLayout>
-        {/* Breadcrumb */}
-        <Breadcrumb title='Assign Role' />
+  const { admin, loading } = useAuth();
+  const isProgrammerAdmin = normalizeRole(admin?.role) === "programmer_admin";
 
-        {/* AssignRoleLayer */}
-        <AssignRoleLayer />
-      </MasterLayout>
-    </>
+  if (!loading && !isProgrammerAdmin) {
+    return <Navigate to='/' replace />;
+  }
+
+  return (
+    <MasterLayout>
+      <Breadcrumb title='Assign Role' />
+      <AssignRoleLayer />
+    </MasterLayout>
   );
 };
 

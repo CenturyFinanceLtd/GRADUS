@@ -12,6 +12,9 @@ const {
   startAdminEmailChange,
   verifyAdminEmailChangeCurrent,
   verifyAdminEmailChangeNew,
+  startAdminPasswordReset,
+  verifyAdminPasswordResetOtp,
+  completeAdminPasswordReset,
   getAdminSignupSession,
 } = require('../controllers/adminAuthController');
 const validateRequest = require('../middleware/validateRequest');
@@ -34,7 +37,6 @@ router.post(
     body('designation').optional({ checkFalsy: true }).trim(),
     body('languages').optional(),
     body('bio').optional({ checkFalsy: true }).trim(),
-    body('role').optional({ checkFalsy: true }).trim(),
   ],
   validateRequest,
   startAdminSignup
@@ -91,6 +93,47 @@ router.post(
   ],
   validateRequest,
   adminLogin
+);
+
+router.post(
+  '/password/reset/start',
+  [body('email').isEmail().withMessage('A valid email is required.')],
+  validateRequest,
+  startAdminPasswordReset
+);
+
+router.post(
+  '/password/reset/verify-otp',
+  [
+    body('sessionId').trim().notEmpty().withMessage('Session id is required.'),
+    body('otp')
+      .trim()
+      .notEmpty()
+      .withMessage('Verification code is required.')
+      .isLength({ min: 4, max: 6 })
+      .withMessage('Invalid verification code.'),
+  ],
+  validateRequest,
+  verifyAdminPasswordResetOtp
+);
+
+router.post(
+  '/password/reset/complete',
+  [
+    body('sessionId').trim().notEmpty().withMessage('Session id is required.'),
+    body('verificationToken')
+      .trim()
+      .notEmpty()
+      .withMessage('Verification token is required.'),
+    body('password')
+      .isLength({ min: 8 })
+      .withMessage('Password must be at least 8 characters long.'),
+    body('confirmPassword')
+      .custom((value, { req }) => value === req.body.password)
+      .withMessage('Passwords do not match.'),
+  ],
+  validateRequest,
+  completeAdminPasswordReset
 );
 
 router.get('/me', protectAdmin, getAdminProfile);

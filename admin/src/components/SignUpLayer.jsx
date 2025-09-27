@@ -12,7 +12,7 @@ const initialDetails = {
   designation: "",
   languages: "",
   bio: "",
-  role: "Admin",
+
 };
 
 const SignUpLayer = () => {
@@ -124,12 +124,11 @@ const SignUpLayer = () => {
           designation: details.designation,
           languages: details.languages,
           bio: details.bio,
-          role: details.role,
         },
       });
       setSession(response);
       setInfo(
-        `We have asked ${response.approverEmail} to approve your signup. You will receive an OTP at ${response.email} once approved.`
+        `We have asked ${response.approverEmail} to approve your signup. They will assign either the Programmer(Admin) or Admin role and you will receive an OTP at ${response.email} once approved.`
       );
       setStep(1);
     } catch (err) {
@@ -296,18 +295,6 @@ const SignUpLayer = () => {
                 onChange={handleDetailsChange}
                 className='form-control bg-neutral-50 radius-12 h-56-px'
                 placeholder='e.g. English, Hindi'
-                disabled={loading}
-              />
-            </div>
-            <div className='col-md-6'>
-              <label className='form-label text-sm fw-semibold text-secondary-light'>Role</label>
-              <input
-                type='text'
-                name='role'
-                value={details.role}
-                onChange={handleDetailsChange}
-                className='form-control bg-neutral-50 radius-12 h-56-px'
-                placeholder='Role'
                 disabled={loading}
               />
             </div>
@@ -494,3 +481,5 @@ const SignUpLayer = () => {
 };
 
 export default SignUpLayer;
+
+

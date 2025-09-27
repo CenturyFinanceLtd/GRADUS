@@ -36,6 +36,13 @@ const adminUserSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    status: {
+      type: String,
+      enum: ['active', 'inactive'],
+      default: 'active',
+      lowercase: true,
+      trim: true,
+    },
     role: {
       type: String,
       default: 'admin',

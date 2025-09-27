@@ -26,6 +26,11 @@ const protectAdmin = asyncHandler(async (req, res, next) => {
       throw new Error('Admin account not found');
     }
 
+    if (admin.status && admin.status !== 'active') {
+      res.status(403);
+      throw new Error('Your admin account is inactive. Please contact a Programmer(Admin).');
+    }
+
     req.admin = admin;
     next();
   } catch (error) {

@@ -9,6 +9,12 @@ import {
   verifyAdminEmailChangeNew,
 } from "../services/adminProfile";
 
+const ROLE_LABELS = {
+  admin: 'Admin',
+  programmer_admin: 'Programmer (Admin)',
+};
+
+
 const ViewProfileLayer = () => {
   const { admin, token, refreshProfile } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
@@ -53,6 +59,7 @@ const ViewProfileLayer = () => {
 
   useEffect(() => {
     if (admin) {
+      const roleLabel = ROLE_LABELS[admin.role] || admin.role || "";
       setProfileForm({
         fullName: admin.fullName || "",
         email: admin.email || "",
@@ -63,7 +70,7 @@ const ViewProfileLayer = () => {
           ? admin.languages.join(", ")
           : admin.languages || "",
         bio: admin.bio || "",
-        role: admin.role || "",
+        role: roleLabel,
       });
     }
   }, [admin]);
@@ -296,6 +303,7 @@ const ViewProfileLayer = () => {
     }
   };
 
+  const roleDisplay = profileForm.role || 'Not specified';
   const languagesDisplay = profileForm.languages || "Not specified";
 
   return (
@@ -434,7 +442,7 @@ const ViewProfileLayer = () => {
                     <input
                       type='text'
                       name='role'
-                      value={profileForm.role}
+                      value={roleDisplay}
                       className='form-control bg-neutral-100 radius-12 h-56-px'
                       placeholder='Role'
                       disabled

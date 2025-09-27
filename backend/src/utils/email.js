@@ -61,26 +61,52 @@ const sendOtpEmail = async ({ to, otp, subject, context }) => {
   return { mocked: false };
 };
 
-const sendAdminApprovalEmail = async ({ to, requester, approvalUrl, rejectionUrl, portalName }) => {
-  if (!approvalUrl || !rejectionUrl) {
-    throw new Error('Approval and rejection URLs are required');
+const sendAdminApprovalEmail = async ({ to, requester, approvalOptions, rejectionUrl, portalName }) => {
+  if (!Array.isArray(approvalOptions) || approvalOptions.length === 0) {
+    throw new Error('At least one approval option is required');
+  }
+
+  if (!rejectionUrl) {
+    throw new Error('Rejection URL is required');
   }
 
   const subject = `${portalName || 'Gradus Admin Portal'}: Approval requested for ${requester.fullName}`;
   const languageText = Array.isArray(requester.languages)
     ? requester.languages.join(', ')
     : requester.languages || 'Not provided';
+  const roleDisplay = requester.role || 'To be selected by approver';
 
-  const text = `A new admin signup request has been submitted.\n\n` +
-    `Full Name: ${requester.fullName}\n` +
-    `Email: ${requester.email}\n` +
-    `Phone Number: ${requester.phoneNumber}\n` +
-    `Department: ${requester.department || 'Not provided'}\n` +
-    `Designation: ${requester.designation || 'Not provided'}\n` +
-    `Languages: ${languageText}\n` +
-    `Role: ${requester.role || 'Not provided'}\n` +
-    `Bio: ${requester.bio || 'Not provided'}\n\n` +
-    `Approve: ${approvalUrl}\nReject: ${rejectionUrl}`;
+  const approvalText = approvalOptions
+    .map((option) => `Approve as ${option.label}: ${option.url}`)
+    .join('\n');
+
+  const text = `A new admin signup request has been submitted.\n\n`
+    + `Full Name: ${requester.fullName}\n`
+    + `Email: ${requester.email}\n`
+    + `Phone Number: ${requester.phoneNumber}\n`
+    + `Department: ${requester.department || 'Not provided'}\n`
+    + `Designation: ${requester.designation || 'Not provided'}\n`
+    + `Languages: ${languageText}\n`
+    + `Role: ${roleDisplay}\n`
+    + `Bio: ${requester.bio || 'Not provided'}\n\n`
+    + `${approvalText}\n`
+    + `Reject: ${rejectionUrl}`;
+
+  const approvalButtonsHtml = approvalOptions
+    .map(
+      (option) => `
+        <a href="${option.url}" style="background: #0B5394; color: #fff; padding: 10px 16px; text-decoration: none; border-radius: 4px; display: inline-block; margin-right: 12px; margin-bottom: 12px;">Approve as ${option.label}</a>
+      `
+    )
+    .join('');
+
+  const approvalLinksHtml = approvalOptions
+    .map(
+      (option) => `
+        <p style="margin: 0; font-size: 14px;">Approve as ${option.label}: <a href="${option.url}">${option.url}</a></p>
+      `
+    )
+    .join('');
 
   const html = `
     <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -114,7 +140,7 @@ const sendAdminApprovalEmail = async ({ to, requester, approvalUrl, rejectionUrl
           </tr>
           <tr>
             <td style="padding: 6px 8px; font-weight: bold;">Role</td>
-            <td style="padding: 6px 8px;">${requester.role || 'Not provided'}</td>
+            <td style="padding: 6px 8px;">${roleDisplay}</td>
           </tr>
           <tr>
             <td style="padding: 6px 8px; font-weight: bold; vertical-align: top;">Bio</td>
@@ -122,13 +148,13 @@ const sendAdminApprovalEmail = async ({ to, requester, approvalUrl, rejectionUrl
           </tr>
         </tbody>
       </table>
-      <p>Please choose whether to allow this user to continue registration:</p>
-      <div style="display: flex; gap: 12px;">
-        <a href="${approvalUrl}" style="background: #0B5394; color: #fff; padding: 10px 16px; text-decoration: none; border-radius: 4px;">Approve</a>
-        <a href="${rejectionUrl}" style="background: #d9534f; color: #fff; padding: 10px 16px; text-decoration: none; border-radius: 4px;">Reject</a>
+      <p>Please choose which role to assign to this admin:</p>
+      <div style="margin-bottom: 16px;">
+        ${approvalButtonsHtml}
       </div>
+      <a href="${rejectionUrl}" style="background: #d9534f; color: #fff; padding: 10px 16px; text-decoration: none; border-radius: 4px; display: inline-block;">Reject</a>
       <p style="margin-top: 20px;">If the buttons do not work, you can copy and paste these links into your browser:</p>
-      <p style="margin: 0; font-size: 14px;">Approve: <a href="${approvalUrl}">${approvalUrl}</a></p>
+      ${approvalLinksHtml}
       <p style="margin: 0; font-size: 14px;">Reject: <a href="${rejectionUrl}">${rejectionUrl}</a></p>
     </div>
   `;

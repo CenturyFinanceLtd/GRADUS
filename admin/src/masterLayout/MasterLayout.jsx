@@ -5,12 +5,21 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import ThemeToggleButton from "../helper/ThemeToggleButton";
 import useAuth from "../hook/useAuth";
 
+const ADMIN_ROLE_LABELS = {
+  admin: 'Admin',
+  programmer_admin: 'Programmer (Admin)',
+};
+
 const MasterLayout = ({ children }) => {
   let [sidebarActive, seSidebarActive] = useState(false);
   let [mobileMenu, setMobileMenu] = useState(false);
   const location = useLocation(); // Hook to get the current route
   const navigate = useNavigate();
   const { admin, token, loading, logout } = useAuth();
+  const normalizedAdminRole = admin?.role ? admin.role.toLowerCase() : "";
+  const isProgrammerAdmin = normalizedAdminRole === "programmer_admin";
+  const adminRoleLabel = ADMIN_ROLE_LABELS[normalizedAdminRole] || admin?.role || "Admin";
+
 
   useEffect(() => {
     if (!loading && !token) {
@@ -308,6 +317,26 @@ const MasterLayout = ({ children }) => {
                 <span>Chat</span>
               </NavLink>
             </li>
+             <li>
+              <NavLink
+                to='/users-list'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='flowbite:users-group-outline' className='menu-icon' />
+                <span>Users</span>
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink
+                to='/assign-role'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='ri-user-settings-line' className='menu-icon' />
+                <span>Roles</span>
+              </NavLink>
+            </li>
+
             <li>
               <NavLink
                 to='/calendar-main'
@@ -887,65 +916,6 @@ const MasterLayout = ({ children }) => {
                 <Icon icon='fe:vector' className='menu-icon' />
                 <span>Widgets</span>
               </NavLink>
-            </li>
-
-            {/* Users Dropdown */}
-            <li className='dropdown'>
-              <Link to='#'>
-                <Icon
-                  icon='flowbite:users-group-outline'
-                  className='menu-icon'
-                />
-                <span>Users</span>
-              </Link>
-              <ul className='sidebar-submenu'>
-                <li>
-                  <NavLink
-                    to='/users-list'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-primary-600 w-auto' />{" "}
-                    Users List
-                  </NavLink>
-                </li>
-               
-                
-                
-              </ul>
-            </li>
-
-            {/* Role & Access Dropdown */}
-            <li className='dropdown'>
-              <Link to='#'>
-                <i className='ri-user-settings-line' />
-                <span>Role &amp; Access</span>
-              </Link>
-              <ul className='sidebar-submenu'>
-                <li>
-                  <NavLink
-                    to='/role-access'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-primary-600 w-auto' />{" "}
-                    Role &amp; Access
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to='/assign-role'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-warning-main w-auto' />{" "}
-                    Assign Role
-                  </NavLink>
-                </li>
-              </ul>
             </li>
 
             <li className='sidebar-menu-group-title'>Application</li>
@@ -1887,7 +1857,7 @@ const MasterLayout = ({ children }) => {
                           {admin?.fullName || admin?.email}
                         </h6>
                         <span className='text-secondary-light fw-medium text-sm'>
-                          {admin?.role || 'Admin'}
+                          {adminRoleLabel}
                         </span>
                       </div>
                       <button type='button' className='hover-text-danger'>
@@ -1975,3 +1945,4 @@ const MasterLayout = ({ children }) => {
 };
 
 export default MasterLayout;
+
