@@ -1,8 +1,34 @@
+﻿import { useEffect, useRef, useState } from "react";
 import CountUp from "react-countup";
-import { Link } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
 
+const AnimatedSpoiler = ({ isExpanded, children }) => {
+  const innerRef = useRef(null);
+  const [contentHeight, setContentHeight] = useState(0);
+
+  useEffect(() => {
+    if (innerRef.current) {
+      setContentHeight(innerRef.current.scrollHeight);
+    }
+  }, [children, isExpanded]);
+
+  return (
+    <div
+      style={{
+        maxHeight: isExpanded ? contentHeight : 0,
+        opacity: isExpanded ? 1 : 0,
+        overflow: "hidden",
+        transition: "max-height 0.45s ease, opacity 0.3s ease",
+      }}
+      aria-hidden={!isExpanded}
+    >
+      <div ref={innerRef}>{children}</div>
+    </div>
+  );
+};
+
 const AboutOne = () => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -102,12 +128,24 @@ const AboutOne = () => {
                     <h5 className='text-main-600 mb-0 '>About Gradus</h5>
                   </div>
                   <h2 className='mb-24 wow bounceIn'>
-                    The Place Where You Can Achieve
+                    Architecting a Definitive Passage to Professional Eminence
                   </h2>
-                  <p className='text-neutral-500 text-line-2 wow bounceInUp'>
-                    Welcome to Gradus, where learning knows no bounds. Whether
-                    you're a student, professional, or lifelong learner...
-                  </p>
+                  <div className='wow bounceInUp'>
+                    <p className='text-neutral-500 mb-16'>
+                      Gradus, an ambitious initiative of Century Finance Limited, is conceived as a premier career accelerator that forges a decisive link between academic instruction and professional ascendancy. Every pathway is meticulously curated for management aspirants, engineering graduates, and finance enthusiasts, transforming theoretical acumen into demonstrable competence.
+                    </p>
+                    <AnimatedSpoiler isExpanded={isExpanded}>
+                      <p className='text-neutral-500 mb-16'>
+                        The Gradus paradigm is architected with a dual advantage: an immersive two-month remunerated internship, affording unmediated exposure to real-world complexities, and a guaranteed placement trajectory with some of the nation's most prestigious organizations. This construct ensures that theoretical acumen is invariably transfigured into demonstrable competence.
+                      </p>
+                      <p className='text-neutral-500 mb-16'>
+                        We operate on the conviction that careers are neither sustained by theory nor advanced by rote learning. They are instead fortified by practical immersion, empirical learning, and critical mentorship. Hence, every Gradus module is suffused with live projects, experiential tasks, and incisive guidance from erudite industry experts, professionals rigorously selected for their pedagogical depth and experiential authority.
+                      </p>
+                      <p className='text-neutral-500 mb-0'>
+                        Endowed with the institutional credibility of Century Finance Limited, Gradus is not merely an educational initiative but a transformative crucible wherein ambition is refined into expertise, and potential is inexorably elevated into accomplishment. For those who dare to aspire, Gradus does not merely offer training; it architects a definitive passage to professional eminence.
+                      </p>
+                    </AnimatedSpoiler>
+                  </div>
                 </div>
                 <div
                   className='flex-align align-items-start gap-28 mb-32'
@@ -119,10 +157,19 @@ const AboutOne = () => {
                   </span>
                   <div className='flex-grow-1'>
                     <h4 className='text-neutral-500 mb-12'>Our Mission</h4>
-                    <p className='text-neutral-500'>
-                      Driven by a team of dedicated educators, technologists,
-                      and visionaries, we strive to create a supportive
-                    </p>
+                    <div className='text-neutral-500'>
+                      <p className='mb-16'>
+                        At Gradus, our mission is to redefine the way careers are built by creating a seamless bridge between education and industry. We are committed to transforming ambitious learners into highly skilled professionals through rigorous, outcome-driven training programs that are meticulously aligned with the evolving demands of the corporate world.
+                      </p>
+                      <AnimatedSpoiler isExpanded={isExpanded}>
+                        <p className='mb-16'>
+                          Backed by strategic partnerships with 178 leading companies across India, every module, session, and experiential learning component at Gradus is designed in direct correlation with the skills, competencies, and behavioral attributes sought by employers. This ensures that our learners are not merely job-ready but industry-ready, equipped to excel, adapt, and lead in dynamic environments.
+                        </p>
+                        <p className='mb-0'>
+                          Our training ecosystem is powered by excellence, driven by a distinguished faculty of trainers carefully handpicked through a stringent selection process. These mentors, with proven expertise in finance, management, engineering, and the stock market, impart not only technical knowledge but also cultivate problem-solving abilities, critical thinking, and professional resilience.
+                        </p>
+                      </AnimatedSpoiler>
+                    </div>
                   </div>
                 </div>
                 <div
@@ -135,11 +182,16 @@ const AboutOne = () => {
                   </span>
                   <div className='flex-grow-1'>
                     <h4 className='text-neutral-500 mb-12'>Our Vision</h4>
-                    <p className='text-neutral-500'>
-                      A professional seeking to upskill, or a lifelong learner
-                      exploring new horizons, we're here to accompany you every
-                      step of the way.{" "}
-                    </p>
+                    <div className='text-neutral-500'>
+                      <p className='mb-16'>
+                        Gradus goes beyond conventional learning by integrating paid internships and guaranteed placements into its framework, offering learners a pathway that is both experiential and assured. By merging academic rigor with practical exposure, we empower our students to evolve into professionals who are confident, competent, and committed to making meaningful contributions in their chosen fields.
+                      </p>
+                      <AnimatedSpoiler isExpanded={isExpanded}>
+                        <p className='mb-0'>
+                          Ultimately, our mission is to shape futures with certainty, to stand as a catalyst for career success, to democratize access to high-quality training and placement opportunities, and to establish Gradus as the most trusted platform where education transforms seamlessly into employment.
+                        </p>
+                      </AnimatedSpoiler>
+                    </div>
                   </div>
                 </div>
                 <div
@@ -147,13 +199,15 @@ const AboutOne = () => {
                   data-aos='fade-left'
                   data-aos-duration={600}
                 >
-                  <Link
-                    to='/course'
-                    className='btn btn-main rounded-pill flex-align gap-8'
+                  <button
+                    type='button'
+                    className='btn btn-main rounded-pill flex-align d-inline-flex gap-8'
+                    onClick={() => setIsExpanded((prev) => !prev)}
+                    aria-expanded={isExpanded}
                   >
-                    Read More
+                    {isExpanded ? "Read Less" : "Know More"}
                     <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
-                  </Link>
+                  </button>
                   <div className='flex-align gap-20'>
                     <img
                       src='assets/images/thumbs/ceo-img.png'

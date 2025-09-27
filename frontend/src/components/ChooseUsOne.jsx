@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import ModalVideo from "react-modal-video";
 import { Link } from "react-router-dom";
 
@@ -24,17 +24,19 @@ const ChooseUsOne = () => {
                 <div className='mb-40'>
                   <div className='flex-align gap-8 mb-16 wow bounceInDown'>
                     <span className='w-8 h-8 bg-main-600 rounded-circle' />
-                    <h5 className='text-main-600 mb-0'>Why Choose Us</h5>
+                    <h5 className='text-main-600 mb-0'>Why Choose Gradus</h5>
                   </div>
                   <h2 className='mb-24  wow bounceIn'>
-                    Our Commitment to Excellence, Learn, Grow &amp; Success.
+                    The Gradus Advantage: Bridging Education and Industry
                   </h2>
-                  <p className='text-neutral-500 text-line-2  wow bounceInUp'>
-                    We are passionate about transforming lives through
-                    education. Founded with a vision to make learning accessible
-                    to all, we believe in the power of knowledge to unlock
-                    opportunities and shape the future.
-                  </p>
+                  <div className='text-neutral-500 wow bounceInUp'>
+                    <p className='mb-16'>
+                      Gradus, an ambitious initiative of Century Finance Limited, is conceived as a premier career accelerator that forges a decisive link between academic instruction and professional ascendancy. Every pathway is meticulously curated for management aspirants, engineering graduates, and finance enthusiasts, transforming theoretical acumen into demonstrable competence.
+                    </p>
+                    <p className='mb-0'>
+                      Our learning ecosystem is anchored in live projects, experiential immersion, and incisive mentorship from erudite industry experts so that ambition is refined into expertise and potential is elevated into accomplishment.
+                    </p>
+                  </div>
                 </div>
                 <ul>
                   <li
@@ -46,7 +48,7 @@ const ChooseUsOne = () => {
                       <i className='ph-bold ph-checks' />
                     </span>
                     <span className='flex-grow-1 text-neutral-500'>
-                      9/10 Average Satisfaction Rate
+                      Immersive two-month paid internships paired with guaranteed placement trajectories at prestigious organisations.
                     </span>
                   </li>
                   <li
@@ -58,7 +60,7 @@ const ChooseUsOne = () => {
                       <i className='ph-bold ph-checks' />
                     </span>
                     <span className='flex-grow-1 text-neutral-500'>
-                      96% Completitation Rate
+                      Curriculum calibrated with the competencies sought by 178 strategic industry partners to deliver truly industry-ready talent.
                     </span>
                   </li>
                   <li
@@ -70,7 +72,7 @@ const ChooseUsOne = () => {
                       <i className='ph-bold ph-checks' />
                     </span>
                     <span className='flex-grow-1 text-neutral-500'>
-                      Friendly Environment &amp; Expert Teacher
+                      Distinguished mentors from finance, management, engineering, and markets cultivate critical thinking and professional resilience.
                     </span>
                   </li>
                 </ul>
@@ -93,17 +95,16 @@ const ChooseUsOne = () => {
                   </span>
                   <div>
                     <span className='text-lg text-neutral-700 d-block'>
-                      4.6
-                      <span className='text-neutral-100'>(2.4k)</span>
+                      Paid Internships
                     </span>
-                    <span className='text-neutral-500'>AVG Reviews</span>
+                    <span className='text-neutral-500'>Guaranteed placement pathway</span>
                   </div>
                 </div>
                 <div
                   className='banner-box one style-two px-24 py-12 rounded-12 bg-white fw-medium box-shadow-lg d-inline-block'
                   data-aos='fade-left'
                 >
-                  <span className='text-main-600'>36k+</span> Enrolled Students
+                  <span className='text-main-600'>178+</span> Strategic Industry Partners
                   <div className='enrolled-students mt-12'>
                     <img
                       src='assets/images/thumbs/enroll-student-img1.png'
