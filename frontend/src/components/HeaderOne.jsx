@@ -110,16 +110,9 @@ const HeaderOne = () => {
       ],
     },
 
-    {
-      label: "Blog",
-      links: [
-        { to: "/blogs", label: "Blog Grid" },
-        { to: "/blog-list", label: "Blog List" },
-        { to: "/blog-classic", label: "Blog Classic" },
-        { to: "/blog-details", label: "Blog Details" },
-      ],
-    },
-    { to: "/contact", label: "Contact" },
+   
+    { to: "/blogs", label: "Blogs" },
+    { to: "/contact", label: "Contact Us" },
   ];
 
   return (
