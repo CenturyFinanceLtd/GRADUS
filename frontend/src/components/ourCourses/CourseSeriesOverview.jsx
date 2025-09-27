@@ -1,27 +1,39 @@
-import Slider from "react-slick";
-import { courseSeriesData, courseSeriesHeroContent } from "../../data/courseSeriesData";
+
+import { useCallback } from 'react';
+import Slider from 'react-slick';
+import { courseSeriesData, courseSeriesHeroContent } from '../../data/courseSeriesData';
 
 const CourseSeriesOverview = () => {
   const { tagIcon, tagText, title, description } = courseSeriesHeroContent;
-
   const sliderSettings = {
     dots: true,
     arrows: false,
     infinite: true,
-    speed: 600,
+    speed: 700,
     slidesToShow: 1,
     slidesToScroll: 1,
     centerMode: true,
-    centerPadding: "0px",
+    centerPadding: '0px',
     autoplay: true,
-    autoplaySpeed: 5000,
-    cssEase: "cubic-bezier(0.45, 0, 0.15, 1)",
+    autoplaySpeed: 6200,
+    cssEase: 'cubic-bezier(0.45, 0, 0.15, 1)',
   };
 
+  const handleExploreClick = useCallback((courseId, event) => {
+    if (typeof window === 'undefined') return;
+
+    event.preventDefault();
+    const target = document.getElementById(courseId);
+    if (!target) {
+      return;
+    }
+
+    const scrollTarget = target.getBoundingClientRect().top + window.pageYOffset - 96;
+    window.scrollTo({ top: Math.max(scrollTarget, 0), behavior: 'smooth' });
+  }, []);
+
   const renderCard = (course) => (
-    <div
-      className='p-32 h-100 bg-white border border-neutral-30 rounded-24 box-shadow-md position-relative overview-card mx-auto'
-    >
+    <div className='p-32 h-100 bg-white border border-neutral-30 rounded-24 box-shadow-md position-relative overview-card mx-auto'>
       <div className='d-flex align-items-start gap-16 mb-20'>
         <span className='flex-shrink-0 w-52 h-52 rounded-circle bg-main-600 text-white flex-center text-xl fw-semibold'>
           {course.name.charAt(0)}
@@ -34,10 +46,7 @@ const CourseSeriesOverview = () => {
       <p className='text-neutral-500 mb-20'>{course.focus}</p>
       <ul className='list-unstyled d-grid gap-12 mb-24'>
         {course.approvals.map((item, index) => (
-          <li
-            className='d-flex align-items-start gap-12 text-neutral-600'
-            key={`overview-${course.id}-approval-${index}`}
-          >
+          <li className='d-flex align-items-start gap-12 text-neutral-600' key={`overview-${course.id}-approval-${index}`}>
             <i className='ph-bold ph-check-circle text-main-600 mt-2 d-inline-flex' />
             <span>{item}</span>
           </li>
@@ -46,17 +55,19 @@ const CourseSeriesOverview = () => {
       <div className='p-16 rounded-16 bg-main-25 text-neutral-700 fw-medium mb-24'>
         {course.placementRange}
       </div>
-      <a href={`#${course.id}`} className='btn btn-main rounded-pill flex-align gap-8'>
+      <button
+        type='button'
+        onClick={(event) => handleExploreClick(course.id, event)}
+        className='btn btn-main rounded-pill flex-align gap-8'
+      >
         Explore Series
         <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
-      </a>
+      </button>
     </div>
   );
 
   return (
-    <section
-      className='our-courses-overview py-120 position-relative z-1'
-    >
+    <section className='our-courses-overview py-120 position-relative z-1'>
       <div className='container'>
         <div className='row justify-content-center text-center'>
           <div className='col-xl-8 col-lg-9'>
@@ -92,9 +103,3 @@ const CourseSeriesOverview = () => {
 };
 
 export default CourseSeriesOverview;
-
-
-
-
-
-

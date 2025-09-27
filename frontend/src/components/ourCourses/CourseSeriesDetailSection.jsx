@@ -74,7 +74,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
             className='d-flex align-items-start gap-10 text-neutral-600'
             key={`course-${course.id}-cert-${certIndex}-coverage-${coverageIndex}`}
           >
-            <i className='ph-bold ph-check text-main-500 mt-1 d-inline-flex' />
+            <i className='ph-bold ph-check-circle text-main-500 mt-1 d-inline-flex' />
             <span>{item}</span>
           </li>
         ))}
@@ -159,16 +159,17 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
                         <div>
                           <h5 className='mb-12 text-neutral-900'>{week.title}</h5>
                           <ul className='list-unstyled d-grid gap-10 mb-0'>
-                            {week.points.map((point, pointIndex) => (
-                              <li
-                                className='d-flex align-items-start gap-10 text-neutral-600'
-                                key={`course-${course.id}-week-${weekIndex}-point-${pointIndex}`}
-                              >
-                                <i className='ph-bold ph-check text-main-500 mt-1 d-inline-flex' />
-                                <span>{point}</span>
-                              </li>
-                            ))}
-                          </ul>
+                          {week.points.map((point, pointIndex) => (
+                            <li
+                              className='d-flex align-items-start gap-10 text-neutral-600'
+                              key={`course-${course.id}-week-${weekIndex}-point-${pointIndex}`}
+                            >
+                              <i className='ph-bold ph-circle-wavy-check text-main-500 mt-1 d-inline-flex' />
+                              
+                              <span className='sr-only'>{point}</span>
+                            </li>
+                          ))}
+                        </ul>
                         </div>
                       </div>
                     </div>
