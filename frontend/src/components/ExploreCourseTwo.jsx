@@ -4,7 +4,7 @@ const ExploreCourseTwo = () => {
   return (
     <section className='explore-course py-120 bg-main-25 position-relative z-1'>
       <img
-        src='assets/images/shapes/shape2.png'
+        src='/assets/images/shapes/shape2.png'
         alt=''
         className='shape six animation-scalation'
       />
@@ -143,7 +143,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img1.png'
+                        src='/assets/images/thumbs/course-img1.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -152,7 +152,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img1.png'
+                        src='/assets/images/thumbs/user-two-img1.png'
                         alt=''
                       />
                     </span>
@@ -235,7 +235,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img2.png'
+                        src='/assets/images/thumbs/course-img2.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -244,7 +244,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img2.png'
+                        src='/assets/images/thumbs/user-two-img2.png'
                         alt=''
                       />
                     </span>
@@ -327,7 +327,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img3.png'
+                        src='/assets/images/thumbs/course-img3.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -336,7 +336,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -419,7 +419,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img3.png'
+                        src='/assets/images/thumbs/course-img3.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -428,7 +428,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -511,7 +511,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img5.png'
+                        src='/assets/images/thumbs/course-img5.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -520,7 +520,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img5.png'
+                        src='/assets/images/thumbs/user-two-img5.png'
                         alt=''
                       />
                     </span>
@@ -603,7 +603,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img6.png'
+                        src='/assets/images/thumbs/course-img6.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -612,7 +612,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -714,7 +714,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img1.png'
+                        src='/assets/images/thumbs/course-img1.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -723,7 +723,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img1.png'
+                        src='/assets/images/thumbs/user-two-img1.png'
                         alt=''
                       />
                     </span>
@@ -806,7 +806,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img2.png'
+                        src='/assets/images/thumbs/course-img2.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -815,7 +815,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img2.png'
+                        src='/assets/images/thumbs/user-two-img2.png'
                         alt=''
                       />
                     </span>
@@ -898,7 +898,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img3.png'
+                        src='/assets/images/thumbs/course-img3.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -907,7 +907,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -990,7 +990,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img3.png'
+                        src='/assets/images/thumbs/course-img3.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -999,7 +999,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -1082,7 +1082,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img5.png'
+                        src='/assets/images/thumbs/course-img5.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1091,7 +1091,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img5.png'
+                        src='/assets/images/thumbs/user-two-img5.png'
                         alt=''
                       />
                     </span>
@@ -1174,7 +1174,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img6.png'
+                        src='/assets/images/thumbs/course-img6.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1183,7 +1183,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -1285,7 +1285,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img1.png'
+                        src='/assets/images/thumbs/course-img1.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1294,7 +1294,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img1.png'
+                        src='/assets/images/thumbs/user-two-img1.png'
                         alt=''
                       />
                     </span>
@@ -1377,7 +1377,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img2.png'
+                        src='/assets/images/thumbs/course-img2.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1386,7 +1386,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img2.png'
+                        src='/assets/images/thumbs/user-two-img2.png'
                         alt=''
                       />
                     </span>
@@ -1469,7 +1469,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img3.png'
+                        src='/assets/images/thumbs/course-img3.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1478,7 +1478,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -1561,7 +1561,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img3.png'
+                        src='/assets/images/thumbs/course-img3.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1570,7 +1570,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -1653,7 +1653,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img5.png'
+                        src='/assets/images/thumbs/course-img5.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1662,7 +1662,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img5.png'
+                        src='/assets/images/thumbs/user-two-img5.png'
                         alt=''
                       />
                     </span>
@@ -1745,7 +1745,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img6.png'
+                        src='/assets/images/thumbs/course-img6.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1754,7 +1754,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -1856,7 +1856,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img1.png'
+                        src='/assets/images/thumbs/course-img1.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1865,7 +1865,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img1.png'
+                        src='/assets/images/thumbs/user-two-img1.png'
                         alt=''
                       />
                     </span>
@@ -1948,7 +1948,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img2.png'
+                        src='/assets/images/thumbs/course-img2.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1957,7 +1957,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img2.png'
+                        src='/assets/images/thumbs/user-two-img2.png'
                         alt=''
                       />
                     </span>
@@ -2040,7 +2040,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img3.png'
+                        src='/assets/images/thumbs/course-img3.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -2049,7 +2049,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -2132,7 +2132,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img3.png'
+                        src='/assets/images/thumbs/course-img3.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -2141,7 +2141,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -2224,7 +2224,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img5.png'
+                        src='/assets/images/thumbs/course-img5.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -2233,7 +2233,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img5.png'
+                        src='/assets/images/thumbs/user-two-img5.png'
                         alt=''
                       />
                     </span>
@@ -2316,7 +2316,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img6.png'
+                        src='/assets/images/thumbs/course-img6.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -2325,7 +2325,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -2427,7 +2427,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img1.png'
+                        src='/assets/images/thumbs/course-img1.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -2436,7 +2436,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img1.png'
+                        src='/assets/images/thumbs/user-two-img1.png'
                         alt=''
                       />
                     </span>
@@ -2519,7 +2519,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img2.png'
+                        src='/assets/images/thumbs/course-img2.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -2528,7 +2528,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img2.png'
+                        src='/assets/images/thumbs/user-two-img2.png'
                         alt=''
                       />
                     </span>
@@ -2611,7 +2611,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img3.png'
+                        src='/assets/images/thumbs/course-img3.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -2620,7 +2620,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -2703,7 +2703,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img3.png'
+                        src='/assets/images/thumbs/course-img3.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -2712,7 +2712,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -2795,7 +2795,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img5.png'
+                        src='/assets/images/thumbs/course-img5.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -2804,7 +2804,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img5.png'
+                        src='/assets/images/thumbs/user-two-img5.png'
                         alt=''
                       />
                     </span>
@@ -2887,7 +2887,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img6.png'
+                        src='/assets/images/thumbs/course-img6.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -2896,7 +2896,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -2998,7 +2998,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img1.png'
+                        src='/assets/images/thumbs/course-img1.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -3007,7 +3007,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img1.png'
+                        src='/assets/images/thumbs/user-two-img1.png'
                         alt=''
                       />
                     </span>
@@ -3090,7 +3090,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img2.png'
+                        src='/assets/images/thumbs/course-img2.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -3099,7 +3099,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img2.png'
+                        src='/assets/images/thumbs/user-two-img2.png'
                         alt=''
                       />
                     </span>
@@ -3182,7 +3182,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img3.png'
+                        src='/assets/images/thumbs/course-img3.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -3191,7 +3191,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -3274,7 +3274,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img3.png'
+                        src='/assets/images/thumbs/course-img3.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -3283,7 +3283,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>
@@ -3366,7 +3366,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img5.png'
+                        src='/assets/images/thumbs/course-img5.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -3375,7 +3375,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img5.png'
+                        src='/assets/images/thumbs/user-two-img5.png'
                         alt=''
                       />
                     </span>
@@ -3458,7 +3458,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/course-img6.png'
+                        src='/assets/images/thumbs/course-img6.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -3467,7 +3467,7 @@ const ExploreCourseTwo = () => {
                   <div className='course-item__content position-relative'>
                     <span className='course-item__user border border-white flex-center w-60 h-60 bg-white text-main-600 rounded-circle text-2xl transition-2'>
                       <img
-                        src='assets/images/thumbs/user-two-img3.png'
+                        src='/assets/images/thumbs/user-two-img3.png'
                         alt=''
                       />
                     </span>

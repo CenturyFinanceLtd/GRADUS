@@ -24,7 +24,7 @@ const BlogClassicInner = () => {
                 <div className='course-item__thumb max-h-unset rounded-12 overflow-hidden position-relative'>
                   <Link to='/blog-details' className='w-100 h-100'>
                     <img
-                      src='assets/images/thumbs/blog-two-img1.png'
+                      src='/assets/images/thumbs/blog-two-img1.png'
                       alt='Course'
                       className='scale-hover-item__img rounded-12 cover-img transition-2'
                     />
@@ -78,7 +78,7 @@ const BlogClassicInner = () => {
                 <div className='course-item__thumb max-h-unset rounded-12 overflow-hidden position-relative'>
                   <Link to='/blog-details' className='w-100 h-100'>
                     <img
-                      src='assets/images/thumbs/blog-two-img2.png'
+                      src='/assets/images/thumbs/blog-two-img2.png'
                       alt='Course'
                       className='scale-hover-item__img rounded-12 cover-img transition-2'
                     />
@@ -132,7 +132,7 @@ const BlogClassicInner = () => {
                 <div className='course-item__thumb max-h-unset rounded-12 overflow-hidden position-relative'>
                   <Link to='/blog-details' className='w-100 h-100'>
                     <img
-                      src='assets/images/thumbs/blog-two-img3.png'
+                      src='/assets/images/thumbs/blog-two-img3.png'
                       alt='Course'
                       className='scale-hover-item__img rounded-12 cover-img transition-2'
                     />
@@ -186,7 +186,7 @@ const BlogClassicInner = () => {
                 <div className='course-item__thumb max-h-unset rounded-12 overflow-hidden position-relative'>
                   <Link to='/blog-details' className='w-100 h-100'>
                     <img
-                      src='assets/images/thumbs/blog-two-img4.png'
+                      src='/assets/images/thumbs/blog-two-img4.png'
                       alt='Course'
                       className='scale-hover-item__img rounded-12 cover-img transition-2'
                     />
@@ -240,7 +240,7 @@ const BlogClassicInner = () => {
                 <div className='course-item__thumb max-h-unset rounded-12 overflow-hidden position-relative'>
                   <Link to='/blog-details' className='w-100 h-100'>
                     <img
-                      src='assets/images/thumbs/blog-two-img5.png'
+                      src='/assets/images/thumbs/blog-two-img5.png'
                       alt='Course'
                       className='scale-hover-item__img rounded-12 cover-img transition-2'
                     />
@@ -294,7 +294,7 @@ const BlogClassicInner = () => {
                 <div className='course-item__thumb max-h-unset rounded-12 overflow-hidden position-relative'>
                   <Link to='/blog-details' className='w-100 h-100'>
                     <img
-                      src='assets/images/thumbs/blog-two-img6.png'
+                      src='/assets/images/thumbs/blog-two-img6.png'
                       alt='Course'
                       className='scale-hover-item__img rounded-12 cover-img transition-2'
                     />
@@ -348,7 +348,7 @@ const BlogClassicInner = () => {
                 <div className='course-item__thumb max-h-unset rounded-12 overflow-hidden position-relative'>
                   <Link to='/blog-details' className='w-100 h-100'>
                     <img
-                      src='assets/images/thumbs/blog-two-img7.png'
+                      src='/assets/images/thumbs/blog-two-img7.png'
                       alt='Course'
                       className='scale-hover-item__img rounded-12 cover-img transition-2'
                     />
@@ -402,7 +402,7 @@ const BlogClassicInner = () => {
                 <div className='course-item__thumb max-h-unset rounded-12 overflow-hidden position-relative'>
                   <Link to='/blog-details' className='w-100 h-100'>
                     <img
-                      src='assets/images/thumbs/blog-two-img8.png'
+                      src='/assets/images/thumbs/blog-two-img8.png'
                       alt='Course'
                       className='scale-hover-item__img rounded-12 cover-img transition-2'
                     />
@@ -456,7 +456,7 @@ const BlogClassicInner = () => {
                 <div className='course-item__thumb max-h-unset rounded-12 overflow-hidden position-relative'>
                   <Link to='/blog-details' className='w-100 h-100'>
                     <img
-                      src='assets/images/thumbs/blog-two-img9.png'
+                      src='/assets/images/thumbs/blog-two-img9.png'
                       alt='Course'
                       className='scale-hover-item__img rounded-12 cover-img transition-2'
                     />
@@ -581,43 +581,43 @@ const BlogClassicInner = () => {
               <span className='d-block border border-neutral-30 my-24 border-dashed' />
               <div className='flex-align flex-wrap gap-8'>
                 <Link
-                  to='/blog'
+                  to='/blogs'
                   className='border border-neutral-30 px-20 py-12 rounded-pill text-sm bg-white text-neutral-500 hover-border-main-600 hover-text-main-600'
                 >
                   Machine Learning
                 </Link>
                 <Link
-                  to='/blog'
+                  to='/blogs'
                   className='border border-neutral-30 px-20 py-12 rounded-pill text-sm bg-white text-neutral-500 hover-border-main-600 hover-text-main-600'
                 >
                   Web Development
                 </Link>
                 <Link
-                  to='/blog'
+                  to='/blogs'
                   className='border border-neutral-30 px-20 py-12 rounded-pill text-sm bg-white text-neutral-500 hover-border-main-600 hover-text-main-600'
                 >
                   Python
                 </Link>
                 <Link
-                  to='/blog'
+                  to='/blogs'
                   className='border border-neutral-30 px-20 py-12 rounded-pill text-sm bg-white text-neutral-500 hover-border-main-600 hover-text-main-600'
                 >
                   Laravel
                 </Link>
                 <Link
-                  to='/blog'
+                  to='/blogs'
                   className='border border-neutral-30 px-20 py-12 rounded-pill text-sm bg-white text-neutral-500 hover-border-main-600 hover-text-main-600'
                 >
                   Wordpress
                 </Link>
                 <Link
-                  to='/blog'
+                  to='/blogs'
                   className='border border-neutral-30 px-20 py-12 rounded-pill text-sm bg-white text-neutral-500 hover-border-main-600 hover-text-main-600'
                 >
                   UI/UX Design
                 </Link>
                 <Link
-                  to='/blog'
+                  to='/blogs'
                   className='border border-neutral-30 px-20 py-12 rounded-pill text-sm bg-white text-neutral-500 hover-border-main-600 hover-text-main-600'
                 >
                   AI
@@ -625,7 +625,7 @@ const BlogClassicInner = () => {
               </div>
               <span className='d-block border border-neutral-30 my-24 border-dashed' />
               <Link
-                to='/blog'
+                to='/blogs'
                 className='h6 mb-0 text-main-600 fw-semibold hover-text-decoration-underline'
               >
                 See All

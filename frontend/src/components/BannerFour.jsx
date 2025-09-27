@@ -5,27 +5,27 @@ const BannerFour = () => {
     <>
       <section className='banner-four bg-main-25 py-80 position-relative overflow-hidden z-1'>
         <img
-          src='assets/images/shapes/shape1.png'
+          src='/assets/images/shapes/shape1.png'
           alt=''
           className='shape one animation-rotation'
         />
         <img
-          src='assets/images/shapes/shape2.png'
+          src='/assets/images/shapes/shape2.png'
           alt=''
           className='shape two animation-scalation'
         />
         <img
-          src='assets/images/shapes/shape5.png'
+          src='/assets/images/shapes/shape5.png'
           alt=''
           className='shape three animation-walking'
         />
         <img
-          src='assets/images/shapes/shape2.png'
+          src='/assets/images/shapes/shape2.png'
           alt=''
           className='shape four animation-scalation'
         />
         <img
-          src='assets/images/shapes/shape3.png'
+          src='/assets/images/shapes/shape3.png'
           alt=''
           className='shape ten animation-walking'
         />
@@ -109,7 +109,7 @@ const BannerFour = () => {
                 <div className='banner-four-thumb__images d-flex gap-24'>
                   <div className='banner-four-thumb__image wow bounceIn'>
                     <img
-                      src='assets/images/thumbs/banner-four-img1.png'
+                      src='/assets/images/thumbs/banner-four-img1.png'
                       alt='Banner'
                       className='rounded-bottom-start-72px rounded-top-end-72px'
                       data-tilt=''
@@ -122,7 +122,7 @@ const BannerFour = () => {
                   </div>
                   <div className='banner-four-thumb__image wow bounceIn mt-160'>
                     <img
-                      src='assets/images/thumbs/banner-four-img2.png'
+                      src='/assets/images/thumbs/banner-four-img2.png'
                       alt='Banner '
                       className='rounded-bottom-end-72px rounded-bottom-end-72px'
                       data-tilt=''

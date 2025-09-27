@@ -4,12 +4,12 @@ const HowItWorkOne = () => {
   return (
     <section className='how-it-work py-120 position-relative z-1 overflow-hidden'>
       <img
-        src='assets/images/shapes/shape2.png'
+        src='/assets/images/shapes/shape2.png'
         alt=''
         className='shape two animation-scalation'
       />
       <img
-        src='assets/images/shapes/shape6.png'
+        src='/assets/images/shapes/shape6.png'
         alt=''
         className='shape four animation-scalation'
       />
@@ -25,7 +25,7 @@ const HowItWorkOne = () => {
                 <div className='p-40 rounded-12 animation-item item-hover hover-bg-main-600 transition-2 bg-main-25 '>
                   <span className='w-80 h-80 mb-32 flex-center bg-white box-shadow-md rounded-12 item-hover__bg'>
                     <img
-                      src='assets/images/icons/how-it-work-icon1.png'
+                      src='/assets/images/icons/how-it-work-icon1.png'
                       alt=''
                       className='animate__wobble'
                     />
@@ -46,7 +46,7 @@ const HowItWorkOne = () => {
                 <div className='p-40 rounded-12 animation-item item-hover hover-bg-main-two-600 transition-2 bg-main-two-25 '>
                   <span className='w-80 h-80 mb-32 flex-center bg-white box-shadow-md rounded-12 item-hover__bg'>
                     <img
-                      src='assets/images/icons/how-it-work-icon2.png'
+                      src='/assets/images/icons/how-it-work-icon2.png'
                       alt=''
                       className='animate__wobble'
                     />
@@ -67,7 +67,7 @@ const HowItWorkOne = () => {
                 <div className='p-40 rounded-12 animation-item item-hover hover-bg-main-two-600 transition-2 bg-main-two-25 '>
                   <span className='w-80 h-80 mb-32 flex-center bg-white box-shadow-md rounded-12 item-hover__bg'>
                     <img
-                      src='assets/images/icons/how-it-work-icon3.png'
+                      src='/assets/images/icons/how-it-work-icon3.png'
                       alt=''
                       className='animate__wobble'
                     />
@@ -88,7 +88,7 @@ const HowItWorkOne = () => {
                 <div className='p-40 rounded-12 animation-item item-hover hover-bg-main-three-600 transition-2 bg-main-three-25 '>
                   <span className='w-80 h-80 mb-32 flex-center bg-white box-shadow-md rounded-12 item-hover__bg'>
                     <img
-                      src='assets/images/icons/how-it-work-icon4.png'
+                      src='/assets/images/icons/how-it-work-icon4.png'
                       alt=''
                       className='animate__wobble'
                     />

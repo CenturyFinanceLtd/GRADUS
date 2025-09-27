@@ -78,7 +78,7 @@ const TestimonialsTwo = () => {
             <div className='flex-between gap-24 flex-wrap pt-28 mt-28 border-top border-neutral-50 mt-28 border-dashed border-0'>
               <div className='flex-align gap-24 '>
                 <img
-                  src='assets/images/thumbs/testi-img1.png'
+                  src='/assets/images/thumbs/testi-img1.png'
                   alt=''
                   className='w-60 h-60 object-fit-cover rounded-circle'
                 />
@@ -88,7 +88,7 @@ const TestimonialsTwo = () => {
                 </div>
               </div>
               <span className='quate text-48 d-flex opacity-25'>
-                <img src='assets/images/icons/quote-icon.png' alt='' />
+                <img src='/assets/images/icons/quote-icon.png' alt='' />
               </span>
             </div>
           </div>
@@ -122,7 +122,7 @@ const TestimonialsTwo = () => {
             <div className='flex-between gap-24 flex-wrap pt-28 mt-28 border-top border-neutral-50 mt-28 border-dashed border-0'>
               <div className='flex-align gap-24 '>
                 <img
-                  src='assets/images/thumbs/testi-img2.png'
+                  src='/assets/images/thumbs/testi-img2.png'
                   alt=''
                   className='w-60 h-60 object-fit-cover rounded-circle'
                 />
@@ -132,7 +132,7 @@ const TestimonialsTwo = () => {
                 </div>
               </div>
               <span className='quate text-48 d-flex opacity-25'>
-                <img src='assets/images/icons/quote-icon.png' alt='' />
+                <img src='/assets/images/icons/quote-icon.png' alt='' />
               </span>
             </div>
           </div>
@@ -166,7 +166,7 @@ const TestimonialsTwo = () => {
             <div className='flex-between gap-24 flex-wrap pt-28 mt-28 border-top border-neutral-50 mt-28 border-dashed border-0'>
               <div className='flex-align gap-24 '>
                 <img
-                  src='assets/images/thumbs/user-two-img3.png'
+                  src='/assets/images/thumbs/user-two-img3.png'
                   alt=''
                   className='w-60 h-60 object-fit-cover rounded-circle'
                 />
@@ -176,7 +176,7 @@ const TestimonialsTwo = () => {
                 </div>
               </div>
               <span className='quate text-48 d-flex opacity-25'>
-                <img src='assets/images/icons/quote-icon.png' alt='' />
+                <img src='/assets/images/icons/quote-icon.png' alt='' />
               </span>
             </div>
           </div>

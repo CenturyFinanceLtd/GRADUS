@@ -41,17 +41,17 @@ const ReviewOne = () => {
         </div>
         <div className='position-relative z-1'>
           <img
-            src='assets/images/shapes/shape2.png'
+            src='/assets/images/shapes/shape2.png'
             alt=''
             className='shape two style-left animation-scalation'
           />
           <img
-            src='assets/images/shapes/shape6.png'
+            src='/assets/images/shapes/shape6.png'
             alt=''
             className='shape four style-top animation-scalation'
           />
           <img
-            src='assets/images/shapes/shape2.png'
+            src='/assets/images/shapes/shape2.png'
             alt=''
             className='shape four style-right animation-scalation'
           />
@@ -69,7 +69,7 @@ const ReviewOne = () => {
                   <div className='rounded-12 p-32 text-center transition-2 item-hover bg-main-25 hover-bg-main-600'>
                     <span className='w-120 h-120 rounded-circle overflow-hidden d-inline-flex'>
                       <img
-                        src='assets/images/thumbs/testimonials-three-img1.png'
+                        src='/assets/images/thumbs/testimonials-three-img1.png'
                         alt=''
                         className='cover-img'
                       />
@@ -106,7 +106,7 @@ const ReviewOne = () => {
                   <div className='rounded-12 p-32 text-center transition-2 item-hover bg-main-two-25 hover-bg-main-two-600'>
                     <span className='w-120 h-120 rounded-circle overflow-hidden d-inline-flex'>
                       <img
-                        src='assets/images/thumbs/testimonials-three-img4.png'
+                        src='/assets/images/thumbs/testimonials-three-img4.png'
                         alt=''
                         className='cover-img'
                       />
@@ -143,7 +143,7 @@ const ReviewOne = () => {
                   <div className='rounded-12 p-32 text-center transition-2 item-hover bg-main-25 hover-bg-main-600'>
                     <span className='w-120 h-120 rounded-circle overflow-hidden d-inline-flex'>
                       <img
-                        src='assets/images/thumbs/testimonials-three-img3.png'
+                        src='/assets/images/thumbs/testimonials-three-img3.png'
                         alt=''
                         className='cover-img'
                       />
@@ -193,7 +193,7 @@ const ReviewOne = () => {
                   <div className='rounded-12 p-32 text-center transition-2 item-hover bg-main-25 hover-bg-main-600'>
                     <span className='w-120 h-120 rounded-circle overflow-hidden d-inline-flex'>
                       <img
-                        src='assets/images/thumbs/testimonials-three-img2.png'
+                        src='/assets/images/thumbs/testimonials-three-img2.png'
                         alt=''
                         className='cover-img'
                       />
@@ -230,7 +230,7 @@ const ReviewOne = () => {
                   <div className='rounded-12 p-32 text-center transition-2 item-hover bg-main-two-25 hover-bg-main-two-600'>
                     <span className='w-120 h-120 rounded-circle overflow-hidden d-inline-flex'>
                       <img
-                        src='assets/images/thumbs/testimonials-three-img3.png'
+                        src='/assets/images/thumbs/testimonials-three-img3.png'
                         alt=''
                         className='cover-img'
                       />
@@ -267,7 +267,7 @@ const ReviewOne = () => {
                   <div className='rounded-12 p-32 text-center transition-2 item-hover bg-main-25 hover-bg-main-600'>
                     <span className='w-120 h-120 rounded-circle overflow-hidden d-inline-flex'>
                       <img
-                        src='assets/images/thumbs/testimonials-three-img3.png'
+                        src='/assets/images/thumbs/testimonials-three-img3.png'
                         alt=''
                         className='cover-img'
                       />

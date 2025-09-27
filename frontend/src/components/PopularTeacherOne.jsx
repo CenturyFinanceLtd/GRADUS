@@ -70,7 +70,7 @@ const PopularTeacherOne = () => {
             <div className='course-item__thumb rounded-12 bg-main-25 overflow-hidden position-relative'>
               <Link to='/tutor-details' className='w-100 h-100'>
                 <img
-                  src='assets/images/thumbs/instructor-img1.png'
+                  src='/assets/images/thumbs/instructor-img1.png'
                   alt='Course'
                   className='scale-hover-item__img rounded-12 cover-img transition-2'
                 />
@@ -137,7 +137,7 @@ const PopularTeacherOne = () => {
             <div className='course-item__thumb rounded-12 bg-main-25 overflow-hidden position-relative'>
               <Link to='/tutor-details' className='w-100 h-100'>
                 <img
-                  src='assets/images/thumbs/instructor-img2.png'
+                  src='/assets/images/thumbs/instructor-img2.png'
                   alt='Course'
                   className='scale-hover-item__img rounded-12 cover-img transition-2'
                 />
@@ -204,7 +204,7 @@ const PopularTeacherOne = () => {
             <div className='course-item__thumb rounded-12 bg-main-25 overflow-hidden position-relative'>
               <Link to='/tutor-details' className='w-100 h-100'>
                 <img
-                  src='assets/images/thumbs/instructor-img3.png'
+                  src='/assets/images/thumbs/instructor-img3.png'
                   alt='Course'
                   className='scale-hover-item__img rounded-12 cover-img transition-2'
                 />
@@ -271,7 +271,7 @@ const PopularTeacherOne = () => {
             <div className='course-item__thumb rounded-12 bg-main-25 overflow-hidden position-relative'>
               <Link to='/tutor-details' className='w-100 h-100'>
                 <img
-                  src='assets/images/thumbs/instructor-img4.png'
+                  src='/assets/images/thumbs/instructor-img4.png'
                   alt='Course'
                   className='scale-hover-item__img rounded-12 cover-img transition-2'
                 />

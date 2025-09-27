@@ -27,73 +27,60 @@ const MasterLayout = ({ children }) => {
     }
   }, [loading, navigate, token]);
 
-  useEffect(() => {
-    const handleDropdownClick = (event) => {
-      event.preventDefault();
-      const clickedLink = event.currentTarget;
-      const clickedDropdown = clickedLink.closest(".dropdown");
+  const handleDropdownToggle = (event) => {
+    event.preventDefault();
 
-      if (!clickedDropdown) return;
+    if (typeof document === "undefined") {
+      return;
+    }
 
-      const isActive = clickedDropdown.classList.contains("open");
+    const clickedDropdown = event.currentTarget.closest(".dropdown");
+    if (!clickedDropdown) {
+      return;
+    }
 
-      // Close all dropdowns
-      const allDropdowns = document.querySelectorAll(".sidebar-menu .dropdown");
-      allDropdowns.forEach((dropdown) => {
-        dropdown.classList.remove("open");
-        const submenu = dropdown.querySelector(".sidebar-submenu");
-        if (submenu) {
-          submenu.style.maxHeight = "0px"; // Collapse submenu
-        }
-      });
+    const isActive = clickedDropdown.classList.contains("open");
 
-      // Toggle the clicked dropdown
-      if (!isActive) {
-        clickedDropdown.classList.add("open");
-        const submenu = clickedDropdown.querySelector(".sidebar-submenu");
-        if (submenu) {
-          submenu.style.maxHeight = `${submenu.scrollHeight}px`; // Expand submenu
-        }
+    const allDropdowns = document.querySelectorAll(".sidebar-menu .dropdown");
+    allDropdowns.forEach((dropdown) => {
+      dropdown.classList.remove("open");
+      const submenu = dropdown.querySelector(".sidebar-submenu");
+      if (submenu) {
+        submenu.style.maxHeight = "0px";
       }
-    };
-
-    // Attach click event listeners to all dropdown triggers
-    const dropdownTriggers = document.querySelectorAll(
-      ".sidebar-menu .dropdown > a, .sidebar-menu .dropdown > Link"
-    );
-
-    dropdownTriggers.forEach((trigger) => {
-      trigger.addEventListener("click", handleDropdownClick);
     });
 
-    const openActiveDropdown = () => {
-      const allDropdowns = document.querySelectorAll(".sidebar-menu .dropdown");
-      allDropdowns.forEach((dropdown) => {
-        const submenuLinks = dropdown.querySelectorAll(".sidebar-submenu li a");
-        submenuLinks.forEach((link) => {
-          if (
-            link.getAttribute("href") === location.pathname ||
-            link.getAttribute("to") === location.pathname
-          ) {
-            dropdown.classList.add("open");
-            const submenu = dropdown.querySelector(".sidebar-submenu");
-            if (submenu) {
-              submenu.style.maxHeight = `${submenu.scrollHeight}px`; // Expand submenu
-            }
-          }
-        });
-      });
-    };
+    if (!isActive) {
+      clickedDropdown.classList.add("open");
+      const submenu = clickedDropdown.querySelector(".sidebar-submenu");
+      if (submenu) {
+        submenu.style.maxHeight = `${submenu.scrollHeight}px`;
+      }
+    }
+  };
 
-    // Open the submenu that contains the active route
-    openActiveDropdown();
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
 
-    // Cleanup event listeners on unmount
-    return () => {
-      dropdownTriggers.forEach((trigger) => {
-        trigger.removeEventListener("click", handleDropdownClick);
-      });
-    };
+    const allDropdowns = document.querySelectorAll(".sidebar-menu .dropdown");
+    allDropdowns.forEach((dropdown) => {
+      const submenu = dropdown.querySelector(".sidebar-submenu");
+      if (!submenu) {
+        return;
+      }
+
+      const submenuLinks = submenu.querySelectorAll("li a");
+      const shouldStayOpen = Array.from(submenuLinks).some(
+        (link) => link.pathname === location.pathname
+      );
+
+      dropdown.classList.toggle("open", shouldStayOpen);
+      submenu.style.maxHeight = shouldStayOpen
+        ? `${submenu.scrollHeight}px`
+        : "0px";
+    });
   }, [location.pathname]);
 
   const handleLogout = () => {
@@ -166,7 +153,7 @@ const MasterLayout = ({ children }) => {
         <div className='sidebar-menu-area'>
           <ul className='sidebar-menu' id='sidebar-menu'>
             <li className='dropdown'>
-              <Link to='#'>
+              <Link to='#' onClick={handleDropdownToggle}>
                 <Icon
                   icon='solar:home-smile-angle-outline'
                   className='menu-icon'
@@ -361,7 +348,7 @@ const MasterLayout = ({ children }) => {
 
             {/* Invoice Dropdown */}
             <li className='dropdown'>
-              <Link to='#'>
+              <Link to='#' onClick={handleDropdownToggle}>
                 <Icon icon='hugeicons:invoice-03' className='menu-icon' />
                 <span>Invoice</span>
               </Link>
@@ -415,7 +402,7 @@ const MasterLayout = ({ children }) => {
 
             {/* Ai Application Dropdown */}
             <li className='dropdown'>
-              <Link to='#'>
+              <Link to='#' onClick={handleDropdownToggle}>
                 <i className='ri-robot-2-line mr-10' />
 
                 <span>Ai Application</span>
@@ -481,7 +468,7 @@ const MasterLayout = ({ children }) => {
 
             {/* Crypto Currency Dropdown */}
             <li className='dropdown'>
-              <Link to='#'>
+              <Link to='#' onClick={handleDropdownToggle}>
                 <i className='ri-btc-line mr-10' />
                 <span>Crypto Currency</span>
               </Link>
@@ -537,7 +524,7 @@ const MasterLayout = ({ children }) => {
 
             {/* Components Dropdown */}
             <li className='dropdown'>
-              <Link to='#'>
+              <Link to='#' onClick={handleDropdownToggle}>
                 <Icon
                   icon='solar:document-text-outline'
                   className='menu-icon'
@@ -781,7 +768,7 @@ const MasterLayout = ({ children }) => {
 
             {/* Forms Dropdown */}
             <li className='dropdown'>
-              <Link to='#'>
+              <Link to='#' onClick={handleDropdownToggle}>
                 <Icon icon='heroicons:document' className='menu-icon' />
                 <span>Forms</span>
               </Link>
@@ -835,7 +822,7 @@ const MasterLayout = ({ children }) => {
 
             {/* Table Dropdown */}
             <li className='dropdown'>
-              <Link to='#'>
+              <Link to='#' onClick={handleDropdownToggle}>
                 <Icon icon='mingcute:storage-line' className='menu-icon' />
                 <span>Table</span>
               </Link>
@@ -867,7 +854,7 @@ const MasterLayout = ({ children }) => {
 
             {/* Chart Dropdown */}
             <li className='dropdown'>
-              <Link to='#'>
+              <Link to='#' onClick={handleDropdownToggle}>
                 <Icon icon='solar:pie-chart-outline' className='menu-icon' />
                 <span>Chart</span>
               </Link>
@@ -922,7 +909,7 @@ const MasterLayout = ({ children }) => {
 
             {/* Authentication Dropdown */}
             <li className='dropdown'>
-              <Link to='#'>
+              <Link to='#' onClick={handleDropdownToggle}>
                 <Icon icon='simple-line-icons:vector' className='menu-icon' />
                 <span>Authentication</span>
               </Link>
@@ -966,7 +953,7 @@ const MasterLayout = ({ children }) => {
             {/* gallery */}
 
             <li className='dropdown'>
-              <Link to='#'>
+              <Link to='#' onClick={handleDropdownToggle}>
                 <Icon
                   icon='flowbite:users-group-outline'
                   className='menu-icon'
@@ -1037,7 +1024,7 @@ const MasterLayout = ({ children }) => {
             {/* Blog */}
 
             <li className='dropdown'>
-              <Link to='#'>
+              <Link to='#' onClick={handleDropdownToggle}>
                 <Icon
                   icon='flowbite:users-group-outline'
                   className='menu-icon'
@@ -1162,7 +1149,7 @@ const MasterLayout = ({ children }) => {
 
             {/* Settings Dropdown */}
             <li className='dropdown'>
-              <Link to='#'>
+              <Link to='#' onClick={handleDropdownToggle}>
                 <Icon
                   icon='icon-park-outline:setting-two'
                   className='menu-icon'

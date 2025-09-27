@@ -1,20 +1,28 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 const apiClient = async (endpoint, { method = 'GET', data, token, headers } = {}) => {
-  const requestHeaders = {
-    'Content-Type': 'application/json',
-    ...(headers || {}),
-  };
+  const hasFormData = typeof FormData !== 'undefined' && data instanceof FormData;
+  const requestHeaders = new Headers(headers || {});
 
-  if (token) {
-    requestHeaders.Authorization = `Bearer ${token}`;
+  if (!hasFormData) {
+    requestHeaders.set('Content-Type', 'application/json');
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  if (token) {
+    requestHeaders.set('Authorization', 'Bearer ' + token);
+  }
+
+  const fetchOptions = {
     method,
     headers: requestHeaders,
-    body: data !== undefined ? JSON.stringify(data) : undefined,
-  });
+    credentials: 'include',
+  };
+
+  if (data !== undefined) {
+    fetchOptions.body = hasFormData ? data : JSON.stringify(data);
+  }
+
+  const response = await fetch(API_BASE_URL + endpoint, fetchOptions);
 
   const contentType = response.headers.get('content-type');
   let responseBody = null;

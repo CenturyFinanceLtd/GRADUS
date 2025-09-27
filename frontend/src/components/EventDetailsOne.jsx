@@ -8,7 +8,7 @@ const EventDetailsOne = () => {
     <section className='course-list-view py-120 bg-white'>
       <div className='container container--lg'>
         <img
-          src='assets/images/thumbs/event-details-img.png'
+          src='/assets/images/thumbs/event-details-img.png'
           alt=''
           className='rounded-12'
         />
@@ -53,14 +53,14 @@ const EventDetailsOne = () => {
                   <div className='row gy-4'>
                     <div className='col-6'>
                       <img
-                        src='assets/images/thumbs/event-detail-img1.png'
+                        src='/assets/images/thumbs/event-detail-img1.png'
                         alt=''
                         className='rounded-16'
                       />
                     </div>
                     <div className='col-6'>
                       <img
-                        src='assets/images/thumbs/event-detail-img2.png'
+                        src='/assets/images/thumbs/event-detail-img2.png'
                         alt=''
                         className='rounded-16'
                       />
@@ -98,7 +98,7 @@ const EventDetailsOne = () => {
                 </p>
                 <div className='position-relative my-32'>
                   <img
-                    src='assets/images/thumbs/event-detail-img3.png'
+                    src='/assets/images/thumbs/event-detail-img3.png'
                     className='rounded-12 cover-img'
                     alt=''
                   />
@@ -143,7 +143,7 @@ const EventDetailsOne = () => {
                   <div className='rounded-12 overflow-hidden'>
                     <div className='position-relative'>
                       <img
-                        src='assets/images/thumbs/event-detail-img4.png'
+                        src='/assets/images/thumbs/event-detail-img4.png'
                         className='rounded-12 cover-img'
                         alt=''
                       />

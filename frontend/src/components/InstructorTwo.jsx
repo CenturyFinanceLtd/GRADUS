@@ -72,7 +72,7 @@ const InstructorTwo = () => {
                   className='w-100 h-100 d-flex align-items-end'
                 >
                   <img
-                    src='assets/images/thumbs/our-popular-img-1.png'
+                    src='/assets/images/thumbs/our-popular-img-1.png'
                     alt='Course '
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -131,7 +131,7 @@ const InstructorTwo = () => {
                   className='w-100 h-100 d-flex align-items-end'
                 >
                   <img
-                    src='assets/images/thumbs/our-popular-img-2.png'
+                    src='/assets/images/thumbs/our-popular-img-2.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -190,7 +190,7 @@ const InstructorTwo = () => {
                   className='w-100 h-100 d-flex align-items-end'
                 >
                   <img
-                    src='assets/images/thumbs/our-popular-img-3.png'
+                    src='/assets/images/thumbs/our-popular-img-3.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -249,7 +249,7 @@ const InstructorTwo = () => {
                   className='w-100 h-100 d-flex align-items-end'
                 >
                   <img
-                    src='assets/images/thumbs/our-popular-img-4.png'
+                    src='/assets/images/thumbs/our-popular-img-4.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -308,7 +308,7 @@ const InstructorTwo = () => {
                   className='w-100 h-100 d-flex align-items-end'
                 >
                   <img
-                    src='assets/images/thumbs/our-popular-img-2.png'
+                    src='/assets/images/thumbs/our-popular-img-2.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />

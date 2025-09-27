@@ -9,7 +9,7 @@ const AboutTwo = () => {
             <div className='col-xl-6 pe-xl-5'>
               <div className='about-two__thumb position-relative'>
                 <img
-                  src='assets/images/thumbs/about-two-img.png'
+                  src='/assets/images/thumbs/about-two-img.png'
                   className='rounded-16 cover-img  wow bounceIn'
                   alt=''
                   data-tilt=''
@@ -20,7 +20,7 @@ const AboutTwo = () => {
                 />
                 <span className='shadow-main-three w-80 h-80 flex-center bg-main-three-600 rounded-circle position-absolute inset-block-start-0 inset-inline-start-0 mt-40 ms--40 animation-upDown'>
                   <img
-                    src='assets/images/icons/bulb-icon.png'
+                    src='/assets/images/icons/bulb-icon.png'
                     className=''
                     alt=''
                   />
@@ -36,7 +36,7 @@ const AboutTwo = () => {
                 </div>
                 <div className='offer-message style-two  me-lg-0 me-24 px-24 py-12 rounded-12 bg-white fw-medium flex-align d-inline-flex gap-16 box-shadow-lg animation-upDown'>
                   <span className='flex-shrink-0 w-48 h-48 bg-main-two-600 text-white text-2xl flex-center rounded-circle'>
-                    <img src='assets/images/icons/stars-white.png' alt='' />
+                    <img src='/assets/images/icons/stars-white.png' alt='' />
                   </span>
                   <div>
                     <span className='text-lg text-neutral-700 d-block'>
@@ -49,7 +49,7 @@ const AboutTwo = () => {
                 <div className='position-absolute inset-block-end-0 inset-inline-end-0 me-lg-0 me-24 px-24 py-12 rounded-12 bg-white fw-medium flex-align d-inline-flex gap-16 box-shadow-lg animation-upDown'>
                   <div className='text-center'>
                     <img
-                      src='assets/images/icons/circle-progress.png'
+                      src='/assets/images/icons/circle-progress.png'
                       className='d-sm-flex d-none mb-24'
                       alt=''
                     />
@@ -88,7 +88,7 @@ const AboutTwo = () => {
                   >
                     <span className='flex-shrink-0 w-60 h-60 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-circle box-shadow-md'>
                       <img
-                        src='assets/images/icons/choose-us-icon1.png'
+                        src='/assets/images/icons/choose-us-icon1.png'
                         className='animate__swing'
                         alt=''
                       />
@@ -109,7 +109,7 @@ const AboutTwo = () => {
                   >
                     <span className='flex-shrink-0 w-60 h-60 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-circle box-shadow-md'>
                       <img
-                        src='assets/images/icons/choose-us-icon2.png'
+                        src='/assets/images/icons/choose-us-icon2.png'
                         className='animate__swing'
                         alt=''
                       />
@@ -131,7 +131,7 @@ const AboutTwo = () => {
                   >
                     <span className='flex-shrink-0 w-60 h-60 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-circle box-shadow-md'>
                       <img
-                        src='assets/images/icons/choose-us-icon3.png'
+                        src='/assets/images/icons/choose-us-icon3.png'
                         className='animate__swing'
                         alt=''
                       />
@@ -152,7 +152,7 @@ const AboutTwo = () => {
                   >
                     <span className='flex-shrink-0 w-60 h-60 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-circle box-shadow-md'>
                       <img
-                        src='assets/images/icons/choose-us-icon4.png'
+                        src='/assets/images/icons/choose-us-icon4.png'
                         className='animate__swing'
                         alt=''
                       />

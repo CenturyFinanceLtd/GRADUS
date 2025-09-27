@@ -30,7 +30,7 @@ const GallerySectionTwo = () => {
                 data-wow-duration='3s'
               >
                 <img
-                  src='assets/images/thumbs/gallery-five-img1.png'
+                  src='/assets/images/thumbs/gallery-five-img1.png'
                   alt=''
                   className='w-100 h-100'
                 />
@@ -50,7 +50,7 @@ const GallerySectionTwo = () => {
                 data-wow-duration='3s'
               >
                 <img
-                  src='assets/images/thumbs/gallery-five-im2.png'
+                  src='/assets/images/thumbs/gallery-five-im2.png'
                   alt=''
                   className='w-100 h-100'
                 />
@@ -69,7 +69,7 @@ const GallerySectionTwo = () => {
                   data-aos='fade-right'
                 >
                   <img
-                    src='assets/images/thumbs/gallery-five-img3.png'
+                    src='/assets/images/thumbs/gallery-five-img3.png'
                     alt=''
                     className='w-100 h-100'
                   />
@@ -87,7 +87,7 @@ const GallerySectionTwo = () => {
                   data-aos='fade-left'
                 >
                   <img
-                    src='assets/images/thumbs/gallery-five-img4.png'
+                    src='/assets/images/thumbs/gallery-five-img4.png'
                     alt=''
                     className='w-100 h-100'
                   />

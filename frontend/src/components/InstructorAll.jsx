@@ -4,12 +4,12 @@ const InstructorAll = () => {
   return (
     <section className='instructor py-120 position-relative z-1'>
       <img
-        src='assets/images/shapes/shape2.png'
+        src='/assets/images/shapes/shape2.png'
         alt=''
         className='shape one animation-scalation'
       />
       <img
-        src='assets/images/shapes/shape6.png'
+        src='/assets/images/shapes/shape6.png'
         alt=''
         className='shape six animation-scalation'
       />
@@ -30,7 +30,7 @@ const InstructorAll = () => {
                   className='w-100 h-100 d-flex align-items-end'
                 >
                   <img
-                    src='assets/images/thumbs/instructor-img4.png'
+                    src='/assets/images/thumbs/instructor-img4.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -133,7 +133,7 @@ const InstructorAll = () => {
                   className='w-100 h-100 d-flex align-items-end'
                 >
                   <img
-                    src='assets/images/thumbs/instructor-img2.png'
+                    src='/assets/images/thumbs/instructor-img2.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -236,7 +236,7 @@ const InstructorAll = () => {
                   className='w-100 h-100 d-flex align-items-end'
                 >
                   <img
-                    src='assets/images/thumbs/instructor-img3.png'
+                    src='/assets/images/thumbs/instructor-img3.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -339,7 +339,7 @@ const InstructorAll = () => {
                   className='w-100 h-100 d-flex align-items-end'
                 >
                   <img
-                    src='assets/images/thumbs/instructor-img1.png'
+                    src='/assets/images/thumbs/instructor-img1.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -442,7 +442,7 @@ const InstructorAll = () => {
                   className='w-100 h-100 d-flex align-items-end'
                 >
                   <img
-                    src='assets/images/thumbs/instructor-img5.png'
+                    src='/assets/images/thumbs/instructor-img5.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -545,7 +545,7 @@ const InstructorAll = () => {
                   className='w-100 h-100 d-flex align-items-end'
                 >
                   <img
-                    src='assets/images/thumbs/instructor-img6.png'
+                    src='/assets/images/thumbs/instructor-img6.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />

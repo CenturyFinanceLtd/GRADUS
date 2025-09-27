@@ -69,7 +69,7 @@ const CartInner = () => {
                         <div className='d-flex align-items-center gap-24'>
                           <div className='w-60 h-60 border border-neutral-40 rounded-8 d-flex justify-content-center align-items-center bg-white'>
                             <img
-                              src='assets/images/thumbs/cart-img1.png'
+                              src='/assets/images/thumbs/cart-img1.png'
                               alt=''
                             />
                           </div>
@@ -122,7 +122,7 @@ const CartInner = () => {
                         <div className='d-flex align-items-center gap-24'>
                           <div className='w-60 h-60 border border-neutral-40 rounded-8 d-flex justify-content-center align-items-center bg-white'>
                             <img
-                              src='assets/images/thumbs/cart-img2.png'
+                              src='/assets/images/thumbs/cart-img2.png'
                               alt=''
                             />
                           </div>
@@ -175,7 +175,7 @@ const CartInner = () => {
                         <div className='d-flex align-items-center gap-24'>
                           <div className='w-60 h-60 border border-neutral-40 rounded-8 d-flex justify-content-center align-items-center bg-white'>
                             <img
-                              src='assets/images/thumbs/cart-img3.png'
+                              src='/assets/images/thumbs/cart-img3.png'
                               alt=''
                             />
                           </div>
@@ -228,7 +228,7 @@ const CartInner = () => {
                         <div className='d-flex align-items-center gap-24'>
                           <div className='w-60 h-60 border border-neutral-40 rounded-8 d-flex justify-content-center align-items-center bg-white'>
                             <img
-                              src='assets/images/thumbs/cart-img4.png'
+                              src='/assets/images/thumbs/cart-img4.png'
                               alt=''
                             />
                           </div>

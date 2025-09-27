@@ -140,7 +140,7 @@ const SignInInner = () => {
           </div>
           <div className='col-lg-6 d-lg-block d-none'>
             <div className='account-img'>
-              <img src='assets/images/thumbs/account-img.png' alt='' />
+              <img src='/assets/images/thumbs/account-img.png' alt='' />
             </div>
           </div>
         </div>

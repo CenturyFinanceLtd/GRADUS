@@ -4,12 +4,12 @@ const FeaturesTwo = () => {
   return (
     <section className='features-two half-bg py-120 position-relative overflow-hidden'>
       <img
-        src='assets/images/shapes/shape2.png'
+        src='/assets/images/shapes/shape2.png'
         alt=''
         className='shape two animation-scalation'
       />
       <img
-        src='assets/images/shapes/shape4.png'
+        src='/assets/images/shapes/shape4.png'
         alt=''
         className='shape six animation-walking'
       />
@@ -43,7 +43,7 @@ const FeaturesTwo = () => {
             <div className='text-center features-item item-hover animation-item bg-white border border-neutral-30 rounded-16 transition-1 hover-bg-main-600 hover-border-main-600'>
               <span className='mb-32 w-110 h-110 flex-center d-inline-flex bg-main-25 rounded-circle'>
                 <img
-                  src='assets/images/icons/features-two-icon1.png'
+                  src='/assets/images/icons/features-two-icon1.png'
                   className='animate__bounce'
                   alt=''
                 />
@@ -66,7 +66,7 @@ const FeaturesTwo = () => {
             <div className='text-center features-item item-hover animation-item bg-white border border-neutral-30 rounded-16 transition-1 hover-bg-main-600 hover-border-main-600'>
               <span className='mb-32 w-110 h-110 flex-center d-inline-flex bg-main-25 rounded-circle'>
                 <img
-                  src='assets/images/icons/features-two-icon2.png'
+                  src='/assets/images/icons/features-two-icon2.png'
                   className='animate__bounce'
                   alt=''
                 />
@@ -89,7 +89,7 @@ const FeaturesTwo = () => {
             <div className='text-center features-item item-hover animation-item bg-white border border-neutral-30 rounded-16 transition-1 hover-bg-main-600 hover-border-main-600'>
               <span className='mb-32 w-110 h-110 flex-center d-inline-flex bg-main-25 rounded-circle'>
                 <img
-                  src='assets/images/icons/features-two-icon3.png'
+                  src='/assets/images/icons/features-two-icon3.png'
                   className='animate__bounce'
                   alt=''
                 />

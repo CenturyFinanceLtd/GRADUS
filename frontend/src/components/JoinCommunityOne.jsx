@@ -78,7 +78,7 @@ const JoinCommunityOne = () => {
               <div className='col-lg-6'>
                 <div className='join-community__thumb text-end position-relative'>
                   <img
-                    src='assets/images/thumbs/join-community-img.png'
+                    src='/assets/images/thumbs/join-community-img.png'
                     alt=''
                     className='wow bounceIn'
                     data-tilt=''

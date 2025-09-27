@@ -89,7 +89,7 @@ const TestimonialsFour = () => {
             <div className='d-flex align-items-center justify-content-between'>
               <div className='d-flex align-items-center gap-20'>
                 <img
-                  src='assets/images/thumbs/testimonial-five-img1.png'
+                  src='/assets/images/thumbs/testimonial-five-img1.png'
                   alt=''
                 />
                 <div>
@@ -97,7 +97,7 @@ const TestimonialsFour = () => {
                   <span>President of Sales</span>
                 </div>
               </div>
-              <img src='assets/images/icons/testimonial-five.png' alt='' />
+              <img src='/assets/images/icons/testimonial-five.png' alt='' />
             </div>
           </div>
         </div>
@@ -128,7 +128,7 @@ const TestimonialsFour = () => {
             <div className='d-flex align-items-center justify-content-between'>
               <div className='d-flex align-items-center gap-20'>
                 <img
-                  src='assets/images/thumbs/testimonial-five-img2.png'
+                  src='/assets/images/thumbs/testimonial-five-img2.png'
                   alt=''
                 />
                 <div>
@@ -136,7 +136,7 @@ const TestimonialsFour = () => {
                   <span>President of Sales</span>
                 </div>
               </div>
-              <img src='assets/images/icons/testimonial-five.png' alt='' />
+              <img src='/assets/images/icons/testimonial-five.png' alt='' />
             </div>
           </div>
         </div>
@@ -167,7 +167,7 @@ const TestimonialsFour = () => {
             <div className='d-flex align-items-center justify-content-between'>
               <div className='d-flex align-items-center gap-20'>
                 <img
-                  src='assets/images/thumbs/testimonial-five-img3.png'
+                  src='/assets/images/thumbs/testimonial-five-img3.png'
                   alt=''
                 />
                 <div>
@@ -175,7 +175,7 @@ const TestimonialsFour = () => {
                   <span>President of Sales</span>
                 </div>
               </div>
-              <img src='assets/images/icons/testimonial-five.png' alt='' />
+              <img src='/assets/images/icons/testimonial-five.png' alt='' />
             </div>
           </div>
         </div>
@@ -206,7 +206,7 @@ const TestimonialsFour = () => {
             <div className='d-flex align-items-center justify-content-between'>
               <div className='d-flex align-items-center gap-20'>
                 <img
-                  src='assets/images/thumbs/testimonial-five-img2.png'
+                  src='/assets/images/thumbs/testimonial-five-img2.png'
                   alt=''
                 />
                 <div>
@@ -214,7 +214,7 @@ const TestimonialsFour = () => {
                   <span>President of Sales</span>
                 </div>
               </div>
-              <img src='assets/images/icons/testimonial-five.png' alt='' />
+              <img src='/assets/images/icons/testimonial-five.png' alt='' />
             </div>
           </div>
         </div>

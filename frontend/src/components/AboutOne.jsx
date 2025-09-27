@@ -36,12 +36,12 @@ const AboutOne = () => {
   return (
     <section className='about py-120 position-relative z-1 mash-bg-main mash-bg-main-two'>
       <img
-        src='assets/images/shapes/shape2.png'
+        src='/assets/images/shapes/shape2.png'
         alt=''
         className='shape one animation-scalation'
       />
       <img
-        src='assets/images/shapes/shape6.png'
+        src='/assets/images/shapes/shape6.png'
         alt=''
         className='shape four animation-scalation'
       />
@@ -51,7 +51,7 @@ const AboutOne = () => {
             <div className='col-xl-6'>
               <div className='about-thumbs position-relative pe-lg-5'>
                 <img
-                  src='assets/images/shapes/shape7.png'
+                  src='/assets/images/shapes/shape7.png'
                   alt=''
                   className='shape seven animation-scalation'
                 />
@@ -67,7 +67,7 @@ const AboutOne = () => {
                 <div className='row gy-4'>
                   <div className='col-sm-6'>
                     <img
-                      src='assets/images/thumbs/about-img1.png'
+                      src='/assets/images/thumbs/about-img1.png'
                       alt=''
                       className='rounded-12 w-100'
                       data-tilt=''
@@ -107,7 +107,7 @@ const AboutOne = () => {
                       </div>
                     </div>
                     <img
-                      src='assets/images/thumbs/about-img2.png'
+                      src='/assets/images/thumbs/about-img2.png'
                       alt=''
                       className='rounded-12 w-100'
                       data-tilt=''
@@ -153,7 +153,7 @@ const AboutOne = () => {
                   data-aos-duration={200}
                 >
                   <span className='w-80 h-80 bg-main-25 border border-neutral-30 flex-center rounded-circle flex-shrink-0'>
-                    <img src='assets/images/icons/about-img1.png' alt='' />
+                    <img src='/assets/images/icons/about-img1.png' alt='' />
                   </span>
                   <div className='flex-grow-1'>
                     <h4 className='text-neutral-500 mb-12'>Our Mission</h4>
@@ -178,7 +178,7 @@ const AboutOne = () => {
                   data-aos-duration={400}
                 >
                   <span className='w-80 h-80 bg-main-25 border border-neutral-30 flex-center rounded-circle flex-shrink-0'>
-                    <img src='assets/images/icons/about-img2.png' alt='' />
+                    <img src='/assets/images/icons/about-img2.png' alt='' />
                   </span>
                   <div className='flex-grow-1'>
                     <h4 className='text-neutral-500 mb-12'>Our Vision</h4>
@@ -210,13 +210,13 @@ const AboutOne = () => {
                   </button>
                   {/* <div className='flex-align gap-20'>
                     <img
-                      src='assets/images/thumbs/ceo-img.png'
+                      src='/assets/images/thumbs/ceo-img.png'
                       alt=''
                       className='w-52 h-52 rounded-circle object-fit-cover flex-shrink-0'
                     />
                     <div className='flex-grow-1'>
                       <span className='mb-4'>
-                        <img src='assets/images/thumbs/signature.png' alt='' />
+                        <img src='/assets/images/thumbs/signature.png' alt='' />
                       </span>
                       <span className='text-sm d-block'>CEO Of Company</span>
                     </div>

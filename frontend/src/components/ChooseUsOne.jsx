@@ -8,12 +8,12 @@ const ChooseUsOne = () => {
     <>
       <section className='choose-us pt-120 position-relative z-1 mash-bg-main mash-bg-main-two'>
         <img
-          src='assets/images/shapes/shape2.png'
+          src='/assets/images/shapes/shape2.png'
           alt=''
           className='shape one animation-scalation'
         />
         <img
-          src='assets/images/shapes/shape2.png'
+          src='/assets/images/shapes/shape2.png'
           alt=''
           className='shape six animation-scalation'
         />
@@ -91,7 +91,7 @@ const ChooseUsOne = () => {
               <div className='choose-us__thumbs position-relative'>
                 <div className='offer-message style-two px-24 py-12 rounded-12 bg-white fw-medium flex-align d-inline-flex gap-16 box-shadow-lg animation-upDown'>
                   <span className='flex-shrink-0 w-48 h-48 bg-dark-yellow text-white text-2xl flex-center rounded-circle'>
-                    <img src='assets/images/icons/stars.png' alt='' />
+                    <img src='/assets/images/icons/stars.png' alt='' />
                   </span>
                   <div>
                     <span className='text-lg text-neutral-700 d-block'>
@@ -107,32 +107,32 @@ const ChooseUsOne = () => {
                   <span className='text-main-600'>178+</span> Strategic Industry Partners
                   <div className='enrolled-students mt-12'>
                     <img
-                      src='assets/images/thumbs/enroll-student-img1.png'
+                      src='/assets/images/thumbs/enroll-student-img1.png'
                       alt=''
                       className='w-48 h-48 rounded-circle object-fit-cover'
                     />
                     <img
-                      src='assets/images/thumbs/enroll-student-img2.png'
+                      src='/assets/images/thumbs/enroll-student-img2.png'
                       alt=''
                       className='w-48 h-48 rounded-circle object-fit-cover'
                     />
                     <img
-                      src='assets/images/thumbs/enroll-student-img3.png'
+                      src='/assets/images/thumbs/enroll-student-img3.png'
                       alt=''
                       className='w-48 h-48 rounded-circle object-fit-cover'
                     />
                     <img
-                      src='assets/images/thumbs/enroll-student-img4.png'
+                      src='/assets/images/thumbs/enroll-student-img4.png'
                       alt=''
                       className='w-48 h-48 rounded-circle object-fit-cover'
                     />
                     <img
-                      src='assets/images/thumbs/enroll-student-img5.png'
+                      src='/assets/images/thumbs/enroll-student-img5.png'
                       alt=''
                       className='w-48 h-48 rounded-circle object-fit-cover'
                     />
                     <img
-                      src='assets/images/thumbs/enroll-student-img6.png'
+                      src='/assets/images/thumbs/enroll-student-img6.png'
                       alt=''
                       className='w-48 h-48 rounded-circle object-fit-cover'
                     />
@@ -141,7 +141,7 @@ const ChooseUsOne = () => {
                 <div className='text-end' data-aos='zoom-out'>
                   <div className='d-sm-inline-block d-block position-relative'>
                     <img
-                      src='assets/images/thumbs/choose-us-img1.png'
+                      src='/assets/images/thumbs/choose-us-img1.png'
                       alt=''
                       className='choose-us__img rounded-12'
                       data-tilt=''
@@ -151,13 +151,13 @@ const ChooseUsOne = () => {
                       data-tilt-full-page-listening=''
                     />
                     <span className='shadow-main-two w-80 h-80 flex-center bg-main-two-600 rounded-circle position-absolute inset-block-start-0 inset-inline-start-0 mt-40 ms--40 animation-upDown'>
-                      <img src='assets/images/icons/book.png' alt='' />
+                      <img src='/assets/images/icons/book.png' alt='' />
                     </span>
                   </div>
                 </div>
                 <div className='animation-video' data-aos='zoom-in'>
                   <img
-                    src='assets/images/thumbs/choose-us-img2.png'
+                    src='/assets/images/thumbs/choose-us-img2.png'
                     alt=''
                     className='border border-white rounded-circle border-3'
                     data-tilt=''

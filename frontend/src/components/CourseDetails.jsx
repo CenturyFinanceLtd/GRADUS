@@ -9,7 +9,7 @@ const CourseDetails = () => {
             {/* Details Content Start */}
             <div className='course-details__content border border-neutral-30 rounded-12 bg-main-25 p-12'>
               <img
-                src='assets/images/thumbs/course-details-img.png'
+                src='/assets/images/thumbs/course-details-img.png'
                 alt=''
                 className='rounded-8 cover-img'
               />
@@ -698,7 +698,7 @@ const CourseDetails = () => {
             <div className='border border-neutral-30 rounded-12 bg-main-25 p-32 mt-24'>
               <div className='d-flex align-items-start flex-wrap flex-md-nowrap gap-32'>
                 <img
-                  src='assets/images/thumbs/details-instructor.png'
+                  src='/assets/images/thumbs/details-instructor.png'
                   alt=''
                   className=''
                 />
@@ -1003,7 +1003,7 @@ const CourseDetails = () => {
                 <span className='d-block border border-neutral-30 my-24 border-dashed' />
                 <div className='flex-align gap-24'>
                   <img
-                    src='assets/images/thumbs/reviewer-img1.png'
+                    src='/assets/images/thumbs/reviewer-img1.png'
                     alt=''
                     className='w-60 h-60 rounded-circle cover-img'
                   />
@@ -1035,7 +1035,7 @@ const CourseDetails = () => {
                 </div>
                 <div className='flex-align gap-20 mt-24'>
                   <img
-                    src='assets/images/thumbs/reviewer-img2.png'
+                    src='/assets/images/thumbs/reviewer-img2.png'
                     alt=''
                     className='w-60 h-60 rounded-circle cover-img'
                   />
@@ -1074,7 +1074,7 @@ const CourseDetails = () => {
                 <span className='d-block border border-neutral-30 my-24 border-dashed' />
                 <div className='flex-align gap-24'>
                   <img
-                    src='assets/images/thumbs/reviewer-img2.png'
+                    src='/assets/images/thumbs/reviewer-img2.png'
                     alt=''
                     className='w-60 h-60 rounded-circle cover-img'
                   />
@@ -1133,7 +1133,7 @@ const CourseDetails = () => {
                 <span className='d-block border border-neutral-30 my-24 border-dashed' />
                 <div className='flex-align gap-24'>
                   <img
-                    src='assets/images/thumbs/reviewer-img3.png'
+                    src='/assets/images/thumbs/reviewer-img3.png'
                     alt=''
                     className='w-60 h-60 rounded-circle cover-img'
                   />

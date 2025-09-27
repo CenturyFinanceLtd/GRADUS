@@ -7,48 +7,48 @@ const BannerSix = () => {
       style={{ backgroundImage: "url(assets/images/bg/banner-5-bg-img1.png)" }}
     >
       <img
-        src='assets/images/shapes/shape1.png'
+        src='/assets/images/shapes/shape1.png'
         alt=''
         className='animation-rotation d-sm-block d-none left-32-percent top-18-percent position-absolute'
       />
       <img
-        src='assets/images/shapes/shape2.png'
+        src='/assets/images/shapes/shape2.png'
         alt=''
         className='animation-scalation d-sm-block d-none inset-block-start-50-percent right-5-percent position-absolute z-n10'
       />
       <img
-        src='assets/images/shapes/shape6.png'
+        src='/assets/images/shapes/shape6.png'
         alt=''
         className='animation-scalation d-sm-block d-none left-3-percent bottom-18-percent position-absolute z-n10'
       />
       <img
-        src='assets/images/shapes/shape5.png'
+        src='/assets/images/shapes/shape5.png'
         alt=''
         className='animation-walking d-sm-block d-none inset-block-start-20-percent inset-inline-start-8-percent position-absolute z-n1'
       />
       <img
-        src='assets/images/shapes/shape1.png'
+        src='/assets/images/shapes/shape1.png'
         alt=''
         className='animation-rotation d-sm-block d-none inset-block-end-26-percent inset-inline-start-25-percent position-absolute z-n10'
       />
       <img
-        src='assets/images/shapes/shape4.png'
+        src='/assets/images/shapes/shape4.png'
         alt=''
         className='animation-scalation d-sm-block d-none top-55-percent inset-inline-start-35-percent position-absolute z-n10'
       />
       <img
-        src='assets/images/shapes/shape3.png'
+        src='/assets/images/shapes/shape3.png'
         alt=''
         className='animation-walking d-sm-block d-none top-55-percent left-57-percent position-absolute z-n10'
       />
       <img
-        src='assets/images/shapes/curve-arrow.png'
+        src='/assets/images/shapes/curve-arrow.png'
         alt=''
         className='animate__wobble__two d-sm-block d-none inset-inline-start-70-percent top-18-percent position-absolute z-n1'
       />
       <div>
         <img
-          src='assets/images/thumbs/banner-six-img1.png'
+          src='/assets/images/thumbs/banner-six-img1.png'
           alt=''
           className='position-absolute z-n1 ms-8-persent padding-top-162-px d-xl-block d-none tw-max-width-22 wow bounceIn'
           data-wow-duration='3s'
@@ -115,7 +115,7 @@ const BannerSix = () => {
       </div>
       <div className=''>
         <img
-          src='assets/images/thumbs/banner-six-img2.png'
+          src='/assets/images/thumbs/banner-six-img2.png'
           alt=''
           className='position-absolute end-0  z-n1 inset-block-start-50-persent me-8-persent d-xl-block d-none tw-max-width-22 wow bounceIn'
           data-wow-duration='3s'
@@ -123,7 +123,7 @@ const BannerSix = () => {
       </div>
       <div className='position-absolute start-0 bottom-0 w-100 z-index-n9'>
         <img
-          src='assets/images/shapes/cloud-shap-img1.png'
+          src='/assets/images/shapes/cloud-shap-img1.png'
           alt=''
           className='w-100'
         />

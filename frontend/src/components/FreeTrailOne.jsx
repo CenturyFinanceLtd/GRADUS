@@ -15,7 +15,7 @@ const FreeTrailOne = () => {
             <div className='col-lg-6'>
               <div className='position-relative wow bounceIn'>
                 <img
-                  src='assets/images/thumbs/trail-img.png'
+                  src='/assets/images/thumbs/trail-img.png'
                   alt=''
                   data-tilt=''
                   data-tilt-max={8}
@@ -61,7 +61,7 @@ const FreeTrailOne = () => {
                   data-aos='fade-left'
                   data-aos-duration={200}
                 >
-                  <img src='assets/images/icons/check2.png' alt='' />
+                  <img src='/assets/images/icons/check2.png' alt='' />
                   <span className='text-neutral-500 text-md fw-medium'>
                     Fill Out the Form
                   </span>
@@ -71,7 +71,7 @@ const FreeTrailOne = () => {
                   data-aos='fade-left'
                   data-aos-duration={400}
                 >
-                  <img src='assets/images/icons/check2.png' alt='' />
+                  <img src='/assets/images/icons/check2.png' alt='' />
                   <span className='text-neutral-500 text-md fw-medium'>
                     Schedule Your Class
                   </span>
@@ -81,7 +81,7 @@ const FreeTrailOne = () => {
                   data-aos='fade-left'
                   data-aos-duration={600}
                 >
-                  <img src='assets/images/icons/check2.png' alt='' />
+                  <img src='/assets/images/icons/check2.png' alt='' />
                   <span className='text-neutral-500 text-md fw-medium'>
                     Meet Your Tutor{" "}
                   </span>
@@ -91,7 +91,7 @@ const FreeTrailOne = () => {
                   data-aos='fade-left'
                   data-aos-duration={800}
                 >
-                  <img src='assets/images/icons/check2.png' alt='' />
+                  <img src='/assets/images/icons/check2.png' alt='' />
                   <span className='text-neutral-500 text-md fw-medium'>
                     Start The Class
                   </span>

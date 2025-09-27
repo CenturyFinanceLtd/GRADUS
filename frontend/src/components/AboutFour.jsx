@@ -10,7 +10,7 @@ const AboutFour = () => {
   return (
     <section className='about-four py-120 position-relative z-1 overflow-hidden bg-main-25'>
       <img
-        src='assets/images/shapes/shape2.png'
+        src='/assets/images/shapes/shape2.png'
         alt=''
         className='shape one animation-scalation'
       />
@@ -20,7 +20,7 @@ const AboutFour = () => {
             <div className='col-xl-6 pe-xl-5'>
               <div className='about-two__thumb position-relative pe-0 me-xl-5'>
                 <img
-                  src='assets/images/thumbs/about-four-img.png'
+                  src='/assets/images/thumbs/about-four-img.png'
                   className='rounded-16 cover-img'
                   alt=''
                   data-tilt=''
@@ -56,13 +56,13 @@ const AboutFour = () => {
                 >
                   <div className='text-center'>
                     <img
-                      src='assets/images/thumbs/about-four-short-img.png'
+                      src='/assets/images/thumbs/about-four-short-img.png'
                       className='mb-24'
                       alt=''
                     />
                     <div className='mt-24'>
                       <img
-                        src='assets/images/shapes/excellator-shape.png'
+                        src='/assets/images/shapes/excellator-shape.png'
                         alt=''
                       />
                     </div>

@@ -37,17 +37,17 @@ const TestimonialsThree = () => {
   return (
     <section className='testimonials-three py-120 bg-main-25 position-relative z-1 overflow-hidden'>
       <img
-        src='assets/images/shapes/shape2.png'
+        src='/assets/images/shapes/shape2.png'
         alt=''
         className='shape two animation-scalation'
       />
       <img
-        src='assets/images/shapes/shape6.png'
+        src='/assets/images/shapes/shape6.png'
         alt=''
         className='shape four animation-scalation'
       />
       <img
-        src='assets/images/shapes/shape4.png'
+        src='/assets/images/shapes/shape4.png'
         alt=''
         className='shape one animation-scalation'
       />
@@ -62,12 +62,12 @@ const TestimonialsThree = () => {
               <div className='testimonials-three-item bg-white p-24 rounded-12 box-shadow-md'>
                 <div className='w-90 h-90 rounded-circle position-relative mb-4'>
                   <img
-                    src='assets/images/thumbs/testimonials-three-img2.png'
+                    src='/assets/images/thumbs/testimonials-three-img2.png'
                     alt=''
                     className='cover-img rounded-circle'
                   />
                   <span className='w-40 h-40 bg-main-two-600 flex-center border border-white border-2 rounded-circle position-absolute inset-block-end-0 inset-inline-end-0 mt--5 me--5'>
-                    <img src='assets/images/icons/quote-two-icon.png' alt='' />
+                    <img src='/assets/images/icons/quote-two-icon.png' alt='' />
                   </span>
                 </div>
                 <p className='text-neutral-500 my-24'>
@@ -97,12 +97,12 @@ const TestimonialsThree = () => {
               <div className='testimonials-three-item bg-white p-24 rounded-12 box-shadow-md'>
                 <div className='w-90 h-90 rounded-circle position-relative mb-4'>
                   <img
-                    src='assets/images/thumbs/testimonials-three-img1.png'
+                    src='/assets/images/thumbs/testimonials-three-img1.png'
                     alt=''
                     className='cover-img rounded-circle'
                   />
                   <span className='w-40 h-40 bg-main-two-600 flex-center border border-white border-2 rounded-circle position-absolute inset-block-end-0 inset-inline-end-0 mt--5 me--5'>
-                    <img src='assets/images/icons/quote-two-icon.png' alt='' />
+                    <img src='/assets/images/icons/quote-two-icon.png' alt='' />
                   </span>
                 </div>
                 <p className='text-neutral-500 my-24'>
@@ -132,12 +132,12 @@ const TestimonialsThree = () => {
               <div className='testimonials-three-item bg-white p-24 rounded-12 box-shadow-md'>
                 <div className='w-90 h-90 rounded-circle position-relative mb-4'>
                   <img
-                    src='assets/images/thumbs/testimonials-three-img3.png'
+                    src='/assets/images/thumbs/testimonials-three-img3.png'
                     alt=''
                     className='cover-img rounded-circle'
                   />
                   <span className='w-40 h-40 bg-main-two-600 flex-center border border-white border-2 rounded-circle position-absolute inset-block-end-0 inset-inline-end-0 mt--5 me--5'>
-                    <img src='assets/images/icons/quote-two-icon.png' alt='' />
+                    <img src='/assets/images/icons/quote-two-icon.png' alt='' />
                   </span>
                 </div>
                 <p className='text-neutral-500 my-24'>
@@ -167,12 +167,12 @@ const TestimonialsThree = () => {
               <div className='testimonials-three-item bg-white p-24 rounded-12 box-shadow-md'>
                 <div className='w-90 h-90 rounded-circle position-relative mb-4'>
                   <img
-                    src='assets/images/thumbs/testimonials-three-img3.png'
+                    src='/assets/images/thumbs/testimonials-three-img3.png'
                     alt=''
                     className='cover-img rounded-circle'
                   />
                   <span className='w-40 h-40 bg-main-two-600 flex-center border border-white border-2 rounded-circle position-absolute inset-block-end-0 inset-inline-end-0 mt--5 me--5'>
-                    <img src='assets/images/icons/quote-two-icon.png' alt='' />
+                    <img src='/assets/images/icons/quote-two-icon.png' alt='' />
                   </span>
                 </div>
                 <p className='text-neutral-500 my-24'>

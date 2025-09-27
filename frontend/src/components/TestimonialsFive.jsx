@@ -45,7 +45,7 @@ const TestimonialsFive = () => {
     <section className='position-relative z-4 bg-main-25 w-100 h-100'>
       <div className='position-absolute w-100  top-0 start-0'>
         <img
-          src='assets/images/shapes/cloud-shap-img3.png'
+          src='/assets/images/shapes/cloud-shap-img3.png'
           alt=''
           className='w-100'
         />
@@ -78,31 +78,31 @@ const TestimonialsFive = () => {
                 <ul className='mb-16 d-flex align-items-center gap-8 text-center justify-content-center'>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img1.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img1.png'
                       alt=''
                     />
                   </li>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img1.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img1.png'
                       alt=''
                     />
                   </li>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img1.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img1.png'
                       alt=''
                     />
                   </li>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img1.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img1.png'
                       alt=''
                     />
                   </li>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img2.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img2.png'
                       alt=''
                     />
                   </li>
@@ -114,7 +114,7 @@ const TestimonialsFive = () => {
               </div>
               <div className='text-center pt-24'>
                 <img
-                  src='assets/images/thumbs/testimonial-five-img2.png'
+                  src='/assets/images/thumbs/testimonial-five-img2.png'
                   alt=''
                   className='mb-16 justify-content-center mx-auto w-72 h-72'
                 />
@@ -129,31 +129,31 @@ const TestimonialsFive = () => {
                 <ul className='mb-16 d-flex align-items-center gap-8 text-center justify-content-center'>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img1.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img1.png'
                       alt=''
                     />
                   </li>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img1.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img1.png'
                       alt=''
                     />
                   </li>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img1.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img1.png'
                       alt=''
                     />
                   </li>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img1.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img1.png'
                       alt=''
                     />
                   </li>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img2.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img2.png'
                       alt=''
                     />
                   </li>
@@ -165,7 +165,7 @@ const TestimonialsFive = () => {
               </div>
               <div className='text-center pt-24'>
                 <img
-                  src='assets/images/thumbs/testimonials-six-img1.png'
+                  src='/assets/images/thumbs/testimonials-six-img1.png'
                   alt=''
                   className='mb-16 justify-content-center mx-auto w-72 h-72'
                 />
@@ -180,31 +180,31 @@ const TestimonialsFive = () => {
                 <ul className='mb-16 d-flex align-items-center gap-8 text-center justify-content-center'>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img1.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img1.png'
                       alt=''
                     />
                   </li>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img1.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img1.png'
                       alt=''
                     />
                   </li>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img1.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img1.png'
                       alt=''
                     />
                   </li>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img1.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img1.png'
                       alt=''
                     />
                   </li>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img2.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img2.png'
                       alt=''
                     />
                   </li>
@@ -216,7 +216,7 @@ const TestimonialsFive = () => {
               </div>
               <div className='text-center pt-24'>
                 <img
-                  src='assets/images/thumbs/testimonials-six-img2.png'
+                  src='/assets/images/thumbs/testimonials-six-img2.png'
                   alt=''
                   className='mb-16 justify-content-center mx-auto w-72 h-72'
                 />
@@ -231,31 +231,31 @@ const TestimonialsFive = () => {
                 <ul className='mb-16 d-flex align-items-center gap-8 text-center justify-content-center'>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img1.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img1.png'
                       alt=''
                     />
                   </li>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img1.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img1.png'
                       alt=''
                     />
                   </li>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img1.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img1.png'
                       alt=''
                     />
                   </li>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img1.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img1.png'
                       alt=''
                     />
                   </li>
                   <li className='text-24 text-warning-500'>
                     <img
-                      src='assets/images/icons/testimonials-six-icon-start-img2.png'
+                      src='/assets/images/icons/testimonials-six-icon-start-img2.png'
                       alt=''
                     />
                   </li>
@@ -267,7 +267,7 @@ const TestimonialsFive = () => {
               </div>
               <div className='text-center pt-24'>
                 <img
-                  src='assets/images/thumbs/testimonials-six-img1.png'
+                  src='/assets/images/thumbs/testimonials-six-img1.png'
                   alt=''
                   className='mb-16 justify-content-center mx-auto w-72 h-72'
                 />
@@ -300,7 +300,7 @@ const TestimonialsFive = () => {
       </div>
       <div className='position-absolute w-100 z-0 bottom-0 start-0'>
         <img
-          src='assets/images/shapes/cloud-shap-img4.png'
+          src='/assets/images/shapes/cloud-shap-img4.png'
           alt=''
           className='w-100'
         />

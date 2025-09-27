@@ -82,7 +82,7 @@ const CertificateTwo = () => {
             <div className='col-lg-6'>
               <div className='certificate-two__thumb'>
                 <img
-                  src='assets/images/thumbs/certificate-two-img.png'
+                  src='/assets/images/thumbs/certificate-two-img.png'
                   alt=''
                   data-tilt=''
                   data-tilt-max={10}

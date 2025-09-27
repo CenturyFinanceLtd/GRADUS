@@ -329,7 +329,7 @@ const LessonDetails = () => {
                 <span className='d-block border border-neutral-30 my-24 border-dashed' />
                 <div className='flex-align gap-24'>
                   <img
-                    src='assets/images/thumbs/reviewer-img1.png'
+                    src='/assets/images/thumbs/reviewer-img1.png'
                     alt=''
                     className='w-60 h-60 rounded-circle cover-img'
                   />
@@ -361,7 +361,7 @@ const LessonDetails = () => {
                 </div>
                 <div className='flex-align gap-20 mt-24'>
                   <img
-                    src='assets/images/thumbs/reviewer-img2.png'
+                    src='/assets/images/thumbs/reviewer-img2.png'
                     alt=''
                     className='w-60 h-60 rounded-circle cover-img'
                   />
@@ -400,7 +400,7 @@ const LessonDetails = () => {
                 <span className='d-block border border-neutral-30 my-24 border-dashed' />
                 <div className='flex-align gap-24'>
                   <img
-                    src='assets/images/thumbs/reviewer-img2.png'
+                    src='/assets/images/thumbs/reviewer-img2.png'
                     alt=''
                     className='w-60 h-60 rounded-circle cover-img'
                   />
@@ -459,7 +459,7 @@ const LessonDetails = () => {
                 <span className='d-block border border-neutral-30 my-24 border-dashed' />
                 <div className='flex-align gap-24'>
                   <img
-                    src='assets/images/thumbs/reviewer-img3.png'
+                    src='/assets/images/thumbs/reviewer-img3.png'
                     alt=''
                     className='w-60 h-60 rounded-circle cover-img'
                   />

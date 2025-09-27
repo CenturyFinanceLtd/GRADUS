@@ -5,7 +5,7 @@ const PopularTwo = () => {
     <section className='d-lg-flex overflow-hidden PopularTwo'>
       <div className='lg-w-50-percent wow bounceIn' data-wow-duration='3s'>
         <img
-          src='assets/images/thumbs/faq-five-img1.png'
+          src='/assets/images/thumbs/faq-five-img1.png'
           alt=''
           className='h-100 w-100'
         />

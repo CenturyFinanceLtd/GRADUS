@@ -32,12 +32,12 @@ const TestimonialsOne = () => {
   return (
     <section className='testimonials py-120 position-relative z-1 bg-main-25'>
       <img
-        src='assets/images/shapes/shape2.png'
+        src='/assets/images/shapes/shape2.png'
         alt=''
         className='shape six animation-scalation'
       />
       <img
-        src='assets/images/shapes/shape3.png'
+        src='/assets/images/shapes/shape3.png'
         alt=''
         className='shape four animation-rotation'
       />
@@ -54,7 +54,7 @@ const TestimonialsOne = () => {
                   data-tilt-perspective={5000}
                   data-tilt-full-page-listening=''
                 >
-                  <img src='assets/images/thumbs/testimonial-img1.png' alt='' />
+                  <img src='/assets/images/thumbs/testimonial-img1.png' alt='' />
                 </div>
                 <div
                   className='testimonials__thumbs wow bounceIn'
@@ -64,7 +64,7 @@ const TestimonialsOne = () => {
                   data-tilt-perspective={5000}
                   data-tilt-full-page-listening=''
                 >
-                  <img src='assets/images/thumbs/testimonial-img2.png' alt='' />
+                  <img src='/assets/images/thumbs/testimonial-img2.png' alt='' />
                 </div>
               </Slider>
             </div>

@@ -8,7 +8,7 @@ const FooterFive = () => {
         <div className='container max-w-1536-px'>
           <div className='row row-cols-xxl-5 row-cols-lg-3 row-cols-sm-2 row-cols-1 gy-4'>
             <div className='col' data-aos='fade-up' data-aos-duration={600}>
-              <img src='assets/images/logo/logo.png' alt='' className='mb-24' />
+              <img src='/assets/images/logo/logo.png' alt='' className='mb-24' />
               <div>
                 <p className='text-neutral-700 text-14 fw-normal mb-24 max-w-240-px'>
                   Gradus exceeded all my expectations! The instructors were not
@@ -92,7 +92,7 @@ const FooterFive = () => {
                   </li>
                   <li className='item-hover position-relative'>
                     <Link
-                      to='/blog'
+                      to='/blogs'
                       className='hover-margin-left d-flex align-items-center text-neutral-700 text-16 fw-normal hover-text-warning-600'
                     >
                       <span className='position-absolute top-50 start-0 translate-middle w-8 h-8 bg-warning-600 rounded-circle transition-03 hidden group-hover-visible' />
@@ -176,7 +176,7 @@ const FooterFive = () => {
       {/* ========footer bottom section end============= */}
       <div className='position-absolute bottom-0 start-0 w-100 z-1'>
         <img
-          src='assets/images/shapes/cloud-shap-img5.png'
+          src='/assets/images/shapes/cloud-shap-img5.png'
           alt=''
           className='w-100'
         />

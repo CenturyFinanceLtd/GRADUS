@@ -5,7 +5,7 @@ const ExploreCourseThree = () => {
     <section className='explore-course py-120 bg-main-25 position-relative z-0'>
       <div className='position-absolute start-0 top-0 w-100 z-index-n9'>
         <img
-          src='assets/images/shapes/cloud-shap-img2.png'
+          src='/assets/images/shapes/cloud-shap-img2.png'
           alt=''
           className='w-100 z-n9'
         />
@@ -118,7 +118,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -130,7 +130,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img1.png'
+                        src='/assets/images/thumbs/kids-courses-img1.png'
                         alt='Course '
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -213,7 +213,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -225,7 +225,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img2.png'
+                        src='/assets/images/thumbs/kids-courses-img2.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -308,7 +308,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -320,7 +320,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img3.png'
+                        src='/assets/images/thumbs/kids-courses-img3.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -403,7 +403,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -415,7 +415,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img4.png'
+                        src='/assets/images/thumbs/kids-courses-img4.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -498,7 +498,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -510,7 +510,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img5.png'
+                        src='/assets/images/thumbs/kids-courses-img5.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -593,7 +593,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -605,7 +605,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img6.png'
+                        src='/assets/images/thumbs/kids-courses-img6.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -708,7 +708,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -720,7 +720,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img1.png'
+                        src='/assets/images/thumbs/kids-courses-img1.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -803,7 +803,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -815,7 +815,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img2.png'
+                        src='/assets/images/thumbs/kids-courses-img2.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -898,7 +898,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -910,7 +910,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img3.png'
+                        src='/assets/images/thumbs/kids-courses-img3.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -993,7 +993,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -1005,7 +1005,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img4.png'
+                        src='/assets/images/thumbs/kids-courses-img4.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1088,7 +1088,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -1100,7 +1100,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img5.png'
+                        src='/assets/images/thumbs/kids-courses-img5.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1183,7 +1183,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -1195,7 +1195,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img6.png'
+                        src='/assets/images/thumbs/kids-courses-img6.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1298,7 +1298,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -1310,7 +1310,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img1.png'
+                        src='/assets/images/thumbs/kids-courses-img1.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1393,7 +1393,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -1405,7 +1405,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img2.png'
+                        src='/assets/images/thumbs/kids-courses-img2.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1488,7 +1488,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -1500,7 +1500,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img3.png'
+                        src='/assets/images/thumbs/kids-courses-img3.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1583,7 +1583,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -1595,7 +1595,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img4.png'
+                        src='/assets/images/thumbs/kids-courses-img4.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1678,7 +1678,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -1690,7 +1690,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img5.png'
+                        src='/assets/images/thumbs/kids-courses-img5.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1773,7 +1773,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -1785,7 +1785,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img6.png'
+                        src='/assets/images/thumbs/kids-courses-img6.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1888,7 +1888,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -1900,7 +1900,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img1.png'
+                        src='/assets/images/thumbs/kids-courses-img1.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -1983,7 +1983,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -1995,7 +1995,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img2.png'
+                        src='/assets/images/thumbs/kids-courses-img2.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -2078,7 +2078,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -2090,7 +2090,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img3.png'
+                        src='/assets/images/thumbs/kids-courses-img3.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -2173,7 +2173,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -2185,7 +2185,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img4.png'
+                        src='/assets/images/thumbs/kids-courses-img4.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -2268,7 +2268,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -2280,7 +2280,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img5.png'
+                        src='/assets/images/thumbs/kids-courses-img5.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -2363,7 +2363,7 @@ const ExploreCourseThree = () => {
                   <div className='px-20 mb-20 d-flex justify-content-between'>
                     <div className='d-flex align-items-center gap-8'>
                       <img
-                        src='assets/images/icons/kids-courses-shape-img1.png'
+                        src='/assets/images/icons/kids-courses-shape-img1.png'
                         alt=''
                       />
                       <span className='text-sm fw-normal'>By Wowtheme7 IT</span>
@@ -2375,7 +2375,7 @@ const ExploreCourseThree = () => {
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to='/course-details' className='w-100 h-100'>
                       <img
-                        src='assets/images/thumbs/kids-courses-img6.png'
+                        src='/assets/images/thumbs/kids-courses-img6.png'
                         alt='Course'
                         className='course-item__img rounded-12 cover-img transition-2'
                       />
@@ -2465,7 +2465,7 @@ const ExploreCourseThree = () => {
       </div>
       <div className='position-absolute start-0 bottom-0 w-100 z-index-n9'>
         <img
-          src='assets/images/shapes/cloud-shap-img1.png'
+          src='/assets/images/shapes/cloud-shap-img1.png'
           alt=''
           className='w-100'
         />

@@ -5,22 +5,22 @@ const AboutFive = () => {
   return (
     <section className='bg-white position-relative z-1 overflow-hidden'>
       <img
-        src='assets/images/shapes/shape1.png'
+        src='/assets/images/shapes/shape1.png'
         alt=''
         className='animation-rotation d-sm-block d-none left-15-percent top-0 position-absolute'
       />
       <img
-        src='assets/images/shapes/curve-arrow.png'
+        src='/assets/images/shapes/curve-arrow.png'
         alt=''
         className='animate__wobble__two d-sm-block d-none inset-inline-start-63-percent top-25-percent position-absolute z-n1'
       />
       <img
-        src='assets/images/shapes/shape3.png'
+        src='/assets/images/shapes/shape3.png'
         alt=''
         className='animation-walking d-sm-block d-none inset-inline-end-7-percent top-0 position-absolute'
       />
       <img
-        src='assets/images/shapes/shape5.png'
+        src='/assets/images/shapes/shape5.png'
         alt=''
         className='animation-walking d-sm-block d-none inset-inline-end-32-percent inset-block-end-0 position-absolute z-1'
       />
@@ -84,7 +84,7 @@ const AboutFive = () => {
                   <div className='d-flex gap-12' data-aos='fade-right'>
                     <span>
                       <img
-                        src='assets/images/icons/about-us-five-checkbox.png'
+                        src='/assets/images/icons/about-us-five-checkbox.png'
                         alt=''
                       />
                     </span>
@@ -99,7 +99,7 @@ const AboutFive = () => {
                   <div className='d-flex gap-12' data-aos='fade-left'>
                     <span>
                       <img
-                        src='assets/images/icons/about-us-five-checkbox.png'
+                        src='/assets/images/icons/about-us-five-checkbox.png'
                         alt=''
                       />
                     </span>
@@ -129,7 +129,7 @@ const AboutFive = () => {
                   >
                     <span className='bg-warning-800 w-54 h-54 rounded-circle justify-content-center text-center align-items-center d-flex text-white'>
                       <img
-                        src='assets/images/icons/about-us-five-headset.png'
+                        src='/assets/images/icons/about-us-five-headset.png'
                         alt=''
                       />
                     </span>
@@ -147,7 +147,7 @@ const AboutFive = () => {
           <div className='col-lg-6'>
             <div className='margin-left-137-px position-md-absolute w-100 h-100 z-1'>
               <img
-                src='assets/images/thumbs/about-us-six-img1.png'
+                src='/assets/images/thumbs/about-us-six-img1.png'
                 alt='w-100 h-100'
               />
             </div>

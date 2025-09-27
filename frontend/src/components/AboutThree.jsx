@@ -1,4 +1,4 @@
-import CountUp from "react-countup";
+﻿import CountUp from "react-countup";
 import { Link } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
 
@@ -17,7 +17,7 @@ const AboutThree = () => {
                 <div className='row gy-4'>
                   <div className='col-sm-8'>
                     <img
-                      src='assets/images/thumbs/about-three-img1.png'
+                      src='/assets/images/thumbs/about-three-img1.png'
                       alt=''
                       className='about-three-thumbs__one rounded-16 w-100'
                       data-tilt=''
@@ -39,48 +39,48 @@ const AboutThree = () => {
                       <div ref={ref}>
                         {inView && (
                           <h1 className='mb-16 text-white counter'>
-                            <CountUp end={26} />K
+                            <CountUp end={178} />
                           </h1>
                         )}
                       </div>
                       <span className='text-white'>
-                        Students Active Our University
+                        Strategic Hiring Partners
                       </span>
                       <div className='enrolled-students style-two mt-12'>
                         <img
-                          src='assets/images/thumbs/enroll-student-img1.png'
+                          src='/assets/images/thumbs/enroll-student-img1.png'
                           alt=''
                           className='w-32 h-32 rounded-circle object-fit-cove transition-2'
                         />
                         <img
-                          src='assets/images/thumbs/enroll-student-img2.png'
+                          src='/assets/images/thumbs/enroll-student-img2.png'
                           alt=''
                           className='w-32 h-32 rounded-circle object-fit-cove transition-2'
                         />
                         <img
-                          src='assets/images/thumbs/enroll-student-img3.png'
+                          src='/assets/images/thumbs/enroll-student-img3.png'
                           alt=''
                           className='w-32 h-32 rounded-circle object-fit-cove transition-2'
                         />
                         <img
-                          src='assets/images/thumbs/enroll-student-img4.png'
+                          src='/assets/images/thumbs/enroll-student-img4.png'
                           alt=''
                           className='w-32 h-32 rounded-circle object-fit-cove transition-2'
                         />
                         <img
-                          src='assets/images/thumbs/enroll-student-img5.png'
+                          src='/assets/images/thumbs/enroll-student-img5.png'
                           alt=''
                           className='w-32 h-32 rounded-circle object-fit-cove transition-2'
                         />
                         <img
-                          src='assets/images/thumbs/enroll-student-img6.png'
+                          src='/assets/images/thumbs/enroll-student-img6.png'
                           alt=''
                           className='w-32 h-32 rounded-circle object-fit-cove transition-2'
                         />
                       </div>
                     </div>
                     <img
-                      src='assets/images/thumbs/about-three-img2.png'
+                      src='/assets/images/thumbs/about-three-img2.png'
                       alt=''
                       className='about-three-thumbs__two rounded-16 w-100'
                       data-tilt=''
@@ -100,15 +100,16 @@ const AboutThree = () => {
                     <span className='text-main-600 text-2xl d-flex'>
                       <i className='ph-bold ph-book-open' />
                     </span>
-                    <h5 className='text-main-600 mb-0'>About Us</h5>
+                    <h5 className='text-main-600 mb-0'>Know Gradus</h5>
                   </div>
                   <h2 className='mb-24 wow bounceInRight'>
-                    Our Commitment to Diversity Leadership and Governance
+                    Where Ambition Becomes Proven Expertise
                   </h2>
-                  <p className='text-neutral-500 text-line-2 wow bounceInUp'>
-                    We embrace innovation and creativity as catalysts for
-                    positive change, driving forward-thinking research, teaching
-                    methodologies
+                  <p className='text-neutral-500 text-line-2 wow bounceInUp mb-16'>
+                    Gradus, the career acceleration initiative by Century Finance Limited, forges a decisive bridge between academic instruction and industry ascendancy. Our pathways are meticulously designed for management aspirants, engineering graduates, and finance enthusiasts so that theoretical acumen translates into demonstrable competence.
+                  </p>
+                  <p className='text-neutral-500 text-line-2 wow bounceInUp mb-0'>
+                    Backed by immersive internships, guaranteed placement trajectories, and mentors rigorously selected for their experiential authority, Gradus transforms ambition into expertise for professionals ready to excel.
                   </p>
                 </div>
                 <div className='grid-cols-2'>
@@ -119,18 +120,17 @@ const AboutThree = () => {
                   >
                     <span className='flex-shrink-0 w-60 h-60 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-16 box-shadow-md'>
                       <img
-                        src='assets/images/icons/choose-us-icon1.png'
+                        src='/assets/images/icons/choose-us-icon1.png'
                         className='animate__swing'
                         alt=''
                       />
                     </span>
                     <div className='flex-grow-1'>
                       <h6 className='text-neutral-800 text-xl fw-medium mb-8'>
-                        Undergraduate
+                        Paid Internships
                       </h6>
-                      <div className='flex-align gap-8 text-neutral-500'>
-                        <i className='d-flex text-lg ph-bold ph-clock' />
-                        Onsite
+                      <div className='text-neutral-500'>
+                        Immersive two-month remunerated internships deliver real-world exposure.
                       </div>
                     </div>
                   </div>
@@ -141,18 +141,17 @@ const AboutThree = () => {
                   >
                     <span className='flex-shrink-0 w-60 h-60 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-16 box-shadow-md'>
                       <img
-                        src='assets/images/icons/choose-us-icon2.png'
+                        src='/assets/images/icons/choose-us-icon2.png'
                         className='animate__swing'
                         alt=''
                       />
                     </span>
                     <div className='flex-grow-1'>
                       <h6 className='text-neutral-800 text-xl fw-medium mb-8'>
-                        Graduate
+                        Guaranteed Placements
                       </h6>
-                      <div className='flex-align gap-8 text-neutral-500'>
-                        <i className='d-flex text-lg ph-bold ph-clock' />
-                        Onsite
+                      <div className='text-neutral-500'>
+                        Structured placement pathways with prestigious organisations nationwide.
                       </div>
                     </div>
                   </div>
@@ -163,18 +162,17 @@ const AboutThree = () => {
                   >
                     <span className='flex-shrink-0 w-60 h-60 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-16 box-shadow-md'>
                       <img
-                        src='assets/images/icons/choose-us-icon3.png'
+                        src='/assets/images/icons/choose-us-icon3.png'
                         className='animate__swing'
                         alt=''
                       />
                     </span>
                     <div className='flex-grow-1'>
                       <h6 className='text-neutral-800 text-xl fw-medium mb-8'>
-                        Post Graduate
+                        178 Industry Partners
                       </h6>
-                      <div className='flex-align gap-8 text-neutral-500'>
-                        <i className='d-flex text-lg ph-bold ph-clock' />
-                        Onsite
+                      <div className='text-neutral-500'>
+                        Curriculum aligned with competencies employers demand today.
                       </div>
                     </div>
                   </div>
@@ -185,18 +183,17 @@ const AboutThree = () => {
                   >
                     <span className='flex-shrink-0 w-60 h-60 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-16 box-shadow-md'>
                       <img
-                        src='assets/images/icons/choose-us-icon4.png'
+                        src='/assets/images/icons/choose-us-icon4.png'
                         className='animate__swing'
                         alt=''
                       />
                     </span>
                     <div className='flex-grow-1'>
                       <h6 className='text-neutral-800 text-xl fw-medium mb-8'>
-                        Online education
+                        Distinguished Mentors
                       </h6>
-                      <div className='flex-align gap-8 text-neutral-500'>
-                        <i className='d-flex text-lg ph-bold ph-clock' />
-                        Onsite
+                      <div className='text-neutral-500'>
+                        Veteran trainers nurture critical thinking and professional resilience.
                       </div>
                     </div>
                   </div>
@@ -206,7 +203,7 @@ const AboutThree = () => {
                     to='/about-us'
                     className='btn btn-main rounded-pill flex-align d-inline-flex gap-8'
                   >
-                    Read More
+                    Discover Gradus
                     <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
                   </Link>
                 </div>
@@ -220,3 +217,4 @@ const AboutThree = () => {
 };
 
 export default AboutThree;
+

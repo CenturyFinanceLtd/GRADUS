@@ -29,7 +29,7 @@ const FacultyOne = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/course-details' className='w-100 h-100'>
                   <img
-                    src='assets/images/thumbs/faculty-img1.png'
+                    src='/assets/images/thumbs/faculty-img1.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -67,27 +67,27 @@ const FacultyOne = () => {
                   </h4>
                   <ul className='check-list'>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>
                         Playground
                       </span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Library</span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Canteen</span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>
                         Stationary
                       </span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Hostel</span>
                     </li>
                   </ul>
@@ -114,7 +114,7 @@ const FacultyOne = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/course-details' className='w-100 h-100'>
                   <img
-                    src='assets/images/thumbs/faculty-img2.png'
+                    src='/assets/images/thumbs/faculty-img2.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -152,27 +152,27 @@ const FacultyOne = () => {
                   </h4>
                   <ul className='check-list'>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>
                         Playground
                       </span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Library</span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Canteen</span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>
                         Stationary
                       </span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Hostel</span>
                     </li>
                   </ul>
@@ -199,7 +199,7 @@ const FacultyOne = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/course-details' className='w-100 h-100'>
                   <img
-                    src='assets/images/thumbs/faculty-img3.png'
+                    src='/assets/images/thumbs/faculty-img3.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -237,27 +237,27 @@ const FacultyOne = () => {
                   </h4>
                   <ul className='check-list'>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>
                         Playground
                       </span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Library</span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Canteen</span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>
                         Stationary
                       </span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Hostel</span>
                     </li>
                   </ul>
@@ -284,7 +284,7 @@ const FacultyOne = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/course-details' className='w-100 h-100'>
                   <img
-                    src='assets/images/thumbs/faculty-img4.png'
+                    src='/assets/images/thumbs/faculty-img4.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -322,27 +322,27 @@ const FacultyOne = () => {
                   </h4>
                   <ul className='check-list'>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>
                         Playground
                       </span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Library</span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Canteen</span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>
                         Stationary
                       </span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Hostel</span>
                     </li>
                   </ul>
@@ -369,7 +369,7 @@ const FacultyOne = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/course-details' className='w-100 h-100'>
                   <img
-                    src='assets/images/thumbs/faculty-img5.png'
+                    src='/assets/images/thumbs/faculty-img5.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -407,27 +407,27 @@ const FacultyOne = () => {
                   </h4>
                   <ul className='check-list'>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>
                         Playground
                       </span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Library</span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Canteen</span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>
                         Stationary
                       </span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Hostel</span>
                     </li>
                   </ul>
@@ -454,7 +454,7 @@ const FacultyOne = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/course-details' className='w-100 h-100'>
                   <img
-                    src='assets/images/thumbs/faculty-img6.png'
+                    src='/assets/images/thumbs/faculty-img6.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -492,27 +492,27 @@ const FacultyOne = () => {
                   </h4>
                   <ul className='check-list'>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>
                         Playground
                       </span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Library</span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Canteen</span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>
                         Stationary
                       </span>
                     </li>
                     <li className='flex-align gap-8'>
-                      <img src='assets/images/icons/check.png' alt='' />
+                      <img src='/assets/images/icons/check.png' alt='' />
                       <span className='text-neutral-500 text-md'>Hostel</span>
                     </li>
                   </ul>

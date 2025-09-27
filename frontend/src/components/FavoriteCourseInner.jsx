@@ -25,7 +25,7 @@ const FavoriteCourseInner = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/course-details' className='w-100 h-100'>
                   <img
-                    src='assets/images/thumbs/course-img1.png'
+                    src='/assets/images/thumbs/course-img1.png'
                     alt='Course'
                     className='course-item__img rounded-12 cover-img transition-2'
                   />
@@ -81,7 +81,7 @@ const FavoriteCourseInner = () => {
                     <div className='flex-align gap-8'>
                       <span className='text-neutral-700 text-2xl d-flex'>
                         <img
-                          src='assets/images/thumbs/user-img1.png'
+                          src='/assets/images/thumbs/user-img1.png'
                           alt='User '
                           className='w-32 h-32 object-fit-cover rounded-circle'
                         />
@@ -115,7 +115,7 @@ const FavoriteCourseInner = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/course-details' className='w-100 h-100'>
                   <img
-                    src='assets/images/thumbs/course-img2.png'
+                    src='/assets/images/thumbs/course-img2.png'
                     alt='Course'
                     className='course-item__img rounded-12 cover-img transition-2'
                   />
@@ -171,7 +171,7 @@ const FavoriteCourseInner = () => {
                     <div className='flex-align gap-8'>
                       <span className='text-neutral-700 text-2xl d-flex'>
                         <img
-                          src='assets/images/thumbs/user-img2.png'
+                          src='/assets/images/thumbs/user-img2.png'
                           alt='User '
                           className='w-32 h-32 object-fit-cover rounded-circle'
                         />
@@ -205,7 +205,7 @@ const FavoriteCourseInner = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/course-details' className='w-100 h-100'>
                   <img
-                    src='assets/images/thumbs/course-img3.png'
+                    src='/assets/images/thumbs/course-img3.png'
                     alt='Course'
                     className='course-item__img rounded-12 cover-img transition-2'
                   />
@@ -261,7 +261,7 @@ const FavoriteCourseInner = () => {
                     <div className='flex-align gap-8'>
                       <span className='text-neutral-700 text-2xl d-flex'>
                         <img
-                          src='assets/images/thumbs/user-img3.png'
+                          src='/assets/images/thumbs/user-img3.png'
                           alt='User '
                           className='w-32 h-32 object-fit-cover rounded-circle'
                         />
@@ -295,7 +295,7 @@ const FavoriteCourseInner = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/course-details' className='w-100 h-100'>
                   <img
-                    src='assets/images/thumbs/course-img4.png'
+                    src='/assets/images/thumbs/course-img4.png'
                     alt='Course'
                     className='course-item__img rounded-12 cover-img transition-2'
                   />
@@ -351,7 +351,7 @@ const FavoriteCourseInner = () => {
                     <div className='flex-align gap-8'>
                       <span className='text-neutral-700 text-2xl d-flex'>
                         <img
-                          src='assets/images/thumbs/user-img4.png'
+                          src='/assets/images/thumbs/user-img4.png'
                           alt='User '
                           className='w-32 h-32 object-fit-cover rounded-circle'
                         />
@@ -385,7 +385,7 @@ const FavoriteCourseInner = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/course-details' className='w-100 h-100'>
                   <img
-                    src='assets/images/thumbs/course-img5.png'
+                    src='/assets/images/thumbs/course-img5.png'
                     alt='Course'
                     className='course-item__img rounded-12 cover-img transition-2'
                   />
@@ -441,7 +441,7 @@ const FavoriteCourseInner = () => {
                     <div className='flex-align gap-8'>
                       <span className='text-neutral-700 text-2xl d-flex'>
                         <img
-                          src='assets/images/thumbs/user-img5.png'
+                          src='/assets/images/thumbs/user-img5.png'
                           alt='User '
                           className='w-32 h-32 object-fit-cover rounded-circle'
                         />
@@ -475,7 +475,7 @@ const FavoriteCourseInner = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/course-details' className='w-100 h-100'>
                   <img
-                    src='assets/images/thumbs/course-img6.png'
+                    src='/assets/images/thumbs/course-img6.png'
                     alt='Course'
                     className='course-item__img rounded-12 cover-img transition-2'
                   />
@@ -531,7 +531,7 @@ const FavoriteCourseInner = () => {
                     <div className='flex-align gap-8'>
                       <span className='text-neutral-700 text-2xl d-flex'>
                         <img
-                          src='assets/images/thumbs/user-img6.png'
+                          src='/assets/images/thumbs/user-img6.png'
                           alt='User '
                           className='w-32 h-32 object-fit-cover rounded-circle'
                         />

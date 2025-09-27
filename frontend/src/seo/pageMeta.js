@@ -73,7 +73,7 @@ export const PAGE_META = {
       "Start your Gradus journey by submitting your application and connecting with our admissions advisors.",
     keywords: "gradus admission, apply now, education application",
   },
-  "/blog": {
+  "/blogs": {
     title: "Gradus | Blog Grid",
     description:
       "Stay informed with Gradus articles covering industry trends, learning tips, and platform updates.",

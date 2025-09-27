@@ -31,9 +31,10 @@ const config = {
     approverEmail: process.env.ADMIN_APPROVER_EMAIL || 'dvisro13@gmail.com',
     portalName: process.env.ADMIN_PORTAL_NAME || 'Gradus Admin Portal',
   },
+  sessionSecret: process.env.SESSION_SECRET,
 };
 
-const requiredKeys = ['MONGODB_URI', 'JWT_SECRET'];
+const requiredKeys = ['MONGODB_URI', 'JWT_SECRET', 'SESSION_SECRET'];
 const smtpKeys = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'SMTP_FROM'];
 
 if ((config.smtp.deliveryMode || 'live') === 'live') {

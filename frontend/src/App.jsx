@@ -70,9 +70,9 @@ function App() {
         <Route exact path='/about-three' element={<AboutThreePage />} />
         <Route exact path='/about-four' element={<AboutFourPage />} />
         <Route exact path='/apply-admission' element={<ApplyAdmissionPage />} />
-        <Route exact path='/blog' element={<BlogPage />} />
+        <Route exact path='/blogs' element={<BlogPage />} />
         <Route exact path='/blog-classic' element={<BlogClassicPage />} />
-        <Route exact path='/blog-details' element={<BlogDetailsPage />} />
+        <Route exact path='/blogs/:slug' element={<BlogDetailsPage />} />
         <Route exact path='/blog-list' element={<BlogListPage />} />
         <Route
           exact

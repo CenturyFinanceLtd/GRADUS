@@ -17,7 +17,7 @@ const AboutThreeWhiteBG = () => {
                 <div className='row gy-4'>
                   <div className='col-sm-8'>
                     <img
-                      src='assets/images/thumbs/about-three-img1.png'
+                      src='/assets/images/thumbs/about-three-img1.png'
                       alt=''
                       className='about-three-thumbs__one rounded-16 w-100'
                       data-tilt=''
@@ -48,39 +48,39 @@ const AboutThreeWhiteBG = () => {
                       </span>
                       <div className='enrolled-students style-two mt-12'>
                         <img
-                          src='assets/images/thumbs/enroll-student-img1.png'
+                          src='/assets/images/thumbs/enroll-student-img1.png'
                           alt=''
                           className='w-32 h-32 rounded-circle object-fit-cove transition-2'
                         />
                         <img
-                          src='assets/images/thumbs/enroll-student-img2.png'
+                          src='/assets/images/thumbs/enroll-student-img2.png'
                           alt=''
                           className='w-32 h-32 rounded-circle object-fit-cove transition-2'
                         />
                         <img
-                          src='assets/images/thumbs/enroll-student-img3.png'
+                          src='/assets/images/thumbs/enroll-student-img3.png'
                           alt=''
                           className='w-32 h-32 rounded-circle object-fit-cove transition-2'
                         />
                         <img
-                          src='assets/images/thumbs/enroll-student-img4.png'
+                          src='/assets/images/thumbs/enroll-student-img4.png'
                           alt=''
                           className='w-32 h-32 rounded-circle object-fit-cove transition-2'
                         />
                         <img
-                          src='assets/images/thumbs/enroll-student-img5.png'
+                          src='/assets/images/thumbs/enroll-student-img5.png'
                           alt=''
                           className='w-32 h-32 rounded-circle object-fit-cove transition-2'
                         />
                         <img
-                          src='assets/images/thumbs/enroll-student-img6.png'
+                          src='/assets/images/thumbs/enroll-student-img6.png'
                           alt=''
                           className='w-32 h-32 rounded-circle object-fit-cove transition-2'
                         />
                       </div>
                     </div>
                     <img
-                      src='assets/images/thumbs/about-three-img2.png'
+                      src='/assets/images/thumbs/about-three-img2.png'
                       alt=''
                       className='about-three-thumbs__two rounded-16 w-100'
                       data-tilt=''
@@ -119,7 +119,7 @@ const AboutThreeWhiteBG = () => {
                   >
                     <span className='flex-shrink-0 w-60 h-60 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-16 box-shadow-md'>
                       <img
-                        src='assets/images/icons/choose-us-icon1.png'
+                        src='/assets/images/icons/choose-us-icon1.png'
                         className='animate__swing'
                         alt=''
                       />
@@ -141,7 +141,7 @@ const AboutThreeWhiteBG = () => {
                   >
                     <span className='flex-shrink-0 w-60 h-60 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-16 box-shadow-md'>
                       <img
-                        src='assets/images/icons/choose-us-icon2.png'
+                        src='/assets/images/icons/choose-us-icon2.png'
                         className='animate__swing'
                         alt=''
                       />
@@ -163,7 +163,7 @@ const AboutThreeWhiteBG = () => {
                   >
                     <span className='flex-shrink-0 w-60 h-60 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-16 box-shadow-md'>
                       <img
-                        src='assets/images/icons/choose-us-icon3.png'
+                        src='/assets/images/icons/choose-us-icon3.png'
                         className='animate__swing'
                         alt=''
                       />
@@ -185,7 +185,7 @@ const AboutThreeWhiteBG = () => {
                   >
                     <span className='flex-shrink-0 w-60 h-60 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-16 box-shadow-md'>
                       <img
-                        src='assets/images/icons/choose-us-icon4.png'
+                        src='/assets/images/icons/choose-us-icon4.png'
                         className='animate__swing'
                         alt=''
                       />

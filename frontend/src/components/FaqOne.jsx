@@ -6,7 +6,7 @@ const FaqOne = () => {
           <div className='col-lg-6 d-lg-block d-none'>
             <div className='faq-thumb'>
               <img
-                src='assets/images/thumbs/faq-img.png'
+                src='/assets/images/thumbs/faq-img.png'
                 alt=''
                 data-tilt=''
                 data-tilt-max={6}

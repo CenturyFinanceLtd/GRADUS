@@ -24,12 +24,12 @@ const CounterTwo = () => {
                 <div ref={ref}>
                   {inView && (
                     <h1 className='display-four mb-16 text-neutral-700 counter'>
-                      <CountUp end={10} />K
+                      <CountUp end={64.7} />K
                     </h1>
                   )}
                 </div>
                 <span className='text-neutral-500 text-lg'>
-                  Total Instructors{" "}
+                  Successfully Trained{" "}
                 </span>
               </div>
             </div>
@@ -46,7 +46,7 @@ const CounterTwo = () => {
                 <div ref={ref}>
                   {inView && (
                     <h1 className='display-four mb-16 text-neutral-700 counter'>
-                      <CountUp end={55} />K
+                      <CountUp end={123} />K
                     </h1>
                   )}
                 </div>
@@ -68,7 +68,7 @@ const CounterTwo = () => {
                 <div ref={ref}>
                   {inView && (
                     <h1 className='display-four mb-16 text-neutral-700 counter'>
-                      <CountUp end={48} />K
+                      <CountUp end={72.2} />K
                     </h1>
                   )}
                 </div>
@@ -90,11 +90,11 @@ const CounterTwo = () => {
                 <div ref={ref}>
                   {inView && (
                     <h1 className='display-four mb-16 text-neutral-700 counter'>
-                      <CountUp end={550} />K
+                      <CountUp end={256} />K
                     </h1>
                   )}
                 </div>
-                <span className='text-neutral-500 text-lg'>Total Campuses</span>
+                <span className='text-neutral-500 text-lg'>Student Community</span>
               </div>
             </div>
           </div>

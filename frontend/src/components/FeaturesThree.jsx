@@ -48,7 +48,7 @@ const FeaturesThree = () => {
                 }}
               >
                 <img
-                  src='assets/images/thumbs/child-img1.png'
+                  src='/assets/images/thumbs/child-img1.png'
                   alt=''
                   className='mb-40 animate__wobble'
                 />
@@ -63,7 +63,7 @@ const FeaturesThree = () => {
                   </p>
                 </div>
                 <img
-                  src='assets/images/shapes/child-icon.png'
+                  src='/assets/images/shapes/child-icon.png'
                   alt=''
                   className='child-future-icon position-absolute top-0 end-0'
                 />
@@ -82,7 +82,7 @@ const FeaturesThree = () => {
                 }}
               >
                 <img
-                  src='assets/images/thumbs/child-img2.png'
+                  src='/assets/images/thumbs/child-img2.png'
                   alt=''
                   className='mb-40 animate__wobble'
                 />
@@ -97,7 +97,7 @@ const FeaturesThree = () => {
                   </p>
                 </div>
                 <img
-                  src='assets/images/shapes/child-icon.png'
+                  src='/assets/images/shapes/child-icon.png'
                   alt=''
                   className='child-future-icon position-absolute top-0 end-0'
                 />
@@ -116,7 +116,7 @@ const FeaturesThree = () => {
                 }}
               >
                 <img
-                  src='assets/images/thumbs/child-img3.png'
+                  src='/assets/images/thumbs/child-img3.png'
                   alt=''
                   className='mb-40 animate__wobble'
                 />
@@ -131,7 +131,7 @@ const FeaturesThree = () => {
                   </p>
                 </div>
                 <img
-                  src='assets/images/shapes/child-icon.png'
+                  src='/assets/images/shapes/child-icon.png'
                   alt=''
                   className='child-future-icon position-absolute top-0 end-0'
                 />

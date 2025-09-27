@@ -4,12 +4,12 @@ const BlogOne = () => {
   return (
     <section className='blog py-120 mash-bg-main mash-bg-main-two position-relative'>
       <img
-        src='assets/images/shapes/shape2.png'
+        src='/assets/images/shapes/shape2.png'
         alt=''
         className='shape two animation-scalation'
       />
       <img
-        src='assets/images/shapes/shape6.png'
+        src='/assets/images/shapes/shape6.png'
         alt=''
         className='shape four animation-scalation'
       />
@@ -31,7 +31,7 @@ const BlogOne = () => {
               <div className='rounded-12 overflow-hidden position-relative'>
                 <Link to='/blog-details' className='w-100 h-100'>
                   <img
-                    src='assets/images/thumbs/blog-img1.png'
+                    src='/assets/images/thumbs/blog-img1.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -98,7 +98,7 @@ const BlogOne = () => {
               <div className='rounded-12 overflow-hidden position-relative'>
                 <Link to='/blog-details' className='w-100 h-100'>
                   <img
-                    src='assets/images/thumbs/blog-img2.png'
+                    src='/assets/images/thumbs/blog-img2.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -165,7 +165,7 @@ const BlogOne = () => {
               <div className='rounded-12 overflow-hidden position-relative'>
                 <Link to='/blog-details' className='w-100 h-100'>
                   <img
-                    src='assets/images/thumbs/blog-img3.png'
+                    src='/assets/images/thumbs/blog-img3.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />

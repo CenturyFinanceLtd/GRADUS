@@ -23,7 +23,7 @@ const EventsAllOne = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/event-details' className='w-100 h-100' tabIndex={0}>
                   <img
-                    src='assets/images/thumbs/event-img1.png'
+                    src='/assets/images/thumbs/event-img1.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -73,7 +73,7 @@ const EventsAllOne = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/event-details' className='w-100 h-100' tabIndex={0}>
                   <img
-                    src='assets/images/thumbs/event-img2.png'
+                    src='/assets/images/thumbs/event-img2.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -123,7 +123,7 @@ const EventsAllOne = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/event-details' className='w-100 h-100' tabIndex={0}>
                   <img
-                    src='assets/images/thumbs/event-img3.png'
+                    src='/assets/images/thumbs/event-img3.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -173,7 +173,7 @@ const EventsAllOne = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/event-details' className='w-100 h-100' tabIndex={0}>
                   <img
-                    src='assets/images/thumbs/event-img4.png'
+                    src='/assets/images/thumbs/event-img4.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -223,7 +223,7 @@ const EventsAllOne = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/event-details' className='w-100 h-100' tabIndex={0}>
                   <img
-                    src='assets/images/thumbs/event-img5.png'
+                    src='/assets/images/thumbs/event-img5.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />
@@ -273,7 +273,7 @@ const EventsAllOne = () => {
               <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                 <Link to='/event-details' className='w-100 h-100' tabIndex={0}>
                   <img
-                    src='assets/images/thumbs/event-img6.png'
+                    src='/assets/images/thumbs/event-img6.png'
                     alt='Course'
                     className='scale-hover-item__img rounded-12 cover-img transition-2'
                   />

@@ -26,7 +26,7 @@ const WorkProcessOne = () => {
                 <div className='w-136 h-136 bg-white p-16 box-shadow-md rounded-circle mx-auto d-inline-flex align-items-center justify-content-center position-relative'>
                   <span className='border border-main-600 border-dashed rounded-circle w-100 h-100 flex-center'>
                     <img
-                      src='assets/images/icons/work-process-icon1.png'
+                      src='/assets/images/icons/work-process-icon1.png'
                       alt=''
                       className='animate__flipInY'
                     />
@@ -54,7 +54,7 @@ const WorkProcessOne = () => {
                 <div className='w-136 h-136 bg-white p-16 box-shadow-md rounded-circle mx-auto d-inline-flex align-items-center justify-content-center position-relative'>
                   <span className='border border-main-600 border-dashed rounded-circle w-100 h-100 flex-center'>
                     <img
-                      src='assets/images/icons/work-process-icon2.png'
+                      src='/assets/images/icons/work-process-icon2.png'
                       alt=''
                       className='animate__flipInY'
                     />
@@ -82,7 +82,7 @@ const WorkProcessOne = () => {
                 <div className='w-136 h-136 bg-white p-16 box-shadow-md rounded-circle mx-auto d-inline-flex align-items-center justify-content-center position-relative'>
                   <span className='border border-main-600 border-dashed rounded-circle w-100 h-100 flex-center'>
                     <img
-                      src='assets/images/icons/work-process-icon3.png'
+                      src='/assets/images/icons/work-process-icon3.png'
                       alt=''
                       className='animate__flipInY'
                     />
@@ -110,7 +110,7 @@ const WorkProcessOne = () => {
                 <div className='w-136 h-136 bg-white p-16 box-shadow-md rounded-circle mx-auto d-inline-flex align-items-center justify-content-center position-relative'>
                   <span className='border border-main-600 border-dashed rounded-circle w-100 h-100 flex-center'>
                     <img
-                      src='assets/images/icons/work-process-icon4.png'
+                      src='/assets/images/icons/work-process-icon4.png'
                       alt=''
                       className='animate__flipInY'
                     />

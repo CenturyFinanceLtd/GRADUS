@@ -43,19 +43,19 @@ const ChildFuture = () => {
               >
                 <div className='animation-item position-relative margin-top-94px padding-block-end-90px'>
                   <img
-                    src='assets/images/bg/child-futures-six-bg-img3.png'
+                    src='/assets/images/bg/child-futures-six-bg-img3.png'
                     alt=''
                     className=' position-absolute translate-middle inset-inline-start-50-percent top-50 z-n1'
                   />
                   <div className='position-relative mb-24 transform-translate-y-94px text-center'>
                     <img
-                      src='assets/images/shapes/child-future-head-bg-img1.png'
+                      src='/assets/images/shapes/child-future-head-bg-img1.png'
                       alt=''
                       className='z-1'
                     />
                     <div className=''>
                       <img
-                        src='assets/images/thumbs/child-img1.png'
+                        src='/assets/images/thumbs/child-img1.png'
                         alt=''
                         className=' animate__wobble position-absolute translate-middle inset-inline-start-50-percent top-50'
                       />
@@ -80,19 +80,19 @@ const ChildFuture = () => {
               >
                 <div className='animation-item position-relative margin-top-94px padding-block-end-90px'>
                   <img
-                    src='assets/images/bg/child-futures-six-bg-img2.png'
+                    src='/assets/images/bg/child-futures-six-bg-img2.png'
                     alt=''
                     className=' position-absolute translate-middle inset-inline-start-50-percent top-50 z-n1'
                   />
                   <div className='position-relative mb-24 transform-translate-y-94px text-center'>
                     <img
-                      src='assets/images/shapes/child-future-head-bg-img2.png'
+                      src='/assets/images/shapes/child-future-head-bg-img2.png'
                       alt=''
                       className='z-1'
                     />
                     <div className=''>
                       <img
-                        src='assets/images/thumbs/child-img2.png'
+                        src='/assets/images/thumbs/child-img2.png'
                         alt=''
                         className=' animate__wobble position-absolute translate-middle inset-inline-start-50-percent top-50'
                       />
@@ -117,19 +117,19 @@ const ChildFuture = () => {
               >
                 <div className='animation-item position-relative margin-top-94px padding-block-end-90px'>
                   <img
-                    src='assets/images/bg/child-futures-six-bg-img1.png'
+                    src='/assets/images/bg/child-futures-six-bg-img1.png'
                     alt=''
                     className=' position-absolute translate-middle inset-inline-start-50-percent top-50 z-n1'
                   />
                   <div className='position-relative mb-24 transform-translate-y-94px text-center'>
                     <img
-                      src='assets/images/shapes/child-future-head-bg-img3.png'
+                      src='/assets/images/shapes/child-future-head-bg-img3.png'
                       alt=''
                       className='z-1'
                     />
                     <div className=''>
                       <img
-                        src='assets/images/thumbs/child-img3.png'
+                        src='/assets/images/thumbs/child-img3.png'
                         alt=''
                         className=' animate__wobble position-absolute translate-middle inset-inline-start-50-percent top-50'
                       />

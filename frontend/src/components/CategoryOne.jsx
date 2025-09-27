@@ -65,7 +65,7 @@ const CategoryOne = () => {
           >
             <span className='w-96 h-96 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-circle box-shadow-md mb-24'>
               <img
-                src='assets/images/icons/category-icon1.png'
+                src='/assets/images/icons/category-icon1.png'
                 className='animate__flipInY'
                 alt=''
               />
@@ -90,7 +90,7 @@ const CategoryOne = () => {
           >
             <span className='w-96 h-96 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-circle box-shadow-md mb-24'>
               <img
-                src='assets/images/icons/category-icon2.png'
+                src='/assets/images/icons/category-icon2.png'
                 className='animate__flipInY'
                 alt=''
               />
@@ -113,7 +113,7 @@ const CategoryOne = () => {
           >
             <span className='w-96 h-96 flex-center d-inline-flex bg-white text-main-three-600 text-40 rounded-circle box-shadow-md mb-24'>
               <img
-                src='assets/images/icons/category-icon3.png'
+                src='/assets/images/icons/category-icon3.png'
                 className='animate__flipInY'
                 alt=''
               />
@@ -138,7 +138,7 @@ const CategoryOne = () => {
           >
             <span className='w-96 h-96 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-circle box-shadow-md mb-24'>
               <img
-                src='assets/images/icons/category-icon4.png'
+                src='/assets/images/icons/category-icon4.png'
                 className='animate__flipInY'
                 alt=''
               />
@@ -163,7 +163,7 @@ const CategoryOne = () => {
           >
             <span className='w-96 h-96 flex-center d-inline-flex bg-white text-main-three-600 text-40 rounded-circle box-shadow-md mb-24'>
               <img
-                src='assets/images/icons/category-icon3.png'
+                src='/assets/images/icons/category-icon3.png'
                 className='animate__flipInY'
                 alt=''
               />
@@ -188,7 +188,7 @@ const CategoryOne = () => {
           >
             <span className='w-96 h-96 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-circle box-shadow-md mb-24'>
               <img
-                src='assets/images/icons/category-icon2.png'
+                src='/assets/images/icons/category-icon2.png'
                 className='animate__flipInY'
                 alt=''
               />

@@ -302,7 +302,7 @@ const ProductsDetailsInner = () => {
           <div className='border border-neutral-30 rounded-12 bg-main-25 p-32 mt-24'>
             <div className='d-flex align-items-center flex-wrap gap-32'>
               <div className='bg-white rounded-16 p-32 d-flex justify-content-center align-items-center'>
-                <img src='assets/images/thumbs/over-img.png' alt='' />
+                <img src='/assets/images/thumbs/over-img.png' alt='' />
               </div>
               <div className=''>
                 <h3 className='mb-24'>Overview</h3>
@@ -532,7 +532,7 @@ const ProductsDetailsInner = () => {
               <span className='d-block border border-neutral-30 my-24 border-dashed' />
               <div className='flex-align gap-24'>
                 <img
-                  src='assets/images/thumbs/reviewer-img1.png'
+                  src='/assets/images/thumbs/reviewer-img1.png'
                   alt=''
                   className='w-60 h-60 rounded-circle cover-img'
                 />
@@ -564,7 +564,7 @@ const ProductsDetailsInner = () => {
               </div>
               <div className='flex-align gap-20 mt-24'>
                 <img
-                  src='assets/images/thumbs/reviewer-img2.png'
+                  src='/assets/images/thumbs/reviewer-img2.png'
                   alt=''
                   className='w-60 h-60 rounded-circle cover-img'
                 />
@@ -603,7 +603,7 @@ const ProductsDetailsInner = () => {
               <span className='d-block border border-neutral-30 my-24 border-dashed' />
               <div className='flex-align gap-24'>
                 <img
-                  src='assets/images/thumbs/reviewer-img2.png'
+                  src='/assets/images/thumbs/reviewer-img2.png'
                   alt=''
                   className='w-60 h-60 rounded-circle cover-img'
                 />
@@ -662,7 +662,7 @@ const ProductsDetailsInner = () => {
               <span className='d-block border border-neutral-30 my-24 border-dashed' />
               <div className='flex-align gap-24'>
                 <img
-                  src='assets/images/thumbs/reviewer-img3.png'
+                  src='/assets/images/thumbs/reviewer-img3.png'
                   alt=''
                   className='w-60 h-60 rounded-circle cover-img'
                 />

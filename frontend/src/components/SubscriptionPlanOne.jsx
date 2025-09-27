@@ -54,7 +54,7 @@ const SubscriptionPlanOne = () => {
                     data-aos='fade-left'
                     data-aos-duration={200}
                   >
-                    <img src='assets/images/icons/check.png' alt='' />
+                    <img src='/assets/images/icons/check.png' alt='' />
                     <span className='text-neutral-500 text-md fw-medium'>
                       Up to 05 users monthly
                     </span>
@@ -64,7 +64,7 @@ const SubscriptionPlanOne = () => {
                     data-aos='fade-left'
                     data-aos-duration={400}
                   >
-                    <img src='assets/images/icons/check.png' alt='' />
+                    <img src='/assets/images/icons/check.png' alt='' />
                     <span className='text-neutral-500 text-md fw-medium'>
                       Free 5 host &amp; domain
                     </span>
@@ -74,7 +74,7 @@ const SubscriptionPlanOne = () => {
                     data-aos='fade-left'
                     data-aos-duration={600}
                   >
-                    <img src='assets/images/icons/check.png' alt='' />
+                    <img src='/assets/images/icons/check.png' alt='' />
                     <span className='text-neutral-500 text-md fw-medium'>
                       Custom infrastructure
                     </span>
@@ -84,7 +84,7 @@ const SubscriptionPlanOne = () => {
                     data-aos='fade-left'
                     data-aos-duration={800}
                   >
-                    <img src='assets/images/icons/check.png' alt='' />
+                    <img src='/assets/images/icons/check.png' alt='' />
                     <span className='text-neutral-500 text-md fw-medium'>
                       Access to all our room
                     </span>
@@ -145,7 +145,7 @@ const SubscriptionPlanOne = () => {
                     data-aos='fade-left'
                     data-aos-duration={200}
                   >
-                    <img src='assets/images/icons/check.png' alt='' />
+                    <img src='/assets/images/icons/check.png' alt='' />
                     <span className='text-neutral-500 text-md fw-medium'>
                       Up to 05 users monthly
                     </span>
@@ -155,7 +155,7 @@ const SubscriptionPlanOne = () => {
                     data-aos='fade-left'
                     data-aos-duration={400}
                   >
-                    <img src='assets/images/icons/check.png' alt='' />
+                    <img src='/assets/images/icons/check.png' alt='' />
                     <span className='text-neutral-500 text-md fw-medium'>
                       Free 5 host &amp; domain
                     </span>
@@ -165,7 +165,7 @@ const SubscriptionPlanOne = () => {
                     data-aos='fade-left'
                     data-aos-duration={600}
                   >
-                    <img src='assets/images/icons/check.png' alt='' />
+                    <img src='/assets/images/icons/check.png' alt='' />
                     <span className='text-neutral-500 text-md fw-medium'>
                       Custom infrastructure
                     </span>
@@ -175,7 +175,7 @@ const SubscriptionPlanOne = () => {
                     data-aos='fade-left'
                     data-aos-duration={800}
                   >
-                    <img src='assets/images/icons/check.png' alt='' />
+                    <img src='/assets/images/icons/check.png' alt='' />
                     <span className='text-neutral-500 text-md fw-medium'>
                       Access to all our room
                     </span>
@@ -185,7 +185,7 @@ const SubscriptionPlanOne = () => {
                     data-aos='fade-left'
                     data-aos-duration={800}
                   >
-                    <img src='assets/images/icons/check.png' alt='' />
+                    <img src='/assets/images/icons/check.png' alt='' />
                     <span className='text-neutral-500 text-md fw-medium'>
                       24/7 dedicated Support
                     </span>
@@ -236,7 +236,7 @@ const SubscriptionPlanOne = () => {
                     data-aos='fade-left'
                     data-aos-duration={200}
                   >
-                    <img src='assets/images/icons/check.png' alt='' />
+                    <img src='/assets/images/icons/check.png' alt='' />
                     <span className='text-neutral-500 text-md fw-medium'>
                       Up to 05 users monthly
                     </span>
@@ -246,7 +246,7 @@ const SubscriptionPlanOne = () => {
                     data-aos='fade-left'
                     data-aos-duration={400}
                   >
-                    <img src='assets/images/icons/check.png' alt='' />
+                    <img src='/assets/images/icons/check.png' alt='' />
                     <span className='text-neutral-500 text-md fw-medium'>
                       Free 5 host &amp; domain
                     </span>
@@ -256,7 +256,7 @@ const SubscriptionPlanOne = () => {
                     data-aos='fade-left'
                     data-aos-duration={600}
                   >
-                    <img src='assets/images/icons/check.png' alt='' />
+                    <img src='/assets/images/icons/check.png' alt='' />
                     <span className='text-neutral-500 text-md fw-medium'>
                       Custom infrastructure
                     </span>
@@ -266,7 +266,7 @@ const SubscriptionPlanOne = () => {
                     data-aos='fade-left'
                     data-aos-duration={800}
                   >
-                    <img src='assets/images/icons/check.png' alt='' />
+                    <img src='/assets/images/icons/check.png' alt='' />
                     <span className='text-neutral-500 text-md fw-medium'>
                       Access to all our room
                     </span>
@@ -276,7 +276,7 @@ const SubscriptionPlanOne = () => {
                     data-aos='fade-left'
                     data-aos-duration={800}
                   >
-                    <img src='assets/images/icons/check.png' alt='' />
+                    <img src='/assets/images/icons/check.png' alt='' />
                     <span className='text-neutral-500 text-md fw-medium'>
                       24/7 dedicated Support
                     </span>
@@ -286,7 +286,7 @@ const SubscriptionPlanOne = () => {
                     data-aos='fade-left'
                     data-aos-duration={800}
                   >
-                    <img src='assets/images/icons/check.png' alt='' />
+                    <img src='/assets/images/icons/check.png' alt='' />
                     <span className='text-neutral-500 text-md fw-medium'>
                       Unlimited updates
                     </span>

@@ -119,7 +119,7 @@ const HeaderTwo = () => {
     {
       label: "Blog",
       links: [
-        { to: "/blog", label: "Blog Grid" },
+        { to: "/blogs", label: "Blog Grid" },
         { to: "/blog-list", label: "Blog List" },
         { to: "/blog-classic", label: "Blog Classic" },
         { to: "/blog-details", label: "Blog Details" },
@@ -139,7 +139,7 @@ const HeaderTwo = () => {
             {/* Logo Start */}
             <div className='logo'>
               <Link to='/' className='link'>
-                <img src='assets/images/logo/logo.png' alt='Logo' />
+                <img src='/assets/images/logo/logo.png' alt='Logo' />
               </Link>
             </div>
             {/* Logo End  */}
@@ -302,7 +302,7 @@ const HeaderTwo = () => {
         </button>
         <div className='mobile-menu__inner'>
           <Link to='/' className='mobile-menu__logo'>
-            <img src='assets/images/logo/logo.png' alt='Logo' />
+            <img src='/assets/images/logo/logo.png' alt='Logo' />
           </Link>
           <div className='mobile-menu__menu'>
             <ul className='nav-menu flex-align nav-menu--mobile'>

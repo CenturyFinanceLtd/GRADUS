@@ -5,12 +5,12 @@ const FooterTwo = () => {
   return (
     <footer className='footer bg-neutral-900 position-relative z-1'>
       <img
-        src='assets/images/shapes/shape2.png'
+        src='/assets/images/shapes/shape2.png'
         alt=''
         className='shape five animation-scalation'
       />
       <img
-        src='assets/images/shapes/shape6.png'
+        src='/assets/images/shapes/shape6.png'
         alt=''
         className='shape one animation-scalation'
       />
@@ -61,7 +61,7 @@ const FooterTwo = () => {
                   </li>
                   <li className='mb-0'>
                     <Link
-                      to='/blog'
+                      to='/blogs'
                       className='text-white hover-text-main-600 hover-text-decoration-underline'
                     >
                       Blogs
@@ -149,7 +149,7 @@ const FooterTwo = () => {
               <div className='footer-item__logo mb-0' data-aos='zoom-in-right'>
                 <Link to='/'>
                   {" "}
-                  <img src='assets/images/logo/logo-white.png' alt='' />
+                  <img src='/assets/images/logo/logo-white.png' alt='' />
                 </Link>
               </div>
               <p

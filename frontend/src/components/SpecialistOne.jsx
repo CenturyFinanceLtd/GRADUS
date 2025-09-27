@@ -16,7 +16,7 @@ const SpecialistOne = () => {
             <div className='ps-40 pe-8 rounded-12 animation-item bg-main-25 py-24 flex-align gap-24'>
               <span className='text-main-600'>
                 <img
-                  src='assets/images/icons/specialist-icon1.png'
+                  src='/assets/images/icons/specialist-icon1.png'
                   alt=''
                   className='animate__heartBeat'
                 />
@@ -28,7 +28,7 @@ const SpecialistOne = () => {
             <div className='ps-40 pe-8 rounded-12 animation-item bg-main-two-25 py-24 flex-align gap-24'>
               <span className='text-main-two-600'>
                 <img
-                  src='assets/images/icons/specialist-icon2.png'
+                  src='/assets/images/icons/specialist-icon2.png'
                   alt=''
                   className='animate__heartBeat'
                 />
@@ -40,7 +40,7 @@ const SpecialistOne = () => {
             <div className='ps-40 pe-8 rounded-12 animation-item bg-main-three-25 py-24 flex-align gap-24'>
               <span className='text-main-three-600'>
                 <img
-                  src='assets/images/icons/specialist-icon3.png'
+                  src='/assets/images/icons/specialist-icon3.png'
                   alt=''
                   className='animate__heartBeat'
                 />
@@ -52,7 +52,7 @@ const SpecialistOne = () => {
             <div className='ps-40 pe-8 rounded-12 animation-item bg-main-two-25 py-24 flex-align gap-24'>
               <span className='text-main-two-600'>
                 <img
-                  src='assets/images/icons/specialist-icon4.png'
+                  src='/assets/images/icons/specialist-icon4.png'
                   alt=''
                   className='animate__heartBeat'
                 />
@@ -64,7 +64,7 @@ const SpecialistOne = () => {
             <div className='ps-40 pe-8 rounded-12 animation-item bg-main-two-25 py-24 flex-align gap-24'>
               <span className='text-main-two-600'>
                 <img
-                  src='assets/images/icons/specialist-icon5.png'
+                  src='/assets/images/icons/specialist-icon5.png'
                   alt=''
                   className='animate__heartBeat'
                 />
@@ -76,7 +76,7 @@ const SpecialistOne = () => {
             <div className='ps-40 pe-8 rounded-12 animation-item bg-main-three-25 py-24 flex-align gap-24'>
               <span className='text-main-three-600'>
                 <img
-                  src='assets/images/icons/specialist-icon6.png'
+                  src='/assets/images/icons/specialist-icon6.png'
                   alt=''
                   className='animate__heartBeat'
                 />
@@ -88,7 +88,7 @@ const SpecialistOne = () => {
             <div className='ps-40 pe-8 rounded-12 animation-item bg-main-two-25 py-24 flex-align gap-24'>
               <span className='text-main-two-600'>
                 <img
-                  src='assets/images/icons/specialist-icon7.png'
+                  src='/assets/images/icons/specialist-icon7.png'
                   alt=''
                   className='animate__heartBeat'
                 />
@@ -100,7 +100,7 @@ const SpecialistOne = () => {
             <div className='ps-40 pe-8 rounded-12 animation-item bg-main-25 py-24 flex-align gap-24'>
               <span className='text-main-600'>
                 <img
-                  src='assets/images/icons/specialist-icon8.png'
+                  src='/assets/images/icons/specialist-icon8.png'
                   alt=''
                   className='animate__heartBeat'
                 />
@@ -112,7 +112,7 @@ const SpecialistOne = () => {
             <div className='ps-40 pe-8 rounded-12 animation-item bg-main-three-25 py-24 flex-align gap-24'>
               <span className='text-main-three-600'>
                 <img
-                  src='assets/images/icons/specialist-icon9.png'
+                  src='/assets/images/icons/specialist-icon9.png'
                   alt=''
                   className='animate__heartBeat'
                 />
@@ -124,7 +124,7 @@ const SpecialistOne = () => {
             <div className='ps-40 pe-8 rounded-12 animation-item bg-main-two-25 py-24 flex-align gap-24'>
               <span className='text-main-two-600'>
                 <img
-                  src='assets/images/icons/specialist-icon10.png'
+                  src='/assets/images/icons/specialist-icon10.png'
                   alt=''
                   className='animate__heartBeat'
                 />
@@ -136,7 +136,7 @@ const SpecialistOne = () => {
             <div className='ps-40 pe-8 rounded-12 animation-item bg-main-25 py-24 flex-align gap-24'>
               <span className='text-main-600'>
                 <img
-                  src='assets/images/icons/specialist-icon11.png'
+                  src='/assets/images/icons/specialist-icon11.png'
                   alt=''
                   className='animate__heartBeat'
                 />
@@ -148,7 +148,7 @@ const SpecialistOne = () => {
             <div className='ps-40 pe-8 rounded-12 animation-item bg-main-two-25 py-24 flex-align gap-24'>
               <span className='text-main-two-600'>
                 <img
-                  src='assets/images/icons/specialist-icon12.png'
+                  src='/assets/images/icons/specialist-icon12.png'
                   alt=''
                   className='animate__heartBeat'
                 />

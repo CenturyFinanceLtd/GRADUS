@@ -4,17 +4,17 @@ const FaqThree = () => {
   return (
     <section className='d-flex overflow-hidden position-relative overflow-hidden'>
       <img
-        src='assets/images/shapes/shape1.png'
+        src='/assets/images/shapes/shape1.png'
         alt=''
         className='animation-rotation flex-shrink-0 position-absolute inset-block-end-25-percent inset-inline-start-34-percent z-n1'
       />
       <img
-        src='assets/images/shapes/shape5.png'
+        src='/assets/images/shapes/shape5.png'
         alt=''
         className='animation-walking flex-shrink-0 position-absolute inset-inline-start-10-persent inset-block-start-30-persent z-n1'
       />
       <img
-        src='assets/images/shapes/shape3.png'
+        src='/assets/images/shapes/shape3.png'
         alt=''
         className='animation-walking flex-shrink-0 position-absolute inset-inline-end-13-persent inset-block-start-10-persent z-n1'
       />
@@ -30,7 +30,7 @@ const FaqThree = () => {
             data-wow-duration='3s'
           >
             <img
-              src='assets/images/thumbs/faq-six-img1.png'
+              src='/assets/images/thumbs/faq-six-img1.png'
               alt=''
               className=''
             />

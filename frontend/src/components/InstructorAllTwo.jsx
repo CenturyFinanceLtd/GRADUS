@@ -4,12 +4,12 @@ const InstructorAllTwo = () => {
   return (
     <section className='instructor py-120 position-relative z-1'>
       <img
-        src='assets/images/shapes/shape2.png'
+        src='/assets/images/shapes/shape2.png'
         alt=''
         className='shape one animation-scalation'
       />
       <img
-        src='assets/images/shapes/shape6.png'
+        src='/assets/images/shapes/shape6.png'
         alt=''
         className='shape six animation-scalation'
       />
@@ -27,7 +27,7 @@ const InstructorAllTwo = () => {
               <div className='instructor-item-two__thumb text-center rounded-circle aspect-ratio-1 p-12 border border-neutral-30 position-relative'>
                 <div className='instructor-item-two__thumb-inner w-100 h-100 d-block bg-main-25 rounded-circle overflow-hidden position-relative'>
                   <img
-                    src='assets/images/thumbs/instructor-img1.png'
+                    src='/assets/images/thumbs/instructor-img1.png'
                     alt=''
                     className='cover-img'
                   />
@@ -77,7 +77,7 @@ const InstructorAllTwo = () => {
               <div className='instructor-item-two__thumb text-center rounded-circle aspect-ratio-1 p-12 border border-neutral-30 position-relative'>
                 <div className='instructor-item-two__thumb-inner w-100 h-100 d-block bg-main-25 rounded-circle overflow-hidden position-relative'>
                   <img
-                    src='assets/images/thumbs/instructor-img2.png'
+                    src='/assets/images/thumbs/instructor-img2.png'
                     alt=''
                     className='cover-img'
                   />
@@ -127,7 +127,7 @@ const InstructorAllTwo = () => {
               <div className='instructor-item-two__thumb text-center rounded-circle aspect-ratio-1 p-12 border border-neutral-30 position-relative'>
                 <div className='instructor-item-two__thumb-inner w-100 h-100 d-block bg-main-25 rounded-circle overflow-hidden position-relative'>
                   <img
-                    src='assets/images/thumbs/instructor-img3.png'
+                    src='/assets/images/thumbs/instructor-img3.png'
                     alt=''
                     className='cover-img'
                   />
@@ -177,7 +177,7 @@ const InstructorAllTwo = () => {
               <div className='instructor-item-two__thumb text-center rounded-circle aspect-ratio-1 p-12 border border-neutral-30 position-relative'>
                 <div className='instructor-item-two__thumb-inner w-100 h-100 d-block bg-main-25 rounded-circle overflow-hidden position-relative'>
                   <img
-                    src='assets/images/thumbs/instructor-img4.png'
+                    src='/assets/images/thumbs/instructor-img4.png'
                     alt=''
                     className='cover-img'
                   />
@@ -227,7 +227,7 @@ const InstructorAllTwo = () => {
               <div className='instructor-item-two__thumb text-center rounded-circle aspect-ratio-1 p-12 border border-neutral-30 position-relative'>
                 <div className='instructor-item-two__thumb-inner w-100 h-100 d-block bg-main-25 rounded-circle overflow-hidden position-relative'>
                   <img
-                    src='assets/images/thumbs/instructor-img5.png'
+                    src='/assets/images/thumbs/instructor-img5.png'
                     alt=''
                     className='cover-img'
                   />
@@ -277,7 +277,7 @@ const InstructorAllTwo = () => {
               <div className='instructor-item-two__thumb text-center rounded-circle aspect-ratio-1 p-12 border border-neutral-30 position-relative'>
                 <div className='instructor-item-two__thumb-inner w-100 h-100 d-block bg-main-25 rounded-circle overflow-hidden position-relative'>
                   <img
-                    src='assets/images/thumbs/instructor-img6.png'
+                    src='/assets/images/thumbs/instructor-img6.png'
                     alt=''
                     className='cover-img'
                   />
@@ -327,7 +327,7 @@ const InstructorAllTwo = () => {
               <div className='instructor-item-two__thumb text-center rounded-circle aspect-ratio-1 p-12 border border-neutral-30 position-relative'>
                 <div className='instructor-item-two__thumb-inner w-100 h-100 d-block bg-main-25 rounded-circle overflow-hidden position-relative'>
                   <img
-                    src='assets/images/thumbs/instructor-img1.png'
+                    src='/assets/images/thumbs/instructor-img1.png'
                     alt=''
                     className='cover-img'
                   />
@@ -377,7 +377,7 @@ const InstructorAllTwo = () => {
               <div className='instructor-item-two__thumb text-center rounded-circle aspect-ratio-1 p-12 border border-neutral-30 position-relative'>
                 <div className='instructor-item-two__thumb-inner w-100 h-100 d-block bg-main-25 rounded-circle overflow-hidden position-relative'>
                   <img
-                    src='assets/images/thumbs/instructor-img3.png'
+                    src='/assets/images/thumbs/instructor-img3.png'
                     alt=''
                     className='cover-img'
                   />

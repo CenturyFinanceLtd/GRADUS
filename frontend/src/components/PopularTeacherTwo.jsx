@@ -44,7 +44,7 @@ const PopularTeacherTwo = () => {
     <section className='explore-course py-120 bg-main-25 position-relative z-0'>
       <div className='position-absolute start-0 top-0 w-100 z-index-n9'>
         <img
-          src='assets/images/shapes/cloud-shap-img3.png'
+          src='/assets/images/shapes/cloud-shap-img3.png'
           alt=''
           className='w-100'
         />
@@ -77,7 +77,7 @@ const PopularTeacherTwo = () => {
             <div className='' data-aos='fade-up' data-aos-duration={600}>
               <div className='mb-64 text-center position-relative'>
                 <img
-                  src='assets/images/thumbs/our-popular-tutors-six-img1.png'
+                  src='/assets/images/thumbs/our-popular-tutors-six-img1.png'
                   alt=''
                   className='align-items-center justify-content-center d-flex m-auto'
                 />
@@ -128,7 +128,7 @@ const PopularTeacherTwo = () => {
             <div className='' data-aos='fade-up' data-aos-duration={700}>
               <div className='mb-64 text-center position-relative'>
                 <img
-                  src='assets/images/thumbs/our-popular-tutors-six-img2.png'
+                  src='/assets/images/thumbs/our-popular-tutors-six-img2.png'
                   alt=''
                   className='align-items-center justify-content-center d-flex m-auto'
                 />
@@ -179,7 +179,7 @@ const PopularTeacherTwo = () => {
             <div className='' data-aos='fade-up' data-aos-duration={800}>
               <div className='mb-64 text-center position-relative'>
                 <img
-                  src='assets/images/thumbs/our-popular-tutors-six-img3.png'
+                  src='/assets/images/thumbs/our-popular-tutors-six-img3.png'
                   alt=''
                   className='align-items-center justify-content-center d-flex m-auto'
                 />
@@ -230,7 +230,7 @@ const PopularTeacherTwo = () => {
             <div className='' data-aos='fade-up' data-aos-duration={900}>
               <div className='mb-64 text-center position-relative'>
                 <img
-                  src='assets/images/thumbs/our-popular-tutors-six-img4.png'
+                  src='/assets/images/thumbs/our-popular-tutors-six-img4.png'
                   alt=''
                   className='align-items-center justify-content-center d-flex m-auto'
                 />
@@ -281,7 +281,7 @@ const PopularTeacherTwo = () => {
             <div className='' data-aos='fade-up' data-aos-duration={700}>
               <div className='mb-64 text-center position-relative'>
                 <img
-                  src='assets/images/thumbs/our-popular-tutors-six-img2.png'
+                  src='/assets/images/thumbs/our-popular-tutors-six-img2.png'
                   alt=''
                   className='align-items-center justify-content-center d-flex m-auto'
                 />
@@ -352,7 +352,7 @@ const PopularTeacherTwo = () => {
       </div>
       <div className='position-absolute start-0 bottom-0 w-100 z-index-n9'>
         <img
-          src='assets/images/shapes/cloud-shap-img4.png'
+          src='/assets/images/shapes/cloud-shap-img4.png'
           alt=''
           className='w-100'
         />

@@ -6,17 +6,17 @@ const CounterFour = () => {
   return (
     <section className='choose-us py-120 position-relative z-1 mash-bg-main mash-bg-main-two'>
       <img
-        src='assets/images/shapes/shape1.png'
+        src='/assets/images/shapes/shape1.png'
         alt=''
         className='shape one animation-rotation'
       />
       <img
-        src='assets/images/shapes/shape3.png'
+        src='/assets/images/shapes/shape3.png'
         alt=''
         className='animation-walking top-10-percent left-85-percent position-absolute z-n1'
       />
       <img
-        src='assets/images/shapes/shape5.png'
+        src='/assets/images/shapes/shape5.png'
         alt=''
         className='animation-walking bottom-5-percent left-70-percent position-absolute'
       />
@@ -74,7 +74,7 @@ const CounterFour = () => {
                   <div className='d-flex gap-12' data-aos='fade-right'>
                     <span>
                       <img
-                        src='assets/images/icons/about-us-five-checkbox.png'
+                        src='/assets/images/icons/about-us-five-checkbox.png'
                         alt=''
                       />
                     </span>
@@ -89,7 +89,7 @@ const CounterFour = () => {
                   <div className='d-flex gap-12' data-aos='fade-left'>
                     <span>
                       <img
-                        src='assets/images/icons/about-us-five-checkbox.png'
+                        src='/assets/images/icons/about-us-five-checkbox.png'
                         alt=''
                       />
                     </span>
@@ -119,7 +119,7 @@ const CounterFour = () => {
                   >
                     <span className='bg-warning-800 w-54 h-54 rounded-circle justify-content-center text-center align-items-center d-flex text-white'>
                       <img
-                        src='assets/images/icons/about-us-five-headset.png'
+                        src='/assets/images/icons/about-us-five-headset.png'
                         alt=''
                       />
                     </span>
@@ -139,7 +139,7 @@ const CounterFour = () => {
               <div className='offer-message style-two animation-upDown'>
                 <span className=''>
                   <img
-                    src='assets/images/thumbs/about-us-five-img3.png'
+                    src='/assets/images/thumbs/about-us-five-img3.png'
                     alt=''
                   />
                 </span>
@@ -147,7 +147,7 @@ const CounterFour = () => {
               <div className='banner-box one style-two ' data-aos='fade-left'>
                 <div className='d-sm-block d-none'>
                   <img
-                    src='assets/images/thumbs/about-us-five-img2.png'
+                    src='/assets/images/thumbs/about-us-five-img2.png'
                     alt=''
                     className=''
                   />
@@ -156,7 +156,7 @@ const CounterFour = () => {
               <div className='text-end' data-aos='zoom-out'>
                 <div className='position-relative'>
                   <img
-                    src='assets/images/thumbs/about-us-five-img1.png'
+                    src='/assets/images/thumbs/about-us-five-img1.png'
                     alt=''
                     className='choose-us__img rounded-12 w-100'
                     data-tilt=''
@@ -166,13 +166,13 @@ const CounterFour = () => {
                     data-tilt-full-page-listening=''
                   />
                   <span className='shadow-main-two w-80 h-80 flex-center bg-success-600 rounded-circle position-absolute inset-block-start-0 inset-inline-start-0 mt-40 ms--40 animation-upDown'>
-                    <img src='assets/images/icons/book.png' alt='' />
+                    <img src='/assets/images/icons/book.png' alt='' />
                   </span>
                 </div>
               </div>
               <div className='animation-video' data-aos='zoom-in'>
                 <img
-                  src='assets/images/thumbs/about-us-five-img4.png'
+                  src='/assets/images/thumbs/about-us-five-img4.png'
                   alt=''
                   className='border border-white rounded-circle border-3'
                   data-tilt=''

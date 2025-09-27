@@ -24,47 +24,47 @@ const BannerFive = () => {
       style={{ backgroundImage: "url(assets/images/bg/banner-5-bg-img1.png)" }}
     >
       <img
-        src='assets/images/shapes/shape1.png'
+        src='/assets/images/shapes/shape1.png'
         alt=''
         className='animation-rotation d-sm-block d-none left-32-percent top-18-percent position-absolute'
       />
       <img
-        src='assets/images/shapes/shape2.png'
+        src='/assets/images/shapes/shape2.png'
         alt=''
         className='animation-scalation d-sm-block d-none top-35-percent right-5-percent position-absolute z-n1'
       />
       <img
-        src='assets/images/shapes/shape6.png'
+        src='/assets/images/shapes/shape6.png'
         alt=''
         className='animation-scalation d-sm-block d-none left-3-percent bottom-18-percent position-absolute z-n1'
       />
       <img
-        src='assets/images/shapes/shape5.png'
+        src='/assets/images/shapes/shape5.png'
         alt=''
         className='animation-walking d-sm-block d-none bottom-10-percent left-17-percent position-absolute z-n1'
       />
       <img
-        src='assets/images/shapes/shape4.png'
+        src='/assets/images/shapes/shape4.png'
         alt=''
         className='animation-scalation d-sm-block d-none left-7-percent bottom-10-percent position-absolute z-n1'
       />
       <img
-        src='assets/images/shapes/shape4.png'
+        src='/assets/images/shapes/shape4.png'
         alt=''
         className='animation-scalation d-sm-block d-none bottom-14-percent left-65-percent position-absolute z-n1'
       />
       <img
-        src='assets/images/shapes/shape4.png'
+        src='/assets/images/shapes/shape4.png'
         alt=''
         className='animation-scalation d-sm-block d-none top-55-percent left-30-percent position-absolute z-n1'
       />
       <img
-        src='assets/images/shapes/shape3.png'
+        src='/assets/images/shapes/shape3.png'
         alt=''
         className='animation-walking d-sm-block d-none top-55-percent left-57-percent position-absolute z-n1'
       />
       <img
-        src='assets/images/shapes/curve-arrow.png'
+        src='/assets/images/shapes/curve-arrow.png'
         alt=''
         className='animate__wobble__two d-sm-block d-none left-75-percent top-18-percent position-absolute z-n1'
       />
@@ -82,7 +82,7 @@ const BannerFive = () => {
       </div>
       <div>
         <img
-          src='assets/images/thumbs/banner-5-img1.png'
+          src='/assets/images/thumbs/banner-5-img1.png'
           alt=''
           className='position-absolute top-0 start-0 z-n1 ms-148-px d-xl-block d-none tw-max-width-22 padding-top-100-px wow bounceIn'
           data-wow-duration='3s'
@@ -149,7 +149,7 @@ const BannerFive = () => {
       </div>
       <div className=''>
         <img
-          src='assets/images/thumbs/banner-5-img2.png'
+          src='/assets/images/thumbs/banner-5-img2.png'
           alt=''
           className='position-absolute bottom-0 end-0  z-n1 me-148-px d-xl-block d-none tw-max-width-22 wow bounceIn'
           data-wow-duration='3s'

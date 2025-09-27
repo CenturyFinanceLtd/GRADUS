@@ -4,7 +4,7 @@ const BannerTwo = () => {
   return (
     <section className='banner-two pt-80 position-relative overflow-hidden'>
       <img
-        src='assets/images/shapes/banner-two-shape-1.png'
+        src='/assets/images/shapes/banner-two-shape-1.png'
         className='position-absolute inset-block-end-0 inset-inline-end-0 w-100 h-100 d-lg-block d-none z-n1'
         alt=''
         data-tilt=''
@@ -15,12 +15,12 @@ const BannerTwo = () => {
         data-tilt-scale='1.03'
       />
       <img
-        src='assets/images/shapes/shape8.png'
+        src='/assets/images/shapes/shape8.png'
         alt=''
         className='shape three animation-rotation z-n1'
       />
       <img
-        src='assets/images/shapes/shape8.png'
+        src='/assets/images/shapes/shape8.png'
         alt=''
         className='shape five animation-scalation'
       />
@@ -79,13 +79,13 @@ const BannerTwo = () => {
           <div className='col-xl-6'>
             <div className='banner-thumb position-relative'>
               <img
-                src='assets/images/thumbs/banner-img-2.png'
+                src='/assets/images/thumbs/banner-img-2.png'
                 alt=''
                 className='banner-thumb__img rounded-12'
                 data-aos='fade-up'
               />
               <img
-                src='assets/images/shapes/shape9.png'
+                src='/assets/images/shapes/shape9.png'
                 className='position-absolute inset-block-end-0 start-0 z-n1'
                 alt=''
                 data-tilt=''
@@ -93,7 +93,7 @@ const BannerTwo = () => {
                 data-tilt-speed={500}
               />
               <img
-                src='assets/images/shapes/shape10.png'
+                src='/assets/images/shapes/shape10.png'
                 className='position-absolute inset-block-start-0 start-0 z-n1 showHideTwo'
                 alt=''
                 data-tilt=''

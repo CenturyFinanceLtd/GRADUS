@@ -5,12 +5,12 @@ const FooterOne = () => {
   return (
     <footer className='footer bg-main-25 position-relative z-1'>
       <img
-        src='assets/images/shapes/shape2.png'
+        src='/assets/images/shapes/shape2.png'
         alt=''
         className='shape five animation-scalation'
       />
       <img
-        src='assets/images/shapes/shape6.png'
+        src='/assets/images/shapes/shape6.png'
         alt=''
         className='shape one animation-scalation'
       />
@@ -22,7 +22,7 @@ const FooterOne = () => {
                 <div className='footer-item__logo'>
                   <Link to='/'>
                     {" "}
-                    <img src='assets/images/logo/logo.png' alt='' />
+                    <img src='/assets/images/logo/logo.png' alt='' />
                   </Link>
                 </div>
                 <p className='my-32'>
@@ -104,7 +104,7 @@ const FooterOne = () => {
                   </li>
                   <li className='mb-0'>
                     <Link
-                      to='/blog'
+                      to='/blogs'
                       className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
                     >
                       Blogs

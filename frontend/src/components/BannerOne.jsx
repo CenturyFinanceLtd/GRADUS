@@ -4,27 +4,27 @@ const BannerOne = () => {
   return (
     <section className='banner py-80 position-relative overflow-hidden'>
       <img
-        src='assets/images/shapes/shape1.png'
+        src='/assets/images/shapes/shape1.png'
         alt=''
         className='shape one animation-rotation'
       />
       <img
-        src='assets/images/shapes/shape2.png'
+        src='/assets/images/shapes/shape2.png'
         alt=''
         className='shape two animation-scalation'
       />
       <img
-        src='assets/images/shapes/shape3.png'
+        src='/assets/images/shapes/shape3.png'
         alt=''
         className='shape three animation-walking'
       />
       <img
-        src='assets/images/shapes/shape4.png'
+        src='/assets/images/shapes/shape4.png'
         alt=''
         className='shape four animation-scalation'
       />
       <img
-        src='assets/images/shapes/shape5.png'
+        src='/assets/images/shapes/shape5.png'
         alt=''
         className='shape five animation-walking'
       />
@@ -84,7 +84,7 @@ const BannerOne = () => {
           <div className='col-xl-6'>
             <div className='banner-thumb position-relative'>
               <img
-                src='assets/images/thumbs/banner-img.png'
+                src='/assets/images/thumbs/banner-img.png'
                 alt=''
                 className='banner-thumb__img rounded-12 wow bounceIn'
                 data-wow-duration='3s'
@@ -97,7 +97,7 @@ const BannerOne = () => {
                 data-tilt-scale='1.02'
               />
               <img
-                src='assets/images/shapes/curve-arrow.png'
+                src='/assets/images/shapes/curve-arrow.png'
                 alt=''
                 className='curve-arrow position-absolute'
               />
@@ -108,32 +108,32 @@ const BannerOne = () => {
                 <span className='text-main-600'>36k+</span> Enrolled Students
                 <div className='enrolled-students mt-12'>
                   <img
-                    src='assets/images/thumbs/enroll-student-img1.png'
+                    src='/assets/images/thumbs/enroll-student-img1.png'
                     alt=''
                     className='w-48 h-48 rounded-circle object-fit-cover transition-2'
                   />
                   <img
-                    src='assets/images/thumbs/enroll-student-img2.png'
+                    src='/assets/images/thumbs/enroll-student-img2.png'
                     alt=''
                     className='w-48 h-48 rounded-circle object-fit-cover transition-2'
                   />
                   <img
-                    src='assets/images/thumbs/enroll-student-img3.png'
+                    src='/assets/images/thumbs/enroll-student-img3.png'
                     alt=''
                     className='w-48 h-48 rounded-circle object-fit-cover transition-2'
                   />
                   <img
-                    src='assets/images/thumbs/enroll-student-img4.png'
+                    src='/assets/images/thumbs/enroll-student-img4.png'
                     alt=''
                     className='w-48 h-48 rounded-circle object-fit-cover transition-2'
                   />
                   <img
-                    src='assets/images/thumbs/enroll-student-img5.png'
+                    src='/assets/images/thumbs/enroll-student-img5.png'
                     alt=''
                     className='w-48 h-48 rounded-circle object-fit-cover transition-2'
                   />
                   <img
-                    src='assets/images/thumbs/enroll-student-img6.png'
+                    src='/assets/images/thumbs/enroll-student-img6.png'
                     alt=''
                     className='w-48 h-48 rounded-circle object-fit-cover transition-2'
                   />

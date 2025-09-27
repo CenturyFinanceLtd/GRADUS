@@ -95,7 +95,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img1'
-                      src='assets/images/thumbs/gallery-img1.png'
+                      src='/assets/images/thumbs/gallery-img1.png'
                     />
                   </a>
                   <a
@@ -104,7 +104,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img2.png'
+                      src='/assets/images/thumbs/gallery-img2.png'
                     />
                   </a>
                   <a
@@ -113,7 +113,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img3.png'
+                      src='/assets/images/thumbs/gallery-img3.png'
                     />
                   </a>
                   <a
@@ -122,7 +122,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img4.png'
+                      src='/assets/images/thumbs/gallery-img4.png'
                     />
                   </a>
                   <a
@@ -131,7 +131,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img5.png'
+                      src='/assets/images/thumbs/gallery-img5.png'
                     />
                   </a>
                   <a
@@ -140,7 +140,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img6.png'
+                      src='/assets/images/thumbs/gallery-img6.png'
                     />
                   </a>
                   <a
@@ -149,7 +149,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img7.png'
+                      src='/assets/images/thumbs/gallery-img7.png'
                     />
                   </a>
                   <a
@@ -158,7 +158,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img8.png'
+                      src='/assets/images/thumbs/gallery-img8.png'
                     />
                   </a>
                   <a
@@ -167,7 +167,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img9.png'
+                      src='/assets/images/thumbs/gallery-img9.png'
                     />
                   </a>
                 </LightGallery>
@@ -190,7 +190,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img1'
-                      src='assets/images/thumbs/gallery-img1.png'
+                      src='/assets/images/thumbs/gallery-img1.png'
                     />
                   </a>
                   <a
@@ -199,7 +199,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img2.png'
+                      src='/assets/images/thumbs/gallery-img2.png'
                     />
                   </a>
                   <a
@@ -208,7 +208,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img3.png'
+                      src='/assets/images/thumbs/gallery-img3.png'
                     />
                   </a>
                   <a
@@ -217,7 +217,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img4.png'
+                      src='/assets/images/thumbs/gallery-img4.png'
                     />
                   </a>
                   <a
@@ -226,7 +226,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img5.png'
+                      src='/assets/images/thumbs/gallery-img5.png'
                     />
                   </a>
                   <a
@@ -235,7 +235,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img6.png'
+                      src='/assets/images/thumbs/gallery-img6.png'
                     />
                   </a>
                   <a
@@ -244,7 +244,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img7.png'
+                      src='/assets/images/thumbs/gallery-img7.png'
                     />
                   </a>
                   <a
@@ -253,7 +253,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img8.png'
+                      src='/assets/images/thumbs/gallery-img8.png'
                     />
                   </a>
                   <a
@@ -262,7 +262,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img9.png'
+                      src='/assets/images/thumbs/gallery-img9.png'
                     />
                   </a>
                 </LightGallery>
@@ -285,7 +285,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img1'
-                      src='assets/images/thumbs/gallery-img1.png'
+                      src='/assets/images/thumbs/gallery-img1.png'
                     />
                   </a>
                   <a
@@ -294,7 +294,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img2.png'
+                      src='/assets/images/thumbs/gallery-img2.png'
                     />
                   </a>
                   <a
@@ -303,7 +303,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img3.png'
+                      src='/assets/images/thumbs/gallery-img3.png'
                     />
                   </a>
                   <a
@@ -312,7 +312,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img4.png'
+                      src='/assets/images/thumbs/gallery-img4.png'
                     />
                   </a>
                   <a
@@ -321,7 +321,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img5.png'
+                      src='/assets/images/thumbs/gallery-img5.png'
                     />
                   </a>
                   <a
@@ -330,7 +330,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img6.png'
+                      src='/assets/images/thumbs/gallery-img6.png'
                     />
                   </a>
                   <a
@@ -339,7 +339,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img7.png'
+                      src='/assets/images/thumbs/gallery-img7.png'
                     />
                   </a>
                   <a
@@ -348,7 +348,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img8.png'
+                      src='/assets/images/thumbs/gallery-img8.png'
                     />
                   </a>
                   <a
@@ -357,7 +357,7 @@ const GallerySection = () => {
                   >
                     <img
                       alt='img2'
-                      src='assets/images/thumbs/gallery-img9.png'
+                      src='/assets/images/thumbs/gallery-img9.png'
                     />
                   </a>
                 </LightGallery>
