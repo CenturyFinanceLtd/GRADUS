@@ -52,6 +52,12 @@ export const deleteBlogComment = ({ blogId, commentId, token }) =>
     token,
   });
 
+export const deleteBlog = ({ blogId, token }) =>
+  apiClient('/admin/blogs/' + blogId, {
+    method: 'DELETE',
+    token,
+  });
+
 export default {
   createBlog,
   fetchBlogs,
@@ -59,4 +65,5 @@ export default {
   fetchBlogComments,
   replyToBlogComment,
   deleteBlogComment,
+  deleteBlog,
 };

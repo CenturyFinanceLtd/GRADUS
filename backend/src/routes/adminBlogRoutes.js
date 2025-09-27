@@ -6,6 +6,7 @@ const {
   listAdminBlogComments,
   createAdminBlogComment,
   deleteAdminBlogComment,
+  deleteAdminBlog,
 } = require('../controllers/blogController');
 const { protectAdmin } = require('../middleware/adminAuthMiddleware');
 const { blogImageUpload } = require('../middleware/uploadMiddleware');
@@ -17,7 +18,10 @@ router
   .get(protectAdmin, listAdminBlogs)
   .post(protectAdmin, blogImageUpload.single('featuredImage'), createBlog);
 
-router.route('/:blogId').get(protectAdmin, getAdminBlogDetails);
+router
+  .route('/:blogId')
+  .get(protectAdmin, getAdminBlogDetails)
+  .delete(protectAdmin, deleteAdminBlog);
 
 router
   .route('/:blogId/comments')

@@ -504,6 +504,21 @@ const deleteAdminBlogComment = asyncHandler(async (req, res) => {
   res.json({ removed: idsToDelete.length });
 });
 
+const deleteAdminBlog = asyncHandler(async (req, res) => {
+  const { blogId } = req.params;
+  const blog = await findBlogByIdentifier(blogId, '_id');
+
+  if (!blog) {
+    res.status(404);
+    throw new Error('Blog not found');
+  }
+
+  await Blog.deleteOne({ _id: blog._id });
+  await BlogComment.deleteMany({ blog: blog._id }).catch(() => {});
+
+  res.json({ success: true });
+});
+
 module.exports = {
   createBlog,
   getBlogs,
@@ -515,4 +530,5 @@ module.exports = {
   listAdminBlogComments,
   createAdminBlogComment,
   deleteAdminBlogComment,
+  deleteAdminBlog,
 };

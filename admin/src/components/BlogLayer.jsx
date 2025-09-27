@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import useAuth from "../hook/useAuth";
-import { fetchBlogs } from "../services/adminBlogs";
+import { deleteBlog, fetchBlogs } from "../services/adminBlogs";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 const ASSET_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
@@ -15,6 +15,8 @@ const BlogLayer = () => {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
+  const [actionError, setActionError] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -26,6 +28,7 @@ const BlogLayer = () => {
 
       setLoading(true);
       setError(null);
+      setActionError(null);
 
       try {
         const response = await fetchBlogs({ token });
@@ -81,6 +84,32 @@ const BlogLayer = () => {
     });
   }, [blogs, search, categoryFilter]);
 
+  const handleDelete = async (blog) => {
+    if (!blog?.id || !token) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Delete the blog "${blog.title || "Untitled"}"? This action cannot be undone.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setDeletingId(blog.id);
+    setActionError(null);
+
+    try {
+      await deleteBlog({ blogId: blog.id, token });
+      setBlogs((previous) => previous.filter((item) => item.id !== blog.id));
+    } catch (err) {
+      setActionError(err?.message || "Failed to delete blog");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <div className='card p-24'>
       <div className='d-flex flex-wrap gap-16 justify-content-between align-items-center mb-24'>
@@ -113,6 +142,12 @@ const BlogLayer = () => {
           </Link>
         </div>
       </div>
+
+      {actionError ? (
+        <div className='alert alert-danger mb-24' role='alert'>
+          {actionError}
+        </div>
+      ) : null}
 
       {loading ? (
         <div className='d-flex justify-content-center py-64'>
@@ -177,6 +212,14 @@ const BlogLayer = () => {
                       >
                         View Public
                       </a>
+                      <button
+                        type='button'
+                        className='btn btn-sm btn-outline-danger radius-8'
+                        onClick={() => handleDelete(blog)}
+                        disabled={deletingId === blog.id}
+                      >
+                        {deletingId === blog.id ? 'Deleting...' : 'Delete'}
+                      </button>
                     </div>
                   </td>
                 </tr>
