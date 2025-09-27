@@ -3,7 +3,7 @@ export const DEFAULT_META = {
   description:
     "Gradus connects learners, tutors, and institutions with curated programs and resources designed for meaningful progress.",
   keywords: "gradus, education, tutors, online courses, learning platform",
-  robots: "index, follow",
+  robots: "noindex, nofollow",
 };
 
 export const PAGE_META = {
