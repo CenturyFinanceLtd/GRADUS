@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import useAuth from "../hook/useAuth";
-import { fetchContactInquiries } from "../services/adminInquiries";
+import { fetchContactInquiries, updateContactInquiry } from "../services/adminInquiries";
 
 const formatDateTime = (value) => {
   if (!value) {
@@ -9,7 +9,7 @@ const formatDateTime = (value) => {
 
   try {
     return new Date(value).toLocaleString();
-  } catch (error) {
+  } catch {
     return value;
   }
 };
@@ -21,6 +21,9 @@ const InquiriesLayer = () => {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
+  const [statusDrafts, setStatusDrafts] = useState({});
+  const [actionMessage, setActionMessage] = useState(null);
+  const [savingStates, setSavingStates] = useState({});
 
   useEffect(() => {
     let isCancelled = false;
@@ -33,6 +36,7 @@ const InquiriesLayer = () => {
 
     const loadInquiries = async () => {
       setLoading(true);
+      setActionMessage(null);
       setError(null);
 
       try {
@@ -59,6 +63,30 @@ const InquiriesLayer = () => {
     };
   }, [token, reloadKey]);
 
+  useEffect(() => {
+    const drafts = {};
+
+    inquiries.forEach((inquiry) => {
+      drafts[inquiry.id] = {
+        contactStatus: inquiry.contactStatus || "pending",
+        leadGenerated:
+          inquiry.leadGenerated === true
+            ? "true"
+            : inquiry.leadGenerated === false
+            ? "false"
+            : "unknown",
+        inquirySolved:
+          inquiry.inquirySolved === true
+            ? "true"
+            : inquiry.inquirySolved === false
+            ? "false"
+            : "unknown",
+      };
+    });
+
+    setStatusDrafts(drafts);
+  }, [inquiries]);
+
   const filteredInquiries = useMemo(() => {
     const term = search.trim().toLowerCase();
 
@@ -82,6 +110,103 @@ const InquiriesLayer = () => {
       );
     });
   }, [inquiries, search]);
+
+  const handleDraftChange = (id, field, value) => {
+    setStatusDrafts((previous) => {
+      const current = previous[id] || {};
+      const nextDraft = {
+        ...current,
+        [field]: value,
+      };
+
+      if (field === "contactStatus") {
+        nextDraft.leadGenerated = "unknown";
+        nextDraft.inquirySolved = "unknown";
+      }
+
+      return {
+        ...previous,
+        [id]: nextDraft,
+      };
+    });
+  };
+
+  const setSavingForId = (id, value) => {
+    setSavingStates((previous) => ({
+      ...previous,
+      [id]: value,
+    }));
+  };
+
+  const handleSave = async (inquiry) => {
+    if (!token) {
+      return;
+    }
+
+    const draft = statusDrafts[inquiry.id] || {};
+    const contactStatus = draft.contactStatus || "pending";
+
+    if (contactStatus === "contacted") {
+      if (draft.leadGenerated === "unknown" || draft.inquirySolved === "unknown") {
+        setActionMessage({
+          type: "error",
+          text: "Please record whether a lead was generated and if the inquiry was solved.",
+        });
+        return;
+      }
+    }
+
+    const payload = {
+      contactStatus,
+    };
+
+    if (contactStatus === "contacted") {
+      payload.leadGenerated = draft.leadGenerated === "true";
+      payload.inquirySolved = draft.inquirySolved === "true";
+    }
+
+    setActionMessage(null);
+    setSavingForId(inquiry.id, true);
+
+    try {
+      const response = await updateContactInquiry({
+        token,
+        inquiryId: inquiry.id,
+        data: payload,
+      });
+
+      if (response?.item) {
+        setInquiries((previous) =>
+          previous.map((item) => (item.id === inquiry.id ? { ...item, ...response.item } : item))
+        );
+
+        setStatusDrafts((previous) => ({
+          ...previous,
+          [inquiry.id]: {
+            contactStatus: response.item.contactStatus || "pending",
+            leadGenerated:
+              response.item.leadGenerated === true
+                ? "true"
+                : response.item.leadGenerated === false
+                ? "false"
+                : "unknown",
+            inquirySolved:
+              response.item.inquirySolved === true
+                ? "true"
+                : response.item.inquirySolved === false
+                ? "false"
+                : "unknown",
+          },
+        }));
+      }
+
+      setActionMessage({ type: "success", text: "Inquiry updated successfully." });
+    } catch (err) {
+      setActionMessage({ type: "error", text: err?.message || "Failed to update inquiry." });
+    } finally {
+      setSavingForId(inquiry.id, false);
+    }
+  };
 
   return (
     <div className='card p-24'>
@@ -116,6 +241,15 @@ const InquiriesLayer = () => {
         </div>
       ) : null}
 
+      {actionMessage ? (
+        <div
+          className={`alert alert-${actionMessage.type === "success" ? "success" : "danger"} mb-24`}
+          role='alert'
+        >
+          {actionMessage.text}
+        </div>
+      ) : null}
+
       {loading ? (
         <div className='d-flex justify-content-center py-64'>
           <div className='spinner-border text-primary' role='status'>
@@ -139,6 +273,10 @@ const InquiriesLayer = () => {
                 <th>Course</th>
                 <th style={{ minWidth: "220px" }}>Message</th>
                 <th>Submitted</th>
+                <th>Status</th>
+                <th>Lead Generated</th>
+                <th>Inquiry Solved</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -164,6 +302,57 @@ const InquiriesLayer = () => {
                     </div>
                   </td>
                   <td>{formatDateTime(inquiry.createdAt)}</td>
+                  <td>
+                    <select
+                      className='form-select form-select-sm'
+                      value={statusDrafts[inquiry.id]?.contactStatus || "pending"}
+                      onChange={(event) =>
+                        handleDraftChange(inquiry.id, "contactStatus", event.target.value)
+                      }
+                    >
+                      <option value='pending'>Pending</option>
+                      <option value='contacted'>Contacted</option>
+                      <option value='unable_to_contact'>Unable to contact</option>
+                    </select>
+                  </td>
+                  <td>
+                    <select
+                      className='form-select form-select-sm'
+                      value={statusDrafts[inquiry.id]?.leadGenerated || "unknown"}
+                      onChange={(event) =>
+                        handleDraftChange(inquiry.id, "leadGenerated", event.target.value)
+                      }
+                      disabled={statusDrafts[inquiry.id]?.contactStatus !== "contacted"}
+                    >
+                      <option value='unknown'>Select</option>
+                      <option value='true'>Yes</option>
+                      <option value='false'>No</option>
+                    </select>
+                  </td>
+                  <td>
+                    <select
+                      className='form-select form-select-sm'
+                      value={statusDrafts[inquiry.id]?.inquirySolved || "unknown"}
+                      onChange={(event) =>
+                        handleDraftChange(inquiry.id, "inquirySolved", event.target.value)
+                      }
+                      disabled={statusDrafts[inquiry.id]?.contactStatus !== "contacted"}
+                    >
+                      <option value='unknown'>Select</option>
+                      <option value='true'>Yes</option>
+                      <option value='false'>No</option>
+                    </select>
+                  </td>
+                  <td>
+                    <button
+                      type='button'
+                      className='btn btn-sm btn-primary'
+                      onClick={() => handleSave(inquiry)}
+                      disabled={!!savingStates[inquiry.id] || loading}
+                    >
+                      {savingStates[inquiry.id] ? "Saving..." : "Save"}
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

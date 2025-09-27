@@ -38,6 +38,19 @@ const contactInquirySchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    contactStatus: {
+      type: String,
+      enum: ['pending', 'contacted', 'unable_to_contact'],
+      default: 'pending',
+    },
+    leadGenerated: {
+      type: Boolean,
+      default: null,
+    },
+    inquirySolved: {
+      type: Boolean,
+      default: null,
+    },
   },
   {
     timestamps: true,

@@ -15,3 +15,10 @@ export const fetchContactInquiries = ({ token, search } = {}) =>
   apiClient(`/inquiries${buildQueryString({ search })}`, {
     token,
   });
+
+export const updateContactInquiry = ({ token, inquiryId, data } = {}) =>
+  apiClient(`/inquiries/${inquiryId}`, {
+    method: 'PATCH',
+    token,
+    data,
+  });
