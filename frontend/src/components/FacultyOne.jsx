@@ -533,7 +533,7 @@ const FacultyOne = () => {
         </div>
         <div className='text-center mt-40'>
           <Link
-            to='/about'
+            to='/about-us'
             className='btn btn-outline-main rounded-pill flex-align d-inline-flex gap-8'
           >
             See All University

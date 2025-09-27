@@ -114,7 +114,7 @@ const AboutFive = () => {
               <div className='d-flex gap-24 flex-wrap mt-40'>
                 <div>
                   <Link
-                    to='/about'
+                    to='/about-us'
                     className='btn btn-main rounded-pill flex-align d-inline-flex gap-8'
                     data-aos='fade-right'
                   >

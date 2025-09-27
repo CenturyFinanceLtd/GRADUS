@@ -91,7 +91,7 @@ const HeaderThree = () => {
     {
       label: "Pages",
       links: [
-        { to: "/about", label: "About" },
+        { to: "/about-us", label: "About" },
         { to: "/about-two", label: "About Two" },
         { to: "/about-three", label: "About Three" },
         { to: "/about-four", label: "About Four" },

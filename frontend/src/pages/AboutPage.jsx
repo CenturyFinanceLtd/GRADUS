@@ -24,7 +24,7 @@ const AboutPage = () => {
       <HeaderOne />
 
       {/* Breadcrumb */}
-      <Breadcrumb title={"About Us"} />
+      <Breadcrumb title={"Know Gradus"} />
 
       {/* AboutOne */}
       <AboutOne />

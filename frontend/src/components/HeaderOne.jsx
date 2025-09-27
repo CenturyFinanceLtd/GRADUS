@@ -68,13 +68,13 @@ const HeaderOne = () => {
 
   const menuItems = [
     { to: "/", label: "Home" },
-    { to: "/about", label: "About Us" },
+    { to: "/about-us", label: "Know Gradus" },
     { to: "/our-courses", label: "Our Courses" },
     
     {
       label: "Pages",
       links: [
-        { to: "/about", label: "About" },
+        { to: "/about-us", label: "About" },
         { to: "/about-two", label: "About Two" },
         { to: "/about-three", label: "About Three" },
         { to: "/about-four", label: "About Four" },

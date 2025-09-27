@@ -26,7 +26,7 @@ const ChooseUsTwo = () => {
                 knowledge, a perception to cherish deeply.
               </p>
               <Link
-                to='/about'
+                to='/about-us'
                 className='btn btn-main rounded-pill flex-align d-inline-flex gap-8 mt-40'
               >
                 Read More

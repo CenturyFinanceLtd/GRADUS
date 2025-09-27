@@ -2,6 +2,7 @@ import OurCoursesPage from "./pages/OurCoursesPage.jsx";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import RouteScrollToTop from "./helper/RouteScrollToTop.jsx";
 import RequireAuth from "./components/RequireAuth.jsx";
+import MetaManager from "./components/MetaManager.jsx";
 import HomePageOne from "./pages/HomePageOne";
 import AboutPage from "./pages/AboutPage.jsx";
 import AboutFourPage from "./pages/AboutFourPage.jsx";
@@ -54,6 +55,7 @@ import HomePageSix from "./pages/HomePageSix.jsx";
 function App() {
   return (
     <BrowserRouter>
+      <MetaManager />
       <RouteScrollToTop />
 
       <Routes>
@@ -63,7 +65,7 @@ function App() {
         <Route exact path='/index-4' element={<HomePageFour />} />
         <Route exact path='/index-5' element={<HomePageFive />} />
         <Route exact path='/index-6' element={<HomePageSix />} />
-        <Route exact path='/about' element={<AboutPage />} />
+        <Route exact path='/about-us' element={<AboutPage />} />
         <Route exact path='/about-two' element={<AboutTwoPage />} />
         <Route exact path='/about-three' element={<AboutThreePage />} />
         <Route exact path='/about-four' element={<AboutFourPage />} />

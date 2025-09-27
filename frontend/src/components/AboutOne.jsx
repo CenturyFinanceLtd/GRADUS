@@ -125,10 +125,10 @@ const AboutOne = () => {
                 <div className='mb-40'>
                   <div className='flex-align gap-8 mb-16 wow bounceInDown'>
                     <span className='w-8 h-8 bg-main-600 rounded-circle' />
-                    <h5 className='text-main-600 mb-0 '>About Gradus</h5>
+                    <h5 className='text-main-600 mb-0 '>Know About Gradus</h5>
                   </div>
                   <h2 className='mb-24 wow bounceIn'>
-                    Architecting a Definitive Passage to Professional Eminence
+                    Forging a Decisive Bridge Between Education and Industry
                   </h2>
                   <div className='wow bounceInUp'>
                     <p className='text-neutral-500 mb-16'>
@@ -208,7 +208,7 @@ const AboutOne = () => {
                     {isExpanded ? "Read Less" : "Know More"}
                     <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
                   </button>
-                  <div className='flex-align gap-20'>
+                  {/* <div className='flex-align gap-20'>
                     <img
                       src='assets/images/thumbs/ceo-img.png'
                       alt=''
@@ -220,7 +220,7 @@ const AboutOne = () => {
                       </span>
                       <span className='text-sm d-block'>CEO Of Company</span>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

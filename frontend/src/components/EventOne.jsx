@@ -59,7 +59,7 @@ const EventOne = () => {
                 <span className='border border-neutral-40 border-dashed h-72' />
                 <div className='flex-shrink-0'>
                   <Link
-                    to='/about'
+                    to='/about-us'
                     className='btn btn-outline-main rounded-pill flex-align d-inline-flex gap-8'
                   >
                     Join Now
@@ -101,7 +101,7 @@ const EventOne = () => {
                 <span className='border border-neutral-40 border-dashed h-72' />
                 <div className='flex-shrink-0'>
                   <Link
-                    to='/about'
+                    to='/about-us'
                     className='btn btn-outline-main rounded-pill flex-align d-inline-flex gap-8'
                   >
                     Join Now
@@ -143,7 +143,7 @@ const EventOne = () => {
                 <span className='border border-neutral-40 border-dashed h-72' />
                 <div className='flex-shrink-0'>
                   <Link
-                    to='/about'
+                    to='/about-us'
                     className='btn btn-outline-main rounded-pill flex-align d-inline-flex gap-8'
                   >
                     Join Now

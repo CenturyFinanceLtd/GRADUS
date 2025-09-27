@@ -66,7 +66,7 @@ const BannerTwo = () => {
                   <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
                 </Link>
                 <Link
-                  to='/about'
+                  to='/about-us'
                   className='btn btn-outline-main rounded-pill flex-align gap-8'
                   data-aos='fade-left'
                 >

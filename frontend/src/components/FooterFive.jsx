@@ -56,7 +56,7 @@ const FooterFive = () => {
                 <ul>
                   <li className='item-hover position-relative mb-16'>
                     <Link
-                      to='/about'
+                      to='/about-us'
                       className='hover-margin-left d-flex align-items-center text-neutral-700 text-16 fw-normal hover-text-warning-600'
                     >
                       <span className='position-absolute top-50 start-0 translate-middle w-8 h-8 bg-warning-600 rounded-circle transition-03 hidden group-hover-visible' />

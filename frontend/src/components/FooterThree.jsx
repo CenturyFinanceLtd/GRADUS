@@ -29,7 +29,7 @@ const FooterThree = () => {
                 <ul className='footer-menu'>
                   <li className='mb-16'>
                     <Link
-                      to='/about'
+                      to='/about-us'
                       className='text-white hover-text-main-600 hover-text-decoration-underline'
                     >
                       About us
