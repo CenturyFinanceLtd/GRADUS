@@ -1,13 +1,22 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import ThemeToggleButton from "../helper/ThemeToggleButton";
+import useAuth from "../hook/useAuth";
 
 const MasterLayout = ({ children }) => {
   let [sidebarActive, seSidebarActive] = useState(false);
   let [mobileMenu, setMobileMenu] = useState(false);
   const location = useLocation(); // Hook to get the current route
+  const navigate = useNavigate();
+  const { admin, token, loading, logout } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !token) {
+      navigate('/sign-in', { replace: true });
+    }
+  }, [loading, navigate, token]);
 
   useEffect(() => {
     const handleDropdownClick = (event) => {
@@ -77,6 +86,27 @@ const MasterLayout = ({ children }) => {
       });
     };
   }, [location.pathname]);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/sign-in', { replace: true });
+  };
+
+  if (loading) {
+    return (
+      <section className='overlay'>
+        <div className='d-flex align-items-center justify-content-center min-vh-100'>
+          <div className='spinner-border text-primary' role='status'>
+            <span className='visually-hidden'>Loading...</span>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!token) {
+    return null;
+  }
 
   let sidebarControl = () => {
     seSidebarActive(!sidebarActive);
@@ -880,39 +910,9 @@ const MasterLayout = ({ children }) => {
                     Users List
                   </NavLink>
                 </li>
-                <li>
-                  <NavLink
-                    to='/users-grid'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-warning-main w-auto' />{" "}
-                    Users Grid
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to='/add-user'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-info-main w-auto' />{" "}
-                    Add User
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to='/view-profile'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-danger-main w-auto' />{" "}
-                    View Profile
-                  </NavLink>
-                </li>
+               
+                
+                
               </ul>
             </li>
 
@@ -1884,10 +1884,10 @@ const MasterLayout = ({ children }) => {
                     <div className='py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2'>
                       <div>
                         <h6 className='text-lg text-primary-light fw-semibold mb-2'>
-                          Shaidul Islam
+                          {admin?.fullName || admin?.email}
                         </h6>
                         <span className='text-secondary-light fw-medium text-sm'>
-                          Admin
+                          {admin?.role || 'Admin'}
                         </span>
                       </div>
                       <button type='button' className='hover-text-danger'>
@@ -1935,13 +1935,14 @@ const MasterLayout = ({ children }) => {
                         </Link>
                       </li>
                       <li>
-                        <Link
-                          className='dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3'
-                          to='#'
+                        <button
+                          type='button'
+                          className='dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3 w-100 text-start'
+                          onClick={handleLogout}
                         >
-                          <Icon icon='lucide:power' className='icon text-xl' />{" "}
+                          <Icon icon='lucide:power' className='icon text-xl' />
                           Log Out
-                        </Link>
+                        </button>
                       </li>
                     </ul>
                   </div>

@@ -2,11 +2,21 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+const port = process.env.PORT ? Number(process.env.PORT) : 5000;
+const serverUrl = process.env.SERVER_PUBLIC_URL || `http://localhost:${port}`;
+const rawClientOrigins = process.env.CLIENT_URLS || process.env.CLIENT_URL || 'http://localhost:5173';
+const clientOrigins = rawClientOrigins
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter((origin) => origin.length > 0);
+
 const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
-  port: process.env.PORT ? Number(process.env.PORT) : 5000,
+  port,
+  serverUrl,
+  clientUrl: clientOrigins[0],
+  clientOrigins,
   mongoUri: process.env.MONGODB_URI,
-  clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   smtp: {
@@ -16,6 +26,10 @@ const config = {
     pass: process.env.SMTP_PASS,
     from: process.env.SMTP_FROM,
     deliveryMode: process.env.EMAIL_DELIVERY_MODE || 'live',
+  },
+  admin: {
+    approverEmail: process.env.ADMIN_APPROVER_EMAIL || 'dvisro13@gmail.com',
+    portalName: process.env.ADMIN_PORTAL_NAME || 'Gradus Admin Portal',
   },
 };
 

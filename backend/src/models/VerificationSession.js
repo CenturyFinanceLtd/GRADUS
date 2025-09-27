@@ -4,7 +4,7 @@ const verificationSessionSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ['SIGNUP', 'EMAIL_CHANGE', 'ACCOUNT_DELETE'],
+      enum: ['SIGNUP', 'EMAIL_CHANGE', 'ACCOUNT_DELETE', 'ADMIN_SIGNUP', 'ADMIN_EMAIL_CHANGE'],
       required: true,
     },
     email: {
@@ -19,12 +19,10 @@ const verificationSessionSchema = new mongoose.Schema(
     },
     otpHash: {
       type: String,
-      required: true,
       select: false,
     },
     otpExpiresAt: {
       type: Date,
-      required: true,
     },
     verificationToken: {
       type: String,
@@ -34,12 +32,25 @@ const verificationSessionSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['OTP_PENDING', 'OTP_VERIFIED', 'COMPLETED'],
+      enum: [
+        'OTP_PENDING',
+        'OTP_VERIFIED',
+        'COMPLETED',
+        'APPROVAL_PENDING',
+        'APPROVED',
+        'REJECTED',
+      ],
       default: 'OTP_PENDING',
     },
     expiresAt: {
       type: Date,
-      default: () => new Date(Date.now() + 60 * 60 * 1000),
+      default: () => new Date(Date.now() + 24 * 60 * 60 * 1000),
+    },
+    approvalToken: {
+      type: String,
+    },
+    approvalRespondedAt: {
+      type: Date,
     },
   },
   { timestamps: true }
@@ -50,4 +61,3 @@ verificationSessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 const VerificationSession = mongoose.model('VerificationSession', verificationSessionSchema);
 
 module.exports = VerificationSession;
-
