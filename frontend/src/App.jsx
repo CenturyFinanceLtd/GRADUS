@@ -25,6 +25,8 @@ import FaqPage from "./pages/FaqPage.jsx";
 import FavoriteCoursePage from "./pages/FavoriteCoursePage.jsx";
 import FindTutorsPage from "./pages/FindTutorsPage.jsx";
 import GalleryPage from "./pages/GalleryPage.jsx";
+import CandidatesAndInternsPage from "./pages/CandidatesAndInternsPage.jsx";
+import EmployeeAndAlumniPage from "./pages/EmployeeAndAlumniPage.jsx";
 import HomePageTwo from "./pages/HomePageTwo.jsx";
 import HomePageThree from "./pages/HomePageThree.jsx";
 import HomePageFour from "./pages/HomePageFour.jsx";
@@ -34,6 +36,7 @@ import InstructorTwoPage from "./pages/InstructorTwoPage.jsx";
 import LessonDetailsPage from "./pages/LessonDetailsPage.jsx";
 import PricingPlanPage from "./pages/PricingPlanPage.jsx";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage.jsx";
+import InvestorsPrivacyPage from "./pages/InvestorsPrivacyPage.jsx";
 import ProductPage from "./pages/ProductPage.jsx";
 import ProductDetailsPage from "./pages/ProductDetailsPage.jsx";
 import SignInPage from "./pages/SignInPage.jsx";
@@ -42,6 +45,9 @@ import ProfilePage from "./pages/ProfilePage.jsx";
 import TuitionJobsPage from "./pages/TuitionJobsPage.jsx";
 import TutorPage from "./pages/TutorPage.jsx";
 import TutorDetailsPage from "./pages/TutorDetailsPage.jsx";
+import ShareholdersPrivacyPage from "./pages/ShareholdersPrivacyPage.jsx";
+import VisitorPrivacyNotesPage from "./pages/VisitorPrivacyNotesPage.jsx";
+import VendorsPrivacyPage from "./pages/VendorsPrivacyPage.jsx";
 import HomePageFive from "./pages/HomePageFive.jsx";
 import HomePageSix from "./pages/HomePageSix.jsx";
 
@@ -98,6 +104,36 @@ function App() {
         <Route exact path='/lesson-details' element={<LessonDetailsPage />} />
         <Route exact path='/pricing-plan' element={<PricingPlanPage />} />
         <Route exact path='/privacy-policy' element={<PrivacyPolicyPage />} />
+        <Route
+          exact
+          path='/privacy-candidates-interns'
+          element={<CandidatesAndInternsPage />}
+        />
+        <Route
+          exact
+          path='/privacy-employee-alumni'
+          element={<EmployeeAndAlumniPage />}
+        />
+        <Route
+          exact
+          path='/privacy-investors'
+          element={<InvestorsPrivacyPage />}
+        />
+        <Route
+          exact
+          path='/privacy-shareholders'
+          element={<ShareholdersPrivacyPage />}
+        />
+        <Route
+          exact
+          path='/privacy-visitors'
+          element={<VisitorPrivacyNotesPage />}
+        />
+        <Route
+          exact
+          path='/privacy-vendors'
+          element={<VendorsPrivacyPage />}
+        />
         <Route exact path='/product' element={<ProductPage />} />
         <Route exact path='/product-details' element={<ProductDetailsPage />} />
         <Route exact path='/sign-in' element={<SignInPage />} />

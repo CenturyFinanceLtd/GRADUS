@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import privacyLinks from "../data/privacyLinks";
 
 const FooterOne = () => {
   return (
@@ -15,7 +16,7 @@ const FooterOne = () => {
       />
       <div className='py-120 '>
         <div className='container container-two'>
-          <div className='row row-cols-xxl-5 row-cols-lg-3 row-cols-sm-2 row-cols-1 gy-5'>
+          <div className='row row-cols-xxl-4 row-cols-lg-3 row-cols-sm-2 row-cols-1 gy-5'>
             <div className='col' data-aos='fade-up' data-aos-duration={300}>
               <div className='footer-item'>
                 <div className='footer-item__logo'>
@@ -114,108 +115,27 @@ const FooterOne = () => {
             </div>
             <div className='col' data-aos='fade-up' data-aos-duration={600}>
               <div className='footer-item'>
-                <h4 className='footer-item__title mb-32'>Category</h4>
+                <h4 className='footer-item__title mb-32'>Privacy Statements</h4>
                 <ul className='footer-menu'>
-                  <li className='mb-16'>
-                    <Link
-                      to='/course-grid-view'
-                      className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
+                  {privacyLinks.map(({ to, label }, index) => (
+                    <li
+                      key={to}
+                      className={`mb-${
+                        index === privacyLinks.length - 1 ? "0" : "16"
+                      }`}
                     >
-                      UI/UX Design
-                    </Link>
-                  </li>
-                  <li className='mb-16'>
-                    <Link
-                      to='/course-grid-view'
-                      className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
-                    >
-                      Web Development
-                    </Link>
-                  </li>
-                  <li className='mb-16'>
-                    <Link
-                      to='/course-grid-view'
-                      className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
-                    >
-                      Python Development
-                    </Link>
-                  </li>
-                  <li className='mb-16'>
-                    <Link
-                      to='/course-grid-view'
-                      className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
-                    >
-                      Digital Marketing
-                    </Link>
-                  </li>
-                  <li className='mb-16'>
-                    <Link
-                      to='/course-grid-view'
-                      className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
-                    >
-                      Graphic Design
-                    </Link>
-                  </li>
+                      <Link
+                        to={to}
+                        className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
+                      >
+                        {label}
+                      </Link>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
             <div className='col' data-aos='fade-up' data-aos-duration={800}>
-              <div className='footer-item'>
-                <h4 className='footer-item__title mb-32'>Contact Us</h4>
-                <div className='flex-align gap-20 mb-24'>
-                  <span className='icon d-flex text-32 text-main-600'>
-                    <i className='ph ph-phone' />
-                  </span>
-                  <div className=''>
-                    <Link
-                      to='/tel:(207)555-0119'
-                      className='text-neutral-500 d-block hover-text-main-600 mb-4'
-                    >
-                      (207) 555-0119
-                    </Link>
-                    <Link
-                      to='/tel:(704)555-0127'
-                      className='text-neutral-500 d-block hover-text-main-600 mb-0'
-                    >
-                      (704) 555-0127
-                    </Link>
-                  </div>
-                </div>
-                <div className='flex-align gap-20 mb-24'>
-                  <span className='icon d-flex text-32 text-main-600'>
-                    <i className='ph ph-envelope-open' />
-                  </span>
-                  <div className=''>
-                    <Link
-                      to='/mailto:dwallo@gmail.com'
-                      className='text-neutral-500 d-block hover-text-main-600 mb-4'
-                    >
-                      dwallo@gmail.com
-                    </Link>
-                    <Link
-                      to='/mailto:Gradus@gmail.com'
-                      className='text-neutral-500 d-block hover-text-main-600 mb-0'
-                    >
-                      Gradus@gmail.com
-                    </Link>
-                  </div>
-                </div>
-                <div className='flex-align gap-20 mb-24'>
-                  <span className='icon d-flex text-32 text-main-600'>
-                    <i className='ph ph-map-trifold' />
-                  </span>
-                  <div className=''>
-                    <span className='text-neutral-500 d-block mb-4'>
-                      5488 srker Rd .
-                    </span>
-                    <span className='text-neutral-500 d-block mb-0'>
-                      8745 doer Dr.
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className='col' data-aos='fade-up' data-aos-duration={1000}>
               <div className='footer-item'>
                 <h4 className='footer-item__title mb-32'>Subscribe Here</h4>
                 <p className='text-neutral-500'>
@@ -252,9 +172,9 @@ const FooterOne = () => {
                 </span>{" "}
                 All Rights Reserved.
               </p>
-              <div className='footer-links'>
+              <div className='footer-links d-flex flex-wrap gap-16 justify-content-center justify-content-lg-end'>
                 <Link
-                  to='#'
+                  to='/privacy-policy'
                   className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
                 >
                   Privacy Policy
@@ -275,3 +195,8 @@ const FooterOne = () => {
 };
 
 export default FooterOne;
+
+
+
+
+

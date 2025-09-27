@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import privacyLinks from "../data/privacyLinks";
 
 const FooterFour = () => {
   return (
@@ -13,46 +14,8 @@ const FooterFour = () => {
                 data-aos='fade-up'
                 data-aos-duration={600}
               >
-                <h4 className='text-white mb-24'>Contact</h4>
-                <div className='mb-16'>
-                  <div className='d-flex align-items-center gap-16'>
-                    <span className='w-40 h-40 border-main-600 border rounded-circle text-white justify-content-center align-items-center d-flex flex-shrink-0'>
-                      <i className='ph-bold ph-phone' />
-                    </span>
-                    <a
-                      href='tel:(207)555-0119'
-                      className='text-neutral-30 hover-text-warning-800'
-                    >
-                      (252) 555-0126
-                    </a>
-                  </div>
-                </div>
-                <div className='mb-16'>
-                  <div className='d-flex align-items-center gap-16'>
-                    <span className='w-40 h-40 border-main-600 border rounded-circle text-white justify-content-center align-items-center d-flex flex-shrink-0'>
-                      <i className='ph-bold ph-envelope-open' />
-                    </span>
-                    <a
-                      href='tel:info@example.com'
-                      className='text-neutral-30 hover-text-warning-800'
-                    >
-                      info@example.com
-                    </a>
-                  </div>
-                </div>
-                <div>
-                  <div className='d-flex align-items-center gap-16'>
-                    <span className='w-40 h-40 border-main-600 border rounded-circle text-white justify-content-center align-items-center d-flex flex-shrink-0'>
-                      <i className='ph-bold ph-map-pin' />
-                    </span>
-                    <Link
-                      to='#'
-                      className='text-neutral-30 hover-text-warning-800'
-                    >
-                      8502 Preston Rd. Inglewood.
-                    </Link>
-                  </div>
-                </div>
+                <h4 className='text-white mb-24'>Resources</h4>
+                <p className='text-neutral-30 mb-0'>Review how Gradus approaches privacy for each stakeholder group and stay informed about the data practices that matter to you.</p>
               </div>
               <div
                 className='col-lg-3 col-md-4 col-sm-2'
@@ -115,54 +78,25 @@ const FooterFour = () => {
                 data-aos='fade-up'
                 data-aos-duration={800}
               >
-                <h4 className='text-white mb-24'>Category</h4>
+                <h4 className='text-white mb-24'>Privacy Statements</h4>
                 <div>
                   <ul>
-                    <li className='item-hover position-relative mb-16'>
-                      <Link
-                        to='#'
-                        className='hover-margin-left d-flex align-items-center text-white text-16 fw-semibold hover-text-warning-600'
+                    {privacyLinks.map(({ to, label }, index) => (
+                      <li
+                        key={to}
+                        className={`item-hover position-relative mb-${
+                          index === privacyLinks.length - 1 ? "0" : "16"
+                        }`}
                       >
-                        <span className='position-absolute top-50 start-0 translate-middle w-8 h-8 bg-warning-600 rounded-circle transition-03 hidden group-hover-visible' />
-                        UI/UX Design
-                      </Link>
-                    </li>
-                    <li className='item-hover position-relative mb-16'>
-                      <Link
-                        to='#'
-                        className='hover-margin-left d-flex align-items-center text-white text-16 fw-semibold hover-text-warning-600'
-                      >
-                        <span className='position-absolute top-50 start-0 translate-middle w-8 h-8 bg-warning-600 rounded-circle transition-03 hidden group-hover-visible' />
-                        Web Development
-                      </Link>
-                    </li>
-                    <li className='item-hover position-relative mb-16'>
-                      <Link
-                        to='#'
-                        className='hover-margin-left d-flex align-items-center text-white text-16 fw-semibold hover-text-warning-600'
-                      >
-                        <span className='position-absolute top-50 start-0 translate-middle w-8 h-8 bg-warning-600 rounded-circle transition-03 hidden group-hover-visible' />
-                        Python Development
-                      </Link>
-                    </li>
-                    <li className='item-hover position-relative mb-16'>
-                      <Link
-                        to='#'
-                        className='hover-margin-left d-flex align-items-center text-white text-16 fw-semibold hover-text-warning-600'
-                      >
-                        <span className='position-absolute top-50 start-0 translate-middle w-8 h-8 bg-warning-600 rounded-circle transition-03 hidden group-hover-visible' />
-                        Digital Marketing
-                      </Link>
-                    </li>
-                    <li className='item-hover position-relative mb-16'>
-                      <Link
-                        to='#'
-                        className='hover-margin-left d-flex align-items-center text-white text-16 fw-semibold hover-text-warning-600'
-                      >
-                        <span className='position-absolute top-50 start-0 translate-middle w-8 h-8 bg-warning-600 rounded-circle transition-03 hidden group-hover-visible' />
-                        Graphic Design
-                      </Link>
-                    </li>
+                        <Link
+                          to={to}
+                          className='hover-margin-left d-flex align-items-center text-white text-16 fw-semibold hover-text-warning-600'
+                        >
+                          <span className='position-absolute top-50 start-0 translate-middle w-8 h-8 bg-warning-600 rounded-circle transition-03 hidden group-hover-visible' />
+                          {label}
+                        </Link>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>
@@ -261,15 +195,7 @@ const FooterFour = () => {
               <ul className='d-flex align-items-center gap-24 flex-wrap'>
                 <li>
                   <Link
-                    to='#'
-                    className='text-white text-md fw-normal hover-text-warning-800'
-                  >
-                    Help &amp; Support
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to='#'
+                    to='/privacy-policy'
                     className='text-white text-md fw-normal hover-text-warning-800'
                   >
                     Privacy policy
@@ -294,3 +220,9 @@ const FooterFour = () => {
 };
 
 export default FooterFour;
+
+
+
+
+
+

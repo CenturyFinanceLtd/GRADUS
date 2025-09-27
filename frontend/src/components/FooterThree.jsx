@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import privacyLinks from "../data/privacyLinks";
 
 const FooterThree = () => {
   return (
@@ -76,49 +77,24 @@ const FooterThree = () => {
             >
               <div className='footer-item'>
                 <h4 className='footer-item__title fw-medium text-white mb-32'>
-                  Category
+                  Privacy Statements
                 </h4>
                 <ul className='footer-menu'>
-                  <li className='mb-16'>
-                    <Link
-                      to='/course-grid-view'
-                      className='text-white hover-text-main-600 hover-text-decoration-underline'
+                  {privacyLinks.map(({ to, label }, index) => (
+                    <li
+                      key={to}
+                      className={`mb-${
+                        index === privacyLinks.length - 1 ? "0" : "16"
+                      }`}
                     >
-                      UI/UX Design
-                    </Link>
-                  </li>
-                  <li className='mb-16'>
-                    <Link
-                      to='/course-grid-view'
-                      className='text-white hover-text-main-600 hover-text-decoration-underline'
-                    >
-                      Web Development
-                    </Link>
-                  </li>
-                  <li className='mb-16'>
-                    <Link
-                      to='/course-grid-view'
-                      className='text-white hover-text-main-600 hover-text-decoration-underline'
-                    >
-                      Python Development
-                    </Link>
-                  </li>
-                  <li className='mb-16'>
-                    <Link
-                      to='/course-grid-view'
-                      className='text-white hover-text-main-600 hover-text-decoration-underline'
-                    >
-                      Digital Marketing
-                    </Link>
-                  </li>
-                  <li className='mb-16'>
-                    <Link
-                      to='/course-grid-view'
-                      className='text-white hover-text-main-600 hover-text-decoration-underline'
-                    >
-                      Graphic Design
-                    </Link>
-                  </li>
+                      <Link
+                        to={to}
+                        className='text-white hover-text-main-600 hover-text-decoration-underline'
+                      >
+                        {label}
+                      </Link>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -129,59 +105,9 @@ const FooterThree = () => {
             >
               <div className='footer-item'>
                 <h4 className='footer-item__title fw-medium text-white mb-32'>
-                  Contact Us
+                  Resources
                 </h4>
-                <div className='flex-align gap-20 mb-24'>
-                  <span className='icon d-flex text-32 text-main-600'>
-                    <i className='ph ph-phone' />
-                  </span>
-                  <div className=''>
-                    <Link
-                      to='/tel:(207)555-0119'
-                      className='text-white d-block hover-text-main-600 mb-4'
-                    >
-                      (207) 555-0119
-                    </Link>
-                    <Link
-                      to='/tel:(704)555-0127'
-                      className='text-white d-block hover-text-main-600 mb-0'
-                    >
-                      (704) 555-0127
-                    </Link>
-                  </div>
-                </div>
-                <div className='flex-align gap-20 mb-24'>
-                  <span className='icon d-flex text-32 text-main-600'>
-                    <i className='ph ph-envelope-open' />
-                  </span>
-                  <div className=''>
-                    <Link
-                      to='/mailto:dwallo@gmail.com'
-                      className='text-white d-block hover-text-main-600 mb-4'
-                    >
-                      dwallo@gmail.com
-                    </Link>
-                    <Link
-                      to='/mailto:Gradus@gmail.com'
-                      className='text-white d-block hover-text-main-600 mb-0'
-                    >
-                      Gradus@gmail.com
-                    </Link>
-                  </div>
-                </div>
-                <div className='flex-align gap-20 mb-0'>
-                  <span className='icon d-flex text-32 text-main-600'>
-                    <i className='ph ph-map-trifold' />
-                  </span>
-                  <div className=''>
-                    <span className='text-white d-block mb-4'>
-                      5488 srker Rd .
-                    </span>
-                    <span className='text-white d-block mb-0'>
-                      8745 doer Dr.
-                    </span>
-                  </div>
-                </div>
+                <p className='text-neutral-200 mb-0'>Get familiar with our stakeholder privacy commitments through the links alongside.</p>
               </div>
             </div>
             <div
@@ -236,6 +162,14 @@ const FooterThree = () => {
                 </span>{" "}
                 All Rights Reserved.
               </p>
+              <div className='footer-links d-flex flex-wrap gap-16 justify-content-center' data-aos='zoom-in'>
+                <Link
+                  to='/privacy-policy'
+                  className='text-white hover-text-main-600 hover-text-decoration-underline'
+                >
+                  Privacy Policy
+                </Link>
+              </div>
               <ul
                 className='social-list flex-align gap-24'
                 data-aos='zoom-in-left'
