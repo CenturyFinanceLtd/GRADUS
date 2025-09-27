@@ -14,13 +14,13 @@ const ContactInner = () => {
   };
 
   const regionOptions = [
-    "Africa",
-    "Asia",
-    "Europe",
-    "Middle East",
-    "North America",
-    "Oceania",
-    "South America",
+    "North India",
+    "South India",
+    "East India",
+    "West India",
+    "Central India",
+    "North-East India",
+    "Union Territories",
   ];
 
   const courseOptions = [
