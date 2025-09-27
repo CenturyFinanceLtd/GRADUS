@@ -56,7 +56,7 @@ app.use('/api/admin/users', adminUserRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin/blogs', adminBlogRoutes);
 app.use('/api/blogs', blogRoutes);
-app.use('/api/inquiries', inquiryRoutes);
+app.use('/api/inquiries', contactRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
