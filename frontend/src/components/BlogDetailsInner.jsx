@@ -579,11 +579,15 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
                         : "/assets/images/blog/blog1.png";
 
                       return (
-                        <div key={recent.id} className='d-flex flex-wrap gap-12'>
-                          <Link to={`/blogs/${recent.slug}`} className='blog__thumb w-100 radius-12 overflow-hidden'>
+                        <div key={recent.id} className='d-flex gap-12 align-items-start'>
+                          <Link
+                            to={`/blogs/${recent.slug}`}
+                            className='blog__thumb radius-12 overflow-hidden flex-shrink-0'
+                            style={{ width: "100px", height: "100px" }}
+                          >
                             <img src={image} alt={recent.title} className='w-100 h-100 object-fit-cover' />
                           </Link>
-                          <div className='blog__content'>
+                          <div className='blog__content flex-grow-1'>
                             <h6 className='mb-8'>
                               <Link
                                 to={`/blogs/${recent.slug}`}
