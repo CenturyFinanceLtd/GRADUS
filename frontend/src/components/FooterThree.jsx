@@ -183,12 +183,7 @@ const FooterThree = () => {
         <div className='bottom-footer border-top border-dashed border-neutral-600 border-0 py-32'>
           <div className='container container-two'>
             <div className='bottom-footer__inner flex-between gap-16 flex-wrap'>
-              <div className='footer-item__logo mb-0' data-aos='zoom-in-right'>
-                <Link to='/'>
-                  {" "}
-                  <img src='/assets/images/logo/logo-white.png' alt='' />
-                </Link>
-              </div>
+              
               <p
                 className='text-white text-line-1 fw-normal'
                 data-aos='zoom-in'
@@ -213,43 +208,7 @@ const FooterThree = () => {
                   Terms &amp; Conditions
                 </Link>
               </div>
-              <ul
-                className='social-list flex-align gap-24'
-                data-aos='zoom-in-left'
-              >
-                <li className='social-list__item'>
-                  <Link
-                    to='https://www.facebook.com'
-                    className='text-white text-2xl hover-text-main-two-600'
-                  >
-                    <i className='ph-bold ph-facebook-logo' />
-                  </Link>
-                </li>
-                <li className='social-list__item'>
-                  <Link
-                    to='https://www.twitter.com'
-                    className='text-white text-2xl hover-text-main-two-600'
-                  >
-                    <i className='ph-bold ph-twitter-logo' />
-                  </Link>
-                </li>
-                <li className='social-list__item'>
-                  <Link
-                    to='https://www.linkedin.com'
-                    className='text-white text-2xl hover-text-main-two-600'
-                  >
-                    <i className='ph-bold ph-linkedin-logo' />
-                  </Link>
-                </li>
-                <li className='social-list__item'>
-                  <Link
-                    to='https://www.pinterest.com'
-                    className='text-white text-2xl hover-text-main-two-600'
-                  >
-                    <i className='ph-bold ph-pinterest-logo' />
-                  </Link>
-                </li>
-              </ul>
+              
             </div>
           </div>
         </div>
