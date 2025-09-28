@@ -23,8 +23,57 @@ const FooterThree = () => {
               data-aos-duration={400}
             >
               <div className='footer-item'>
+                <Link to='/' className='footer-item__logo mb-24 d-inline-block'>
+                  <img src='/assets/images/logo/logo-white.png' alt='Gradus logo' />
+                </Link>
+                <p className='text-neutral-200 mb-28 pe-xl-4'>
+                  Gradus exceeded all my expectations! The instructors were not only
+                  experts.
+                </p>
+                <ul className='social-list flex-align gap-16'>
+                  <li className='social-list__item'>
+                    <Link
+                      to='https://www.facebook.com'
+                      className='text-white text-2xl hover-text-main-two-600'
+                    >
+                      <i className='ph-bold ph-facebook-logo' />
+                    </Link>
+                  </li>
+                  <li className='social-list__item'>
+                    <Link
+                      to='https://www.twitter.com'
+                      className='text-white text-2xl hover-text-main-two-600'
+                    >
+                      <i className='ph-bold ph-twitter-logo' />
+                    </Link>
+                  </li>
+                  <li className='social-list__item'>
+                    <Link
+                      to='https://www.instagram.com'
+                      className='text-white text-2xl hover-text-main-two-600'
+                    >
+                      <i className='ph-bold ph-instagram-logo' />
+                    </Link>
+                  </li>
+                  <li className='social-list__item'>
+                    <Link
+                      to='https://www.pinterest.com'
+                      className='text-white text-2xl hover-text-main-two-600'
+                    >
+                      <i className='ph-bold ph-pinterest-logo' />
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div
+              className='col-lg-3 col-sm-6 col-xs-6'
+              data-aos='fade-up'
+              data-aos-duration={600}
+            >
+              <div className='footer-item'>
                 <h4 className='footer-item__title fw-medium text-white mb-32'>
-                  Quick Link
+                  Navigation
                 </h4>
                 <ul className='footer-menu'>
                   <li className='mb-16'>
@@ -73,7 +122,7 @@ const FooterThree = () => {
             <div
               className='col-lg-3 col-sm-6 col-xs-6'
               data-aos='fade-up'
-              data-aos-duration={600}
+              data-aos-duration={800}
             >
               <div className='footer-item'>
                 <h4 className='footer-item__title fw-medium text-white mb-32'>
@@ -96,18 +145,6 @@ const FooterThree = () => {
                     </li>
                   ))}
                 </ul>
-              </div>
-            </div>
-            <div
-              className='col-lg-3 col-sm-6 col-xs-6'
-              data-aos='fade-up'
-              data-aos-duration={800}
-            >
-              <div className='footer-item'>
-                <h4 className='footer-item__title fw-medium text-white mb-32'>
-                  Resources
-                </h4>
-                <p className='text-neutral-200 mb-0'>Get familiar with our stakeholder privacy commitments through the links alongside.</p>
               </div>
             </div>
             <div
@@ -169,6 +206,12 @@ const FooterThree = () => {
                 >
                   Privacy Policy
                 </Link>
+                <Link
+                  to='#'
+                  className='text-white hover-text-main-600 hover-text-decoration-underline'
+                >
+                  Terms &amp; Conditions
+                </Link>
               </div>
               <ul
                 className='social-list flex-align gap-24'
@@ -195,7 +238,7 @@ const FooterThree = () => {
                     to='https://www.linkedin.com'
                     className='text-white text-2xl hover-text-main-two-600'
                   >
-                    <i className='ph-bold ph-instagram-logo' />
+                    <i className='ph-bold ph-linkedin-logo' />
                   </Link>
                 </li>
                 <li className='social-list__item'>
