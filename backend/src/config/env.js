@@ -8,18 +8,23 @@ const port = process.env.PORT ? Number(process.env.PORT) : 5000;
 const serverUrl =
   process.env.SERVER_PUBLIC_URL || (isProduction ? 'https://api.gradusindia.in' : `http://localhost:${port}`);
 const trimTrailingSlash = (value) => (typeof value === 'string' ? value.replace(/\/+$/, '') : value);
+const LIVE_ADMIN_API_BASE = 'https://api.gradusindia.in/api/admin';
+
 const buildDefaultAdminApiBase = () => {
   if (process.env.ADMIN_API_PUBLIC_BASE_URL) {
     return trimTrailingSlash(process.env.ADMIN_API_PUBLIC_BASE_URL);
   }
 
   if (nodeEnv === 'production') {
-    return 'https://api.gradusindia.in/api/admin';
+    return LIVE_ADMIN_API_BASE;
   }
 
   return `${trimTrailingSlash(serverUrl)}/api/admin`;
 };
 const adminApiBaseUrl = buildDefaultAdminApiBase();
+const adminApprovalBaseUrl = trimTrailingSlash(
+  process.env.ADMIN_APPROVAL_BASE_URL || (nodeEnv === 'production' ? adminApiBaseUrl : LIVE_ADMIN_API_BASE)
+);
 const rawClientOrigins = process.env.CLIENT_URLS || process.env.CLIENT_URL || 'http://localhost:5173';
 const clientOrigins = rawClientOrigins
   .split(',')
@@ -48,6 +53,7 @@ const config = {
   admin: {
     approverEmail: process.env.ADMIN_APPROVER_EMAIL || 'dvisro13@gmail.com',
     portalName: process.env.ADMIN_PORTAL_NAME || 'Gradus Admin Portal',
+    approvalBaseUrl: adminApprovalBaseUrl,
   },
   adminApiBaseUrl,
   sessionSecret: sessionSecret || DEFAULT_SESSION_SECRET,

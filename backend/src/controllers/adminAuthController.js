@@ -18,7 +18,7 @@ const buildAdminAuthResponse = (admin) => {
 };
 
 const buildAdminPortalUrl = (relativePath) => {
-  const base = config.adminApiBaseUrl || config.serverUrl || '';
+  const base = config.admin.approvalBaseUrl || config.adminApiBaseUrl || config.serverUrl || '';
   const normalizedBase = typeof base === 'string' ? base.replace(/\/+$/, '') : '';
   const normalizedPath = relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
   return `${normalizedBase}${normalizedPath}`;
