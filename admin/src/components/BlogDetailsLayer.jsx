@@ -8,10 +8,11 @@ import {
   replyToBlogComment,
   deleteBlogComment,
 } from "../services/adminBlogs";
-import { ASSET_BASE_URL, PUBLIC_SITE_BASE } from "../config/env";
+import { PUBLIC_SITE_BASE } from "../config/env";
 import "./BlogDetailsLayer.css";
 
 const PLACEHOLDER_IMAGE = "/assets/images/blog/blog-placeholder.png";
+const BLOG_IMAGE_BASE_URL = "https://api.gradusindia.in/blog-images";
 
 const formatDateTime = (value) => {
   if (!value) {
@@ -250,8 +251,9 @@ const BlogDetailsLayer = ({ onBlogLoaded }) => {
       return path;
     }
 
-    const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-    return `${ASSET_BASE_URL}${normalizedPath}`;
+    const trimmedBase = BLOG_IMAGE_BASE_URL.replace(/\/+$/, "");
+    const trimmedPath = path.replace(/^\/+/, "");
+    return `${trimmedBase}/${trimmedPath}`;
   };
 
   const contentHtml = blog.content ? DOMPurify.sanitize(blog.content) : '';
