@@ -5,7 +5,8 @@ dotenv.config();
 const nodeEnv = process.env.NODE_ENV || 'development';
 const isProduction = nodeEnv === 'production';
 const port = process.env.PORT ? Number(process.env.PORT) : 5000;
-const serverUrl = process.env.SERVER_PUBLIC_URL || `http://localhost:${port}`;
+const serverUrl =
+  process.env.SERVER_PUBLIC_URL || (isProduction ? 'https://api.gradusindia.in' : `http://localhost:${port}`);
 const trimTrailingSlash = (value) => (typeof value === 'string' ? value.replace(/\/+$/, '') : value);
 const buildDefaultAdminApiBase = () => {
   if (process.env.ADMIN_API_PUBLIC_BASE_URL) {
