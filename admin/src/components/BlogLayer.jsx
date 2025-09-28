@@ -2,10 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import useAuth from "../hook/useAuth";
 import { deleteBlog, fetchBlogs } from "../services/adminBlogs";
+import { ASSET_BASE_URL, PUBLIC_SITE_BASE } from "../config/env";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
-const ASSET_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
-const PUBLIC_SITE_BASE = import.meta.env.VITE_PUBLIC_SITE_URL || "http://localhost:5173";
 const PLACEHOLDER_IMAGE = "/assets/images/blog/blog-placeholder.png";
 
 const BlogLayer = () => {
