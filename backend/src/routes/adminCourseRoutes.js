@@ -5,6 +5,7 @@ const {
   createCourse,
   updateCourse,
   deleteCourse,
+  listEnrollments,
 } = require('../controllers/courseController');
 const { protectAdmin } = require('../middleware/adminAuthMiddleware');
 
@@ -15,5 +16,6 @@ router.put('/page/hero', protectAdmin, updateHero);
 router.post('/', protectAdmin, createCourse);
 router.put('/:courseId', protectAdmin, updateCourse);
 router.delete('/:courseId', protectAdmin, deleteCourse);
+router.get('/enrollments', protectAdmin, listEnrollments);
 
 module.exports = router;

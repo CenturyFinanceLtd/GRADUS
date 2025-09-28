@@ -1,6 +1,8 @@
 const asyncHandler = require('express-async-handler');
+const crypto = require('crypto');
 const Course = require('../models/Course');
 const CoursePage = require('../models/CoursePage');
+const Enrollment = require('../models/Enrollment');
 
 const normalizeString = (value) => {
   if (typeof value !== 'string') {
@@ -107,31 +109,62 @@ const buildCoursePayload = (body, existingCourse) => {
 
 const ensureArray = (value) => (Array.isArray(value) ? value : []);
 
-const mapCourseForPublic = (course) => ({
-  id: course.slug,
-  slug: course.slug,
-  name: course.name,
-  subtitle: course.subtitle,
-  focus: course.focus,
-  approvals: ensureArray(course.approvals),
-  placementRange: course.placementRange,
-  price: course.price,
-  outcomeSummary: course.outcomeSummary,
-  deliverables: ensureArray(course.deliverables),
-  outcomes: ensureArray(course.outcomes),
-  finalAward: course.finalAward,
-  partners: ensureArray(course.partners),
-  weeks: ensureArray(course.weeks).map((week) => ({
-    title: week.title,
-    points: ensureArray(week.points),
-  })),
-  certifications: ensureArray(course.certifications).map((cert) => ({
-    level: cert.level,
-    certificateName: cert.certificateName,
-    coverage: ensureArray(cert.coverage),
-    outcome: cert.outcome,
-  })),
+const createLockedPoint = (point) => ({
+  text: null,
+  isLocked: true,
+  fingerprint:
+    typeof point === 'string'
+      ? crypto.createHash('sha256').update(point).digest('hex')
+      : crypto.randomBytes(12).toString('hex'),
 });
+
+const mapCourseForPublic = (course, enrollment) => {
+  const isEnrolled = Boolean(enrollment);
+
+  return {
+    id: course.slug,
+    slug: course.slug,
+    name: course.name,
+    subtitle: course.subtitle,
+    focus: course.focus,
+    approvals: ensureArray(course.approvals),
+    placementRange: course.placementRange,
+    price: course.price,
+    outcomeSummary: course.outcomeSummary,
+    deliverables: ensureArray(course.deliverables),
+    outcomes: ensureArray(course.outcomes),
+    finalAward: course.finalAward,
+    partners: ensureArray(course.partners),
+    weeks: ensureArray(course.weeks).map((week) => {
+      const points = ensureArray(week.points).map((point) =>
+        isEnrolled
+          ? { text: point, isLocked: false }
+          : createLockedPoint(point)
+      );
+
+      return {
+        title: week.title,
+        points,
+        isLocked: !isEnrolled,
+      };
+    }),
+    certifications: ensureArray(course.certifications).map((cert) => ({
+      level: cert.level,
+      certificateName: cert.certificateName,
+      coverage: ensureArray(cert.coverage),
+      outcome: cert.outcome,
+    })),
+    isEnrolled,
+    enrollment: enrollment
+      ? {
+          id: enrollment._id.toString(),
+          status: enrollment.status,
+          paymentStatus: enrollment.paymentStatus,
+          enrolledAt: enrollment.createdAt,
+        }
+      : null,
+  };
+};
 
 const mapCourseForAdmin = (course) => ({
   id: course._id.toString(),
@@ -163,14 +196,26 @@ const mapCourseForAdmin = (course) => ({
 });
 
 const getCoursePage = asyncHandler(async (req, res) => {
-  const [page, courses] = await Promise.all([
+  const [page, courses, enrollments] = await Promise.all([
     CoursePage.findOne().lean(),
     Course.find().sort({ order: 1, createdAt: 1 }).lean(),
+    req.user
+      ? Enrollment.find({ user: req.user._id, status: 'ACTIVE' }).lean()
+      : [],
   ]);
+
+  const enrollmentMap = new Map();
+  ensureArray(enrollments).forEach((enrollment) => {
+    if (enrollment?.course) {
+      enrollmentMap.set(enrollment.course.toString(), enrollment);
+    }
+  });
 
   res.json({
     hero: page?.hero || null,
-    courses: ensureArray(courses).map(mapCourseForPublic),
+    courses: ensureArray(courses).map((course) =>
+      mapCourseForPublic(course, enrollmentMap.get(course._id.toString()))
+    ),
   });
 });
 
@@ -278,6 +323,117 @@ const deleteCourse = asyncHandler(async (req, res) => {
   res.json({ message: 'Course deleted' });
 });
 
+const enrollInCourse = asyncHandler(async (req, res) => {
+  const { courseSlug } = req.params;
+  const normalizedSlug = typeof courseSlug === 'string' ? courseSlug.trim().toLowerCase() : '';
+
+  if (!normalizedSlug) {
+    res.status(400);
+    throw new Error('A valid course identifier is required.');
+  }
+
+  const course = await Course.findOne({ slug: normalizedSlug });
+
+  if (!course) {
+    res.status(404);
+    throw new Error('Course not found.');
+  }
+
+  const existingEnrollment = await Enrollment.findOne({
+    user: req.user._id,
+    course: course._id,
+  });
+
+  if (existingEnrollment) {
+    if (existingEnrollment.status === 'ACTIVE' && existingEnrollment.paymentStatus === 'PAID') {
+      res.status(409);
+      throw new Error('You are already enrolled in this course.');
+    }
+
+    existingEnrollment.status = 'ACTIVE';
+    existingEnrollment.paymentStatus = 'PAID';
+    existingEnrollment.paidAt = new Date();
+    existingEnrollment.paymentReference = existingEnrollment.paymentReference || `DUMMY-${Date.now()}`;
+    await existingEnrollment.save();
+
+    res.json({
+      message: 'Enrollment updated successfully.',
+      enrollment: {
+        id: existingEnrollment._id.toString(),
+        course: {
+          id: course._id.toString(),
+          slug: course.slug,
+          name: course.name,
+        },
+        status: existingEnrollment.status,
+        paymentStatus: existingEnrollment.paymentStatus,
+        enrolledAt: existingEnrollment.createdAt,
+      },
+    });
+    return;
+  }
+
+  const enrollment = await Enrollment.create({
+    user: req.user._id,
+    course: course._id,
+    status: 'ACTIVE',
+    paymentStatus: 'PAID',
+    paymentReference: `DUMMY-${Date.now()}`,
+    paidAt: new Date(),
+  });
+
+  res.status(201).json({
+    message: 'Enrollment completed successfully.',
+    enrollment: {
+      id: enrollment._id.toString(),
+      course: {
+        id: course._id.toString(),
+        slug: course.slug,
+        name: course.name,
+      },
+      status: enrollment.status,
+      paymentStatus: enrollment.paymentStatus,
+      enrolledAt: enrollment.createdAt,
+    },
+  });
+});
+
+const listEnrollments = asyncHandler(async (req, res) => {
+  const enrollments = await Enrollment.find()
+    .sort({ createdAt: -1 })
+    .populate('user', 'firstName lastName email mobile')
+    .populate('course', 'name slug price')
+    .lean();
+
+  res.json({
+    items: ensureArray(enrollments).map((enrollment) => ({
+      id: enrollment._id.toString(),
+      status: enrollment.status,
+      paymentStatus: enrollment.paymentStatus,
+      enrolledAt: enrollment.createdAt,
+      paymentReference: enrollment.paymentReference || null,
+      paidAt: enrollment.paidAt || null,
+      course: enrollment.course
+        ? {
+            id: enrollment.course._id?.toString?.() || '',
+            slug: enrollment.course.slug || '',
+            name: enrollment.course.name || '',
+            price: enrollment.course.price || '',
+          }
+        : null,
+      student: enrollment.user
+        ? {
+            id: enrollment.user._id?.toString?.() || '',
+            firstName: enrollment.user.firstName || '',
+            lastName: enrollment.user.lastName || '',
+            email: enrollment.user.email || '',
+            mobile: enrollment.user.mobile || '',
+          }
+        : null,
+    })),
+  });
+});
+
 module.exports = {
   getCoursePage,
   listCourses,
@@ -286,4 +442,6 @@ module.exports = {
   createCourse,
   updateCourse,
   deleteCourse,
+  enrollInCourse,
+  listEnrollments,
 };

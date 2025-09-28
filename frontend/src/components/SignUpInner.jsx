@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import apiClient from "../services/apiClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
@@ -29,6 +29,7 @@ const SignUpInner = () => {
   const [loading, setLoading] = useState(false);
   const { setAuth } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const stepTitle = useMemo(() => {
     switch (currentStep) {
@@ -93,7 +94,13 @@ const SignUpInner = () => {
 
     const response = await apiClient.post("/auth/signup/complete", payload);
     setAuth({ token: response.token, user: response.user });
-    navigate("/profile", { replace: true });
+    const redirectTo = location.state?.redirectTo || "/profile";
+    const pendingEnrollment = location.state?.pendingEnrollment;
+    const nextState =
+      pendingEnrollment && redirectTo.includes("/our-courses")
+        ? { pendingEnrollment }
+        : undefined;
+    navigate(redirectTo, { replace: true, state: nextState });
   };
 
   const handleSubmit = async (event) => {
@@ -331,13 +338,14 @@ const SignUpInner = () => {
             </div>
             <div className='col-sm-12'>
               <p className='text-neutral-500 mt-8'>
-                Already have an account?{" "}
-                <Link
-                  to='/sign-in'
-                  className='fw-semibold text-main-600 hover-text-decoration-underline'
-                >
-                  Sign In
-                </Link>
+                    Already have an account?{" "}
+                    <Link
+                      to='/sign-in'
+                      state={location.state}
+                      className='fw-semibold text-main-600 hover-text-decoration-underline'
+                    >
+                      Sign In
+                    </Link>
               </p>
             </div>
           </>

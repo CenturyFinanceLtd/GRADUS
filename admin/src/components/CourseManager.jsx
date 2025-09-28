@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import useAuth from "../hook/useAuth";
 import {
   createCourse as createCourseRequest,
   deleteCourse as deleteCourseRequest,
   fetchCoursePage,
+  fetchCourseEnrollments,
   updateCourse as updateCourseRequest,
   updateCourseHero,
 } from "../services/adminCourses";
@@ -139,6 +140,8 @@ const CourseManager = () => {
   const [courseFormError, setCourseFormError] = useState(null);
   const [savingCourse, setSavingCourse] = useState(false);
   const [deletingCourseId, setDeletingCourseId] = useState(null);
+  const [enrollments, setEnrollments] = useState([]);
+  const [enrollmentError, setEnrollmentError] = useState(null);
 
   useEffect(() => {
     if (!token) {
@@ -151,20 +154,42 @@ const CourseManager = () => {
       setLoading(true);
       setError(null);
       setHeroError(null);
+      setEnrollmentError(null);
 
       try {
-        const response = await fetchCoursePage({ token });
+        const [courseResult, enrollmentResult] = await Promise.allSettled([
+          fetchCoursePage({ token }),
+          fetchCourseEnrollments({ token }),
+        ]);
+
         if (!isMounted) {
           return;
         }
 
-        setHeroForm({
-          tagIcon: response?.hero?.tagIcon || "",
-          tagText: response?.hero?.tagText || "",
-          title: response?.hero?.title || "",
-          description: response?.hero?.description || "",
-        });
-        setCourses(Array.isArray(response?.courses) ? response.courses : []);
+        if (courseResult.status === "fulfilled") {
+          const response = courseResult.value;
+          setHeroForm({
+            tagIcon: response?.hero?.tagIcon || "",
+            tagText: response?.hero?.tagText || "",
+            title: response?.hero?.title || "",
+            description: response?.hero?.description || "",
+          });
+          setCourses(Array.isArray(response?.courses) ? response.courses : []);
+        } else {
+          throw courseResult.reason;
+        }
+
+        if (enrollmentResult.status === "fulfilled") {
+          const enrollmentItems = Array.isArray(enrollmentResult.value?.items)
+            ? enrollmentResult.value.items
+            : [];
+          setEnrollments(enrollmentItems);
+        } else {
+          setEnrollments([]);
+          setEnrollmentError(
+            enrollmentResult.reason?.message || "Failed to load enrollment records."
+          );
+        }
       } catch (err) {
         if (!isMounted) {
           return;
@@ -172,6 +197,7 @@ const CourseManager = () => {
         setError(err?.message || "Failed to load course content.");
         setHeroForm(emptyHero);
         setCourses([]);
+        setEnrollments([]);
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -190,6 +216,21 @@ const CourseManager = () => {
     () => [...courses].sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || a.name.localeCompare(b.name)),
     [courses]
   );
+
+  const formatDateTime = useCallback((value) => {
+    if (!value) {
+      return "—";
+    }
+
+    try {
+      return new Intl.DateTimeFormat("en-IN", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(new Date(value));
+    } catch (err) {
+      return value;
+    }
+  }, []);
 
   const handleHeroChange = (event) => {
     const { name, value } = event.target;
@@ -898,6 +939,87 @@ const CourseManager = () => {
             </button>
           </div>
         </form>
+      </div>
+
+      <div className='mt-48'>
+        <div className='d-flex flex-wrap justify-content-between align-items-center gap-16 mb-16'>
+          <div>
+            <h5 className='mb-8'>Recent Enrollments</h5>
+            <p className='text-neutral-500 mb-0'>Monitor which learners have been enrolled into your courses.</p>
+          </div>
+        </div>
+        {enrollmentError ? (
+          <div className='alert alert-warning mb-24' role='alert'>
+            {enrollmentError}
+          </div>
+        ) : null}
+        {enrollments.length ? (
+          <div className='table-responsive'>
+            <table className='table align-middle'>
+              <thead>
+                <tr>
+                  <th>Learner</th>
+                  <th>Course</th>
+                  <th>Status</th>
+                  <th>Payment</th>
+                  <th>Enrolled On</th>
+                  <th>Reference</th>
+                </tr>
+              </thead>
+              <tbody>
+                {enrollments.map((enrollment) => {
+                  const studentName = enrollment.student
+                    ? `${enrollment.student.firstName || ''} ${enrollment.student.lastName || ''}`.trim() ||
+                      enrollment.student.email ||
+                      'Learner'
+                    : 'Learner';
+                  const studentEmail = enrollment.student?.email || '—';
+                  const courseName = enrollment.course?.name || '—';
+                  const courseSlug = enrollment.course?.slug || '';
+                  const statusBadgeClass =
+                    enrollment.status === 'ACTIVE'
+                      ? 'badge bg-success-600 text-white'
+                      : 'badge bg-neutral-200 text-neutral-700';
+                  const paymentBadgeClass =
+                    enrollment.paymentStatus === 'PAID'
+                      ? 'badge bg-success-600 text-white'
+                      : 'badge bg-warning-600 text-white';
+
+                  return (
+                    <tr key={enrollment.id}>
+                      <td>
+                        <div className='d-flex flex-column'>
+                          <span className='fw-semibold text-neutral-900'>{studentName}</span>
+                          <span className='text-neutral-500 text-sm'>{studentEmail}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div className='d-flex flex-column'>
+                          <span className='fw-medium text-neutral-900'>{courseName}</span>
+                          <span className='text-neutral-500 text-sm'>{courseSlug || '—'}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span className={statusBadgeClass}>{enrollment.status}</span>
+                      </td>
+                      <td>
+                        <span className={paymentBadgeClass}>{enrollment.paymentStatus}</span>
+                      </td>
+                      <td>{formatDateTime(enrollment.enrolledAt)}</td>
+                      <td className='text-neutral-600 text-sm'>
+                        {enrollment.paymentReference || '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : !enrollmentError ? (
+          <div className='alert alert-info mb-0' role='alert'>
+            No enrollments have been recorded yet.
+          </div>
+        ) : null}
       </div>
     </div>
   );

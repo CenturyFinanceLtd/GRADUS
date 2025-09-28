@@ -33,10 +33,17 @@ export const deleteCourse = ({ token, courseId }) =>
     token,
   });
 
+export const fetchCourseEnrollments = ({ token }) =>
+  apiClient("/admin/courses/enrollments", {
+    method: "GET",
+    token,
+  });
+
 export default {
   fetchCoursePage,
   updateCourseHero,
   createCourse,
   updateCourse,
   deleteCourse,
+  fetchCourseEnrollments,
 };

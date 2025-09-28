@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import PlacementPartnersCarousel from './PlacementPartnersCarousel';
+import { useAuth } from '../../context/AuthContext';
 
 const VISIBLE_WEEKS = 2;
 
-const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
+const CourseSeriesDetailSection = ({ course, isAltBackground = false, onRequestEnrollment }) => {
   const activeCourse = course && course.name ? course : null;
 
-  const courseId = activeCourse?.id || activeCourse?.slug || activeCourse?._id || '';
+  const courseAnchorId = activeCourse?.slug || activeCourse?.id || activeCourse?._id || '';
+  const courseSlug = activeCourse?.slug || courseAnchorId;
   const subtitle = activeCourse?.subtitle;
   const focus = activeCourse?.focus;
   const approvals = useMemo(
@@ -34,18 +36,42 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
     () => (Array.isArray(activeCourse?.partners) ? activeCourse.partners.filter(Boolean) : []),
     [activeCourse?.partners]
   );
-  const weeks = useMemo(
-    () =>
-      Array.isArray(activeCourse?.weeks)
-        ? activeCourse.weeks
-            .map((week) => ({
-              title: week?.title,
-              points: Array.isArray(week?.points) ? week.points.filter(Boolean) : [],
-            }))
-            .filter((week) => week.title || week.points.length)
-        : [],
-    [activeCourse?.weeks]
-  );
+  const isCourseEnrolled = Boolean(activeCourse?.isEnrolled);
+  const weeks = useMemo(() => {
+    if (!Array.isArray(activeCourse?.weeks)) {
+      return [];
+    }
+
+    return activeCourse.weeks
+      .map((week) => {
+        const normalizedPoints = Array.isArray(week?.points)
+          ? week.points.map((point) => {
+              if (typeof point === 'string') {
+                return { text: point, isLocked: false };
+              }
+              if (point && typeof point === 'object') {
+                return {
+                  text: typeof point.text === 'string' ? point.text : '',
+                  isLocked: Boolean(point.isLocked),
+                };
+              }
+              return { text: '', isLocked: false };
+            })
+          : [];
+
+        const isLocked =
+          typeof week?.isLocked === 'boolean'
+            ? week.isLocked
+            : !isCourseEnrolled && normalizedPoints.some((item) => item.isLocked || !item.text);
+
+        return {
+          title: week?.title,
+          points: normalizedPoints,
+          isLocked,
+        };
+      })
+      .filter((week) => week.title || week.points.length);
+  }, [activeCourse?.weeks, isCourseEnrolled]);
 
   const sectionClass = `py-120 ${isAltBackground ? "bg-main-25" : "bg-white"} position-relative z-1`;
   const [showAllWeeks, setShowAllWeeks] = useState(false);
@@ -82,7 +108,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
 
   useEffect(() => {
     measureCollapsedHeight();
-  }, [measureCollapsedHeight, courseId, weeks.length]);
+  }, [measureCollapsedHeight, courseAnchorId, weeks.length]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -94,7 +120,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
 
   useEffect(() => {
     setShowAllWeeks(false);
-  }, [courseId]);
+  }, [courseAnchorId]);
 
   useEffect(() => {
     if (!showAllWeeks) {
@@ -104,9 +130,43 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
 
   weekCardRefs.current.length = weeks.length;
 
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
+
   if (!activeCourse) {
     return null;
   }
+
+  const handleEnrollClick = () => {
+    if (!courseSlug) {
+      return;
+    }
+
+    if (typeof onRequestEnrollment === 'function') {
+      onRequestEnrollment(courseSlug);
+    }
+
+    const courseAnchor = `#${courseSlug}`;
+
+    if (!isAuthenticated) {
+      navigate('/sign-in', {
+        state: {
+          from: location,
+          redirectTo: `/our-courses${courseAnchor}`,
+          pendingEnrollment: courseSlug,
+        },
+      });
+      return;
+    }
+
+    if (isCourseEnrolled) {
+      navigate(`/our-courses${courseAnchor}`);
+      return;
+    }
+
+    navigate(`/payment?course=${encodeURIComponent(courseSlug)}`);
+  };
 
   const renderCertificationCard = (cert, certIndex) => (
     <div className='our-courses-cert-card h-100'>
@@ -118,7 +178,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
         {cert.coverage.map((item, coverageIndex) => (
           <li
             className='d-flex align-items-start gap-10 text-neutral-600'
-            key={`course-${courseId}-cert-${certIndex}-coverage-${coverageIndex}`}
+            key={`course-${courseAnchorId}-cert-${certIndex}-coverage-${coverageIndex}`}
           >
             <i className='ph-bold ph-check-circle text-main-500 mt-1 d-inline-flex' />
             <span>{item}</span>
@@ -132,7 +192,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
   );
 
   return (
-    <section id={courseId} className={sectionClass}>
+    <section id={courseAnchorId} className={sectionClass}>
       <div className='container'>
         <div className='row gy-5 align-items-start'>
           <div className='col-lg-4'>
@@ -151,7 +211,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
                     {approvals.map((item, approvalIndex) => (
                       <li
                         className='d-flex align-items-start gap-12 text-neutral-600'
-                        key={`course-${courseId}-approval-${approvalIndex}`}
+                        key={`course-${courseAnchorId}-approval-${approvalIndex}`}
                       >
                         <i className='ph-bold ph-shield-check text-main-600 mt-2 d-inline-flex' />
                         <span>{item}</span>
@@ -182,10 +242,14 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
                     </p>
                   </div>
                 ) : null}
-                <Link to='/contact' className='btn btn-main rounded-pill flex-align gap-8'>
-                  Enroll Now
+                <button
+                  type='button'
+                  onClick={handleEnrollClick}
+                  className='btn btn-main rounded-pill flex-align gap-8'
+                >
+                  {isCourseEnrolled ? 'Go to Course' : 'Enroll Now'}
                   <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
-                </Link>
+                </button>
               </div>
             </div>
           </div>
@@ -199,7 +263,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
                   </span>
                 </div>
                 <div
-                  id={`${courseId}-week-list`}
+                  id={`${courseAnchorId}-week-list`}
                   className={`our-courses-week-cards d-grid gap-24 mt-32 ${
                     showAllWeeks ? 'our-courses-week-cards--expanded' : 'our-courses-week-cards--collapsed'
                   } ${hasOverflowWeeks ? 'our-courses-week-cards--interactive' : ''}`}
@@ -218,7 +282,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
                         }}
                         className={`our-courses-week-card p-24 rounded-20 ${overflowClasses}`}
                         style={isOverflow ? { '--stack-index': `${Math.max(1, weekIndex - VISIBLE_WEEKS + 1)}` } : undefined}
-                        key={`course-${courseId}-week-${weekIndex}`}
+                        key={`course-${courseAnchorId}-week-${weekIndex}`}
                       >
                         <div className='d-flex align-items-start gap-16'>
                           <span className='flex-shrink-0 w-52 h-52 rounded-16 bg-main-600 text-white flex-center text-lg fw-semibold'>
@@ -230,11 +294,21 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
                               <ul className='list-unstyled d-grid gap-10 mb-0'>
                                 {week.points.map((point, pointIndex) => (
                                   <li
-                                    className='d-flex align-items-start gap-10 text-neutral-600'
-                                    key={`course-${courseId}-week-${weekIndex}-point-${pointIndex}`}
+                                    className={`d-flex align-items-start gap-10 text-neutral-600 ${
+                                      point.isLocked ? 'opacity-75' : ''
+                                    }`}
+                                    key={`course-${courseAnchorId}-week-${weekIndex}-point-${pointIndex}`}
                                   >
-                                    <i className='ph-bold ph-circle-wavy-check text-main-500 mt-1 d-inline-flex' />
-                                    <span>{point}</span>
+                                    <i
+                                      className={`ph-bold ${
+                                        point.isLocked ? 'ph-lock' : 'ph-circle-wavy-check'
+                                      } text-main-500 mt-1 d-inline-flex`}
+                                    />
+                                    <span>
+                                      {point.isLocked
+                                        ? 'Encrypted – enroll to unlock'
+                                        : point.text}
+                                    </span>
                                   </li>
                                 ))}
                               </ul>
@@ -252,7 +326,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
                       className='our-courses-week-toggle rounded-pill fw-semibold text-md d-inline-flex align-items-center gap-8'
                       onClick={() => setShowAllWeeks((prev) => !prev)}
                       aria-expanded={showAllWeeks}
-                      aria-controls={`${courseId}-week-list`}
+                      aria-controls={`${courseAnchorId}-week-list`}
                     >
                       {showAllWeeks ? 'View Less Weeks' : `View All ${weeks.length} Weeks`}
                       <i className={`ph-bold ${showAllWeeks ? 'ph-arrow-up-right' : 'ph-arrow-down'} d-inline-flex`} />
@@ -271,7 +345,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
                 {deliverables.map((item, itemIndex) => (
                   <li
                     className='d-flex align-items-start gap-12 text-neutral-600'
-                    key={`course-${courseId}-deliverable-${itemIndex}`}
+                    key={`course-${courseAnchorId}-deliverable-${itemIndex}`}
                   >
                     <i className='ph-bold ph-gift text-main-500 mt-2 d-inline-flex' />
                     <span>{item}</span>
@@ -288,7 +362,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
                 {outcomes.map((item, outcomeIndex) => (
                   <li
                     className='d-flex align-items-start gap-12 text-neutral-600'
-                    key={`course-${courseId}-outcome-${outcomeIndex}`}
+                    key={`course-${courseAnchorId}-outcome-${outcomeIndex}`}
                   >
                     <i className='ph-bold ph-target text-main-500 mt-2 d-inline-flex' />
                     <span>{item}</span>
@@ -308,7 +382,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
               </div>
               <div className='row gy-4 d-none d-lg-flex'>
                 {certifications.map((cert, certIndex) => (
-                  <div className='col-xl-4 col-md-6' key={`course-${courseId}-cert-${certIndex}`}>
+                  <div className='col-xl-4 col-md-6' key={`course-${courseAnchorId}-cert-${certIndex}`}>
                     {renderCertificationCard(cert, certIndex)}
                   </div>
                 ))}
@@ -316,7 +390,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
               <div className='d-lg-none'>
                 <Slider {...mobileCertificationSettings} className='our-courses-cert-slider'>
                   {certifications.map((cert, certIndex) => (
-                    <div className='px-1' key={`course-${courseId}-cert-slide-${certIndex}`}>
+                    <div className='px-1' key={`course-${courseAnchorId}-cert-slide-${certIndex}`}>
                       {renderCertificationCard(cert, certIndex)}
                     </div>
                   ))}
@@ -340,7 +414,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
                   Guaranteed access to {partners.length} leading organizations
                 </span>
               </div>
-              <PlacementPartnersCarousel partners={partners} carouselId={`${courseId}-partners`} />
+              <PlacementPartnersCarousel partners={partners} carouselId={`${courseAnchorId}-partners`} />
             </div>
           ) : null}
         </div>

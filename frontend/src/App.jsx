@@ -52,6 +52,7 @@ import VendorsPrivacyPage from "./pages/VendorsPrivacyPage.jsx";
 import HomePageFive from "./pages/HomePageFive.jsx";
 import HomePageSix from "./pages/HomePageSix.jsx";
 import KnowCFLPage from "./pages/KnowCFLPage.jsx";
+import CoursePaymentPage from "./pages/CoursePaymentPage.jsx";
 
 function App() {
   return (
@@ -148,6 +149,15 @@ function App() {
           element={
             <RequireAuth>
               <ProfilePage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          exact
+          path='/payment'
+          element={
+            <RequireAuth>
+              <CoursePaymentPage />
             </RequireAuth>
           }
         />

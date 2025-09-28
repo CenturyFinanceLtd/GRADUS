@@ -29,14 +29,27 @@ const SignInInner = () => {
     try {
       const response = await apiClient.post("/auth/login", formData);
       setAuth({ token: response.token, user: response.user });
+      const redirectOverride = location.state?.redirectTo;
+      const pendingEnrollment = location.state?.pendingEnrollment;
       const fromPath = location.state?.from?.pathname;
-      const redirectTo =
-        fromPath === "/profile"
-          ? "/"
-          : fromPath && !["/sign-in", "/sign-up"].includes(fromPath)
-          ? fromPath
-          : "/profile";
-      navigate(redirectTo, { replace: true });
+      let redirectTo = redirectOverride;
+
+      if (!redirectTo) {
+        if (fromPath === "/profile") {
+          redirectTo = "/";
+        } else if (fromPath && !["/sign-in", "/sign-up"].includes(fromPath)) {
+          redirectTo = fromPath;
+        } else {
+          redirectTo = "/profile";
+        }
+      }
+
+      const nextState =
+        pendingEnrollment && redirectTo.includes("/our-courses")
+          ? { pendingEnrollment }
+          : undefined;
+
+      navigate(redirectTo, { replace: true, state: nextState });
     } catch (err) {
       setError(err.message || "Unable to sign in. Please try again.");
     } finally {
@@ -119,6 +132,7 @@ const SignInInner = () => {
                     Don't have an account?{" "}
                     <Link
                       to='/sign-up'
+                      state={location.state}
                       className='fw-semibold text-main-600 hover-text-decoration-underline'
                     >
                       Sign Up
