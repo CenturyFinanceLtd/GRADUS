@@ -245,7 +245,13 @@ const BlogDetailsLayer = ({ onBlogLoaded }) => {
     if (!path) {
       return PLACEHOLDER_IMAGE;
     }
-    return path.startsWith("http") ? path : ASSET_BASE_URL + path;
+
+    if (path.startsWith("http")) {
+      return path;
+    }
+
+    const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+    return `${ASSET_BASE_URL}${normalizedPath}`;
   };
 
   const contentHtml = blog.content ? DOMPurify.sanitize(blog.content) : '';
