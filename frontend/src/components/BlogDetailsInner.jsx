@@ -550,7 +550,7 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
             </div>
           </div>
           <div className='col-lg-4'>
-            <div className='d-flex flex-column gap-24'>
+            <div className='blog-details__sidebar d-flex flex-column gap-24'>
               <div className='card'>
                 <div className='card-header border-bottom'>
                   <h6 className='text-xl mb-0'>Recent Posts</h6>

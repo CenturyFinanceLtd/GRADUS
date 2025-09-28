@@ -161,6 +161,22 @@
   cursor: not-allowed;
 }
 
+.blog-details__sidebar {
+  position: sticky;
+  top: min(120px, calc(12vh + 48px));
+  align-self: flex-start;
+}
+
+.blog-details__sidebar > * {
+  width: 100%;
+}
+
+@media (max-width: 991.98px) {
+  .blog-details__sidebar {
+    position: static;
+  }
+}
+
 @media (max-width: 576px) {
   .comments-scrollable {
     max-height: 260px;
