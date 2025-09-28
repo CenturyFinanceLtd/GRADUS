@@ -96,6 +96,7 @@ import AccessDeniedPage from "./pages/AccessDeniedPage";
 import MaintenancePage from "./pages/MaintenancePage";
 import BlankPagePage from "./pages/BlankPagePage";
 import InquiryPage from "./pages/InquiryPage";
+import CourseManagementPage from "./pages/CourseManagementPage";
 
 function App() {
   return (
@@ -156,6 +157,7 @@ function App() {
         <Route exact path='/blog-details/:blogId' element={<BlogDetailsPage />} />
         <Route exact path='/add-blog' element={<AddBlogPage />} />
         <Route exact path='/inquiries' element={<InquiryPage />} />
+        <Route exact path='/courses' element={<CourseManagementPage />} />
 
         <Route exact path='/testimonials' element={<TestimonialsPage />} />
         <Route exact path='/coming-soon' element={<ComingSoonPage />} />

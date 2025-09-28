@@ -1,4 +1,4 @@
-export const courseSeriesHeroContent = {
+const courseSeriesHeroContent = {
   tagIcon: "ph-bold ph-graduation-cap",
   tagText: "Gradus Series Overview",
   title: "Build Your Future with Gradus Course Series",
@@ -6,8 +6,9 @@ export const courseSeriesHeroContent = {
     "Each flagship program is crafted by Gradus India to combine industry credibility, immersive project work, and assured career outcomes through our guaranteed placement MoUs.",
 };
 
-export const gradusQuityData = {
+const gradusQuityData = {
   id: "gradusquity",
+  slug: "gradusquity",
   name: "GradusQuity",
   subtitle: "By Gradus India (a 100% Subsidiary of Century Finance Limited)",
   focus:
@@ -193,8 +194,9 @@ export const gradusQuityData = {
   ],
 };
 
-export const gradusXData = {
+const gradusXData = {
   id: "gradusx",
+  slug: "gradusx",
   name: "GradusX",
   subtitle: "By Gradus India (a 100% Subsidiary of Century Finance Limited)",
   focus:
@@ -419,8 +421,9 @@ export const gradusXData = {
     "By the end, each student has a portfolio-ready project and certificate showcasing tech, data, and digital marketing skills.",
 };
 
-export const gradusLeadData = {
+const gradusLeadData = {
   id: "graduslead",
+  slug: "graduslead",
   name: "GradusLead",
   subtitle: "By Gradus India (a 100% Subsidiary of Century Finance Limited)",
   focus:
@@ -698,4 +701,9 @@ export const gradusLeadData = {
   finalAward: "Business & Management Mastery Certificate - Tech-Driven Leadership",
 };
 
-export const courseSeriesData = [gradusQuityData, gradusXData, gradusLeadData];
+const courseSeriesData = [gradusQuityData, gradusXData, gradusLeadData];
+
+module.exports = {
+  hero: courseSeriesHeroContent,
+  courses: courseSeriesData,
+};

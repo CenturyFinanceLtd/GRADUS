@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { submitContactInquiry } from "../services/contactService";
-import { courseSeriesData } from "../data/courseSeriesData";
+import { fetchCourseOptions } from "../services/courseService";
 
 const ContactInner = () => {
   const initialFormState = {
@@ -23,11 +23,54 @@ const ContactInner = () => {
     "Union Territories",
   ];
 
-  const courseOptions = courseSeriesData.map((course) => course.name);
+  const [courseOptions, setCourseOptions] = useState([]);
+  const [courseOptionsLoading, setCourseOptionsLoading] = useState(true);
+  const [courseOptionsError, setCourseOptionsError] = useState(null);
 
   const [formData, setFormData] = useState(initialFormState);
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCourseOptions = async () => {
+      setCourseOptionsLoading(true);
+      setCourseOptionsError(null);
+
+      try {
+        const response = await fetchCourseOptions();
+        if (!isMounted) {
+          return;
+        }
+        const items = Array.isArray(response?.items) ? response.items : [];
+        setCourseOptions(items.filter((item) => item?.name));
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+        setCourseOptions([]);
+        setCourseOptionsError(error?.message || "Unable to load courses.");
+      } finally {
+        if (isMounted) {
+          setCourseOptionsLoading(false);
+        }
+      }
+    };
+
+    loadCourseOptions();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const courseOptionNames = useMemo(
+    () => courseOptions.map((item) => item.name),
+    [courseOptions]
+  );
+
+  const hasCourseOptions = courseOptionNames.length > 0;
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -313,22 +356,49 @@ const ContactInner = () => {
                         >
                           Course
                         </label>
-                        <select
-                          id='course'
-                          name='course'
-                          className='common-input rounded-pill border-transparent focus-border-main-600'
-                          value={formData.course}
-                          onChange={handleChange}
-                          disabled={submitting}
-                          required
-                        >
-                          <option value=''>Select Course</option>
-                          {courseOptions.map((course) => (
-                            <option key={course} value={course}>
-                              {course}
-                            </option>
-                          ))}
-                        </select>
+                        {courseOptionsLoading ? (
+                          <select
+                            id='course'
+                            name='course'
+                            className='common-input rounded-pill border-transparent focus-border-main-600'
+                            disabled
+                            value=''
+                          >
+                            <option value=''>Loading courses…</option>
+                          </select>
+                        ) : hasCourseOptions ? (
+                          <select
+                            id='course'
+                            name='course'
+                            className='common-input rounded-pill border-transparent focus-border-main-600'
+                            value={formData.course}
+                            onChange={handleChange}
+                            disabled={submitting}
+                            required
+                          >
+                            <option value=''>Select Course</option>
+                            {courseOptionNames.map((courseName) => (
+                              <option key={courseName} value={courseName}>
+                                {courseName}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type='text'
+                            id='course'
+                            name='course'
+                            className='common-input rounded-pill border-transparent focus-border-main-600'
+                            placeholder='Enter Course...'
+                            value={formData.course}
+                            onChange={handleChange}
+                            disabled={submitting}
+                            required
+                          />
+                        )}
+                        {courseOptionsError ? (
+                          <p className='text-danger-600 text-sm mt-8 mb-0'>{courseOptionsError}</p>
+                        ) : null}
                       </div>
                       <div className='col-12 mb-24'>
                         <label

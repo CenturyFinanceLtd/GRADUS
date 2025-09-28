@@ -1,9 +1,16 @@
 const config = require('./config/env');
 const connectDB = require('./config/db');
 const app = require('./app');
+const ensureCourseContent = require('./utils/ensureCourseContent');
 
 const startServer = async () => {
   await connectDB();
+
+  try {
+    await ensureCourseContent();
+  } catch (error) {
+    console.error('[server] Failed to ensure course content:', error);
+  }
 
   const server = app.listen(config.port, () => {
     console.log(`[server] Listening on port ${config.port}`);
