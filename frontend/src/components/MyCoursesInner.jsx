@@ -211,7 +211,7 @@ const MyCoursesInner = () => {
                           <span className='badge bg-main-25 text-main-600 px-16 py-8 rounded-pill text-sm fw-semibold'>
                             {paymentStatus || "Paid"}
                           </span>
-                          <span className='badge bg-neutral-100 text-neutral-700 px-16 py-8 rounded-pill text-sm fw-semibold'>
+                          <span className='badge bg-success-50 text-success-600 px-16 py-8 rounded-pill text-sm fw-semibold'>
                             {enrollmentStatus || "Active"}
                           </span>
                         </div>
