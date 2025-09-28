@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
 import useAuth from "../hook/useAuth";
 import {
@@ -8,11 +8,10 @@ import {
   replyToBlogComment,
   deleteBlogComment,
 } from "../services/adminBlogs";
-import { PUBLIC_SITE_BASE } from "../config/env";
+import { ASSET_BASE_URL, PUBLIC_SITE_BASE } from "../config/env";
 import "./BlogDetailsLayer.css";
 
 const PLACEHOLDER_IMAGE = "/assets/images/blog/blog-placeholder.png";
-const BLOG_IMAGE_BASE_URL = "https://api.gradusindia.in/blog-images";
 
 const formatDateTime = (value) => {
   if (!value) {
@@ -251,9 +250,8 @@ const BlogDetailsLayer = ({ onBlogLoaded }) => {
       return path;
     }
 
-    const trimmedBase = BLOG_IMAGE_BASE_URL.replace(/\/+$/, "");
-    const trimmedPath = path.replace(/^\/+/, "");
-    return `${trimmedBase}/${trimmedPath}`;
+    const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+    return `${ASSET_BASE_URL}${normalizedPath}`;
   };
 
   const contentHtml = blog.content ? DOMPurify.sanitize(blog.content) : '';
