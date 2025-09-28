@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { submitContactInquiry } from "../services/contactService";
+import { courseSeriesData } from "../data/courseSeriesData";
 
 const ContactInner = () => {
   const initialFormState = {
@@ -23,16 +24,7 @@ const ContactInner = () => {
     "Union Territories",
   ];
 
-  const courseOptions = [
-    "Business Management",
-    "Computer Science",
-    "Data Analytics",
-    "Digital Marketing",
-    "Finance",
-    "Graphic Design",
-    "Human Resources",
-    "Project Management",
-  ];
+  const courseOptions = courseSeriesData.map((course) => course.name);
 
   const [formData, setFormData] = useState(initialFormState);
   const [submitting, setSubmitting] = useState(false);
@@ -401,23 +393,22 @@ const ContactInner = () => {
                       >
                         Course
                       </label>
-                      <input
-                        type='text'
-                        className='common-input rounded-pill border-transparent focus-border-main-600'
+                      <select
                         id='course'
                         name='course'
-                        placeholder='Enter Course Name...'
+                        className='common-input rounded-pill border-transparent focus-border-main-600'
                         value={formData.course}
                         onChange={handleChange}
                         disabled={submitting}
-                        list='contact-course-options'
                         required
-                      />
-                      <datalist id='contact-course-options'>
+                      >
+                        <option value=''>Select Course</option>
                         {courseOptions.map((course) => (
-                          <option key={course} value={course} />
+                          <option key={course} value={course}>
+                            {course}
+                          </option>
                         ))}
-                      </datalist>
+                      </select>
                     </div>
                     <div className='mb-24'>
                       <label
