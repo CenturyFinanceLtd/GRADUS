@@ -87,34 +87,33 @@ const BannerThree = () => {
                         <i className='ph-bold ph-book-open' />
                       </span>
                       <h5 className='text-yellow-600 mb-0 fw-medium'>
-                        Elevate Your Learning
+                        Career Acceleration by Century Finance
                       </h5>
                     </div>
                     <h1 className='display2 mb-24 text-white fw-medium wow bounceInLeft'>
-                      Empowering Minds,{" "}
+                      Launch Your Career with {" "}
                       <span
                         className='text-yellow-600  wow bounceInRight'
                         data-wow-duration='2s'
                         data-wow-delay='.5s'
                       >
-                        {" "}
-                        Shaping{" "}
-                      </span>{" "}
-                      Futures
+                        Gradus
+                      </span>
+                      {" "}
+                      Pathways
                     </h1>
                     <p className='text-white text-line-2 wow bounceInDown'>
-                      Welcome to Gradus, where learning knows no bounds. Whether
-                      you're a student, professional, or lifelong learner...
+                      Join a placement-assured journey that fuses classroom learning with real market exposure, paid internships, and recruiter-ready training modules.
                     </p>
                   </div>
                   <div className='buttons-wrapper flex-align flex-wrap gap-24 mt-40'>
                     <Link
-                      to='/sign-in'
+                      to='/apply-admission'
                       className='btn btn-main rounded-pill flex-align gap-8  wow bounceInLeft'
                       data-wow-duration='1s'
                       data-wow-delay='.5s'
                     >
-                      Apply Now
+                      Apply for Cohort
                       <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
                     </Link>
                     <div
@@ -129,10 +128,10 @@ const BannerThree = () => {
                         <i className='ph-fill ph-play' />
                       </span>
                       <Link
-                        to='/course'
+                        to='/contact'
                         className='text-white hover-text-decoration-underline hover-text-main-two-600'
                       >
-                        See All University
+                        Talk to an Advisor
                       </Link>
                     </div>
                   </div>
@@ -157,34 +156,31 @@ const BannerThree = () => {
                         <i className='ph-bold ph-book-open' />
                       </span>
                       <h5 className='text-yellow-600 mb-0 fw-medium'>
-                        Elevate Your Learning
+                        Mentors Who Have Built Markets
                       </h5>
                     </div>
                     <h1 className='display2 mb-24 text-white fw-medium wow bounceInLeft'>
-                      Engaging Personalities,
+                      Mentor-Led Learning,
                       <span
                         className='text-yellow-600  wow bounceInRight'
                         data-wow-duration='2s'
                         data-wow-delay='.5s'
                       >
-                        {" "}
-                        Molding{" "}
-                      </span>{" "}
-                      Fates
+                        Real Outcomes
+                      </span>
                     </h1>
                     <p className='text-white text-line-2 wow bounceInDown'>
-                      Welcome to Gradus, where learning knows no bounds. Whether
-                      you're a student, professional, or lifelong learner...
+                      Learn from SEBI-certified experts through case clinics, trading simulations, and coaching that ignites interview-ready confidence.
                     </p>
                   </div>
                   <div className='buttons-wrapper flex-align flex-wrap gap-24 mt-40'>
                     <Link
-                      to='/sign-in'
+                      to='/instructor'
                       className='btn btn-main rounded-pill flex-align gap-8  wow bounceInLeft'
                       data-wow-duration='1s'
                       data-wow-delay='.5s'
                     >
-                      Apply Now
+                      Meet Our Mentors
                       <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
                     </Link>
                     <div
@@ -199,10 +195,10 @@ const BannerThree = () => {
                         <i className='ph-fill ph-play' />
                       </span>
                       <Link
-                        to='/course'
+                        to='/our-courses'
                         className='text-white hover-text-decoration-underline hover-text-main-two-600'
                       >
-                        See All University
+                        Explore Curriculum
                       </Link>
                     </div>
                   </div>
@@ -228,34 +224,31 @@ const BannerThree = () => {
                         <i className='ph-bold ph-book-open' />
                       </span>
                       <h5 className='text-yellow-600 mb-0 fw-medium'>
-                        Elevate Your Learning
+                        178 Strategic Hiring Alliances
                       </h5>
                     </div>
                     <h1 className='display2 mb-24 text-white fw-medium wow bounceInLeft'>
-                      Attracting Characters,
+                      Paid Internships,
                       <span
                         className='text-yellow-600  wow bounceInRight'
                         data-wow-duration='2s'
                         data-wow-delay='.5s'
                       >
-                        {" "}
-                        Adornment{" "}
-                      </span>{" "}
-                      Fates
+                        Guaranteed Placements
+                      </span>
                     </h1>
                     <p className='text-white text-line-2 wow bounceInDown'>
-                      Welcome to Gradus, where learning knows no bounds. Whether
-                      you're a student, professional, or lifelong learner...
+                      Accelerate into high-impact roles with nationwide recruiter drives, on-ground immersion, and lifelong alumni support from Century Finance Limited.
                     </p>
                   </div>
                   <div className='buttons-wrapper flex-align flex-wrap gap-24 mt-40'>
                     <Link
-                      to='/sign-in'
+                      to='/know-CFL'
                       className='btn btn-main rounded-pill flex-align gap-8  wow bounceInLeft'
                       data-wow-duration='1s'
                       data-wow-delay='.5s'
                     >
-                      Apply Now
+                      Discover Our Network
                       <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
                     </Link>
                     <div
@@ -270,10 +263,10 @@ const BannerThree = () => {
                         <i className='ph-fill ph-play' />
                       </span>
                       <Link
-                        to='/course'
+                        to='/apply-admission'
                         className='text-white hover-text-decoration-underline hover-text-main-two-600'
                       >
-                        See All University
+                        Explore Placement Track
                       </Link>
                     </div>
                   </div>

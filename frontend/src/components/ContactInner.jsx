@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { submitContactInquiry } from "../services/contactService";
 import { courseSeriesData } from "../data/courseSeriesData";
 
@@ -56,18 +55,12 @@ const ContactInner = () => {
     }
 
     if (!trimmedEmail) {
-      setFeedback({
-        type: "danger",
-        message: "Please provide your email address.",
-      });
+      setFeedback({ type: "danger", message: "Please provide your email address." });
       return;
     }
 
     if (!trimmedPhone) {
-      setFeedback({
-        type: "danger",
-        message: "Please provide your phone number.",
-      });
+      setFeedback({ type: "danger", message: "Please provide your phone number." });
       return;
     }
 
@@ -122,80 +115,6 @@ const ContactInner = () => {
 
   return (
     <>
-      <section className='contact py-120'>
-        <div className='container'>
-          <div className='section-heading text-center'>
-            <div className='flex-align d-inline-flex gap-8 mb-16'>
-              <span className='text-main-600 text-2xl d-flex'>
-                <i className='ph-bold ph-book' />
-              </span>
-              <h5 className='text-main-600 mb-0'>Get In Touch</h5>
-            </div>
-            <h2 className='mb-24'>Let us help you</h2>
-            <p className=''>
-              Our platform is built on the principles of innovation, quality,
-              and inclusivity, aiming to provide a seamless learning
-            </p>
-          </div>
-          <div className='row gy-4'>
-            <div className='col-xl-4 col-md-6'>
-              <div className='contact-item bg-main-25 border border-neutral-30 rounded-12 px-32 py-40 d-flex align-items-start gap-24 hover-bg-main-600 transition-2 hover-border-main-600'>
-                <span className='contact-item__icon w-60 h-60 text-32 flex-center rounded-circle bg-main-600 text-white flex-shrink-0'>
-                  <i className='ph ph-map-pin-line' />
-                </span>
-                <div className='flex-grow-1'>
-                  <h4 className='mb-12'>Main Office</h4>
-                  <p className='text-neutral-500'>
-                    2972 Westheimer Rd. Santa Ana, Illinois 85486{" "}
-                  </p>
-                  <Link
-                    to='#'
-                    className='text-main-600 fw-semibold text-decoration-underline mt-16'
-                  >
-                    Find Location
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className='col-xl-4 col-md-6'>
-              <div className='contact-item bg-main-25 border border-neutral-30 rounded-12 px-32 py-40 d-flex align-items-start gap-24 hover-bg-main-600 transition-2 hover-border-main-600'>
-                <span className='contact-item__icon w-60 h-60 text-32 flex-center rounded-circle bg-main-600 text-white flex-shrink-0'>
-                  <i className='ph ph-envelope-open' />
-                </span>
-                <div className='flex-grow-1'>
-                  <h4 className='mb-12'>Email Address</h4>
-                  <p className='text-neutral-500'>infoexample@gmail.com</p>
-                  <p className='text-neutral-500'>example@gmail.com</p>
-                  <a
-                    href='mailto:infoexample@gmail.com'
-                    className='text-main-600 fw-semibold text-decoration-underline mt-16'
-                  >
-                    Get In Touch
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className='col-xl-4 col-md-6'>
-              <div className='contact-item bg-main-25 border border-neutral-30 rounded-12 px-32 py-40 d-flex align-items-start gap-24 hover-bg-main-600 transition-2 hover-border-main-600'>
-                <span className='contact-item__icon w-60 h-60 text-32 flex-center rounded-circle bg-main-600 text-white flex-shrink-0'>
-                  <i className='ph ph-phone-call' />
-                </span>
-                <div className='flex-grow-1'>
-                  <h4 className='mb-12'>Phone Number</h4>
-                  <p className='text-neutral-500'>(505) 555-0125</p>
-                  <p className='text-neutral-500'>(406) 555-0120</p>
-                  <a
-                    href='tel:(406)555-0120'
-                    className='text-main-600 fw-semibold text-decoration-underline mt-16'
-                  >
-                    Contact Us Today!
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
       <section className='contact-form-section py-240 bg-main-25 position-relative z-1'>
         <img
           src='/assets/images/bg/wave-bg.png'
@@ -203,27 +122,23 @@ const ContactInner = () => {
           className='position-absolute top-0 start-0 w-100 h-100 z-n1 d-lg-block d-none'
         />
         <div className='container'>
-          <div className='row gy-5 align-items-center'>
-            <div className='col-xl-7 col-lg-6 pe-lg-5'>
-              <div className='mb-40 md-xl-5'>
+          <div className='row justify-content-center text-center text-lg-start'>
+            <div className='col-xl-8 col-lg-10'>
+              <div className='flex-center flex-lg-start'>
                 <div className='flex-align d-inline-flex gap-8 mb-16'>
                   <span className='text-main-600 text-2xl d-flex'>
                     <i className='ph-bold ph-book' />
                   </span>
-                  <h5 className='text-main-600 mb-0'>Contact Us</h5>
+                  <h5 className='text-main-600 mb-0'>Talk to Gradus</h5>
                 </div>
-                <h2 className='mb-24'>
-                  Have questions? don't hesitate to contact us
-                </h2>
-                <p className='text-neutral-500 text-line-3 max-w-636'>
-                  We are passionate about transforming lives through education.
-                  Founded with a vision to make learning accessible to all, we
-                  believe in the power of knowledge to unlock opportunities and
-                  shape the future.
-                </p>
               </div>
-              <div className='flex-align gap-40 flex-wrap'>
-                <div className='enrolled-students mt-12 d-block'>
+              <h2 className='mb-24 text-capitalize'>Shape industry-ready futures with Gradus</h2>
+              <p className='text-neutral-500 text-line-3 max-w-636 mx-auto mx-lg-0'>
+                Share your learner, campus, or workforce goals and we'll craft a tailored, industry-aligned pathway.
+                With 16+ years of experience, employer-led mentors, and immersive internships, the Gradus team accelerates outcomes with confidence.
+              </p>
+              <div className='d-flex flex-column flex-lg-row align-items-center gap-24 mt-32'>
+                <div className='enrolled-students mt-0 d-flex gap-12'>
                   <img
                     src='/assets/images/thumbs/enroll-student-img1.png'
                     alt=''
@@ -255,8 +170,8 @@ const ContactInner = () => {
                     className='w-48 h-48 rounded-circle object-fit-cover transition-2'
                   />
                 </div>
-                <div className=''>
-                  <ul className='flex-align gap-4 mb-10'>
+                <div className='text-center text-lg-start'>
+                  <ul className='flex-align gap-4 justify-content-center justify-content-lg-start mb-12'>
                     <li className='text-warning-600 text-2xl d-flex'>
                       <i className='ph-fill ph-star' />
                     </li>
@@ -273,182 +188,190 @@ const ContactInner = () => {
                       <i className='ph-fill ph-star-half' />
                     </li>
                   </ul>
-                  <span className='text-neutral-700 fw-medium'>
-                    {" "}
-                    2.5k+ reviews (4.95 of 5)
+                  <span className='text-neutral-700 fw-medium d-block'>
+                    4.9/5 satisfaction from campuses & hiring partners
+                  </span>
+                  <span className='text-neutral-500 d-block'>
+                    178+ hiring alliances | 25k+ careers accelerated
                   </span>
                 </div>
               </div>
             </div>
-            <div className='col-xl-5 col-lg-6'>
+          </div>
+          <div className='row justify-content-center mt-60'>
+            <div className='col-xl-8 col-lg-10'>
               <div className='p-24 bg-white rounded-12 box-shadow-md'>
                 <div className='border border-neutral-30 rounded-8 bg-main-25 p-24'>
                   <form id='contactForm' onSubmit={handleSubmit} noValidate>
-                    <h4 className='mb-0'>Get In Touch</h4>
+                    <h4 className='mb-0 text-center text-lg-start'>Get In Touch</h4>
                     <span className='d-block border border-neutral-30 my-24 border-dashed' />
-                    <div className='mb-24'>
-                      <label
-                        htmlFor='name'
-                        className='text-neutral-700 text-lg fw-medium mb-12'
-                      >
-                        Name{" "}
-                      </label>
-                      <input
-                        type='text'
-                        className='common-input rounded-pill border-transparent focus-border-main-600'
-                        id='name'
-                        name='name'
-                        placeholder='Enter Name...'
-                        value={formData.name}
-                        onChange={handleChange}
-                        disabled={submitting}
-                        required
-                      />
-                    </div>
-                    <div className='mb-24'>
-                      <label
-                        htmlFor='email'
-                        className='text-neutral-700 text-lg fw-medium mb-12'
-                      >
-                        Email{" "}
-                      </label>
-                      <input
-                        type='email'
-                        className='common-input rounded-pill border-transparent focus-border-main-600'
-                        id='email'
-                        name='email'
-                        placeholder='Enter Email...'
-                        value={formData.email}
-                        onChange={handleChange}
-                        disabled={submitting}
-                        required
-                      />
-                    </div>
-                    <div className='mb-24'>
-                      <label
-                        htmlFor='phone'
-                        className='text-neutral-700 text-lg fw-medium mb-12'
-                      >
-                        Phone{" "}
-                      </label>
-                      <input
-                        type='tel'
-                        className='common-input rounded-pill border-transparent focus-border-main-600'
-                        id='phone'
-                        name='phone'
-                        placeholder='Enter Your Number...'
-                        value={formData.phone}
-                        onChange={handleChange}
-                        disabled={submitting}
-                        required
-                      />
-                    </div>
-                    <div className='mb-24'>
-                      <label
-                        htmlFor='region'
-                        className='text-neutral-700 text-lg fw-medium mb-12'
-                      >
-                        Region
-                      </label>
-                      <select
-                        id='region'
-                        name='region'
-                        className='common-input rounded-pill border-transparent focus-border-main-600'
-                        value={formData.region}
-                        onChange={handleChange}
-                        disabled={submitting}
-                        required
-                      >
-                        <option value=''>Select Region</option>
-                        {regionOptions.map((region) => (
-                          <option key={region} value={region}>
-                            {region}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className='mb-24'>
-                      <label
-                        htmlFor='institution'
-                        className='text-neutral-700 text-lg fw-medium mb-12'
-                      >
-                        College / University
-                      </label>
-                      <input
-                        type='text'
-                        className='common-input rounded-pill border-transparent focus-border-main-600'
-                        id='institution'
-                        name='institution'
-                        placeholder='Enter College or University...'
-                        value={formData.institution}
-                        onChange={handleChange}
-                        disabled={submitting}
-                        required
-                      />
-                    </div>
-                    <div className='mb-24'>
-                      <label
-                        htmlFor='course'
-                        className='text-neutral-700 text-lg fw-medium mb-12'
-                      >
-                        Course
-                      </label>
-                      <select
-                        id='course'
-                        name='course'
-                        className='common-input rounded-pill border-transparent focus-border-main-600'
-                        value={formData.course}
-                        onChange={handleChange}
-                        disabled={submitting}
-                        required
-                      >
-                        <option value=''>Select Course</option>
-                        {courseOptions.map((course) => (
-                          <option key={course} value={course}>
-                            {course}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className='mb-24'>
-                      <label
-                        htmlFor='desc'
-                        className='text-neutral-700 text-lg fw-medium mb-12'
-                      >
-                        Message
-                      </label>
-                      <textarea
-                        id='desc'
-                        name='message'
-                        className='common-input rounded-24 border-transparent focus-border-main-600 h-110'
-                        placeholder='Enter Your Message...'
-                        value={formData.message}
-                        onChange={handleChange}
-                        disabled={submitting}
-                        required
-                      />
-                    </div>
-                    {feedback && (
-                      <div
-                        className={`alert mt-24 mb-0 ${
-                          feedback.type === "success"
-                            ? "alert-success"
-                            : "alert-danger"
-                        }`}
-                        role='alert'
-                      >
-                        {feedback.message}
+                    <div className='row'>
+                      <div className='col-md-6 mb-24'>
+                        <label
+                          htmlFor='name'
+                          className='text-neutral-700 text-lg fw-medium mb-12'
+                        >
+                          Name
+                        </label>
+                        <input
+                          type='text'
+                          className='common-input rounded-pill border-transparent focus-border-main-600'
+                          id='name'
+                          name='name'
+                          placeholder='Enter Name...'
+                          value={formData.name}
+                          onChange={handleChange}
+                          disabled={submitting}
+                          required
+                        />
                       </div>
-                    )}
-                    <div className='mb-0'>
-                      <button
-                        type='submit'
-                        className='btn btn-main rounded-pill flex-center gap-8 mt-40'
-                        disabled={submitting}
-                      >
-                        {submitting ? "Sending..." : "Send Message"}
-                        <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
-                      </button>
+                      <div className='col-md-6 mb-24'>
+                        <label
+                          htmlFor='email'
+                          className='text-neutral-700 text-lg fw-medium mb-12'
+                        >
+                          Email
+                        </label>
+                        <input
+                          type='email'
+                          className='common-input rounded-pill border-transparent focus-border-main-600'
+                          id='email'
+                          name='email'
+                          placeholder='Enter Email...'
+                          value={formData.email}
+                          onChange={handleChange}
+                          disabled={submitting}
+                          required
+                        />
+                      </div>
+                      <div className='col-md-6 mb-24'>
+                        <label
+                          htmlFor='phone'
+                          className='text-neutral-700 text-lg fw-medium mb-12'
+                        >
+                          Phone
+                        </label>
+                        <input
+                          type='tel'
+                          className='common-input rounded-pill border-transparent focus-border-main-600'
+                          id='phone'
+                          name='phone'
+                          placeholder='Enter Your Number...'
+                          value={formData.phone}
+                          onChange={handleChange}
+                          disabled={submitting}
+                          required
+                        />
+                      </div>
+                      <div className='col-md-6 mb-24'>
+                        <label
+                          htmlFor='region'
+                          className='text-neutral-700 text-lg fw-medium mb-12'
+                        >
+                          Region
+                        </label>
+                        <select
+                          id='region'
+                          name='region'
+                          className='common-input rounded-pill border-transparent focus-border-main-600'
+                          value={formData.region}
+                          onChange={handleChange}
+                          disabled={submitting}
+                          required
+                        >
+                          <option value=''>Select Region</option>
+                          {regionOptions.map((region) => (
+                            <option key={region} value={region}>
+                              {region}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className='col-md-6 mb-24'>
+                        <label
+                          htmlFor='institution'
+                          className='text-neutral-700 text-lg fw-medium mb-12'
+                        >
+                          College / University
+                        </label>
+                        <input
+                          type='text'
+                          className='common-input rounded-pill border-transparent focus-border-main-600'
+                          id='institution'
+                          name='institution'
+                          placeholder='Enter College or University...'
+                          value={formData.institution}
+                          onChange={handleChange}
+                          disabled={submitting}
+                          required
+                        />
+                      </div>
+                      <div className='col-md-6 mb-24'>
+                        <label
+                          htmlFor='course'
+                          className='text-neutral-700 text-lg fw-medium mb-12'
+                        >
+                          Course
+                        </label>
+                        <select
+                          id='course'
+                          name='course'
+                          className='common-input rounded-pill border-transparent focus-border-main-600'
+                          value={formData.course}
+                          onChange={handleChange}
+                          disabled={submitting}
+                          required
+                        >
+                          <option value=''>Select Course</option>
+                          {courseOptions.map((course) => (
+                            <option key={course} value={course}>
+                              {course}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className='col-12 mb-24'>
+                        <label
+                          htmlFor='desc'
+                          className='text-neutral-700 text-lg fw-medium mb-12'
+                        >
+                          Message
+                        </label>
+                        <textarea
+                          id='desc'
+                          name='message'
+                          className='common-input rounded-24 border-transparent focus-border-main-600 h-110'
+                          placeholder='Enter Your Message...'
+                          value={formData.message}
+                          onChange={handleChange}
+                          disabled={submitting}
+                          required
+                        />
+                      </div>
+                      {feedback && (
+                        <div className='col-12'>
+                          <div
+                            className={`alert mt-8 mb-0 ${
+                              feedback.type === "success" ? "alert-success" : "alert-danger"
+                            }`}
+                            role='alert'
+                          >
+                            {feedback.message}
+                          </div>
+                        </div>
+                      )}
+                      <div className='col-12'>
+                        <div className='d-flex justify-content-center justify-content-lg-start'>
+                          <button
+                            type='submit'
+                            className='btn btn-main rounded-pill flex-center gap-8 mt-32'
+                            disabled={submitting}
+                          >
+                            {submitting ? "Sending..." : "Send Message"}
+                            <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </form>
                 </div>
