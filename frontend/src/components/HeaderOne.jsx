@@ -1,11 +1,12 @@
-import { Link, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 import Select from "react-select";
 import { useAuth } from "../context/AuthContext.jsx";
 const HeaderOne = () => {
   let { pathname } = useLocation();
   const [scroll, setScroll] = useState(false);
   const [isMenuActive, setIsMenuActive] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   useEffect(() => {
     window.onscroll = () => {
@@ -29,11 +30,13 @@ const HeaderOne = () => {
   ];
 
   const [selectedOption, setSelectedOption] = useState(options[0]);
-  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuth();
   const profileLink = isAuthenticated ? "/profile" : "/sign-in";
   const profileLabel = isAuthenticated
-    ? `Open profile (${user?.firstName || user?.email || "account"})`
+    ? `Open account menu (${user?.firstName || user?.email || "account"})`
     : "Sign in";
+  const userMenuRef = useRef(null);
 
   const toggleMenu = () => {
     setIsMenuActive(!isMenuActive);
@@ -47,6 +50,46 @@ const HeaderOne = () => {
   const closeMenu = () => {
     setIsMenuActive(false);
     document.body.classList.remove("scroll-hide-sm");
+  };
+
+  const toggleUserMenu = () => {
+    setIsUserMenuOpen((prev) => !prev);
+  };
+
+  const closeUserMenu = () => setIsUserMenuOpen(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setIsUserMenuOpen(false);
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    closeUserMenu();
+    logout();
+    navigate("/sign-in", { replace: true });
   };
 
   const [activeSubmenu, setActiveSubmenu] = useState(null);
@@ -214,14 +257,64 @@ const HeaderOne = () => {
                   <i className='ph-bold ph-magnifying-glass' />
                 </button>
               </form>
-              <Link
-                to={profileLink}
-                title={profileLabel}
-                aria-label={profileLabel}
-                className='info-action w-52 h-52 bg-main-25 hover-bg-main-600 border border-neutral-30 rounded-circle flex-center text-2xl text-neutral-500 hover-text-white hover-border-main-600'
-              >
-                <i className='ph ph-user-circle' />
-              </Link>
+              {isAuthenticated ? (
+                <div className='position-relative' ref={userMenuRef}>
+                  <button
+                    type='button'
+                    onClick={toggleUserMenu}
+                    className='info-action w-52 h-52 bg-main-25 hover-bg-main-600 border border-neutral-30 rounded-circle flex-center text-2xl text-neutral-500 hover-text-white hover-border-main-600'
+                    title={profileLabel}
+                    aria-label={profileLabel}
+                    aria-haspopup='menu'
+                    aria-expanded={isUserMenuOpen}
+                  >
+                    <i className='ph ph-user-circle' />
+                  </button>
+                  {isUserMenuOpen && (
+                    <div
+                      className='position-absolute inset-inline-end-0 mt-12 bg-white border border-neutral-30 rounded-12 box-shadow-md py-12 z-1'
+                      role='menu'
+                      style={{ minWidth: "200px" }}
+                    >
+                      <div className='d-flex flex-column'>
+                        <Link
+                          to='/profile'
+                          onClick={closeUserMenu}
+                          className='px-20 py-8 text-start text-md text-neutral-700 hover-bg-main-25 hover-text-main-600'
+                          role='menuitem'
+                        >
+                          My Profile
+                        </Link>
+                        <Link
+                          to='/favorite-course'
+                          onClick={closeUserMenu}
+                          className='px-20 py-8 text-start text-md text-neutral-700 hover-bg-main-25 hover-text-main-600'
+                          role='menuitem'
+                        >
+                          My Courses
+                        </Link>
+                        <button
+                          type='button'
+                          onClick={handleLogout}
+                          className='px-20 py-8 text-start text-md text-neutral-700 hover-bg-main-25 hover-text-main-600 border-0 bg-transparent w-100 text-inherit'
+                          role='menuitem'
+                        >
+                          Logout
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  to={profileLink}
+                  title={profileLabel}
+                  aria-label={profileLabel}
+                  className='info-action w-52 h-52 bg-main-25 hover-bg-main-600 border border-neutral-30 rounded-circle flex-center text-2xl text-neutral-500 hover-text-white hover-border-main-600'
+                >
+                  <i className='ph ph-user-circle' />
+                </Link>
+              )}
               <button
                 type='button'
                 className='toggle-mobileMenu d-lg-none text-neutral-200 flex-center'
