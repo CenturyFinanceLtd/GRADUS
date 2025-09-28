@@ -1,5 +1,5 @@
 import OurCoursesPage from "./pages/OurCoursesPage.jsx";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 import RouteScrollToTop from "./helper/RouteScrollToTop.jsx";
 import RequireAuth from "./components/RequireAuth.jsx";
 import MetaManager from "./components/MetaManager.jsx";
@@ -23,7 +23,7 @@ import CourseListViewPage from "./pages/CourseListViewPage.jsx";
 import EventDetailsPage from "./pages/EventDetailsPage.jsx";
 import EventsPage from "./pages/EventsPage.jsx";
 import FaqPage from "./pages/FaqPage.jsx";
-import FavoriteCoursePage from "./pages/FavoriteCoursePage.jsx";
+import MyCoursesPage from "./pages/MyCoursesPage.jsx";
 import FindTutorsPage from "./pages/FindTutorsPage.jsx";
 import GalleryPage from "./pages/GalleryPage.jsx";
 import CandidatesAndInternsPage from "./pages/CandidatesAndInternsPage.jsx";
@@ -96,7 +96,16 @@ function App() {
         <Route exact path='/event-details' element={<EventDetailsPage />} />
         <Route exact path='/events' element={<EventsPage />} />
         <Route exact path='/faq' element={<FaqPage />} />
-        <Route exact path='/favorite-course' element={<FavoriteCoursePage />} />
+        <Route
+          exact
+          path='/my-courses'
+          element={
+            <RequireAuth>
+              <MyCoursesPage />
+            </RequireAuth>
+          }
+        />
+        <Route exact path='/favorite-course' element={<Navigate to='/my-courses' replace />} />
         <Route exact path='/find-tutors' element={<FindTutorsPage />} />
         <Route exact path='/gallery' element={<GalleryPage />} />
         <Route exact path='/instructor' element={<InstructorPage />} />

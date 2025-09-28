@@ -165,11 +165,17 @@ export const PAGE_META = {
       "Find helpful answers about Gradus enrollment, platform features, and support services.",
     keywords: "gradus faq, platform help, support",
   },
-  "/favorite-course": {
-    title: "Gradus | Favorite Courses",
+  "/my-courses": {
+    title: "Gradus | My Courses",
     description:
-      "Revisit your bookmarked Gradus courses and continue building your learning plan.",
-    keywords: "saved courses, gradus favorites, learning plan",
+      "Review the Gradus programs you are enrolled in and pick up where you left off.",
+    keywords: "my courses, gradus enrollment, enrolled programs",
+    robots: "noindex, nofollow",
+  },
+  "/favorite-course": {
+    title: "Gradus | My Courses",
+    description: "This page has moved. Redirecting you to your enrolled Gradus programs.",
+    keywords: "gradus courses, redirect",
     robots: "noindex, nofollow",
   },
   "/find-tutors": {

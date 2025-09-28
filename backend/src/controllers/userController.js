@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const { Types } = require('mongoose');
 const User = require('../models/User');
 const VerificationSession = require('../models/VerificationSession');
+const Enrollment = require('../models/Enrollment');
 const generateOtp = require('../utils/generateOtp');
 const { sendOtpEmail, deliveryMode } = require('../utils/email');
 
@@ -241,6 +242,39 @@ const verifyAccountDeletion = asyncHandler(async (req, res) => {
   res.json({ message: 'Account deleted successfully.' });
 });
 
+const getMyEnrollments = asyncHandler(async (req, res) => {
+  const enrollments = await Enrollment.find({
+    user: req.user._id,
+    status: 'ACTIVE',
+  })
+    .sort({ createdAt: -1 })
+    .populate('course', 'name slug subtitle focus price')
+    .lean();
+
+  const items = Array.isArray(enrollments)
+    ? enrollments.map((enrollment) => ({
+        id: enrollment._id.toString(),
+        status: enrollment.status,
+        paymentStatus: enrollment.paymentStatus,
+        enrolledAt: enrollment.createdAt,
+        paymentReference: enrollment.paymentReference || null,
+        paidAt: enrollment.paidAt || null,
+        course: enrollment.course
+          ? {
+              id: enrollment.course._id?.toString?.() || '',
+              slug: enrollment.course.slug || '',
+              name: enrollment.course.name || '',
+              subtitle: enrollment.course.subtitle || '',
+              focus: enrollment.course.focus || '',
+              price: enrollment.course.price || '',
+            }
+          : null,
+      }))
+    : [];
+
+  res.json({ items });
+});
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -249,6 +283,7 @@ module.exports = {
   updatePassword,
   startAccountDeletion,
   verifyAccountDeletion,
+  getMyEnrollments,
 };
 
 

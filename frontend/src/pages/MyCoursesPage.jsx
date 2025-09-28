@@ -1,12 +1,12 @@
 import Breadcrumb from "../components/Breadcrumb";
 import CertificateOne from "../components/CertificateOne";
-import FavoriteCourseInner from "../components/FavoriteCourseInner";
+import MyCoursesInner from "../components/MyCoursesInner";
 import FooterOne from "../components/FooterOne";
 import HeaderOne from "../components/HeaderOne";
 import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
 
-const FavoriteCoursePage = () => {
+const MyCoursesPage = () => {
   return (
     <>
       {/* Preloader */}
@@ -19,10 +19,10 @@ const FavoriteCoursePage = () => {
       <HeaderOne />
 
       {/* Breadcrumb */}
-      <Breadcrumb title={"Favorite Courses"} />
+      <Breadcrumb title={"My Courses"} />
 
-      {/* FavoriteCourseInner */}
-      <FavoriteCourseInner />
+      {/* MyCoursesInner */}
+      <MyCoursesInner />
 
       {/* CertificateOne */}
       <CertificateOne />
@@ -33,4 +33,4 @@ const FavoriteCoursePage = () => {
   );
 };
 
-export default FavoriteCoursePage;
+export default MyCoursesPage;

@@ -8,6 +8,7 @@ const {
   updatePassword,
   startAccountDeletion,
   verifyAccountDeletion,
+  getMyEnrollments,
 } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 const validateRequest = require('../middleware/validateRequest');
@@ -15,6 +16,7 @@ const validateRequest = require('../middleware/validateRequest');
 const router = express.Router();
 
 router.get('/me', protect, getProfile);
+router.get('/me/enrollments', protect, getMyEnrollments);
 
 router.put(
   '/me',

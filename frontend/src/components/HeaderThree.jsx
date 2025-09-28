@@ -112,7 +112,7 @@ const HeaderThree = () => {
         { to: "/apply-admission", label: "Apply Admission" },
         { to: "/gallery", label: "Gallery" },
         { to: "/privacy-policy", label: "Privacy Policy" },
-        { to: "/favorite-course", label: "Favorite Course" },
+        { to: "/my-courses", label: "My Courses" },
         { to: "/find-tutors", label: "Find Best Tutors" },
         { to: "/book-online-class", label: "Book Online Class" },
       ],

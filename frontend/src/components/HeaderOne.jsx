@@ -138,7 +138,7 @@ const HeaderOne = () => {
         { to: "/apply-admission", label: "Apply Admission" },
         { to: "/gallery", label: "Gallery" },
         { to: "/privacy-policy", label: "Privacy Policy" },
-        { to: "/favorite-course", label: "Favorite Course" },
+        { to: "/my-courses", label: "My Courses" },
         { to: "/find-tutors", label: "Find Best Tutors" },
         { to: "/book-online-class", label: "Book Online Class" },
         { to: "/index-2", label: "Home Online Course" },
@@ -286,7 +286,7 @@ const HeaderOne = () => {
                           My Profile
                         </Link>
                         <Link
-                          to='/favorite-course'
+                          to='/my-courses'
                           onClick={closeUserMenu}
                           className='px-20 py-8 text-start text-md text-neutral-700 hover-bg-main-25 hover-text-main-600'
                           role='menuitem'
