@@ -98,6 +98,7 @@ import BlankPagePage from "./pages/BlankPagePage";
 import InquiryPage from "./pages/InquiryPage";
 import CourseManagementPage from "./pages/CourseManagementPage";
 import EnrollmentsPage from "./pages/EnrollmentsPage";
+import PermissionPage from "./pages/PermissionPage";
 
 function App() {
   return (
@@ -120,6 +121,7 @@ function App() {
         <Route exact path='/add-user' element={<AddUserPage />} />
         <Route exact path='/alert' element={<AlertPage />} />
         <Route exact path='/assign-role' element={<AssignRolePage />} />
+        <Route exact path='/permissions' element={<PermissionPage />} />
         <Route exact path='/avatar' element={<AvatarPage />} />
         <Route exact path='/badges' element={<BadgesPage />} />
         <Route exact path='/button' element={<ButtonPage />} />

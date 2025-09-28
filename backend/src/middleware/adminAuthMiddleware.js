@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/env');
 const AdminUser = require('../models/AdminUser');
 
+const normalizeRole = (role) => (role ? String(role).toLowerCase() : '');
+
 const protectAdmin = asyncHandler(async (req, res, next) => {
   let token = null;
 
@@ -39,4 +41,17 @@ const protectAdmin = asyncHandler(async (req, res, next) => {
   }
 });
 
-module.exports = { protectAdmin };
+const requireAdminRole = (...roles) => (req, res, next) => {
+  const allowedRoles = roles.map((role) => normalizeRole(role));
+  const currentRole = normalizeRole(req.admin?.role);
+
+  if (allowedRoles.includes(currentRole)) {
+    next();
+    return;
+  }
+
+  res.status(403);
+  throw new Error('You do not have permission to perform this action.');
+};
+
+module.exports = { protectAdmin, requireAdminRole };

@@ -8,10 +8,14 @@ import {
 
 const ROLE_PROGRAMMER_ADMIN = "programmer_admin";
 const ROLE_ADMIN = "admin";
+const ROLE_SEO = "seo";
+const ROLE_SALES = "sales";
 
 const ROLE_OPTIONS = [
   { value: ROLE_PROGRAMMER_ADMIN, label: "Programmer(Admin)" },
   { value: ROLE_ADMIN, label: "Admin" },
+  { value: ROLE_SEO, label: "SEO" },
+  { value: ROLE_SALES, label: "Sales" },
 ];
 
 const roleLabelMap = ROLE_OPTIONS.reduce((accumulator, option) => {

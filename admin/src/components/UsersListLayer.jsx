@@ -10,10 +10,14 @@ import {
 
 const ROLE_PROGRAMMER_ADMIN = "programmer_admin";
 const ROLE_ADMIN = "admin";
+const ROLE_SEO = "seo";
+const ROLE_SALES = "sales";
 
 const roleLabelMap = {
   [ROLE_PROGRAMMER_ADMIN]: "Programmer(Admin)",
   [ROLE_ADMIN]: "Admin",
+  [ROLE_SEO]: "SEO",
+  [ROLE_SALES]: "Sales",
 };
 
 const normalizeRole = (role) => (role ? String(role).toLowerCase() : "");

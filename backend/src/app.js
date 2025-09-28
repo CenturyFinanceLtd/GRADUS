@@ -12,6 +12,7 @@ const adminBlogRoutes = require('./routes/adminBlogRoutes');
 const blogRoutes = require('./routes/blogRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const adminCourseRoutes = require('./routes/adminCourseRoutes');
+const adminPermissionRoutes = require('./routes/adminPermissionRoutes');
 const courseRoutes = require('./routes/courseRoutes');
 const { blogImagesDirectory } = require('./middleware/uploadMiddleware');
 
@@ -60,6 +61,7 @@ app.use('/api/admin/blogs', adminBlogRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/inquiries', contactRoutes);
 app.use('/api/admin/courses', adminCourseRoutes);
+app.use('/api/admin/permissions', adminPermissionRoutes);
 app.use('/api/courses', courseRoutes);
 
 app.use(notFound);

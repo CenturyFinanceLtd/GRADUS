@@ -1,8 +1,9 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
 import apiClient from "../services/apiClient";
+import { fetchMyPermissions } from "../services/adminPermissions";
 
 const storageKey = "gradus_admin_auth_v1";
-const initialAuthState = { token: null, admin: null };
+const initialAuthState = { token: null, admin: null, permissions: null };
 
 const AuthContext = createContext(null);
 
@@ -16,6 +17,7 @@ const AuthProvider = ({ children }) => {
           return {
             token: parsed.token || null,
             admin: parsed.admin || null,
+            permissions: parsed.permissions || null,
           };
         }
       }
@@ -25,6 +27,35 @@ const AuthProvider = ({ children }) => {
     return initialAuthState;
   });
   const [loading, setLoading] = useState(true);
+  const [permissionsLoading, setPermissionsLoading] = useState(false);
+
+  const fetchPermissions = useCallback(
+    async (explicitToken) => {
+      const tokenToUse = explicitToken || authState.token;
+
+      if (!tokenToUse) {
+        setAuthState((prev) => ({ ...prev, permissions: null }));
+        return [];
+      }
+
+      setPermissionsLoading(true);
+      try {
+        const response = await fetchMyPermissions(tokenToUse);
+        const allowedPages = Array.isArray(response?.allowedPages)
+          ? response.allowedPages
+          : [];
+        setAuthState((prev) => ({ ...prev, permissions: { allowedPages } }));
+        return allowedPages;
+      } catch (error) {
+        console.warn("[auth] Failed to load permissions", error);
+        setAuthState((prev) => ({ ...prev, permissions: { allowedPages: [] } }));
+        return [];
+      } finally {
+        setPermissionsLoading(false);
+      }
+    },
+    [authState.token]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -33,6 +64,7 @@ const AuthProvider = ({ children }) => {
       if (!authState.token) {
         if (!cancelled) {
           setLoading(false);
+          setPermissionsLoading(false);
         }
         return;
       }
@@ -44,6 +76,7 @@ const AuthProvider = ({ children }) => {
         if (!cancelled) {
           setAuthState((prev) => ({ ...prev, admin: profile }));
         }
+        await fetchPermissions(authState.token);
       } catch (error) {
         if (!cancelled) {
           setAuthState(initialAuthState);
@@ -56,6 +89,7 @@ const AuthProvider = ({ children }) => {
       } finally {
         if (!cancelled) {
           setLoading(false);
+          setPermissionsLoading(false);
         }
       }
     };
@@ -65,7 +99,7 @@ const AuthProvider = ({ children }) => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [authState.token, fetchPermissions]);
 
   useEffect(() => {
     try {
@@ -81,7 +115,7 @@ const AuthProvider = ({ children }) => {
 
   const storeAuthResponse = (response) => {
     if (response && response.token) {
-      setAuthState({ token: response.token, admin: response.admin });
+      setAuthState({ token: response.token, admin: response.admin, permissions: null });
     } else {
       setAuthState(initialAuthState);
     }
@@ -93,6 +127,7 @@ const AuthProvider = ({ children }) => {
       data: { email, password },
     });
     storeAuthResponse(response);
+    await fetchPermissions(response.token);
     return response;
   };
 
@@ -108,6 +143,7 @@ const AuthProvider = ({ children }) => {
       token: authState.token,
     });
     setAuthState((prev) => ({ ...prev, admin: profile }));
+    await fetchPermissions();
     return profile;
   };
 
@@ -115,13 +151,16 @@ const AuthProvider = ({ children }) => {
     () => ({
       admin: authState.admin,
       token: authState.token,
+      permissions: authState.permissions,
       loading,
+      permissionsLoading,
       login,
       logout,
       setAuth: storeAuthResponse,
       refreshProfile,
+      refreshPermissions: fetchPermissions,
     }),
-    [authState, loading]
+    [authState, loading, permissionsLoading, fetchPermissions]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

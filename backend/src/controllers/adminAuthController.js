@@ -17,9 +17,18 @@ const buildAdminAuthResponse = (admin) => {
   return { token, admin: safeAdmin };
 };
 
+const buildAdminPortalUrl = (relativePath) => {
+  const base = config.adminApiBaseUrl || config.serverUrl || '';
+  const normalizedBase = typeof base === 'string' ? base.replace(/\/+$/, '') : '';
+  const normalizedPath = relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
+  return `${normalizedBase}${normalizedPath}`;
+};
+
 const ADMIN_ROLE_OPTIONS = {
   admin: 'Admin',
   programmer_admin: 'Programmer(Admin)',
+  seo: 'SEO',
+  sales: 'Sales',
 };
 
 const normaliseLanguages = (languages) => {
@@ -69,10 +78,11 @@ const startAdminSignup = asyncHandler(async (req, res) => {
     payload,
   });
 
-  const rejectionUrl = `${config.serverUrl}/api/admin/auth/signup/decision?sessionId=${session._id.toString()}&token=${approvalToken}&decision=reject`;
+  const decisionBase = `/auth/signup/decision?sessionId=${session._id.toString()}&token=${approvalToken}`;
+  const rejectionUrl = buildAdminPortalUrl(`${decisionBase}&decision=reject`);
   const approvalOptions = Object.entries(ADMIN_ROLE_OPTIONS).map(([roleKey, label]) => ({
     label,
-    url: `${config.serverUrl}/api/admin/auth/signup/decision?sessionId=${session._id.toString()}&token=${approvalToken}&decision=approve&role=${roleKey}`,
+    url: buildAdminPortalUrl(`${decisionBase}&decision=approve&role=${roleKey}`),
   }));
 
   try {

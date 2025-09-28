@@ -52,8 +52,8 @@ router.patch(
       .trim()
       .notEmpty()
       .withMessage('Role is required.')
-      .isIn(['admin', 'programmer_admin'])
-      .withMessage('Role must be admin or programmer_admin.'),
+      .isIn(['admin', 'programmer_admin', 'seo', 'sales'])
+      .withMessage('Role must be admin, programmer_admin, seo, or sales.'),
   ],
   validateRequest,
   updateAdminRole

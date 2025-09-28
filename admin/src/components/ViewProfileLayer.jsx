@@ -12,6 +12,8 @@ import {
 const ROLE_LABELS = {
   admin: 'Admin',
   programmer_admin: 'Programmer (Admin)',
+  seo: 'SEO',
+  sales: 'Sales',
 };
 
 

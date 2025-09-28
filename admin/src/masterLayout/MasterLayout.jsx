@@ -1,13 +1,16 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, Navigate, useLocation, useNavigate, matchPath } from "react-router-dom";
 import ThemeToggleButton from "../helper/ThemeToggleButton";
 import useAuth from "../hook/useAuth";
+import { ADMIN_PAGE_DEFINITIONS } from "../data/adminPageDefinitions";
 
 const ADMIN_ROLE_LABELS = {
   admin: 'Admin',
   programmer_admin: 'Programmer (Admin)',
+  seo: 'SEO',
+  sales: 'Sales',
 };
 
 const MasterLayout = ({ children }) => {
@@ -15,10 +18,29 @@ const MasterLayout = ({ children }) => {
   let [mobileMenu, setMobileMenu] = useState(false);
   const location = useLocation(); // Hook to get the current route
   const navigate = useNavigate();
-  const { admin, token, loading, logout } = useAuth();
+  const { admin, token, loading, logout, permissions, permissionsLoading } = useAuth();
   const normalizedAdminRole = admin?.role ? admin.role.toLowerCase() : "";
   const isProgrammerAdmin = normalizedAdminRole === "programmer_admin";
   const adminRoleLabel = ADMIN_ROLE_LABELS[normalizedAdminRole] || admin?.role || "Admin";
+  const allowedPages = useMemo(
+    () => (Array.isArray(permissions?.allowedPages) ? permissions.allowedPages : []),
+    [permissions]
+  );
+  const hasFullAccess = isProgrammerAdmin || allowedPages.includes("*");
+
+  const pageDefinition = useMemo(() => {
+    const currentPath = location.pathname;
+    return (
+      ADMIN_PAGE_DEFINITIONS.find((page) => {
+        if (page.path.includes(":")) {
+          return matchPath({ path: page.path, end: true }, currentPath);
+        }
+        return page.path === currentPath;
+      }) || null
+    );
+  }, [location.pathname]);
+
+  const currentPageKey = pageDefinition?.key || "";
 
 
   useEffect(() => {
@@ -88,7 +110,7 @@ const MasterLayout = ({ children }) => {
     navigate('/sign-in', { replace: true });
   };
 
-  if (loading) {
+  if (loading || permissionsLoading) {
     return (
       <section className='overlay'>
         <div className='d-flex align-items-center justify-content-center min-vh-100'>
@@ -102,6 +124,16 @@ const MasterLayout = ({ children }) => {
 
   if (!token) {
     return null;
+  }
+
+  if (currentPageKey === "user_permissions" && !isProgrammerAdmin) {
+    return <Navigate to='/access-denied' replace />;
+  }
+
+  if (!hasFullAccess) {
+    if (!currentPageKey || !allowedPages.includes(currentPageKey)) {
+      return <Navigate to='/access-denied' replace />;
+    }
   }
 
   let sidebarControl = () => {
@@ -323,6 +355,18 @@ const MasterLayout = ({ children }) => {
                 <span>Roles</span>
               </NavLink>
             </li>
+
+            {isProgrammerAdmin ? (
+              <li>
+                <NavLink
+                  to='/permissions'
+                  className={(navData) => (navData.isActive ? "active-page" : "")}
+                >
+                  <Icon icon='mdi:shield-check-outline' className='menu-icon' />
+                  <span>Permissions</span>
+                </NavLink>
+              </li>
+            ) : null}
 
             <li>
               <NavLink

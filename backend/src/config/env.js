@@ -6,6 +6,19 @@ const nodeEnv = process.env.NODE_ENV || 'development';
 const isProduction = nodeEnv === 'production';
 const port = process.env.PORT ? Number(process.env.PORT) : 5000;
 const serverUrl = process.env.SERVER_PUBLIC_URL || `http://localhost:${port}`;
+const trimTrailingSlash = (value) => (typeof value === 'string' ? value.replace(/\/+$/, '') : value);
+const buildDefaultAdminApiBase = () => {
+  if (process.env.ADMIN_API_PUBLIC_BASE_URL) {
+    return trimTrailingSlash(process.env.ADMIN_API_PUBLIC_BASE_URL);
+  }
+
+  if (nodeEnv === 'production') {
+    return 'https://api.gradusindia.in/api/admin';
+  }
+
+  return `${trimTrailingSlash(serverUrl)}/api/admin`;
+};
+const adminApiBaseUrl = buildDefaultAdminApiBase();
 const rawClientOrigins = process.env.CLIENT_URLS || process.env.CLIENT_URL || 'http://localhost:5173';
 const clientOrigins = rawClientOrigins
   .split(',')
@@ -35,6 +48,7 @@ const config = {
     approverEmail: process.env.ADMIN_APPROVER_EMAIL || 'dvisro13@gmail.com',
     portalName: process.env.ADMIN_PORTAL_NAME || 'Gradus Admin Portal',
   },
+  adminApiBaseUrl,
   sessionSecret: sessionSecret || DEFAULT_SESSION_SECRET,
 };
 
