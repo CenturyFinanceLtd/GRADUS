@@ -23,6 +23,7 @@ const createInitialCourseForm = () => ({
   focus: "",
   approvalsText: "",
   placementRange: "",
+  price: "",
   outcomeSummary: "",
   deliverablesText: "",
   outcomesText: "",
@@ -67,6 +68,7 @@ const convertCourseToForm = (course) => ({
   focus: course.focus || "",
   approvalsText: (course.approvals || []).join("\n"),
   placementRange: course.placementRange || "",
+  price: course.price || "",
   outcomeSummary: course.outcomeSummary || "",
   deliverablesText: (course.deliverables || []).join("\n"),
   outcomesText: (course.outcomes || []).join("\n"),
@@ -93,6 +95,7 @@ const convertFormToPayload = (form) => {
     focus: form.focus.trim(),
     approvals: splitLines(form.approvalsText || ""),
     placementRange: form.placementRange.trim(),
+    price: form.price.trim(),
     outcomeSummary: form.outcomeSummary.trim(),
     deliverables: splitLines(form.deliverablesText || ""),
     outcomes: splitLines(form.outcomesText || ""),
@@ -517,6 +520,7 @@ const CourseManager = () => {
               <tr>
                 <th>Name</th>
                 <th>Slug</th>
+                <th className='text-center'>Price</th>
                 <th className='text-center'>Order</th>
                 <th className='text-end'>Actions</th>
               </tr>
@@ -526,6 +530,7 @@ const CourseManager = () => {
                 <tr key={course.id}>
                   <td>{course.name}</td>
                   <td>{course.slug}</td>
+                  <td className='text-center'>{course.price || '—'}</td>
                   <td className='text-center'>{course.order ?? "—"}</td>
                   <td className='text-end'>
                     <div className='d-inline-flex gap-8'>
@@ -610,6 +615,21 @@ const CourseManager = () => {
               className='form-control'
               value={courseForm.subtitle}
               onChange={handleCourseInputChange}
+              disabled={savingCourse}
+            />
+          </div>
+          <div className='col-md-6'>
+            <label htmlFor='price' className='form-label fw-medium'>
+              Price (displayed publicly)
+            </label>
+            <input
+              type='text'
+              id='price'
+              name='price'
+              className='form-control'
+              value={courseForm.price}
+              onChange={handleCourseInputChange}
+              placeholder='e.g. ₹19,999 or $1,299'
               disabled={savingCourse}
             />
           </div>

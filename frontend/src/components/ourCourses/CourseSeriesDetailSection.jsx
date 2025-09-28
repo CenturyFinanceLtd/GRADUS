@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Slider from 'react-slick';
 import PlacementPartnersCarousel from './PlacementPartnersCarousel';
 
@@ -15,6 +16,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
     [activeCourse?.approvals]
   );
   const placementRange = activeCourse?.placementRange;
+  const price = activeCourse?.price;
   const outcomeSummary = activeCourse?.outcomeSummary;
   const deliverables = useMemo(
     () => (Array.isArray(activeCourse?.deliverables) ? activeCourse.deliverables.filter(Boolean) : []),
@@ -170,6 +172,21 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false }) => {
                   <p className='text-neutral-600 mb-0'>{outcomeSummary}</p>
                 </div>
               ) : null}
+              <div className='mt-24'>
+                {price ? (
+                  <div className='p-24 rounded-20 bg-main-600 text-white mb-16'>
+                    <h6 className='text-lg fw-semibold mb-8'>Program Fee</h6>
+                    <p className='mb-0 text-md'>
+                      <span className='fw-bold text-xl d-block'>{price}</span>
+                      Invest in your future with our industry-aligned curriculum.
+                    </p>
+                  </div>
+                ) : null}
+                <Link to='/contact' className='btn btn-main rounded-pill flex-align gap-8'>
+                  Enroll Now
+                  <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
+                </Link>
+              </div>
             </div>
           </div>
           <div className='col-lg-8'>

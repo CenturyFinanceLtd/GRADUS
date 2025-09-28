@@ -48,6 +48,7 @@ const CourseSeriesOverview = ({ heroContent, courses = [] }) => {
     const placementRange = course.placementRange;
     const courseId = course.id || course.slug;
     const nameInitial = (course.name || '?').charAt(0).toUpperCase();
+    const price = course.price;
 
     return (
       <div className='p-32 h-100 bg-white border border-neutral-30 rounded-24 box-shadow-md position-relative overview-card mx-auto'>
@@ -61,6 +62,11 @@ const CourseSeriesOverview = ({ heroContent, courses = [] }) => {
         </div>
       </div>
       {course.focus ? <p className='text-neutral-500 mb-20'>{course.focus}</p> : null}
+      {price ? (
+        <p className='text-neutral-800 fw-semibold mb-20'>
+          Program Fee: <span className='text-main-600'>{price}</span>
+        </p>
+      ) : null}
       {approvals.length ? (
         <ul className='list-unstyled d-grid gap-12 mb-24'>
           {approvals.map((item, index) => (

@@ -69,6 +69,10 @@ const courseSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    price: {
+      type: String,
+      trim: true,
+    },
     outcomeSummary: {
       type: String,
       trim: true,
