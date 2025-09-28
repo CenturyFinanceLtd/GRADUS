@@ -20,7 +20,7 @@ const normalizeRole = (role) => (role ? String(role).toLowerCase() : "");
 
 const formatJoinDate = (value) => {
   if (!value) {
-    return "—";
+    return "ï¿½";
   }
   try {
     return new Intl.DateTimeFormat("en-GB", {
@@ -29,7 +29,7 @@ const formatJoinDate = (value) => {
       year: "numeric",
     }).format(new Date(value));
   } catch {
-    return "—";
+    return "ï¿½";
   }
 };
 
@@ -359,9 +359,9 @@ const UsersListLayer = () => {
                       <td>
                         <span className='text-md mb-0 fw-normal text-secondary-light'>{user.email}</span>
                       </td>
-                      <td>{user.department || "—"}</td>
-                      <td>{user.designation || "—"}</td>
-                      <td>{user.roleLabel || roleLabelMap[user.role] || "—"}</td>
+                      <td>{user.department || "ï¿½"}</td>
+                      <td>{user.designation || "ï¿½"}</td>
+                      <td>{user.roleLabel || roleLabelMap[user.role] || "ï¿½"}</td>
                       <td className='text-center'>
                         <button
                           type='button'
