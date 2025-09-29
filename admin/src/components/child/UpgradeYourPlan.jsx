@@ -1,6 +1,73 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import useAuth from "../../hook/useAuth";
+import { fetchVisitorSummary } from "../../services/adminAnalytics";
+
+const numberFormatter = new Intl.NumberFormat("en-IN");
 
 const UpgradeYourPlan = () => {
+  const { token } = useAuth();
+  const [visitorSummary, setVisitorSummary] = useState({
+    uniqueVisitors: 0,
+    totalVisits: 0,
+    todayVisits: 0,
+  });
+  const [loadingVisitors, setLoadingVisitors] = useState(true);
+  const [visitorError, setVisitorError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadVisitorSummary = async () => {
+      if (!token) {
+        setVisitorSummary({ uniqueVisitors: 0, totalVisits: 0, todayVisits: 0 });
+        setLoadingVisitors(false);
+        return;
+      }
+
+      setLoadingVisitors(true);
+      setVisitorError(null);
+
+      try {
+        const response = await fetchVisitorSummary({ token });
+        if (!cancelled) {
+          setVisitorSummary({
+            uniqueVisitors: response?.uniqueVisitors || 0,
+            totalVisits: response?.totalVisits || 0,
+            todayVisits: response?.todayVisits || 0,
+          });
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setVisitorError(error?.message || "Unable to load visitor data");
+          setVisitorSummary({ uniqueVisitors: 0, totalVisits: 0, todayVisits: 0 });
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingVisitors(false);
+        }
+      }
+    };
+
+    loadVisitorSummary();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  const visitorCountLabel = loadingVisitors
+    ? "…"
+    : numberFormatter.format(visitorSummary.uniqueVisitors || 0);
+
+  const visitorSubLabel = loadingVisitors
+    ? "Updating metrics"
+    : visitorError
+    ? visitorError
+    : `${numberFormatter.format(visitorSummary.totalVisits || 0)} total visits • ${numberFormatter.format(
+        visitorSummary.todayVisits || 0
+      )} today`;
+
   return (
     <div className='col-xxl-6'>
       <div className='card'>
@@ -52,7 +119,8 @@ const UpgradeYourPlan = () => {
                       <i className='ri-group-3-fill' />
                     </span>
                     <span className='text-neutral-700 d-block'>Visitor</span>
-                    <h6 className='mb-0 mt-4'>12,300</h6>
+                    <h6 className='mb-0 mt-4'>{visitorCountLabel}</h6>
+                    <span className='text-secondary-light text-xs mt-4 d-block'>{visitorSubLabel}</span>
                   </div>
                 </div>
                 <div className='col-sm-6 col-xs-6'>

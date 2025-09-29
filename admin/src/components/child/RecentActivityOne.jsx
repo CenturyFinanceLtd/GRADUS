@@ -1,178 +1,123 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import useAuth from "../../hook/useAuth";
+import { fetchBlogEngagement } from "../../services/adminAnalytics";
+
+const numberFormatter = new Intl.NumberFormat("en-IN");
 
 const RecentActivityOne = () => {
+  const { token } = useAuth();
+  const [blogs, setBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadData = async () => {
+      if (!token) {
+        setBlogs([]);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetchBlogEngagement({ token, limit: 8 });
+        if (!cancelled) {
+          setBlogs(Array.isArray(response?.items) ? response.items : []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err?.message || "Unable to load blog engagement");
+          setBlogs([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  const rows = useMemo(() => {
+    return blogs.map((blog) => ({
+      id: blog.id,
+      title: blog.title || "Untitled blog",
+      slug: blog.slug,
+      views: blog.views || 0,
+      comments: blog.comments || 0,
+      publishedAt: blog.publishedAt ? new Date(blog.publishedAt) : null,
+    }));
+  }, [blogs]);
+
   return (
     <div className='col-xxl-8'>
       <div className='card h-100'>
         <div className='card-header border-bottom bg-base py-16 px-24 d-flex align-items-center justify-content-between'>
-          <h6 className='text-lg fw-semibold mb-0'>Recent Activity</h6>
+          <h6 className='text-lg fw-semibold mb-0'>Blog Engagement</h6>
           <Link
-            to='#'
+            to='/blogs'
             className='text-primary-600 hover-text-primary d-flex align-items-center gap-1'
           >
             View All
-            <iconify-icon
-              icon='solar:alt-arrow-right-linear'
-              className='icon'
-            />
+            <iconify-icon icon='solar:alt-arrow-right-linear' className='icon' />
           </Link>
         </div>
         <div className='card-body p-0'>
-          <div className='table-responsive scroll-sm'>
-            <table className='table bordered-table mb-0 rounded-0 border-0'>
-              <thead>
-                <tr>
-                  <th scope='col' className='bg-transparent rounded-0'>
-                    Customer
-                  </th>
-                  <th scope='col' className='bg-transparent rounded-0'>
-                    ID
-                  </th>
-                  <th scope='col' className='bg-transparent rounded-0'>
-                    Retained
-                  </th>
-                  <th scope='col' className='bg-transparent rounded-0'>
-                    Amount
-                  </th>
-                  <th scope='col' className='bg-transparent rounded-0'>
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <div className='d-flex align-items-center'>
-                      <img
-                        src='assets/images/user-grid/user-grid-img1.png'
-                        alt='WowDash React Vite'
-                        className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden'
-                      />
-                      <div className='flex-grow-1'>
-                        <h6 className='text-md mb-0'>Kristin Watson</h6>
-                        <span className='text-sm text-secondary-light fw-medium'>
-                          ulfaha@mail.ru
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-                  <td>#63254</td>
-                  <td>5 min ago</td>
-                  <td>$12,408.12</td>
-                  <td>
-                    {" "}
-                    <span className='bg-success-focus text-success-main px-10 py-4 radius-8 fw-medium text-sm'>
-                      Member
-                    </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className='d-flex align-items-center'>
-                      <img
-                        src='assets/images/user-grid/user-grid-img2.png'
-                        alt='WowDash React Vite'
-                        className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden'
-                      />
-                      <div className='flex-grow-1'>
-                        <h6 className='text-md mb-0'>Theresa Webb</h6>
-                        <span className='text-sm text-secondary-light fw-medium'>
-                          joie@gmail.com
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-                  <td>#63254</td>
-                  <td>12 min ago</td>
-                  <td>$12,408.12</td>
-                  <td>
-                    {" "}
-                    <span className='bg-lilac-100 text-lilac-600 px-10 py-4 radius-8 fw-medium text-sm'>
-                      New Customer
-                    </span>{" "}
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className='d-flex align-items-center'>
-                      <img
-                        src='assets/images/user-grid/user-grid-img3.png'
-                        alt='WowDash React Vite'
-                        className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden'
-                      />
-                      <div className='flex-grow-1'>
-                        <h6 className='text-md mb-0'>Brooklyn Simmons</h6>
-                        <span className='text-sm text-secondary-light fw-medium'>
-                          warn@mail.ru
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-                  <td>#63254</td>
-                  <td>15 min ago</td>
-                  <td>$12,408.12</td>
-                  <td>
-                    {" "}
-                    <span className='bg-warning-focus text-warning-main px-10 py-4 radius-8 fw-medium text-sm'>
-                      Signed Up{" "}
-                    </span>{" "}
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className='d-flex align-items-center'>
-                      <img
-                        src='assets/images/user-grid/user-grid-img4.png'
-                        alt='WowDash React Vite'
-                        className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden'
-                      />
-                      <div className='flex-grow-1'>
-                        <h6 className='text-md mb-0'>Robert Fox</h6>
-                        <span className='text-sm text-secondary-light fw-medium'>
-                          fellora@mail.ru
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-                  <td>#63254</td>
-                  <td>17 min ago</td>
-                  <td>$12,408.12</td>
-                  <td>
-                    {" "}
-                    <span className='bg-success-focus text-success-main px-10 py-4 radius-8 fw-medium text-sm'>
-                      Member
-                    </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className='d-flex align-items-center'>
-                      <img
-                        src='assets/images/user-grid/user-grid-img5.png'
-                        alt='WowDash React Vite'
-                        className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden'
-                      />
-                      <div className='flex-grow-1'>
-                        <h6 className='text-md mb-0'>Jane Cooper</h6>
-                        <span className='text-sm text-secondary-light fw-medium'>
-                          zitka@mail.ru
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-                  <td>#63254</td>
-                  <td>25 min ago</td>
-                  <td>$12,408.12</td>
-                  <td>
-                    {" "}
-                    <span className='bg-warning-focus text-warning-main px-10 py-4 radius-8 fw-medium text-sm'>
-                      Signed Up{" "}
-                    </span>{" "}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          {loading ? (
+            <div className='d-flex justify-content-center align-items-center py-64'>
+              <div className='spinner-border text-primary' role='status'>
+                <span className='visually-hidden'>Loading...</span>
+              </div>
+            </div>
+          ) : error ? (
+            <div className='p-24 text-center text-danger fw-medium'>{error}</div>
+          ) : rows.length === 0 ? (
+            <div className='p-24 text-center text-secondary-light'>
+              No blog activity has been recorded yet.
+            </div>
+          ) : (
+            <div className='table-responsive scroll-sm'>
+              <table className='table bordered-table mb-0 rounded-0 border-0'>
+                <thead>
+                  <tr>
+                    <th scope='col' className='bg-transparent rounded-0'>Blog</th>
+                    <th scope='col' className='bg-transparent rounded-0 text-end'>Views</th>
+                    <th scope='col' className='bg-transparent rounded-0 text-end'>Comments</th>
+                    <th scope='col' className='bg-transparent rounded-0 text-end'>Published</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row) => (
+                    <tr key={row.id}>
+                      <td>
+                        <div className='d-flex flex-column'>
+                          <span className='text-md fw-semibold text-neutral-700'>{row.title}</span>
+                          {row.slug ? (
+                            <span className='text-sm text-secondary-light'>/{row.slug}</span>
+                          ) : null}
+                        </div>
+                      </td>
+                      <td className='text-end'>{numberFormatter.format(row.views)}</td>
+                      <td className='text-end'>{numberFormatter.format(row.comments)}</td>
+                      <td className='text-end'>
+                        {row.publishedAt ? row.publishedAt.toLocaleDateString() : '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

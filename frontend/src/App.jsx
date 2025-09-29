@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 import RouteScrollToTop from "./helper/RouteScrollToTop.jsx";
 import RequireAuth from "./components/RequireAuth.jsx";
 import MetaManager from "./components/MetaManager.jsx";
+import SiteAnalyticsTracker from "./components/SiteAnalyticsTracker.jsx";
 import HomePageOne from "./pages/HomePageOne";
 import AboutPage from "./pages/AboutPage.jsx";
 import AboutFourPage from "./pages/AboutFourPage.jsx";
@@ -59,6 +60,7 @@ function App() {
     <BrowserRouter>
       <MetaManager />
       <RouteScrollToTop />
+      <SiteAnalyticsTracker />
 
       <Routes>
         <Route exact path='/' element={<HomePageOne />} />

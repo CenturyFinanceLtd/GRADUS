@@ -14,6 +14,8 @@ const contactRoutes = require('./routes/contactRoutes');
 const adminCourseRoutes = require('./routes/adminCourseRoutes');
 const adminPermissionRoutes = require('./routes/adminPermissionRoutes');
 const courseRoutes = require('./routes/courseRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
+const adminAnalyticsRoutes = require('./routes/adminAnalyticsRoutes');
 const { blogImagesDirectory } = require('./middleware/uploadMiddleware');
 
 const app = express();
@@ -31,7 +33,7 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -63,6 +65,8 @@ app.use('/api/inquiries', contactRoutes);
 app.use('/api/admin/courses', adminCourseRoutes);
 app.use('/api/admin/permissions', adminPermissionRoutes);
 app.use('/api/courses', courseRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/admin/analytics', adminAnalyticsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

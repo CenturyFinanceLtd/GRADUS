@@ -61,7 +61,7 @@ const parseResponse = async (response) => {
   return data;
 };
 
-const request = async (path, { method = 'GET', body, token, headers: customHeaders } = {}) => {
+const request = async (path, { method = 'GET', body, token, headers: customHeaders, signal } = {}) => {
   const headers = new Headers(customHeaders || {});
 
   if (!(body instanceof FormData)) {
@@ -77,6 +77,10 @@ const request = async (path, { method = 'GET', body, token, headers: customHeade
     headers,
     credentials: 'include',
   };
+
+  if (signal) {
+    fetchOptions.signal = signal;
+  }
 
   if (body !== undefined) {
     fetchOptions.body = body instanceof FormData ? body : JSON.stringify(body);
