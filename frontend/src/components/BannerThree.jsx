@@ -108,7 +108,7 @@ const BannerThree = () => {
                   </div>
                   <div className='buttons-wrapper flex-align flex-wrap gap-24 mt-40'>
                     <Link
-                      to='/apply-admission'
+                      to='#'
                       className='btn btn-main rounded-pill flex-align gap-8  wow bounceInLeft'
                       data-wow-duration='1s'
                       data-wow-delay='.5s'
@@ -121,18 +121,13 @@ const BannerThree = () => {
                       data-wow-duration='1s'
                       data-wow-delay='.5s'
                     >
-                      <span
+                      {/* <span
                         onClick={() => setIsOpen(true)}
                         className='play-button position-relative z-1 w-48 h-48 flex-center bg-main-two-600 text-white rounded-circle text-xl'
                       >
                         <i className='ph-fill ph-play' />
-                      </span>
-                      <Link
-                        to='/contact'
-                        className='text-white hover-text-decoration-underline hover-text-main-two-600'
-                      >
-                        Talk to an Advisor
-                      </Link>
+                      </span> */}
+                      
                     </div>
                   </div>
                 </div>
@@ -175,7 +170,7 @@ const BannerThree = () => {
                   </div>
                   <div className='buttons-wrapper flex-align flex-wrap gap-24 mt-40'>
                     <Link
-                      to='/instructor'
+                      to='#'
                       className='btn btn-main rounded-pill flex-align gap-8  wow bounceInLeft'
                       data-wow-duration='1s'
                       data-wow-delay='.5s'
@@ -188,18 +183,13 @@ const BannerThree = () => {
                       data-wow-duration='1s'
                       data-wow-delay='.5s'
                     >
-                      <span
+                      {/* <span
                         onClick={() => setIsOpen(true)}
                         className='play-button position-relative z-1 w-48 h-48 flex-center bg-main-two-600 text-white rounded-circle text-xl'
                       >
                         <i className='ph-fill ph-play' />
-                      </span>
-                      <Link
-                        to='/our-courses'
-                        className='text-white hover-text-decoration-underline hover-text-main-two-600'
-                      >
-                        Explore Curriculum
-                      </Link>
+                      </span> */}
+                      
                     </div>
                   </div>
                 </div>
@@ -243,7 +233,7 @@ const BannerThree = () => {
                   </div>
                   <div className='buttons-wrapper flex-align flex-wrap gap-24 mt-40'>
                     <Link
-                      to='/know-CFL'
+                      to='#'
                       className='btn btn-main rounded-pill flex-align gap-8  wow bounceInLeft'
                       data-wow-duration='1s'
                       data-wow-delay='.5s'
@@ -256,18 +246,13 @@ const BannerThree = () => {
                       data-wow-duration='1s'
                       data-wow-delay='.5s'
                     >
-                      <span
+                      {/* <span
                         onClick={() => setIsOpen(true)}
                         className='play-button position-relative z-1 w-48 h-48 flex-center bg-main-two-600 text-white rounded-circle text-xl'
                       >
                         <i className='ph-fill ph-play' />
-                      </span>
-                      <Link
-                        to='/apply-admission'
-                        className='text-white hover-text-decoration-underline hover-text-main-two-600'
-                      >
-                        Explore Placement Track
-                      </Link>
+                      </span> */}
+                      
                     </div>
                   </div>
                 </div>

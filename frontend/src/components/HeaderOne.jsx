@@ -20,13 +20,10 @@ const HeaderOne = () => {
   }, []);
 
   const options = [
-    { value: 1, label: "Physics" },
-    { value: 2, label: "Math" },
-    { value: 3, label: "Biology" },
-    { value: 4, label: "English" },
-    { value: 5, label: "Higher Math" },
-    { value: 6, label: "Social Science" },
-    { value: 7, label: "Chemistry" },
+    { value: 1, label: "GradusQuity" },
+    { value: 2, label: "GradusX" },
+    { value: 3, label: "GradusLead" },
+    
   ];
 
   const [selectedOption, setSelectedOption] = useState(options[0]);
