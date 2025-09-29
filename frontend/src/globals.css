@@ -14806,6 +14806,31 @@ table.dataTable.display > tbody > tr > * {
   color: rgba(255, 255, 255, 0.72);
 }
 
+.our-courses-overview--light {
+  background: linear-gradient(145deg, #f3f6ff 0%, #ffffff 60%, #eef2ff 100%);
+}
+
+.our-courses-overview--light::before {
+  background: radial-gradient(50% 50% at 50% 0%, rgba(123, 104, 255, 0.18) 0%, rgba(123, 104, 255, 0) 75%);
+  opacity: 1;
+}
+
+.our-courses-overview--light .hero-description {
+  color: rgba(71, 78, 107, 0.88);
+}
+
+.our-courses-overview--light .overview-card:hover {
+  box-shadow: 0 24px 55px -28px rgba(20, 46, 95, 0.24);
+}
+
+.our-courses-overview--light .our-courses-slider .slick-dots li button:before {
+  color: rgba(24, 28, 56, 0.35);
+}
+
+.our-courses-overview--light .our-courses-slider .slick-dots li.slick-active button:before {
+  color: rgba(24, 28, 56, 0.85);
+}
+
 .our-courses-week-cards {
   position: relative;
   overflow: hidden;

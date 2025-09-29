@@ -5,7 +5,7 @@ import BrandTwo from "../components/BrandTwo";
 import ChooseUsTwo from "../components/ChooseUsTwo";
 import CounterTwo from "../components/CounterTwo";
 import EventOne from "../components/EventOne";
-import FacultyOne from "../components/FacultyOne";
+import HomeCourseSeriesOverview from "../components/home/HomeCourseSeriesOverview";
 import FooterThree from "../components/FooterThree";
 import HeaderOne from "../components/HeaderOne";
 import InfoTwo from "../components/InfoTwo";
@@ -42,8 +42,8 @@ const HomePageThree = () => {
       {/* CounterTwo */}
       <CounterTwo />
 
-      {/* FacultyOne */}
-      <FacultyOne />
+      {/* HomeCourseSeriesOverview */}
+      <HomeCourseSeriesOverview />
 
       {/* ChooseUsTwo */}
       <ChooseUsTwo />

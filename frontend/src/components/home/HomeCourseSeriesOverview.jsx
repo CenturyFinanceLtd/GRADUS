@@ -1,0 +1,107 @@
+import { useEffect, useMemo, useState } from "react";
+import CourseSeriesOverview from "../ourCourses/CourseSeriesOverview";
+import { fetchCoursePage } from "../../services/courseService";
+import { useAuth } from "../../context/AuthContext";
+
+const FALLBACK_HERO = {
+  tagIcon: "ph-bold ph-graduation-cap",
+  tagText: "Gradus Series Overview",
+  title: "Build Your Future with Gradus Course Series",
+  description:
+    "Each flagship program is crafted by Gradus India to combine industry credibility, immersive project work, and assured career outcomes through our guaranteed placement MoUs.",
+};
+
+const FALLBACK_COURSES = [
+  {
+    id: "gradusquity",
+    name: "GradusQuity",
+    subtitle: "By Gradus India (a 100% Subsidiary of Century Finance Limited)",
+    focus: "Capital markets mastery designed for future-ready equity, debt, and derivative professionals.",
+    approvals: [
+      "GradusQuity is approved by Skill India & NSDC.",
+      "MoU with each student for Guaranteed Placement.",
+    ],
+    placementRange:
+      "Guaranteed placement on package of 6 lac/Annum to 14 lac/Annum with our partnered companies.",
+    price: "₹3,72,000",
+  },
+  {
+    id: "gradusx",
+    name: "GradusX",
+    subtitle: "By Gradus India (a 100% Subsidiary of Century Finance Limited)",
+    focus:
+      "Full-stack technology, AI, and digital growth curriculum that unites software engineering with data storytelling.",
+    approvals: [
+      "GradusX is approved by Skill India & NSDC.",
+      "MoU with each student for Guaranteed Placement.",
+    ],
+    placementRange:
+      "Guaranteed placement on package of 6 lac/Annum to 14 lac/Annum with our partnered companies.",
+    price: "₹3,72,000",
+  },
+  {
+    id: "graduslead",
+    name: "GradusLead",
+    subtitle: "By Gradus India (a 100% Subsidiary of Century Finance Limited)",
+    focus:
+      "Business and leadership journey that cultivates emerging CXOs with finance, strategy, and people excellence.",
+    approvals: [
+      "GradusLead is approved by Skill India & NSDC.",
+      "MoU with each student for Guaranteed Placement.",
+    ],
+    placementRange:
+      "Guaranteed placement on package of 6 lac/Annum to 14 lac/Annum with our partnered companies.",
+    price: "₹3,72,000",
+  },
+];
+
+const HomeCourseSeriesOverview = () => {
+  const { token } = useAuth();
+  const [content, setContent] = useState({ hero: FALLBACK_HERO, courses: FALLBACK_COURSES });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCourses = async () => {
+      try {
+        const response = await fetchCoursePage(token ? { token } : undefined);
+        if (!isMounted) {
+          return;
+        }
+
+        const hero = response?.hero ?? FALLBACK_HERO;
+        const courses = Array.isArray(response?.courses) && response.courses.length
+          ? response.courses
+          : FALLBACK_COURSES;
+
+        setContent({ hero, courses });
+      } catch {
+        if (!isMounted) {
+          return;
+        }
+
+        setContent({ hero: FALLBACK_HERO, courses: FALLBACK_COURSES });
+      }
+    };
+
+    loadCourses();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [token]);
+
+  const featuredCourses = useMemo(() => {
+    if (!Array.isArray(content.courses)) {
+      return FALLBACK_COURSES;
+    }
+
+    return content.courses.slice(0, 3);
+  }, [content.courses]);
+
+  return (
+    <CourseSeriesOverview heroContent={content.hero} courses={featuredCourses} variant="light" />
+  );
+};
+
+export default HomeCourseSeriesOverview;

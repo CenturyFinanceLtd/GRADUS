@@ -2,7 +2,7 @@
 import { useCallback, useMemo } from 'react';
 import Slider from 'react-slick';
 
-const CourseSeriesOverview = ({ heroContent, courses = [] }) => {
+const CourseSeriesOverview = ({ heroContent, courses = [], variant = 'dark' }) => {
   const safeCourses = useMemo(
     () => (Array.isArray(courses) ? courses.filter((course) => course?.name) : []),
     [courses]
@@ -12,6 +12,13 @@ const CourseSeriesOverview = ({ heroContent, courses = [] }) => {
   const { tagIcon, tagText, title, description } = hero;
   const hasHeroContent = Boolean(tagIcon || tagText || title || description);
   const shouldRender = hasHeroContent || safeCourses.length > 0;
+  const sectionClassName = `our-courses-overview py-120 position-relative z-1${
+    variant === 'light' ? ' our-courses-overview--light' : ''
+  }`;
+  const titleClassName = `mt-24 mb-16 ${variant === 'light' ? 'text-neutral-900' : 'text-white'}`;
+  const descriptionClassName = `hero-description mb-0${
+    variant === 'light' ? ' text-neutral-600' : ''
+  }`;
 
   const handleExploreClick = useCallback((courseId, event) => {
     if (typeof window === 'undefined') return;
@@ -51,51 +58,56 @@ const CourseSeriesOverview = ({ heroContent, courses = [] }) => {
     const price = course.price;
 
     return (
-      <div className='p-32 h-100 bg-white border border-neutral-30 rounded-24 box-shadow-md position-relative overview-card mx-auto'>
-      <div className='d-flex align-items-start gap-16 mb-20'>
-        <span className='flex-shrink-0 w-52 h-52 rounded-circle bg-main-600 text-white flex-center text-xl fw-semibold'>
-          {nameInitial}
-        </span>
-        <div>
-          <h4 className='mb-8 text-neutral-900'>{course.name}</h4>
-          {course.subtitle ? <p className='text-neutral-600 mb-0'>{course.subtitle}</p> : null}
+      <div
+        className='p-32 h-100 bg-white border border-neutral-30 rounded-24 box-shadow-md position-relative overview-card mx-auto'
+      >
+        <div className='d-flex align-items-start gap-16 mb-20'>
+          <span className='flex-shrink-0 w-52 h-52 rounded-circle bg-main-600 text-white flex-center text-xl fw-semibold'>
+            {nameInitial}
+          </span>
+          <div>
+            <h4 className='mb-8 text-neutral-900'>{course.name}</h4>
+            {course.subtitle ? <p className='text-neutral-600 mb-0'>{course.subtitle}</p> : null}
+          </div>
         </div>
+        {course.focus ? <p className='text-neutral-500 mb-20'>{course.focus}</p> : null}
+        {price ? (
+          <p className='text-neutral-800 fw-semibold mb-20'>
+            Program Fee: <span className='text-main-600'>{price}</span>
+          </p>
+        ) : null}
+        {approvals.length ? (
+          <ul className='list-unstyled d-grid gap-12 mb-24'>
+            {approvals.map((item, index) => (
+              <li
+                className='d-flex align-items-start gap-12 text-neutral-600'
+                key={`overview-${courseId}-approval-${index}`}
+              >
+                <i className='ph-bold ph-check-circle text-main-600 mt-2 d-inline-flex' />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {placementRange ? (
+          <div className='p-16 rounded-16 bg-main-25 text-neutral-700 fw-medium mb-24'>{placementRange}</div>
+        ) : null}
+        {courseId ? (
+          <button
+            type='button'
+            onClick={(event) => handleExploreClick(courseId, event)}
+            className='btn btn-main rounded-pill flex-align gap-8'
+          >
+            Explore Series
+            <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
+          </button>
+        ) : null}
       </div>
-      {course.focus ? <p className='text-neutral-500 mb-20'>{course.focus}</p> : null}
-      {price ? (
-        <p className='text-neutral-800 fw-semibold mb-20'>
-          Program Fee: <span className='text-main-600'>{price}</span>
-        </p>
-      ) : null}
-      {approvals.length ? (
-        <ul className='list-unstyled d-grid gap-12 mb-24'>
-          {approvals.map((item, index) => (
-            <li className='d-flex align-items-start gap-12 text-neutral-600' key={`overview-${courseId}-approval-${index}`}>
-              <i className='ph-bold ph-check-circle text-main-600 mt-2 d-inline-flex' />
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-      {placementRange ? (
-        <div className='p-16 rounded-16 bg-main-25 text-neutral-700 fw-medium mb-24'>{placementRange}</div>
-      ) : null}
-      {courseId ? (
-        <button
-          type='button'
-          onClick={(event) => handleExploreClick(courseId, event)}
-          className='btn btn-main rounded-pill flex-align gap-8'
-        >
-          Explore Series
-          <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
-        </button>
-      ) : null}
-    </div>
     );
   };
 
   return (
-    <section className='our-courses-overview py-120 position-relative z-1'>
+    <section className={sectionClassName}>
       <div className='container'>
         {hasHeroContent ? (
           <div className='row justify-content-center text-center'>
@@ -106,8 +118,8 @@ const CourseSeriesOverview = ({ heroContent, courses = [] }) => {
                   {tagText}
                 </div>
               ) : null}
-              {title ? <h2 className='mt-24 mb-16 text-white'>{title}</h2> : null}
-              {description ? <p className='hero-description mb-0'>{description}</p> : null}
+              {title ? <h2 className={titleClassName}>{title}</h2> : null}
+              {description ? <p className={descriptionClassName}>{description}</p> : null}
             </div>
           </div>
         ) : null}
