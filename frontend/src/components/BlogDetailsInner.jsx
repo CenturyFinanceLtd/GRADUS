@@ -374,7 +374,7 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
   const renderComment = (comment, depth = 0) => (
     <div
       key={comment.id}
-      className={`comment-item px-32 py-20 align-items-start border-bottom border-neutral-40 ${
+      className={`comment-item px-32 py-20 align-items-start border-bottom border-neutral-40 blog-details__comment-item ${
         depth > 0 ? 'comment-item--reply' : ''
       }`}
     >
@@ -404,46 +404,46 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
   return (
     <div className='blog-page-section py-120'>
       <div className='container'>
-        <div className='flex-between gap-16 flex-wrap mb-40'>
-          <span className='text-neutral-500'>Published in {blog.category || "Uncategorized"}</span>
-          <div className='flex-align gap-16'>
-            <div className='flex-align gap-8'>
-              <span className='text-neutral-500 flex-shrink-0'>Sort By :</span>
-              <select className='form-select ps-20 pe-28 py-8 fw-medium rounded-pill bg-main-25 border border-neutral-30 text-neutral-700'>
-                <option value='newest'>Newest</option>
-                <option value='trending'>Trending</option>
-                <option value='popular'>Popular</option>
-              </select>
-            </div>
+        <div className='blog-details__controls flex-between gap-16 flex-wrap mb-40'>
+          <span className='blog-details__category text-neutral-500'>
+            Published in {blog.category || "Uncategorized"}
+          </span>
+          <div className='blog-details__sort flex-align gap-8'>
+            <span className='text-neutral-500 flex-shrink-0'>Sort By :</span>
+            <select className='form-select ps-20 pe-28 py-8 fw-medium rounded-pill bg-main-25 border border-neutral-30 text-neutral-700'>
+              <option value='newest'>Newest</option>
+              <option value='trending'>Trending</option>
+              <option value='popular'>Popular</option>
+            </select>
           </div>
         </div>
-        <div className='row gy-4'>
+        <div className='row gy-4 blog-details__layout'>
           <div className='col-lg-8'>
-            <div className='bg-main-25 rounded-16 p-12 border border-neutral-30'>
-              <div className='rounded-12 overflow-hidden position-relative'>
+            <div className='bg-main-25 rounded-16 p-12 border border-neutral-30 blog-details__main'>
+              <div className='rounded-12 overflow-hidden position-relative blog-details__cover'>
                 <img src={featuredImage} alt={blog.title} className='rounded-12 cover-img transition-2' />
-                <div className='position-absolute inset-inline-end-0 inset-block-end-0 me-16 mb-16 py-12 px-24 rounded-8 bg-main-two-600 text-white fw-medium text-center'>
+                <div className='position-absolute inset-inline-end-0 inset-block-end-0 me-16 mb-16 py-12 px-24 rounded-8 bg-main-two-600 text-white fw-medium text-center blog-details__date-badge'>
                   <h3 className='mb-0 text-white fw-medium'>{publishedMeta.day}</h3>
                   {publishedMeta.month}
                 </div>
               </div>
               <div className='pt-32 pb-24 px-16 position-relative'>
-                <div className='flex-align gap-14 flex-wrap mb-20'>
-                  <div className='flex-align gap-8'>
+                <div className='flex-align gap-14 flex-wrap mb-20 blog-details__meta'>
+                  <div className='flex-align gap-8 blog-details__meta-item'>
                     <span className='text-neutral-500 text-2xl d-flex'>
                       <i className='ph ph-user-circle' />
                     </span>
                     <span className='text-neutral-500 text-lg'>By {author}</span>
                   </div>
-                  <span className='w-8 h-8 bg-neutral-100 rounded-circle' />
-                  <div className='flex-align gap-8'>
+                  <span className='w-8 h-8 bg-neutral-100 rounded-circle blog-details__meta-separator' />
+                  <div className='flex-align gap-8 blog-details__meta-item'>
                     <span className='text-neutral-500 text-2xl d-flex'>
                       <i className='ph-bold ph-eye' />
                     </span>
                     <span className='text-neutral-500 text-lg'>{views}</span>
                   </div>
-                  <span className='w-8 h-8 bg-neutral-100 rounded-circle' />
-                  <div className='flex-align gap-8'>
+                  <span className='w-8 h-8 bg-neutral-100 rounded-circle blog-details__meta-separator' />
+                  <div className='flex-align gap-8 blog-details__meta-item'>
                     <span className='text-neutral-500 text-2xl d-flex'>
                       <i className='ph ph-chat-dots' />
                     </span>
@@ -464,12 +464,12 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
                 ) : null}
               </div>
             </div>
-            <div className='border border-neutral-30 rounded-12 bg-main-25 p-0 mt-24 overflow-hidden instagram-comments'>
+            <div className='border border-neutral-30 rounded-12 bg-main-25 p-0 mt-24 overflow-hidden instagram-comments blog-details__comments'>
               <div className='p-32 border-bottom border-neutral-50 d-flex justify-content-between align-items-center'>
                 <h4 className='mb-0'>Comments</h4>
                 <span className='text-neutral-500 fw-medium'>{commentsCount}</span>
               </div>
-              <div className='comments-scrollable'>
+              <div className='comments-scrollable blog-details__comments-list'>
                 {commentsLoading ? (
                   <div className='d-flex justify-content-center py-4'>
                     <div className='spinner-border text-primary' role='status'>
@@ -550,7 +550,7 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
           </div>
           <div className='col-lg-4'>
             <div className='blog-details__sidebar d-flex flex-column gap-24'>
-              <div className='card'>
+              <div className='card blog-details__sidebar-card'>
                 <div className='card-header border-bottom'>
                   <h6 className='text-xl mb-0'>Recent Posts</h6>
                 </div>
@@ -578,11 +578,10 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
                         : "/assets/images/blog/blog1.png";
 
                       return (
-                        <div key={recent.id} className='d-flex gap-12 align-items-start'>
+                        <div key={recent.id} className='d-flex gap-12 align-items-start blog-details__recent-item'>
                           <Link
                             to={`/blogs/${recent.slug}`}
-                            className='blog__thumb radius-12 overflow-hidden flex-shrink-0'
-                            style={{ width: "100px", height: "100px" }}
+                            className='blog__thumb radius-12 overflow-hidden flex-shrink-0 blog-details__recent-thumb'
                           >
                             <img src={image} alt={recent.title} className='w-100 h-100 object-fit-cover' />
                           </Link>
@@ -605,7 +604,7 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
                   )}
                 </div>
               </div>
-              <div className='card'>
+              <div className='card blog-details__sidebar-card'>
                 <div className='card-header border-bottom'>
                   <h6 className='text-xl mb-0'>Categories</h6>
                 </div>
