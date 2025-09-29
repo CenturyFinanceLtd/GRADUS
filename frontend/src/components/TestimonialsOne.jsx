@@ -77,10 +77,11 @@ const TestimonialsOne = () => {
                   <h5 className='text-main-600 mb-0'>What Our Students Say</h5>
                 </div>
                 <h2 className='mb-24 wow bounceIn'>
-                  Testimonials from Happy Learners for Gradus
+                  Stories from Learners Who Chose Gradus India
                 </h2>
                 <p className='text-neutral-500 text-line-2 wow bounceInUp'>
-                  16+ million Students are already learning on Gradus Platform
+                  5,000+ professionals nationwide trust GradusQuity, GradusX,
+                  and GradusLead to fast-track their careers.
                 </p>
               </div>
               <div className='testimonials__slider '>
@@ -112,16 +113,17 @@ const TestimonialsOne = () => {
                       data-aos='fade-left'
                       data-aos-duration={1200}
                     >
-                      "Enrolling in courses at Gradus was one of the best
-                      decisions I've made for my career. The flexibility of the
-                      online learning platform allowed me to study at my own
-                      pace while balancing my work”
+                      "GradusQuity gave me a clear blueprint for breaking into
+                      investment banking. Weekend market labs, mentorship, and
+                      placement coaching meant I could keep my Mumbai job while
+                      preparing for interviews—and land an offer at ICICI
+                      Securities."
                     </p>
                     <h4 className='mt-48 mb-8' data-aos='fade-left'>
-                      Kathryn Murphy
+                      Priya Verma
                     </h4>
                     <span className='text-neutral-700' data-aos='fade-left'>
-                      Software Developer
+                      GradusQuity Alum, ICICI Securities
                     </span>
                   </div>
                   <div className='testimonials-item'>
@@ -151,16 +153,16 @@ const TestimonialsOne = () => {
                       data-aos='fade-left'
                       data-aos-duration={1200}
                     >
-                      "Signing up for courses at Gradus was quite possibly of
-                      the best choice I've made for my vocation. The
-                      adaptability of the internet learning stage permitted me
-                      to learn at my own speed while adjusting my work"
+                      "The GradusX product analytics track paired every module
+                      with real startup briefs. Working with mentors from
+                      Bengaluru fintechs helped me ship a growth dashboard that
+                      impressed Razorpay and secured my current role."
                     </p>
                     <h4 className='mt-48 mb-8' data-aos='fade-left'>
-                      John Doe
+                      Arjun Malhotra
                     </h4>
                     <span className='text-neutral-700' data-aos='fade-left'>
-                      UX/UI Designer
+                      Product Analyst, Razorpay
                     </span>
                   </div>
                 </Slider>
