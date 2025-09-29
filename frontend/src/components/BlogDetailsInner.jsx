@@ -575,7 +575,7 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
                         ? recent.featuredImage.startsWith("http")
                           ? recent.featuredImage
                           : ASSETS_BASE_URL + recent.featuredImage
-                        : "/assets/images/blog/blog1.png";
+                        : "/assets/images/blogs/blog1.png";
 
                       return (
                         <div key={recent.id} className='d-flex gap-12 align-items-start blog-details__recent-item'>

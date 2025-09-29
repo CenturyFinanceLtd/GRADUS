@@ -1,9 +1,9 @@
 const express = require('express');
 const {
-  fetchBlogEngagementStats,
-  fetchPageViewStats,
-  fetchVisitorSummary,
-  fetchMonthlyVisitors,
+    fetchBlogEngagementStats,
+    fetchPageViewStats,
+    fetchVisitorSummary,
+    fetchMonthlyVisitors,
 } = require('../controllers/analyticsController');
 const { protectAdmin } = require('../middleware/adminAuthMiddleware');
 
