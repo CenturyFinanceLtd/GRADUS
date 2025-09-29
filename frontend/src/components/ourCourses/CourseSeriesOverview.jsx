@@ -1,5 +1,6 @@
 
 import { useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 
 const CourseSeriesOverview = ({ heroContent, courses = [], variant = 'dark' }) => {
@@ -20,18 +21,31 @@ const CourseSeriesOverview = ({ heroContent, courses = [], variant = 'dark' }) =
     variant === 'light' ? ' text-neutral-600' : ''
   }`;
 
-  const handleExploreClick = useCallback((courseId, event) => {
-    if (typeof window === 'undefined') return;
+  const navigate = useNavigate();
 
-    event.preventDefault();
-    const target = document.getElementById(courseId);
-    if (!target) {
-      return;
-    }
+  const handleExploreClick = useCallback(
+    (courseId, event) => {
+      if (!courseId) {
+        return;
+      }
 
-    const scrollTarget = target.getBoundingClientRect().top + window.pageYOffset - 96;
-    window.scrollTo({ top: Math.max(scrollTarget, 0), behavior: 'smooth' });
-  }, []);
+      if (event?.preventDefault) {
+        event.preventDefault();
+      }
+
+      if (typeof window !== 'undefined') {
+        const target = document.getElementById(courseId);
+        if (target) {
+          const scrollTarget = target.getBoundingClientRect().top + window.pageYOffset - 96;
+          window.scrollTo({ top: Math.max(scrollTarget, 0), behavior: 'smooth' });
+          return;
+        }
+      }
+
+      navigate(`/our-courses#${courseId}`);
+    },
+    [navigate]
+  );
 
   if (!shouldRender) {
     return null;
