@@ -180,65 +180,7 @@ const ContactInner = () => {
                 Share your learner, campus, or workforce goals and we'll craft a tailored, industry-aligned pathway.
                 With 16+ years of experience, employer-led mentors, and immersive internships, the Gradus team accelerates outcomes with confidence.
               </p>
-              <div className='d-flex flex-column flex-lg-row align-items-center gap-24 mt-32'>
-                <div className='enrolled-students mt-0 d-flex gap-12'>
-                  <img
-                    src='/assets/images/thumbs/enroll-student-img1.png'
-                    alt=''
-                    className='w-48 h-48 rounded-circle object-fit-cover transition-2'
-                  />
-                  <img
-                    src='/assets/images/thumbs/enroll-student-img2.png'
-                    alt=''
-                    className='w-48 h-48 rounded-circle object-fit-cover transition-2'
-                  />
-                  <img
-                    src='/assets/images/thumbs/enroll-student-img3.png'
-                    alt=''
-                    className='w-48 h-48 rounded-circle object-fit-cover transition-2'
-                  />
-                  <img
-                    src='/assets/images/thumbs/enroll-student-img4.png'
-                    alt=''
-                    className='w-48 h-48 rounded-circle object-fit-cover transition-2'
-                  />
-                  <img
-                    src='/assets/images/thumbs/enroll-student-img5.png'
-                    alt=''
-                    className='w-48 h-48 rounded-circle object-fit-cover transition-2'
-                  />
-                  <img
-                    src='/assets/images/thumbs/enroll-student-img6.png'
-                    alt=''
-                    className='w-48 h-48 rounded-circle object-fit-cover transition-2'
-                  />
-                </div>
-                <div className='text-center text-lg-start'>
-                  <ul className='flex-align gap-4 justify-content-center justify-content-lg-start mb-12'>
-                    <li className='text-warning-600 text-2xl d-flex'>
-                      <i className='ph-fill ph-star' />
-                    </li>
-                    <li className='text-warning-600 text-2xl d-flex'>
-                      <i className='ph-fill ph-star' />
-                    </li>
-                    <li className='text-warning-600 text-2xl d-flex'>
-                      <i className='ph-fill ph-star' />
-                    </li>
-                    <li className='text-warning-600 text-2xl d-flex'>
-                      <i className='ph-fill ph-star' />
-                    </li>
-                    <li className='text-warning-600 text-2xl d-flex'>
-                      <i className='ph-fill ph-star-half' />
-                    </li>
-                  </ul>
-                  <span className='text-neutral-700 fw-medium d-block'>
-                    4.9/5 satisfaction from campuses & hiring partners
-                  </span>
-                  <span className='text-neutral-500 d-block'>
-                    178+ hiring alliances | 25k+ careers accelerated
-                  </span>
-                </div>
-              </div>
+              
             </div>
           </div>
           <div className='row justify-content-center mt-60'>

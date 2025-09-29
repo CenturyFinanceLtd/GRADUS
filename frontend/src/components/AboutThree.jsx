@@ -46,38 +46,7 @@ const AboutThree = () => {
                       <span className='text-white'>
                         Strategic Hiring Partners
                       </span>
-                      <div className='enrolled-students style-two mt-12'>
-                        <img
-                          src='/assets/images/thumbs/enroll-student-img1.png'
-                          alt=''
-                          className='w-32 h-32 rounded-circle object-fit-cove transition-2'
-                        />
-                        <img
-                          src='/assets/images/thumbs/enroll-student-img2.png'
-                          alt=''
-                          className='w-32 h-32 rounded-circle object-fit-cove transition-2'
-                        />
-                        <img
-                          src='/assets/images/thumbs/enroll-student-img3.png'
-                          alt=''
-                          className='w-32 h-32 rounded-circle object-fit-cove transition-2'
-                        />
-                        <img
-                          src='/assets/images/thumbs/enroll-student-img4.png'
-                          alt=''
-                          className='w-32 h-32 rounded-circle object-fit-cove transition-2'
-                        />
-                        <img
-                          src='/assets/images/thumbs/enroll-student-img5.png'
-                          alt=''
-                          className='w-32 h-32 rounded-circle object-fit-cove transition-2'
-                        />
-                        <img
-                          src='/assets/images/thumbs/enroll-student-img6.png'
-                          alt=''
-                          className='w-32 h-32 rounded-circle object-fit-cove transition-2'
-                        />
-                      </div>
+                      
                     </div>
                     <img
                       src='/assets/images/thumbs/about-three-img2.png'

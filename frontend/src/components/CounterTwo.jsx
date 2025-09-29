@@ -7,7 +7,7 @@ const CounterTwo = () => {
     threshold: 0.1,
   });
   return (
-    <section className='counter-three py-120 bg-main-25'>
+    <section className='counter-three py-120'>
       <div className='container'>
         <div className='p-16 rounded-16 bg-white'>
           <div className='row gy-4'>
