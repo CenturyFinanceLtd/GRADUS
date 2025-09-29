@@ -1,4 +1,43 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const DEFAULT_LOCAL_API_BASE_URL = 'http://localhost:5000/api';
+const DEFAULT_REMOTE_API_BASE_URL = 'https://api.gradusindia.in/api';
+
+const isLocalhost = (hostname) => {
+  if (!hostname) {
+    return false;
+  }
+
+  const normalizedHost = hostname.toLowerCase();
+  return (
+    normalizedHost === 'localhost' ||
+    normalizedHost === '127.0.0.1' ||
+    normalizedHost === '[::1]' ||
+    normalizedHost.endsWith('.local')
+  );
+};
+
+const resolveApiBaseUrl = () => {
+  const envValue = import.meta.env.VITE_API_BASE_URL;
+
+  if (typeof window !== 'undefined') {
+    const { hostname } = window.location;
+
+    if (isLocalhost(hostname)) {
+      if (envValue && /^https?:\/\/localhost(?::\d+)?\/.*/i.test(envValue)) {
+        return envValue;
+      }
+
+      return DEFAULT_LOCAL_API_BASE_URL;
+    }
+  }
+
+  if (envValue) {
+    return envValue;
+  }
+
+  return DEFAULT_REMOTE_API_BASE_URL;
+};
+
+export const API_BASE_URL = resolveApiBaseUrl();
 
 const parseResponse = async (response) => {
   const contentType = response.headers.get('content-type');

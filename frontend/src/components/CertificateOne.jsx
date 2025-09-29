@@ -18,7 +18,7 @@ const CertificateOne = () => {
                       Get Quality Skills Certificate From the Gradus
                     </h2>
                     <Link
-                      to='#'
+                      to='/our-courses'
                       className='btn btn-white rounded-pill flex-align d-inline-flex gap-8 hover-bg-main-800 wow bounceInUp'
                     >
                       Get Started Now

@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import apiClient from "../services/apiClient";
+import apiClient, { API_BASE_URL } from "../services/apiClient";
 import "./BlogDetailsInner.css";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 const ASSETS_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
 const FALLBACK_IMAGE = "/assets/images/thumbs/blog-details-img.png";
 

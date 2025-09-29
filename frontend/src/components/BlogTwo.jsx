@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Slider from "react-slick";
-import apiClient from "../services/apiClient";
+import apiClient, { API_BASE_URL } from "../services/apiClient";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 const ASSET_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
 const FALLBACK_IMAGE = "/assets/images/thumbs/blog-two-img1.png";
 
