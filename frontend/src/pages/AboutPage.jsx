@@ -6,7 +6,7 @@ import ChooseUsOne from "../components/ChooseUsOne";
 import CounterOne from "../components/CounterOne";
 import FooterOne from "../components/FooterOne";
 import HeaderOne from "../components/HeaderOne";
-import InstructorOne from "../components/InstructorOne";
+import HomeCourseSeriesOverview from "../components/home/HomeCourseSeriesOverview";
 import TestimonialsOne from "../components/TestimonialsOne";
 import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
@@ -29,8 +29,8 @@ const AboutPage = () => {
       {/* AboutOne */}
       <AboutOne />
 
-      {/* InstructorOne */}
-      <InstructorOne />
+      {/* HomeCourseSeriesOverview */}
+      <HomeCourseSeriesOverview />
 
       {/* ChooseUsOne */}
       <ChooseUsOne />

@@ -122,6 +122,7 @@ const CourseSeriesOverview = ({ heroContent, courses = [], variant = 'dark' }) =
 
   return (
     <section className={sectionClassName}>
+     
       <div className='container'>
         {hasHeroContent ? (
           <div className='row justify-content-center text-center'>

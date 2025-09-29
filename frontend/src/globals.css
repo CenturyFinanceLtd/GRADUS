@@ -14738,6 +14738,16 @@ table.dataTable.display > tbody > tr > * {
   background: linear-gradient(155deg, #1a1033 0%, #24194d 50%, #080b1c 100%);
 }
 
+.our-courses-overview__shape {
+  position: absolute;
+  inset-block-start: 60%;
+  inset-inline-start: -56px;
+  width: 160px;
+  opacity: 0.85;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
 .our-courses-overview::before {
   content: "";
   position: absolute;
