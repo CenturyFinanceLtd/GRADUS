@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import PlacementPartnersCarousel from './PlacementPartnersCarousel';
+import { normalizePartnerEntries } from '../../utils/partners';
 import { useAuth } from '../../context/AuthContext';
 
 const VISIBLE_WEEKS = 2;
@@ -33,7 +34,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false, onRequestE
     [activeCourse?.certifications]
   );
   const partners = useMemo(
-    () => (Array.isArray(activeCourse?.partners) ? activeCourse.partners.filter(Boolean) : []),
+    () => normalizePartnerEntries(activeCourse?.partners),
     [activeCourse?.partners]
   );
   const isCourseEnrolled = Boolean(activeCourse?.isEnrolled);

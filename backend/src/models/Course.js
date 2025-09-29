@@ -40,6 +40,26 @@ const certificationSchema = new mongoose.Schema(
   }
 );
 
+const partnerSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      trim: true,
+    },
+    logo: {
+      type: String,
+      trim: true,
+    },
+    website: {
+      type: String,
+      trim: true,
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
 const courseSchema = new mongoose.Schema(
   {
     name: {
@@ -90,7 +110,7 @@ const courseSchema = new mongoose.Schema(
       trim: true,
     },
     partners: {
-      type: [String],
+      type: [partnerSchema],
       default: [],
     },
     weeks: {

@@ -49,6 +49,39 @@ const normalizeCertificationInput = (certifications) => {
     .filter((cert) => cert.level || cert.certificateName || cert.coverage.length || cert.outcome);
 };
 
+const normalizePartnerInput = (partners) => {
+  if (!Array.isArray(partners)) {
+    return [];
+  }
+
+  return partners
+    .map((partner) => {
+      if (!partner) {
+        return null;
+      }
+
+      if (typeof partner === 'string') {
+        const name = normalizeString(partner);
+        return name ? { name, logo: '', website: '' } : null;
+      }
+
+      if (typeof partner === 'object') {
+        const name = normalizeString(partner?.name || partner?.title || partner?.label);
+        const logo = normalizeString(partner?.logo || partner?.logoUrl || partner?.image);
+        const website = normalizeString(partner?.website || partner?.url || partner?.link);
+
+        if (!name && !logo && !website) {
+          return null;
+        }
+
+        return { name, logo, website };
+      }
+
+      return null;
+    })
+    .filter(Boolean);
+};
+
 const generateSlug = (value) => {
   if (!value) {
     return '';
@@ -88,6 +121,8 @@ const buildCoursePayload = (body, existingCourse) => {
   const orderValue = Number(body?.order);
   const order = Number.isFinite(orderValue) ? orderValue : existingCourse?.order ?? Date.now();
 
+  const partnersInput = Array.isArray(body?.partners) ? body.partners : existingCourse?.partners;
+
   return {
     name,
     slug,
@@ -100,7 +135,7 @@ const buildCoursePayload = (body, existingCourse) => {
     deliverables: normalizeStringArray(body?.deliverables),
     outcomes: normalizeStringArray(body?.outcomes),
     finalAward: normalizeString(body?.finalAward),
-    partners: normalizeStringArray(body?.partners),
+    partners: normalizePartnerInput(partnersInput),
     weeks: normalizeWeekInput(body?.weeks),
     certifications: normalizeCertificationInput(body?.certifications),
     order,
@@ -121,6 +156,8 @@ const createLockedPoint = (point) => ({
 const mapCourseForPublic = (course, enrollment) => {
   const isEnrolled = Boolean(enrollment);
 
+  const partners = normalizePartnerInput(course.partners);
+
   return {
     id: course.slug,
     slug: course.slug,
@@ -134,7 +171,7 @@ const mapCourseForPublic = (course, enrollment) => {
     deliverables: ensureArray(course.deliverables),
     outcomes: ensureArray(course.outcomes),
     finalAward: course.finalAward,
-    partners: ensureArray(course.partners),
+    partners,
     weeks: ensureArray(course.weeks).map((week) => {
       const points = ensureArray(week.points).map((point) =>
         isEnrolled
@@ -179,7 +216,7 @@ const mapCourseForAdmin = (course) => ({
   deliverables: ensureArray(course.deliverables),
   outcomes: ensureArray(course.outcomes),
   finalAward: course.finalAward,
-  partners: ensureArray(course.partners),
+  partners: normalizePartnerInput(course.partners),
   weeks: ensureArray(course.weeks).map((week) => ({
     title: week.title,
     points: ensureArray(week.points),

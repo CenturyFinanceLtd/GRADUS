@@ -17,6 +17,61 @@ const normalizeArray = (value) => {
     });
 };
 
+const normalizePartners = (value) => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((partner) => {
+      if (!partner) {
+        return null;
+      }
+
+      if (typeof partner === 'string') {
+        const name = partner.trim();
+        return name ? { name, logo: '', website: '' } : null;
+      }
+
+      if (typeof partner === 'object') {
+        const name = typeof partner.name === 'string' ? partner.name.trim() : '';
+        const title = typeof partner.title === 'string' ? partner.title.trim() : '';
+        const label = typeof partner.label === 'string' ? partner.label.trim() : '';
+        const logo =
+          typeof partner.logo === 'string'
+            ? partner.logo.trim()
+            : typeof partner.logoUrl === 'string'
+            ? partner.logoUrl.trim()
+            : typeof partner.image === 'string'
+            ? partner.image.trim()
+            : '';
+        const website =
+          typeof partner.website === 'string'
+            ? partner.website.trim()
+            : typeof partner.url === 'string'
+            ? partner.url.trim()
+            : typeof partner.link === 'string'
+            ? partner.link.trim()
+            : '';
+
+        const normalizedName = name || title || label;
+
+        if (!normalizedName && !logo && !website) {
+          return null;
+        }
+
+        return {
+          name: normalizedName,
+          logo,
+          website,
+        };
+      }
+
+      return null;
+    })
+    .filter(Boolean);
+};
+
 const ensureCourseContent = async () => {
   const [courseCount, pageCount] = await Promise.all([
     Course.countDocuments(),
@@ -35,7 +90,7 @@ const ensureCourseContent = async () => {
       deliverables: normalizeArray(course.deliverables),
       outcomes: normalizeArray(course.outcomes),
       finalAward: course.finalAward,
-      partners: normalizeArray(course.partners),
+      partners: normalizePartners(course.partners),
       weeks: normalizeArray(course.weeks).map((week) => ({
         title: week.title,
         points: normalizeArray(week.points),

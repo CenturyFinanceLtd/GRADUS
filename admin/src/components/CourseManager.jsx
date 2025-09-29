@@ -60,6 +60,122 @@ const splitLines = (text) =>
     .map((line) => line.trim())
     .filter((line) => line.length > 0);
 
+const trimValue = (value) => (typeof value === "string" ? value.trim() : "");
+const isLikelyImageOrAsset = (value) =>
+  /^(https?:\/\/|www\.|data:|\/)/i.test(value) || /\.(png|jpe?g|svg|webp|gif)$/i.test(value);
+const isLikelyUrl = (value) =>
+  /^(https?:\/\/|www\.|mailto:)/i.test(value) || /^[\w.-]+\.[a-z]{2,}$/i.test(value);
+
+const formatPartnerForText = (partner) => {
+  if (!partner) {
+    return "";
+  }
+
+  if (typeof partner === "string") {
+    return partner;
+  }
+
+  const name = trimValue(partner.name || partner.title || partner.label);
+  const logo = trimValue(partner.logo || partner.logoUrl || partner.image);
+  const website = trimValue(partner.website || partner.url || partner.link);
+
+  if (logo && website && !name) {
+    return `${logo} | ${website}`;
+  }
+
+  const parts = [];
+
+  if (name) {
+    parts.push(name);
+  }
+  if (logo) {
+    parts.push(logo);
+  }
+  if (website) {
+    parts.push(website);
+  }
+
+  return parts.join(" | ");
+};
+
+const parsePartnerLines = (text) =>
+  text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .map((line) => {
+      const separator = line.includes("|") ? "|" : line.includes(",") ? "," : "|";
+      const parts = line
+        .split(separator)
+        .map((part) => part.trim())
+        .filter((part) => part.length > 0)
+        .slice(0, 3);
+
+      if (parts.length === 0) {
+        return null;
+      }
+
+      if (parts.length === 1) {
+        return {
+          name: parts[0],
+          logo: "",
+          website: "",
+        };
+      }
+
+      if (parts.length === 2) {
+        const [first, second] = parts;
+        const firstLooksLikeAsset = isLikelyImageOrAsset(first);
+        const secondLooksLikeUrl = isLikelyUrl(second);
+        const secondLooksLikeAsset = isLikelyImageOrAsset(second);
+
+        if (firstLooksLikeAsset && secondLooksLikeUrl) {
+          return {
+            name: "",
+            logo: first,
+            website: second,
+          };
+        }
+
+        if (!firstLooksLikeAsset && secondLooksLikeUrl) {
+          return {
+            name: first,
+            logo: "",
+            website: second,
+          };
+        }
+
+        if (!firstLooksLikeAsset && secondLooksLikeAsset) {
+          return {
+            name: first,
+            logo: second,
+            website: "",
+          };
+        }
+
+        if (firstLooksLikeAsset && !secondLooksLikeUrl) {
+          return {
+            name: second,
+            logo: first,
+            website: "",
+          };
+        }
+
+        return {
+          name: "",
+          logo: first,
+          website: second,
+        };
+      }
+
+      return {
+        name: parts[0],
+        logo: parts[1] || "",
+        website: parts[2] || "",
+      };
+    })
+    .filter((partner) => partner && (partner.name || partner.logo || partner.website));
+
 const convertCourseToForm = (course) => ({
   id: course.id,
   name: course.name || "",
@@ -73,7 +189,10 @@ const convertCourseToForm = (course) => ({
   deliverablesText: (course.deliverables || []).join("\n"),
   outcomesText: (course.outcomes || []).join("\n"),
   finalAward: course.finalAward || "",
-  partnersText: (course.partners || []).join("\n"),
+  partnersText: (Array.isArray(course.partners) ? course.partners : [])
+    .map((partner) => formatPartnerForText(partner))
+    .filter((line) => line.length > 0)
+    .join("\n"),
   order: course.order ?? "",
   weeks: (course.weeks || []).map((week) => ({
     title: week.title || "",
@@ -100,7 +219,7 @@ const convertFormToPayload = (form) => {
     deliverables: splitLines(form.deliverablesText || ""),
     outcomes: splitLines(form.outcomesText || ""),
     finalAward: form.finalAward.trim(),
-    partners: splitLines(form.partnersText || ""),
+    partners: parsePartnerLines(form.partnersText || ""),
     weeks: form.weeks
       .map((week) => ({
         title: week.title.trim(),
@@ -734,7 +853,7 @@ const CourseManager = () => {
           </div>
           <div className='col-md-6'>
             <label htmlFor='partnersText' className='form-label fw-medium'>
-              Placement Partners (one per line)
+              Placement Partners (bulk add supported)
             </label>
             <textarea
               id='partnersText'
@@ -745,6 +864,10 @@ const CourseManager = () => {
               onChange={handleCourseInputChange}
               disabled={savingCourse}
             />
+            <div className='form-text'>
+              Enter one partner per line. Use <strong>Name | Logo URL | Website URL</strong> or provide
+              just <strong>Logo URL | Website URL</strong> to bulk add linked logos.
+            </div>
           </div>
           <div className='col-12'>
             <label htmlFor='finalAward' className='form-label fw-medium'>
