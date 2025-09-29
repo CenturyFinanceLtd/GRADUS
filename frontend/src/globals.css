@@ -12175,6 +12175,10 @@ button:focus {
 .header-right {
   gap: clamp(0.5rem, -2.498rem + 4vw, 1.5rem);
 }
+
+.header-user-menu {
+  z-index: 1100;
+}
 @media screen and (max-width: 991px) {
   .header-select {
     -webkit-margin-start: auto;

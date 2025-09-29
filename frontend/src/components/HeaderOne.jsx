@@ -272,9 +272,9 @@ const HeaderOne = () => {
                   </button>
                   {isUserMenuOpen && (
                     <div
-                      className='position-absolute inset-inline-end-0 mt-12 bg-white border border-neutral-30 rounded-12 box-shadow-md py-12 z-1'
+                      className='header-user-menu position-absolute inset-inline-end-0 mt-12 bg-white border border-neutral-30 rounded-12 box-shadow-md py-12'
                       role='menu'
-                      style={{ minWidth: "200px" }}
+                      style={{ minWidth: "200px", zIndex: 1100 }}
                     >
                       <div className='d-flex flex-column'>
                         <Link
