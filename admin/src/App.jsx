@@ -99,13 +99,21 @@ import InquiryPage from "./pages/InquiryPage";
 import CourseManagementPage from "./pages/CourseManagementPage";
 import EnrollmentsPage from "./pages/EnrollmentsPage";
 import PermissionPage from "./pages/PermissionPage";
+import useAuth from "./hook/useAuth";
+
+const RootDashboard = () => {
+  const { admin } = useAuth();
+  const normalizedRole = admin?.role ? String(admin.role).toLowerCase() : "";
+
+  return normalizedRole === "seo" ? <HomePageNine /> : <HomePageOne />;
+};
 
 function App() {
   return (
     <BrowserRouter>
       <RouteScrollToTop />
       <Routes>
-        <Route exact path='/' element={<HomePageOne />} />
+        <Route exact path='/' element={<RootDashboard />} />
         <Route exact path='/index-2' element={<HomePageTwo />} />
         <Route exact path='/index-3' element={<HomePageThree />} />
         <Route exact path='/index-4' element={<HomePageFour />} />

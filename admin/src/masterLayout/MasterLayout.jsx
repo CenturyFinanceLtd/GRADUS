@@ -32,7 +32,7 @@ const MasterLayout = ({ children }) => {
   const hasFullAccess = isProgrammerAdmin || allowedPages.includes("*");
 
   const pageDefinition = useMemo(() => {
-    const currentPath = location.pathname;
+    const currentPath = isSeo && location.pathname === '/' ? '/index-9' : location.pathname;
     return (
       ADMIN_PAGE_DEFINITIONS.find((page) => {
         if (page.path.includes(":")) {
@@ -41,7 +41,7 @@ const MasterLayout = ({ children }) => {
         return page.path === currentPath;
       }) || null
     );
-  }, [location.pathname]);
+  }, [isSeo, location.pathname]);
 
   const currentPageKey = pageDefinition?.key || "";
 
@@ -53,8 +53,8 @@ const MasterLayout = ({ children }) => {
   }, [loading, navigate, token]);
 
   useEffect(() => {
-    if (isSeo && location.pathname === '/') {
-      navigate('/index-9', { replace: true });
+    if (isSeo && location.pathname === '/index-9') {
+      navigate('/', { replace: true });
     }
   }, [isSeo, location.pathname, navigate]);
 
@@ -196,7 +196,7 @@ const MasterLayout = ({ children }) => {
             {isSeo ? (
               <li>
                 <NavLink
-                  to='/index-9'
+                  to={homePath}
                   className={(navData) => (navData.isActive ? "active-page" : "")}
                 >
                   <Icon icon='solar:home-smile-angle-outline' className='menu-icon' />
