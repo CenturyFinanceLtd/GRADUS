@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../hook/useAuth";
+import getHomePath from "../helper/getHomePath";
 
 const SignInLayer = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, token } = useAuth();
+  const { login, token, admin } = useAuth();
+  const homePath = getHomePath(admin?.role);
 
   const [formValues, setFormValues] = useState({
     email: "",
@@ -18,10 +20,10 @@ const SignInLayer = () => {
 
   useEffect(() => {
     if (token) {
-      const redirectTo = location.state?.from || "/";
+      const redirectTo = location.state?.from || homePath;
       navigate(redirectTo, { replace: true });
     }
-  }, [location.state, navigate, token]);
+  }, [admin?.role, homePath, location.state, navigate, token]);
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -60,7 +62,7 @@ const SignInLayer = () => {
       <div className='auth-right py-32 px-24 d-flex flex-column justify-content-center'>
         <div className='max-w-464-px mx-auto w-100'>
           <div>
-            <Link to='/' className='mb-40 max-w-290-px'>
+            <Link to={homePath} className='mb-40 max-w-290-px'>
               <img src='assets/images/logo.png' alt='Gradus Logo' />
             </Link>
             <h4 className='mb-12'>Sign In to your Account</h4>

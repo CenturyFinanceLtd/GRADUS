@@ -5,6 +5,7 @@ import { Link, NavLink, Navigate, useLocation, useNavigate, matchPath } from "re
 import ThemeToggleButton from "../helper/ThemeToggleButton";
 import useAuth from "../hook/useAuth";
 import { ADMIN_PAGE_DEFINITIONS } from "../data/adminPageDefinitions";
+import getHomePath from "../helper/getHomePath";
 
 const ADMIN_ROLE_LABELS = {
   admin: 'Admin',
@@ -21,6 +22,8 @@ const MasterLayout = ({ children }) => {
   const { admin, token, loading, logout, permissions, permissionsLoading } = useAuth();
   const normalizedAdminRole = admin?.role ? admin.role.toLowerCase() : "";
   const isProgrammerAdmin = normalizedAdminRole === "programmer_admin";
+  const isSeo = normalizedAdminRole === "seo";
+  const homePath = getHomePath(admin?.role);
   const adminRoleLabel = ADMIN_ROLE_LABELS[normalizedAdminRole] || admin?.role || "Admin";
   const allowedPages = useMemo(
     () => (Array.isArray(permissions?.allowedPages) ? permissions.allowedPages : []),
@@ -48,6 +51,12 @@ const MasterLayout = ({ children }) => {
       navigate('/sign-in', { replace: true });
     }
   }, [loading, navigate, token]);
+
+  useEffect(() => {
+    if (isSeo && location.pathname === '/') {
+      navigate('/index-9', { replace: true });
+    }
+  }, [isSeo, location.pathname, navigate]);
 
   const handleDropdownToggle = (event) => {
     event.preventDefault();
@@ -164,7 +173,7 @@ const MasterLayout = ({ children }) => {
           <Icon icon='radix-icons:cross-2' />
         </button>
         <div>
-          <Link to='/' className='sidebar-logo'>
+          <Link to={homePath} className='sidebar-logo'>
             <img
               src='/assets/images/logo.png'
               alt='site logo'
@@ -184,139 +193,150 @@ const MasterLayout = ({ children }) => {
         </div>
         <div className='sidebar-menu-area'>
           <ul className='sidebar-menu' id='sidebar-menu'>
-            <li className='dropdown'>
-              <Link to='#' onClick={handleDropdownToggle}>
-                <Icon
-                  icon='solar:home-smile-angle-outline'
-                  className='menu-icon'
-                />
-                <span>Dashboard</span>
-              </Link>
-              <ul className='sidebar-submenu'>
-                <li>
-                  <NavLink
-                    to='/'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-primary-600 w-auto' />
-                    AI
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to='/index-2'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-warning-main w-auto' />{" "}
-                    CRM
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to='/index-3'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-info-main w-auto' />{" "}
-                    eCommerce
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to='/index-4'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-danger-main w-auto' />
-                    Cryptocurrency
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to='/index-5'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-success-main w-auto' />{" "}
-                    Investment
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to='/index-6'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-purple w-auto' />{" "}
-                    LMS
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to='/index-7'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-info-main w-auto' />{" "}
-                    NFT &amp; Gaming
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to='/index-8'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-info-main w-auto' />{" "}
-                    Medical
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to='/index-9'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-info-main w-auto' />{" "}
-                    Analytics
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to='/index-10'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-info-main w-auto' />{" "}
-                    POS & Inventory
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to='/index-11'
-                    className={(navData) =>
-                      navData.isActive ? "active-page" : ""
-                    }
-                  >
-                    <i className='ri-circle-fill circle-icon text-info-main w-auto' />{" "}
-                    Finance & Banking
-                  </NavLink>
-                </li>
-              </ul>
-            </li>
-
+            {isSeo ? (
+              <li>
+                <NavLink
+                  to='/index-9'
+                  className={(navData) => (navData.isActive ? "active-page" : "")}
+                >
+                  <Icon icon='solar:home-smile-angle-outline' className='menu-icon' />
+                  <span>Dashboard</span>
+                </NavLink>
+              </li>
+            ) : (
+              <li className='dropdown'>
+                <Link to='#' onClick={handleDropdownToggle}>
+                  <Icon
+                    icon='solar:home-smile-angle-outline'
+                    className='menu-icon'
+                  />
+                  <span>Dashboard</span>
+                </Link>
+                <ul className='sidebar-submenu'>
+                  <li>
+                    <NavLink
+                      to='/'
+                      className={(navData) =>
+                        navData.isActive ? "active-page" : ""
+                      }
+                    >
+                      <i className='ri-circle-fill circle-icon text-primary-600 w-auto' />
+                      AI
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to='/index-2'
+                      className={(navData) =>
+                        navData.isActive ? "active-page" : ""
+                      }
+                    >
+                      <i className='ri-circle-fill circle-icon text-warning-main w-auto' />{' '}
+                      CRM
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to='/index-3'
+                      className={(navData) =>
+                        navData.isActive ? "active-page" : ""
+                      }
+                    >
+                      <i className='ri-circle-fill circle-icon text-info-main w-auto' />{' '}
+                      eCommerce
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to='/index-4'
+                      className={(navData) =>
+                        navData.isActive ? "active-page" : ""
+                      }
+                    >
+                      <i className='ri-circle-fill circle-icon text-danger-main w-auto' />
+                      Cryptocurrency
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to='/index-5'
+                      className={(navData) =>
+                        navData.isActive ? "active-page" : ""
+                      }
+                    >
+                      <i className='ri-circle-fill circle-icon text-success-main w-auto' />{' '}
+                      Investment
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to='/index-6'
+                      className={(navData) =>
+                        navData.isActive ? "active-page" : ""
+                      }
+                    >
+                      <i className='ri-circle-fill circle-icon text-purple w-auto' />{' '}
+                      LMS
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to='/index-7'
+                      className={(navData) =>
+                        navData.isActive ? "active-page" : ""
+                      }
+                    >
+                      <i className='ri-circle-fill circle-icon text-info-main w-auto' />{' '}
+                      NFT &amp; Gaming
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to='/index-8'
+                      className={(navData) =>
+                        navData.isActive ? "active-page" : ""
+                      }
+                    >
+                      <i className='ri-circle-fill circle-icon text-info-main w-auto' />{' '}
+                      Medical
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to='/index-9'
+                      className={(navData) =>
+                        navData.isActive ? "active-page" : ""
+                      }
+                    >
+                      <i className='ri-circle-fill circle-icon text-info-main w-auto' />{' '}
+                      Analytics
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to='/index-10'
+                      className={(navData) =>
+                        navData.isActive ? "active-page" : ""
+                      }
+                    >
+                      <i className='ri-circle-fill circle-icon text-info-main w-auto' />{' '}
+                      POS &amp; Inventory
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to='/index-11'
+                      className={(navData) =>
+                        navData.isActive ? "active-page" : ""
+                      }
+                    >
+                      <i className='ri-circle-fill circle-icon text-info-main w-auto' />{' '}
+                      Finance &amp; Banking
+                    </NavLink>
+                  </li>
+                </ul>
+              </li>
+            )}
             <li className='sidebar-menu-group-title'>Application</li>
             <li>
               <NavLink

@@ -1,14 +1,19 @@
 import { Link } from "react-router-dom";
+import useAuth from "../hook/useAuth";
+import getHomePath from "../helper/getHomePath";
 
 const AccessDeniedLayer = () => {
+  const { admin } = useAuth();
+  const homePath = getHomePath(admin?.role);
+
   return (
     <div className='custom-bg'>
       <div className='container container--xl'>
         <div className='d-flex align-items-center justify-content-between py-24'>
-          <Link to='/' className=''>
+          <Link to={homePath} className=''>
             <img src='assets/images/logo.png' alt='WowDash React Vite' />
           </Link>
-          <Link to='/' className='btn btn-outline-primary-600 text-sm'>
+          <Link to={homePath} className='btn btn-outline-primary-600 text-sm'>
             {" "}
             Go To Home{" "}
           </Link>
@@ -28,7 +33,7 @@ const AccessDeniedLayer = () => {
               access.
             </p>
             <Link
-              to='/'
+              to={homePath}
               className='btn btn-primary-600 px-32 py-16 flex-shrink-0 d-inline-flex align-items-center justify-content-center gap-8 mt-28'
             >
               <i className='ri-home-4-line' /> Go Back To Home
