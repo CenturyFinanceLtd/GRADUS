@@ -8,6 +8,143 @@ const generateOtp = require('../utils/generateOtp');
 const { sendOtpEmail, deliveryMode } = require('../utils/email');
 const generateAuthToken = require('../utils/token');
 
+const sanitizeString = (value) => (typeof value === 'string' ? value.trim() : '');
+
+const mergeSignupPayload = (base = {}, overrides = {}) => ({
+  ...base,
+  ...overrides,
+  personalDetails: {
+    ...(base.personalDetails || {}),
+    ...(overrides.personalDetails || {}),
+  },
+  parentDetails: {
+    ...(base.parentDetails || {}),
+    ...(overrides.parentDetails || {}),
+  },
+  educationDetails: {
+    ...(base.educationDetails || {}),
+    ...(overrides.educationDetails || {}),
+  },
+});
+
+const buildSignupDetails = (raw = {}) => {
+  const personalDetailsRaw = raw.personalDetails || {};
+  const parentDetailsRaw = raw.parentDetails || {};
+  const educationDetailsRaw = raw.educationDetails || {};
+
+  return {
+    firstName: sanitizeString(raw.firstName),
+    lastName: sanitizeString(raw.lastName),
+    mobile: sanitizeString(raw.mobile),
+    personalDetails: {
+      studentName: sanitizeString(personalDetailsRaw.studentName),
+      gender: sanitizeString(personalDetailsRaw.gender),
+      dateOfBirth: sanitizeString(personalDetailsRaw.dateOfBirth),
+      city: sanitizeString(personalDetailsRaw.city),
+      state: sanitizeString(personalDetailsRaw.state),
+      country: sanitizeString(personalDetailsRaw.country),
+      zipCode: sanitizeString(personalDetailsRaw.zipCode),
+      address: sanitizeString(personalDetailsRaw.address),
+    },
+    parentDetails: {
+      title: sanitizeString(parentDetailsRaw.title),
+      fullName: sanitizeString(parentDetailsRaw.fullName),
+      relation: sanitizeString(parentDetailsRaw.relation),
+      phone: sanitizeString(parentDetailsRaw.phone),
+      email: sanitizeString(parentDetailsRaw.email),
+      jobTitle: sanitizeString(parentDetailsRaw.jobTitle),
+      address: sanitizeString(parentDetailsRaw.address),
+    },
+    educationDetails: {
+      institutionName: sanitizeString(educationDetailsRaw.institutionName),
+      passingYear: sanitizeString(educationDetailsRaw.passingYear),
+      board: sanitizeString(educationDetailsRaw.board),
+      classGrade: sanitizeString(educationDetailsRaw.classGrade),
+      address: sanitizeString(educationDetailsRaw.address),
+    },
+  };
+};
+
+const validateSignupDetails = (details) => {
+  if (!details.personalDetails.studentName) {
+    return 'Student name is required.';
+  }
+
+  if (!details.firstName || !details.lastName) {
+    return 'Student name is required.';
+  }
+
+  if (!details.mobile) {
+    return 'Phone number is required.';
+  }
+
+  if (!details.personalDetails.gender) {
+    return 'Gender is required.';
+  }
+
+  if (!details.personalDetails.dateOfBirth) {
+    return 'Date of birth is required.';
+  }
+
+  if (!details.personalDetails.city) {
+    return 'City is required.';
+  }
+
+  if (!details.personalDetails.state) {
+    return 'State is required.';
+  }
+
+  if (!details.personalDetails.country) {
+    return 'Country is required.';
+  }
+
+  if (!details.personalDetails.zipCode) {
+    return 'Zip code is required.';
+  }
+
+  if (!details.parentDetails.title) {
+    return 'Parent title is required.';
+  }
+
+  if (!details.parentDetails.fullName) {
+    return 'Parent full name is required.';
+  }
+
+  if (!details.parentDetails.relation) {
+    return 'Parent relation is required.';
+  }
+
+  if (!details.parentDetails.phone) {
+    return 'Parent phone number is required.';
+  }
+
+  if (!details.parentDetails.email) {
+    return 'Parent email is required.';
+  }
+
+  if (!details.parentDetails.jobTitle) {
+    return 'Parent job title is required.';
+  }
+
+  if (!details.educationDetails.institutionName) {
+    return 'Education institution name is required.';
+  }
+
+  if (!details.educationDetails.passingYear) {
+    return 'Education passing year is required.';
+  }
+
+  if (!details.educationDetails.board) {
+    return 'Education board is required.';
+  }
+
+  if (!details.educationDetails.classGrade) {
+    return 'Class grade is required.';
+  }
+
+  return null;
+};
+
 const buildAuthResponse = (user) => {
   const token = generateAuthToken(user._id.toString());
   const safeUser = user.toObject();
@@ -17,13 +154,26 @@ const buildAuthResponse = (user) => {
 };
 
 const startSignup = asyncHandler(async (req, res) => {
-  const { firstName, lastName, email, mobile } = req.body;
+  const { email } = req.body;
+
+  if (!email) {
+    res.status(400);
+    throw new Error('Email is required.');
+  }
+
   const normalizedEmail = email.toLowerCase().trim();
 
   const existingUser = await User.findOne({ email: normalizedEmail });
   if (existingUser) {
     res.status(409);
     throw new Error('An account with this email already exists. Try signing in instead.');
+  }
+
+  const signupDetails = buildSignupDetails(req.body);
+  const validationError = validateSignupDetails(signupDetails);
+  if (validationError) {
+    res.status(400);
+    throw new Error(validationError);
   }
 
   await VerificationSession.deleteMany({ type: 'SIGNUP', email: normalizedEmail });
@@ -37,11 +187,7 @@ const startSignup = asyncHandler(async (req, res) => {
     email: normalizedEmail,
     otpHash,
     otpExpiresAt,
-    payload: {
-      firstName,
-      lastName,
-      mobile,
-    },
+    payload: signupDetails,
   });
 
   let emailResult;
@@ -137,6 +283,11 @@ const completeSignup = asyncHandler(async (req, res) => {
     throw new Error('Verification token mismatch. Please restart the sign-up.');
   }
 
+  if (!password) {
+    res.status(400);
+    throw new Error('Password is required to complete the sign-up.');
+  }
+
   const normalizedEmail = session.email;
 
   const existingUser = await User.findOne({ email: normalizedEmail });
@@ -146,15 +297,46 @@ const completeSignup = asyncHandler(async (req, res) => {
     throw new Error('An account with this email already exists.');
   }
 
+  const overrides = {};
+  if (req.body.firstName !== undefined) {
+    overrides.firstName = req.body.firstName;
+  }
+  if (req.body.lastName !== undefined) {
+    overrides.lastName = req.body.lastName;
+  }
+  if (req.body.mobile !== undefined) {
+    overrides.mobile = req.body.mobile;
+  }
+  if (req.body.personalDetails) {
+    overrides.personalDetails = req.body.personalDetails;
+  }
+  if (req.body.parentDetails) {
+    overrides.parentDetails = req.body.parentDetails;
+  }
+  if (req.body.educationDetails) {
+    overrides.educationDetails = req.body.educationDetails;
+  }
+
+  const mergedPayload = mergeSignupPayload(session.payload || {}, overrides);
+  const signupDetails = buildSignupDetails(mergedPayload);
+  const validationError = validateSignupDetails(signupDetails);
+  if (validationError) {
+    res.status(400);
+    throw new Error(`${validationError} Please restart the sign-up.`);
+  }
+
   const hashedPassword = await bcrypt.hash(password, 12);
 
   const user = await User.create({
-    firstName: session.payload.firstName,
-    lastName: session.payload.lastName,
+    firstName: signupDetails.firstName,
+    lastName: signupDetails.lastName,
     email: normalizedEmail,
-    mobile: session.payload.mobile,
+    mobile: signupDetails.mobile,
     password: hashedPassword,
     emailVerified: true,
+    personalDetails: signupDetails.personalDetails,
+    parentDetails: signupDetails.parentDetails,
+    educationDetails: signupDetails.educationDetails,
   });
 
   session.status = 'COMPLETED';
@@ -198,6 +380,3 @@ module.exports = {
   completeSignup,
   login,
 };
-
-
-
