@@ -69,32 +69,26 @@ const userSchema = new mongoose.Schema(
     parentDetails: {
       title: {
         type: String,
-        required: true,
         trim: true,
       },
       fullName: {
         type: String,
-        required: true,
         trim: true,
       },
       relation: {
         type: String,
-        required: true,
         trim: true,
       },
       phone: {
         type: String,
-        required: true,
         trim: true,
       },
       email: {
         type: String,
-        required: true,
         trim: true,
       },
       jobTitle: {
         type: String,
-        required: true,
         trim: true,
       },
       address: {
@@ -113,14 +107,12 @@ const userSchema = new mongoose.Schema(
         required: true,
         trim: true,
       },
-      board: {
+      fieldOfStudy: {
         type: String,
-        required: true,
         trim: true,
       },
       classGrade: {
         type: String,
-        required: true,
         trim: true,
       },
       address: {

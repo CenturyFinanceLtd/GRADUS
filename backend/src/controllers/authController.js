@@ -32,6 +32,34 @@ const buildSignupDetails = (raw = {}) => {
   const parentDetailsRaw = raw.parentDetails || {};
   const educationDetailsRaw = raw.educationDetails || {};
 
+  const rawParentDetails = {
+    title: sanitizeString(parentDetailsRaw.title),
+    fullName: sanitizeString(parentDetailsRaw.fullName),
+    relation: sanitizeString(parentDetailsRaw.relation),
+    phone: sanitizeString(parentDetailsRaw.phone),
+    email: sanitizeString(parentDetailsRaw.email),
+    jobTitle: sanitizeString(parentDetailsRaw.jobTitle),
+    address: sanitizeString(parentDetailsRaw.address),
+  };
+
+  const parentDetails = Object.fromEntries(
+    Object.entries(rawParentDetails).filter(([, value]) => Boolean(value))
+  );
+
+  const rawEducationDetails = {
+    institutionName: sanitizeString(educationDetailsRaw.institutionName),
+    passingYear: sanitizeString(educationDetailsRaw.passingYear),
+    fieldOfStudy: sanitizeString(
+      educationDetailsRaw.fieldOfStudy || educationDetailsRaw.board
+    ),
+    classGrade: sanitizeString(educationDetailsRaw.classGrade),
+    address: sanitizeString(educationDetailsRaw.address),
+  };
+
+  const educationDetails = Object.fromEntries(
+    Object.entries(rawEducationDetails).filter(([, value]) => Boolean(value))
+  );
+
   return {
     firstName: sanitizeString(raw.firstName),
     lastName: sanitizeString(raw.lastName),
@@ -46,22 +74,8 @@ const buildSignupDetails = (raw = {}) => {
       zipCode: sanitizeString(personalDetailsRaw.zipCode),
       address: sanitizeString(personalDetailsRaw.address),
     },
-    parentDetails: {
-      title: sanitizeString(parentDetailsRaw.title),
-      fullName: sanitizeString(parentDetailsRaw.fullName),
-      relation: sanitizeString(parentDetailsRaw.relation),
-      phone: sanitizeString(parentDetailsRaw.phone),
-      email: sanitizeString(parentDetailsRaw.email),
-      jobTitle: sanitizeString(parentDetailsRaw.jobTitle),
-      address: sanitizeString(parentDetailsRaw.address),
-    },
-    educationDetails: {
-      institutionName: sanitizeString(educationDetailsRaw.institutionName),
-      passingYear: sanitizeString(educationDetailsRaw.passingYear),
-      board: sanitizeString(educationDetailsRaw.board),
-      classGrade: sanitizeString(educationDetailsRaw.classGrade),
-      address: sanitizeString(educationDetailsRaw.address),
-    },
+    parentDetails: Object.keys(parentDetails).length ? parentDetails : null,
+    educationDetails,
   };
 };
 
@@ -102,30 +116,6 @@ const validateSignupDetails = (details) => {
     return 'Zip code is required.';
   }
 
-  if (!details.parentDetails.title) {
-    return 'Parent title is required.';
-  }
-
-  if (!details.parentDetails.fullName) {
-    return 'Parent full name is required.';
-  }
-
-  if (!details.parentDetails.relation) {
-    return 'Parent relation is required.';
-  }
-
-  if (!details.parentDetails.phone) {
-    return 'Parent phone number is required.';
-  }
-
-  if (!details.parentDetails.email) {
-    return 'Parent email is required.';
-  }
-
-  if (!details.parentDetails.jobTitle) {
-    return 'Parent job title is required.';
-  }
-
   if (!details.educationDetails.institutionName) {
     return 'Education institution name is required.';
   }
@@ -134,12 +124,8 @@ const validateSignupDetails = (details) => {
     return 'Education passing year is required.';
   }
 
-  if (!details.educationDetails.board) {
-    return 'Education board is required.';
-  }
-
-  if (!details.educationDetails.classGrade) {
-    return 'Class grade is required.';
+  if (!details.educationDetails.fieldOfStudy) {
+    return 'Field of study is required.';
   }
 
   return null;
@@ -335,7 +321,9 @@ const completeSignup = asyncHandler(async (req, res) => {
     password: hashedPassword,
     emailVerified: true,
     personalDetails: signupDetails.personalDetails,
-    parentDetails: signupDetails.parentDetails,
+    ...(signupDetails.parentDetails
+      ? { parentDetails: signupDetails.parentDetails }
+      : {}),
     educationDetails: signupDetails.educationDetails,
   });
 

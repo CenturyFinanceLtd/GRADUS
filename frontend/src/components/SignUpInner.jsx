@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import apiClient from "../services/apiClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -8,7 +8,7 @@ const steps = {
   PASSWORD: 2,
 };
 
-const indiaStateCityMap = {
+const fallbackStateCityMap = {
   "Andhra Pradesh": [
     "Visakhapatnam",
     "Vijayawada",
@@ -82,7 +82,7 @@ const initialFormState = {
   address: "",
   schoolName: "",
   passingYear: "",
-  universityBoard: "",
+  fieldOfStudy: "",
   schoolAddress: "",
   otp: "",
   password: "",
@@ -101,6 +101,12 @@ const SignUpInner = () => {
   const [loading, setLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
+  const [stateOptions, setStateOptions] = useState(
+    Object.keys(fallbackStateCityMap)
+  );
+  const [cityOptions, setCityOptions] = useState([]);
+  const [locationNotice, setLocationNotice] = useState("");
+  const [fetchingCities, setFetchingCities] = useState(false);
   const { setAuth } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -126,6 +132,7 @@ const SignUpInner = () => {
     const { name, value } = event.target;
     setFormData((prev) => {
       if (name === "state") {
+        setLocationNotice("");
         return { ...prev, state: value, city: "" };
       }
 
@@ -137,13 +144,137 @@ const SignUpInner = () => {
     }
   };
 
-  const availableStates = useMemo(() => Object.keys(indiaStateCityMap), []);
-  const availableCities = useMemo(() => {
+  useEffect(() => {
+    let isActive = true;
+
+    const fetchStates = async () => {
+      try {
+        const response = await fetch(
+          "https://countriesnow.space/api/v0.1/countries/states",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ country: "India" }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch states");
+        }
+
+        const payload = await response.json();
+        const remoteStates =
+          payload?.data?.states?.map((state) => state.name).filter(Boolean) || [];
+
+        if (remoteStates.length && isActive) {
+          const sortedStates = [...new Set(remoteStates)].sort((a, b) =>
+            a.localeCompare(b)
+          );
+          setStateOptions(sortedStates);
+        }
+      } catch (error) {
+        if (!isActive) {
+          return;
+        }
+
+        if (import.meta.env.DEV) {
+          console.error("[SignUp] Failed to fetch states", error);
+        }
+
+        setLocationNotice(
+          "We couldn't load the latest state list. Showing a limited list instead."
+        );
+        setStateOptions(Object.keys(fallbackStateCityMap));
+      }
+    };
+
+    fetchStates();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!formData.state) {
-      return [];
+      setCityOptions([]);
+      return;
     }
 
-    return indiaStateCityMap[formData.state] || [];
+    let isActive = true;
+    setFetchingCities(true);
+    setLocationNotice("");
+
+    const fetchCities = async () => {
+      try {
+        const response = await fetch(
+          "https://countriesnow.space/api/v0.1/countries/state/cities",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ country: "India", state: formData.state }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch cities");
+        }
+
+        const payload = await response.json();
+        const remoteCities = Array.isArray(payload?.data)
+          ? payload.data.filter(Boolean)
+          : [];
+
+        if (isActive) {
+          if (remoteCities.length) {
+            const sortedCities = [...new Set(remoteCities)].sort((a, b) =>
+              a.localeCompare(b)
+            );
+            setCityOptions(sortedCities);
+          } else if (fallbackStateCityMap[formData.state]) {
+            setCityOptions(fallbackStateCityMap[formData.state]);
+            setLocationNotice(
+              "We couldn't load all cities for this state. Showing a limited list instead."
+            );
+          } else {
+            setCityOptions([]);
+            setLocationNotice(
+              "We couldn't find cities for this state. Please enter the city manually."
+            );
+          }
+        }
+      } catch (error) {
+        if (!isActive) {
+          return;
+        }
+
+        if (import.meta.env.DEV) {
+          console.error("[SignUp] Failed to fetch cities", error);
+        }
+
+        if (fallbackStateCityMap[formData.state]) {
+          setCityOptions(fallbackStateCityMap[formData.state]);
+          setLocationNotice(
+            "We couldn't load cities right now. Showing a limited list instead."
+          );
+        } else {
+          setCityOptions([]);
+          setLocationNotice(
+            "We couldn't load cities for this state. Please enter the city manually."
+          );
+        }
+      } finally {
+        if (isActive) {
+          setFetchingCities(false);
+        }
+      }
+    };
+
+    fetchCities();
+
+    return () => {
+      isActive = false;
+    };
   }, [formData.state]);
 
   const deriveNames = () => {
@@ -178,7 +309,7 @@ const SignUpInner = () => {
       educationDetails: {
         institutionName: formData.schoolName.trim(),
         passingYear: formData.passingYear.trim(),
-        board: formData.universityBoard.trim(),
+        fieldOfStudy: formData.fieldOfStudy.trim(),
         address: formData.schoolAddress.trim(),
       },
     };
@@ -196,7 +327,7 @@ const SignUpInner = () => {
       ["zipCode", "Zip code"],
       ["schoolName", "School or college name"],
       ["passingYear", "Year of passing"],
-      ["universityBoard", "Board of university"],
+      ["fieldOfStudy", "Field of study"],
     ];
 
     for (const [field, label] of requiredFields) {
@@ -603,7 +734,7 @@ const SignUpInner = () => {
                       <option value='' disabled>
                         Select state
                       </option>
-                      {availableStates.map((stateOption) => (
+                      {stateOptions.map((stateOption) => (
                         <option key={stateOption} value={stateOption}>
                           {stateOption}
                         </option>
@@ -621,17 +752,26 @@ const SignUpInner = () => {
                       value={formData.city}
                       onChange={handleChange}
                       required
-                      disabled={!formData.state}
+                      disabled={!formData.state || fetchingCities}
                     >
                       <option value='' disabled>
-                        {formData.state ? "Select city" : "Select a state first"}
+                        {!formData.state
+                          ? "Select a state first"
+                          : fetchingCities
+                          ? "Loading cities..."
+                          : cityOptions.length
+                          ? "Select city"
+                          : "No cities available"}
                       </option>
-                      {availableCities.map((cityOption) => (
+                      {cityOptions.map((cityOption) => (
                         <option key={cityOption} value={cityOption}>
                           {cityOption}
                         </option>
                       ))}
                     </select>
+                    {locationNotice ? (
+                      <p className='text-xs text-neutral-500 mt-8 mb-0'>{locationNotice}</p>
+                    ) : null}
                   </div>
                   <div className='col-sm-6'>
                     <label htmlFor='zipCode' className='text-neutral-700 text-lg fw-medium mb-12'>
@@ -702,17 +842,17 @@ const SignUpInner = () => {
                     />
                   </div>
                   <div className='col-sm-6'>
-                    <label htmlFor='universityBoard' className='text-neutral-700 text-lg fw-medium mb-12'>
-                      Board of university <span className='text-danger-600'>*</span>{" "}
+                    <label htmlFor='fieldOfStudy' className='text-neutral-700 text-lg fw-medium mb-12'>
+                      Field of study <span className='text-danger-600'>*</span>{" "}
                     </label>
                     <input
                       type='text'
                       className='common-input bg-main-25 rounded-pill border-transparent focus-border-main-600'
-                      id='universityBoard'
-                      name='universityBoard'
-                      value={formData.universityBoard}
+                      id='fieldOfStudy'
+                      name='fieldOfStudy'
+                      value={formData.fieldOfStudy}
                       onChange={handleChange}
-                      placeholder='Enter board...'
+                      placeholder='Enter field of study...'
                       required
                     />
                   </div>
