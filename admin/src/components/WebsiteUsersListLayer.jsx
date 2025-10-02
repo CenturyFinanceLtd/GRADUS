@@ -254,6 +254,7 @@ const WebsiteUsersListLayer = () => {
                       const fullName = toFullName(user);
                       const isExpanded = expandedUserId === user.id;
                       const courseCount = user.enrollments?.length || 0;
+                      const loginStats = user.loginStats || {};
                       return (
                         <Fragment key={user.id}>
                           <tr className='border-bottom border-neutral-200'>
@@ -275,10 +276,10 @@ const WebsiteUsersListLayer = () => {
                               ) : null}
                             </td>
                             <td className='text-sm text-secondary-700'>{user.mobile || '—'}</td>
-                            <td>{user.loginStats?.totalLogins || 0}</td>
-                            <td>{user.loginStats?.totalLogouts || 0}</td>
-                            <td className='text-sm text-secondary-700'>{formatDateTime(user.loginStats?.lastLoginAt)}</td>
-                            <td className='text-sm text-secondary-700'>{formatDateTime(user.loginStats?.lastLogoutAt)}</td>
+                            <td>{loginStats.totalLogins || 0}</td>
+                            <td>{loginStats.totalLogouts || 0}</td>
+                            <td className='text-sm text-secondary-700'>{formatDateTime(loginStats.lastLoginAt)}</td>
+                            <td className='text-sm text-secondary-700'>{formatDateTime(loginStats.lastLogoutAt)}</td>
                             <td>
                               <span className='badge bg-neutral-200 text-secondary-700 fw-medium'>
                                 {courseCount} {courseCount === 1 ? 'Course' : 'Courses'}
@@ -312,10 +313,16 @@ const WebsiteUsersListLayer = () => {
                                           <span className='fw-medium'>Student Name:</span> {user.personalDetails?.studentName || '—'}
                                         </div>
                                         <div>
+                                          <span className='fw-medium'>Email:</span> {user.email || '—'}
+                                        </div>
+                                        <div>
+                                          <span className='fw-medium'>Phone:</span> {user.mobile || '—'}
+                                        </div>
+                                        <div>
                                           <span className='fw-medium'>Gender:</span> {user.personalDetails?.gender || '—'}
                                         </div>
                                         <div>
-                                          <span className='fw-medium'>Date of Birth:</span> {user.personalDetails?.dateOfBirth || '—'}
+                                          <span className='fw-medium'>Date of Birth:</span> {formatDate(user.personalDetails?.dateOfBirth)}
                                         </div>
                                         <div>
                                           <span className='fw-medium'>Location:</span>{' '}
@@ -324,27 +331,30 @@ const WebsiteUsersListLayer = () => {
                                             .join(', ') || '—'}
                                         </div>
                                         <div>
+                                          <span className='fw-medium'>Zip / Postal Code:</span> {user.personalDetails?.zipCode || '—'}
+                                        </div>
+                                        <div>
                                           <span className='fw-medium'>Address:</span> {user.personalDetails?.address || '—'}
                                         </div>
                                       </div>
                                     </div>
                                     <div className='col-12 col-lg-4'>
-                                      <h6 className='fw-semibold mb-2 text-secondary-700'>Parent / Guardian</h6>
+                                      <h6 className='fw-semibold mb-2 text-secondary-700'>Account Activity</h6>
                                       <div className='d-grid gap-4 text-sm text-secondary-700'>
                                         <div>
-                                          <span className='fw-medium'>Name:</span> {user.parentDetails?.fullName || '—'}
+                                          <span className='fw-medium'>Total Sign-ins:</span> {loginStats.totalLogins || 0}
                                         </div>
                                         <div>
-                                          <span className='fw-medium'>Relation:</span> {user.parentDetails?.relation || '—'}
+                                          <span className='fw-medium'>Total Sign-outs:</span> {loginStats.totalLogouts || 0}
                                         </div>
                                         <div>
-                                          <span className='fw-medium'>Phone:</span> {user.parentDetails?.phone || '—'}
+                                          <span className='fw-medium'>Last Sign-in:</span> {formatDateTime(loginStats.lastLoginAt)}
                                         </div>
                                         <div>
-                                          <span className='fw-medium'>Email:</span> {user.parentDetails?.email || '—'}
+                                          <span className='fw-medium'>Last Sign-out:</span> {formatDateTime(loginStats.lastLogoutAt)}
                                         </div>
                                         <div>
-                                          <span className='fw-medium'>Address:</span> {user.parentDetails?.address || '—'}
+                                          <span className='fw-medium'>Account Created:</span> {formatDate(user.createdAt)}
                                         </div>
                                       </div>
                                     </div>

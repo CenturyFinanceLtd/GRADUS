@@ -158,7 +158,6 @@ const listWebsiteUsers = asyncHandler(async (req, res) => {
       email: user.email,
       mobile: user.mobile,
       personalDetails: normalizeDetails(user.personalDetails),
-      parentDetails: normalizeDetails(user.parentDetails),
       educationDetails: normalizeDetails(user.educationDetails),
       emailVerified: Boolean(user.emailVerified),
       createdAt: user.createdAt,
