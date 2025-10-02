@@ -8,6 +8,68 @@ const steps = {
   PASSWORD: 2,
 };
 
+const indiaStateCityMap = {
+  "Andhra Pradesh": [
+    "Visakhapatnam",
+    "Vijayawada",
+    "Guntur",
+    "Nellore",
+    "Kurnool",
+  ],
+  "Arunachal Pradesh": [
+    "Itanagar",
+    "Tawang",
+    "Naharlagun",
+    "Pasighat",
+    "Ziro",
+  ],
+  Assam: ["Guwahati", "Dibrugarh", "Silchar", "Jorhat", "Tezpur"],
+  Bihar: ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur", "Purnia"],
+  Chhattisgarh: ["Raipur", "Bhilai", "Bilaspur", "Korba", "Durg"],
+  Goa: ["Panaji", "Margao", "Vasco da Gama", "Mapusa", "Ponda"],
+  Gujarat: ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar"],
+  Haryana: ["Gurugram", "Faridabad", "Panipat", "Ambala", "Hisar"],
+  "Himachal Pradesh": ["Shimla", "Dharamshala", "Mandi", "Solan", "Kullu"],
+  Jharkhand: ["Ranchi", "Jamshedpur", "Dhanbad", "Bokaro", "Hazaribagh"],
+  Karnataka: ["Bengaluru", "Mysuru", "Mangaluru", "Hubballi", "Belagavi"],
+  Kerala: ["Thiruvananthapuram", "Kochi", "Kozhikode", "Thrissur", "Kollam"],
+  "Madhya Pradesh": ["Bhopal", "Indore", "Gwalior", "Jabalpur", "Ujjain"],
+  Maharashtra: ["Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad"],
+  Manipur: ["Imphal", "Thoubal", "Churachandpur", "Bishnupur", "Ukhrul"],
+  Meghalaya: ["Shillong", "Tura", "Jowai", "Baghmara", "Nongpoh"],
+  Mizoram: ["Aizawl", "Lunglei", "Saiha", "Champhai", "Serchhip"],
+  Nagaland: ["Kohima", "Dimapur", "Mokokchung", "Wokha", "Tuensang"],
+  Odisha: ["Bhubaneswar", "Cuttack", "Rourkela", "Berhampur", "Sambalpur"],
+  Punjab: ["Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Bathinda"],
+  Rajasthan: ["Jaipur", "Jodhpur", "Udaipur", "Kota", "Bikaner"],
+  Sikkim: ["Gangtok", "Namchi", "Gyalshing", "Mangan", "Rangpo"],
+  "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem"],
+  Telangana: ["Hyderabad", "Warangal", "Nizamabad", "Karimnagar", "Khammam"],
+  Tripura: ["Agartala", "Udaipur", "Dharmanagar", "Kailashahar", "Belonia"],
+  Uttarakhand: ["Dehradun", "Haridwar", "Nainital", "Rudrapur", "Haldwani"],
+  "Uttar Pradesh": ["Lucknow", "Kanpur", "Varanasi", "Agra", "Prayagraj"],
+  "West Bengal": ["Kolkata", "Howrah", "Durgapur", "Siliguri", "Asansol"],
+  "Andaman and Nicobar Islands": [
+    "Port Blair",
+    "Havelock Island",
+    "Mayabunder",
+    "Diglipur",
+    "Rangat",
+  ],
+  Chandigarh: ["Chandigarh"],
+  "Dadra and Nagar Haveli and Daman and Diu": [
+    "Daman",
+    "Diu",
+    "Silvassa",
+    "Nagar Haveli",
+  ],
+  Delhi: ["New Delhi", "Delhi"],
+  Lakshadweep: ["Kavaratti", "Agatti", "Minicoy", "Andrott"],
+  "Jammu and Kashmir": ["Srinagar", "Jammu", "Anantnag", "Baramulla", "Kathua"],
+  Ladakh: ["Leh", "Kargil"],
+  Puducherry: ["Puducherry", "Karaikal", "Mahe", "Yanam"],
+};
+
 const initialFormState = {
   studentName: "",
   email: "",
@@ -16,20 +78,11 @@ const initialFormState = {
   dateOfBirth: "",
   city: "",
   state: "",
-  country: "",
   zipCode: "",
   address: "",
-  parentTitle: "",
-  parentFullName: "",
-  parentRelation: "",
-  parentPhone: "",
-  parentEmail: "",
-  parentJobTitle: "",
-  parentAddress: "",
   schoolName: "",
   passingYear: "",
   universityBoard: "",
-  classGrade: "",
   schoolAddress: "",
   otp: "",
   password: "",
@@ -71,12 +124,27 @@ const SignUpInner = () => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      if (name === "state") {
+        return { ...prev, state: value, city: "" };
+      }
+
+      return { ...prev, [name]: value };
+    });
 
     if (name === "email") {
       resetVerificationState();
     }
   };
+
+  const availableStates = useMemo(() => Object.keys(indiaStateCityMap), []);
+  const availableCities = useMemo(() => {
+    if (!formData.state) {
+      return [];
+    }
+
+    return indiaStateCityMap[formData.state] || [];
+  }, [formData.state]);
 
   const deriveNames = () => {
     const trimmedName = formData.studentName.trim();
@@ -103,24 +171,14 @@ const SignUpInner = () => {
         dateOfBirth: formData.dateOfBirth,
         city: formData.city.trim(),
         state: formData.state.trim(),
-        country: formData.country.trim(),
+        country: "India",
         zipCode: formData.zipCode.trim(),
         address: formData.address.trim(),
-      },
-      parentDetails: {
-        title: formData.parentTitle,
-        fullName: formData.parentFullName.trim(),
-        relation: formData.parentRelation.trim(),
-        phone: formData.parentPhone.trim(),
-        email: formData.parentEmail.trim(),
-        jobTitle: formData.parentJobTitle.trim(),
-        address: formData.parentAddress.trim(),
       },
       educationDetails: {
         institutionName: formData.schoolName.trim(),
         passingYear: formData.passingYear.trim(),
         board: formData.universityBoard.trim(),
-        classGrade: formData.classGrade,
         address: formData.schoolAddress.trim(),
       },
     };
@@ -135,18 +193,10 @@ const SignUpInner = () => {
       ["dateOfBirth", "Date of birth"],
       ["city", "City"],
       ["state", "State"],
-      ["country", "Country"],
       ["zipCode", "Zip code"],
-      ["parentTitle", "Parent title"],
-      ["parentFullName", "Parent full name"],
-      ["parentRelation", "Relation with applicant"],
-      ["parentPhone", "Parent phone"],
-      ["parentEmail", "Parent email"],
-      ["parentJobTitle", "Parent job title"],
       ["schoolName", "School or college name"],
       ["passingYear", "Year of passing"],
       ["universityBoard", "Board of university"],
-      ["classGrade", "Class grade"],
     ];
 
     for (const [field, label] of requiredFields) {
@@ -508,6 +558,20 @@ const SignUpInner = () => {
                           Female
                         </label>
                       </div>
+                      <div className='form-check common-check common-radio mb-0'>
+                        <input
+                          className='form-check-input'
+                          type='radio'
+                          name='gender'
+                          id='genderOther'
+                          value='Other'
+                          onChange={handleChange}
+                          checked={formData.gender === 'Other'}
+                        />
+                        <label className='form-check-label fw-normal flex-grow-1' htmlFor='genderOther'>
+                          Other
+                        </label>
+                      </div>
                     </div>
                   </div>
                   <div className='col-sm-6'>
@@ -525,31 +589,8 @@ const SignUpInner = () => {
                     />
                   </div>
                   <div className='col-sm-6'>
-                    <label htmlFor='city' className='text-neutral-700 text-lg fw-medium mb-12'>
-                      Select city <span className='text-danger-600'>*</span>{" "}
-                    </label>
-                    <select
-                      className='common-input bg-main-25 rounded-pill border-transparent focus-border-main-600 form-select py-14'
-                      id='city'
-                      name='city'
-                      value={formData.city}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value='' disabled>
-                        Select city
-                      </option>
-                      <option value='Dhaka'>Dhaka</option>
-                      <option value='Chandpur'>Chandpur</option>
-                      <option value='Rajshahi'>Rajshahi</option>
-                      <option value='Rangpur'>Rangpur</option>
-                      <option value='Sylhet'>Sylhet</option>
-                      <option value='Khulna'>Khulna</option>
-                    </select>
-                  </div>
-                  <div className='col-sm-6'>
                     <label htmlFor='state' className='text-neutral-700 text-lg fw-medium mb-12'>
-                      Select state <span className='text-danger-600'>*</span>{" "}
+                      State <span className='text-danger-600'>*</span>{" "}
                     </label>
                     <select
                       className='common-input bg-main-25 rounded-pill border-transparent focus-border-main-600 form-select py-14'
@@ -562,34 +603,34 @@ const SignUpInner = () => {
                       <option value='' disabled>
                         Select state
                       </option>
-                      <option value='Uttara'>Uttara</option>
-                      <option value='Mirpur'>Mirpur</option>
-                      <option value='Baddha'>Baddha</option>
-                      <option value='Gulshan'>Gulshan</option>
-                      <option value='Banani'>Banani</option>
+                      {availableStates.map((stateOption) => (
+                        <option key={stateOption} value={stateOption}>
+                          {stateOption}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div className='col-sm-6'>
-                    <label htmlFor='country' className='text-neutral-700 text-lg fw-medium mb-12'>
-                      Select Country <span className='text-danger-600'>*</span>{" "}
+                    <label htmlFor='city' className='text-neutral-700 text-lg fw-medium mb-12'>
+                      City <span className='text-danger-600'>*</span>{" "}
                     </label>
                     <select
                       className='common-input bg-main-25 rounded-pill border-transparent focus-border-main-600 form-select py-14'
-                      id='country'
-                      name='country'
-                      value={formData.country}
+                      id='city'
+                      name='city'
+                      value={formData.city}
                       onChange={handleChange}
                       required
+                      disabled={!formData.state}
                     >
                       <option value='' disabled>
-                        Select country
+                        {formData.state ? "Select city" : "Select a state first"}
                       </option>
-                      <option value='Bangladesh'>Bangladesh</option>
-                      <option value='Pakistan'>Pakistan</option>
-                      <option value='Bhutan'>Bhutan</option>
-                      <option value='Nepal'>Nepal</option>
-                      <option value='Australia'>Australia</option>
-                      <option value='England'>England</option>
+                      {availableCities.map((cityOption) => (
+                        <option key={cityOption} value={cityOption}>
+                          {cityOption}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div className='col-sm-6'>
@@ -617,132 +658,6 @@ const SignUpInner = () => {
                       id='address'
                       name='address'
                       value={formData.address}
-                      onChange={handleChange}
-                      placeholder='Enter Your address...'
-                      rows={3}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className='col-sm-12'>
-              <div className='border border-neutral-30 rounded-12 bg-white p-24'>
-                <h5 className='mb-0'>Parent details</h5>
-                <span className='d-block border border-main-50 my-24 border-dashed' />
-                <div className='row gy-4'>
-                  <div className='col-sm-12'>
-                    <label className='text-neutral-700 text-lg fw-medium mb-12'>
-                      Title <span className='text-danger-600'>*</span>{" "}
-                    </label>
-                    <div className='flex-align gap-24'>
-                      {[
-                        { id: 'parentMr', label: 'Mr.', value: 'Mr.' },
-                        { id: 'parentMrs', label: 'Mrs.', value: 'Mrs.' },
-                        { id: 'parentMs', label: 'Ms.', value: 'Ms.' },
-                        { id: 'parentDr', label: 'Dr.', value: 'Dr.' },
-                      ].map(({ id, label, value }, index) => (
-                        <div className='form-check common-check common-radio mb-0' key={id}>
-                          <input
-                            className='form-check-input'
-                            type='radio'
-                            name='parentTitle'
-                            id={id}
-                            value={value}
-                            onChange={handleChange}
-                            checked={formData.parentTitle === value}
-                            required={index === 0}
-                          />
-                          <label className='form-check-label fw-normal flex-grow-1' htmlFor={id}>
-                            {label}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className='col-sm-6'>
-                    <label htmlFor='parentFullName' className='text-neutral-700 text-lg fw-medium mb-12'>
-                      Full Name <span className='text-danger-600'>*</span>{" "}
-                    </label>
-                    <input
-                      type='text'
-                      className='common-input bg-main-25 rounded-pill border-transparent focus-border-main-600'
-                      id='parentFullName'
-                      name='parentFullName'
-                      value={formData.parentFullName}
-                      onChange={handleChange}
-                      placeholder='Enter Your Name...'
-                      required
-                    />
-                  </div>
-                  <div className='col-sm-6'>
-                    <label htmlFor='parentRelation' className='text-neutral-700 text-lg fw-medium mb-12'>
-                      Relation with applicant <span className='text-danger-600'>*</span>{" "}
-                    </label>
-                    <input
-                      type='text'
-                      className='common-input bg-main-25 rounded-pill border-transparent focus-border-main-600'
-                      id='parentRelation'
-                      name='parentRelation'
-                      value={formData.parentRelation}
-                      onChange={handleChange}
-                      placeholder='Enter relation'
-                      required
-                    />
-                  </div>
-                  <div className='col-sm-6'>
-                    <label htmlFor='parentPhone' className='text-neutral-700 text-lg fw-medium mb-12'>
-                      Phone <span className='text-danger-600'>*</span>{" "}
-                    </label>
-                    <input
-                      type='tel'
-                      className='common-input bg-main-25 rounded-pill border-transparent focus-border-main-600'
-                      id='parentPhone'
-                      name='parentPhone'
-                      value={formData.parentPhone}
-                      onChange={handleChange}
-                      placeholder='Enter Your Number...'
-                      required
-                    />
-                  </div>
-                  <div className='col-sm-6'>
-                    <label htmlFor='parentEmail' className='text-neutral-700 text-lg fw-medium mb-12'>
-                      Email <span className='text-danger-600'>*</span>{" "}
-                    </label>
-                    <input
-                      type='email'
-                      className='common-input bg-main-25 rounded-pill border-transparent focus-border-main-600'
-                      id='parentEmail'
-                      name='parentEmail'
-                      value={formData.parentEmail}
-                      onChange={handleChange}
-                      placeholder='Enter Your Email...'
-                      required
-                    />
-                  </div>
-                  <div className='col-sm-6'>
-                    <label htmlFor='parentJobTitle' className='text-neutral-700 text-lg fw-medium mb-12'>
-                      Job Title <span className='text-danger-600'>*</span>{" "}
-                    </label>
-                    <input
-                      type='text'
-                      className='common-input bg-main-25 rounded-pill border-transparent focus-border-main-600'
-                      id='parentJobTitle'
-                      name='parentJobTitle'
-                      value={formData.parentJobTitle}
-                      onChange={handleChange}
-                      placeholder='Job title'
-                      required
-                    />
-                  </div>
-                  <div className='col-sm-12'>
-                    <label htmlFor='parentAddress' className='text-neutral-700 text-lg fw-medium mb-12'>
-                      Home address
-                    </label>
-                    <textarea
-                      className='common-input bg-main-25 rounded-24 border-transparent focus-border-main-600'
-                      id='parentAddress'
-                      name='parentAddress'
-                      value={formData.parentAddress}
                       onChange={handleChange}
                       placeholder='Enter Your address...'
                       rows={3}
@@ -800,26 +715,6 @@ const SignUpInner = () => {
                       placeholder='Enter board...'
                       required
                     />
-                  </div>
-                  <div className='col-sm-6'>
-                    <label htmlFor='classGrade' className='text-neutral-700 text-lg fw-medium mb-12'>
-                      Class grad <span className='text-danger-600'>*</span>{" "}
-                    </label>
-                    <select
-                      className='common-input bg-main-25 rounded-pill border-transparent focus-border-main-600 form-select py-14'
-                      id='classGrade'
-                      name='classGrade'
-                      value={formData.classGrade}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value='' disabled>
-                        Select class grade
-                      </option>
-                      <option value='1st Class'>1st Class</option>
-                      <option value='2nd Class'>2nd Class</option>
-                      <option value='3rd Class'>3rd Class</option>
-                    </select>
                   </div>
                   <div className='col-sm-12'>
                     <label htmlFor='schoolAddress' className='text-neutral-700 text-lg fw-medium mb-12'>
