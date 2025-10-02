@@ -5,8 +5,10 @@ const {
   verifySignupOtp,
   completeSignup,
   login,
+  logout,
 } = require('../controllers/authController');
 const validateRequest = require('../middleware/validateRequest');
+const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -70,5 +72,7 @@ router.post(
   validateRequest,
   login
 );
+
+router.post('/logout', protect, logout);
 
 module.exports = router;

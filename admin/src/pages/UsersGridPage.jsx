@@ -8,7 +8,7 @@ const UsersGridPage = () => {
       {/* MasterLayout */}
       <MasterLayout>
         {/* Breadcrumb */}
-        <Breadcrumb title='Users Grid' />
+        <Breadcrumb title='Admin Users Grid' />
 
         {/* UsersGridLayer */}
         <UsersGridLayer />

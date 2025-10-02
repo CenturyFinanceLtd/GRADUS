@@ -356,15 +356,29 @@ const MasterLayout = ({ children }) => {
                 <span>Chat</span>
               </NavLink>
             </li>
-             <li>
-              <NavLink
-                to='/users-list'
-                className={(navData) => (navData.isActive ? "active-page" : "")}
-              >
-                <Icon icon='flowbite:users-group-outline' className='menu-icon' />
-                <span>Users</span>
-              </NavLink>
-            </li>
+            {(hasFullAccess || allowedPages.includes('user_list')) && (
+              <li>
+                <NavLink
+                  to='/users-list'
+                  className={(navData) => (navData.isActive ? "active-page" : "")}
+                >
+                  <Icon icon='flowbite:users-group-outline' className='menu-icon' />
+                  <span>Admin Users</span>
+                </NavLink>
+              </li>
+            )}
+
+            {(hasFullAccess || allowedPages.includes('website_users')) && (
+              <li>
+                <NavLink
+                  to='/website-users'
+                  className={(navData) => (navData.isActive ? "active-page" : "")}
+                >
+                  <Icon icon='mdi:web' className='menu-icon' />
+                  <span>Website Users</span>
+                </NavLink>
+              </li>
+            )}
 
             <li>
               <NavLink

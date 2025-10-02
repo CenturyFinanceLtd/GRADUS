@@ -70,6 +70,7 @@ import TooltipPage from "./pages/TooltipPage";
 import TypographyPage from "./pages/TypographyPage";
 import UsersGridPage from "./pages/UsersGridPage";
 import UsersListPage from "./pages/UsersListPage";
+import WebsiteUsersPage from "./pages/WebsiteUsersPage";
 import ViewDetailsPage from "./pages/ViewDetailsPage";
 import VideoGeneratorPage from "./pages/VideoGeneratorPage";
 import VideosPage from "./pages/VideosPage";
@@ -228,6 +229,7 @@ function App() {
         <Route exact path='/typography' element={<TypographyPage />} />
         <Route exact path='/users-grid' element={<UsersGridPage />} />
         <Route exact path='/users-list' element={<UsersListPage />} />
+        <Route exact path='/website-users' element={<WebsiteUsersPage />} />
         <Route exact path='/view-details' element={<ViewDetailsPage />} />
         <Route exact path='/video-generator' element={<VideoGeneratorPage />} />
         <Route exact path='/videos' element={<VideosPage />} />

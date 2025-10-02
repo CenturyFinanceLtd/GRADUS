@@ -14,12 +14,13 @@ const ADMIN_PAGE_DEFINITIONS = [
 
   // User management
   { key: 'user_add', label: 'Add User', path: '/add-user', category: 'User Management' },
-  { key: 'user_list', label: 'Users List', path: '/users-list', category: 'User Management' },
-  { key: 'user_grid', label: 'Users Grid', path: '/users-grid', category: 'User Management' },
+  { key: 'user_list', label: 'Admin Users List', path: '/users-list', category: 'User Management' },
+  { key: 'user_grid', label: 'Admin Users Grid', path: '/users-grid', category: 'User Management' },
   { key: 'user_roles', label: 'Assign Role', path: '/assign-role', category: 'User Management' },
   { key: 'user_permissions', label: 'Permission Settings', path: '/permissions', category: 'User Management' },
   { key: 'user_profile', label: 'View Profile', path: '/view-profile', category: 'User Management' },
   { key: 'user_details', label: 'View Details', path: '/view-details', category: 'User Management' },
+  { key: 'website_users', label: 'Website Users', path: '/website-users', category: 'User Management' },
 
   // Content & media
   { key: 'blog_list', label: 'Blogs', path: '/blog', category: 'Content & Media' },

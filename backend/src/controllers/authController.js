@@ -4,11 +4,46 @@ const crypto = require('crypto');
 const { Types } = require('mongoose');
 const User = require('../models/User');
 const VerificationSession = require('../models/VerificationSession');
+const UserAuthLog = require('../models/UserAuthLog');
 const generateOtp = require('../utils/generateOtp');
 const { sendOtpEmail, deliveryMode } = require('../utils/email');
 const generateAuthToken = require('../utils/token');
 
 const sanitizeString = (value) => (typeof value === 'string' ? value.trim() : '');
+
+const resolveRequestIp = (req) => {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (forwarded && typeof forwarded === 'string') {
+    return forwarded.split(',')[0].trim();
+  }
+
+  if (Array.isArray(forwarded) && forwarded.length > 0) {
+    return String(forwarded[0]).trim();
+  }
+
+  if (req.ip) {
+    return req.ip;
+  }
+
+  return '';
+};
+
+const recordAuthEvent = async ({ userId, type, req }) => {
+  if (!userId || !type) {
+    return;
+  }
+
+  try {
+    await UserAuthLog.create({
+      user: userId,
+      type,
+      userAgent: req.get('user-agent') || '',
+      ipAddress: resolveRequestIp(req),
+    });
+  } catch (error) {
+    console.error(`[auth] Failed to record ${type.toLowerCase()} event`, error);
+  }
+};
 
 const mergeSignupPayload = (base = {}, overrides = {}) => ({
   ...base,
@@ -359,7 +394,17 @@ const login = asyncHandler(async (req, res) => {
 
   const safeUser = await User.findById(user._id);
   const authResponse = buildAuthResponse(safeUser);
+
+  recordAuthEvent({ userId: user._id, type: 'LOGIN', req });
   res.status(200).json(authResponse);
+});
+
+const logout = asyncHandler(async (req, res) => {
+  if (req.user?._id) {
+    recordAuthEvent({ userId: req.user._id, type: 'LOGOUT', req });
+  }
+
+  res.status(200).json({ message: 'Logged out successfully.' });
 });
 
 module.exports = {
@@ -367,4 +412,5 @@ module.exports = {
   verifySignupOtp,
   completeSignup,
   login,
+  logout,
 };

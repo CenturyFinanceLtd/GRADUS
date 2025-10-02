@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
+import apiClient from "../services/apiClient";
 
 const STORAGE_KEY = "gradus_auth";
 
@@ -66,9 +67,16 @@ export const AuthProvider = ({ children }) => {
   );
 
   const logout = useCallback(() => {
+    const currentToken = state.token;
+    if (currentToken) {
+      apiClient.post("/auth/logout", undefined, { token: currentToken }).catch((error) => {
+        console.warn("[Auth] Failed to record logout", error);
+      });
+    }
+
     persist(null);
     setState({ user: null, token: null, loading: false });
-  }, [persist]);
+  }, [persist, state.token]);
 
   const value = useMemo(
     () => ({
