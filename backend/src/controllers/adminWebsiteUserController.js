@@ -162,7 +162,7 @@ const listWebsiteUsers = asyncHandler(async (req, res) => {
       emailVerified: Boolean(user.emailVerified),
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-      loginStats: formatLoginStats(authStatsMap.get(key)),
+      loginStats: authStatsMap.get(key) || formatLoginStats(null),
       enrollments: enrollmentMap.get(key) || [],
     };
   });
