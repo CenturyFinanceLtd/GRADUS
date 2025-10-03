@@ -369,6 +369,150 @@ const completeSignup = asyncHandler(async (req, res) => {
   res.status(201).json(authResponse);
 });
 
+const startPasswordReset = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    res.status(400);
+    throw new Error('An email address is required.');
+  }
+
+  const normalizedEmail = email.toLowerCase().trim();
+  const user = await User.findOne({ email: normalizedEmail });
+
+  if (!user) {
+    return res.status(200).json({
+      sessionId: null,
+      email: normalizedEmail,
+      message: 'If an account with this email exists, we have sent a verification code.',
+    });
+  }
+
+  await VerificationSession.deleteMany({ type: 'PASSWORD_RESET', user: user._id });
+
+  const otp = generateOtp();
+  const otpHash = await bcrypt.hash(otp, 10);
+  const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+  const session = await VerificationSession.create({
+    type: 'PASSWORD_RESET',
+    email: normalizedEmail,
+    user: user._id,
+    otpHash,
+    otpExpiresAt,
+    status: 'OTP_PENDING',
+  });
+
+  let emailResult;
+  try {
+    emailResult = await sendOtpEmail({
+      to: normalizedEmail,
+      otp,
+      context: {
+        title: 'Reset your Gradus password',
+        action: 'resetting your Gradus account password',
+      },
+    });
+  } catch (error) {
+    console.error('[auth] Failed to send password reset OTP:', error.message);
+    await session.deleteOne();
+    throw new Error('We could not send a verification code. Please try again later.');
+  }
+
+  const responsePayload = {
+    sessionId: session._id.toString(),
+    email: normalizedEmail,
+    message: 'If an account with this email exists, we have sent a verification code.',
+  };
+
+  if (emailResult?.mocked && deliveryMode !== 'live') {
+    responsePayload.devOtp = otp;
+  }
+
+  res.status(200).json(responsePayload);
+});
+
+const verifyPasswordResetOtp = asyncHandler(async (req, res) => {
+  const { sessionId, otp } = req.body;
+
+  if (!Types.ObjectId.isValid(sessionId)) {
+    res.status(400);
+    throw new Error('Invalid session identifier.');
+  }
+
+  const session = await VerificationSession.findById(sessionId).select('+otpHash');
+
+  if (!session || session.type !== 'PASSWORD_RESET') {
+    res.status(400);
+    throw new Error('Password reset session could not be found.');
+  }
+
+  if (session.status !== 'OTP_PENDING') {
+    res.status(400);
+    throw new Error('Password reset verification has already been completed.');
+  }
+
+  if (!session.otpHash || !session.otpExpiresAt || session.otpExpiresAt.getTime() < Date.now()) {
+    await session.deleteOne();
+    res.status(410);
+    throw new Error('The verification code has expired. Please restart the password reset.');
+  }
+
+  const isMatch = await bcrypt.compare(otp, session.otpHash);
+  if (!isMatch) {
+    res.status(401);
+    throw new Error('Invalid verification code.');
+  }
+
+  const verificationToken = crypto.randomBytes(24).toString('hex');
+  session.verificationToken = verificationToken;
+  session.status = 'OTP_VERIFIED';
+  await session.save();
+
+  res.status(200).json({ sessionId: session._id.toString(), verificationToken });
+});
+
+const completePasswordReset = asyncHandler(async (req, res) => {
+  const { sessionId, verificationToken, password } = req.body;
+
+  if (!Types.ObjectId.isValid(sessionId)) {
+    res.status(400);
+    throw new Error('Invalid session identifier.');
+  }
+
+  const session = await VerificationSession.findById(sessionId);
+
+  if (!session || session.type !== 'PASSWORD_RESET') {
+    res.status(400);
+    throw new Error('Password reset session could not be found.');
+  }
+
+  if (session.status !== 'OTP_VERIFIED') {
+    res.status(400);
+    throw new Error('Email verification is still pending.');
+  }
+
+  if (!verificationToken || session.verificationToken !== verificationToken) {
+    res.status(400);
+    throw new Error('Verification token mismatch. Please restart the password reset.');
+  }
+
+  const user = await User.findById(session.user);
+  if (!user) {
+    await session.deleteOne();
+    res.status(404);
+    throw new Error('User account not found.');
+  }
+
+  user.password = await bcrypt.hash(password, 12);
+  user.emailVerified = true;
+  await user.save();
+
+  await session.deleteOne();
+
+  res.status(200).json({ message: 'Password reset successfully.' });
+});
+
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const normalizedEmail = email.toLowerCase().trim();
@@ -411,6 +555,9 @@ module.exports = {
   startSignup,
   verifySignupOtp,
   completeSignup,
+  startPasswordReset,
+  verifyPasswordResetOtp,
+  completePasswordReset,
   login,
   logout,
 };

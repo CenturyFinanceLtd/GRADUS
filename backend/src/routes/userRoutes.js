@@ -37,6 +37,62 @@ router.put(
       .trim()
       .isLength({ min: 6 })
       .withMessage('Please provide a valid mobile number.'),
+    body('personalDetails')
+      .optional()
+      .isObject()
+      .withMessage('Personal details must be an object.'),
+    body('personalDetails.studentName')
+      .optional()
+      .trim()
+      .isLength({ min: 1 })
+      .withMessage('Student name cannot be empty.'),
+    body('personalDetails.gender')
+      .optional()
+      .trim()
+      .isLength({ min: 1 })
+      .withMessage('Gender cannot be empty.'),
+    body('personalDetails.dateOfBirth')
+      .optional()
+      .trim()
+      .isLength({ min: 1 })
+      .withMessage('Date of birth cannot be empty.'),
+    body('personalDetails.city')
+      .optional()
+      .trim()
+      .isLength({ min: 1 })
+      .withMessage('City cannot be empty.'),
+    body('personalDetails.state')
+      .optional()
+      .trim()
+      .isLength({ min: 1 })
+      .withMessage('State cannot be empty.'),
+    body('personalDetails.country')
+      .optional()
+      .trim()
+      .isLength({ min: 1 })
+      .withMessage('Country cannot be empty.'),
+    body('personalDetails.zipCode')
+      .optional()
+      .trim()
+      .isLength({ min: 1 })
+      .withMessage('Zip code cannot be empty.'),
+    body('personalDetails.address').optional().trim(),
+    body('educationDetails')
+      .optional()
+      .isObject()
+      .withMessage('Education details must be an object.'),
+    body('educationDetails.institutionName')
+      .optional()
+      .trim()
+      .isLength({ min: 1 })
+      .withMessage('Institution name cannot be empty.'),
+    body('educationDetails.passingYear')
+      .optional()
+      .trim()
+      .isLength({ min: 1 })
+      .withMessage('Passing year cannot be empty.'),
+    body('educationDetails.fieldOfStudy').optional().trim(),
+    body('educationDetails.address').optional().trim(),
     body('email')
       .optional()
       .custom(() => {

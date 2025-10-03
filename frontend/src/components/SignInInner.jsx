@@ -121,10 +121,10 @@ const SignInInner = () => {
                 </div>
                 <div className='mb-16 text-end'>
                   <Link
-                    to='#'
+                    to='/forgot-password'
                     className='text-warning-600 hover-text-decoration-underline'
                   >
-                    Forget password
+                    Forgot password?
                   </Link>
                 </div>
                 <div className='mb-16'>

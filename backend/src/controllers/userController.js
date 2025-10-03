@@ -12,7 +12,7 @@ const getProfile = asyncHandler(async (req, res) => {
 });
 
 const updateProfile = asyncHandler(async (req, res) => {
-  const { firstName, lastName, mobile } = req.body;
+  const { firstName, lastName, mobile, personalDetails, educationDetails } = req.body;
 
   const user = await User.findById(req.user._id);
 
@@ -31,6 +31,48 @@ const updateProfile = asyncHandler(async (req, res) => {
 
   if (typeof mobile === 'string') {
     user.mobile = mobile;
+  }
+
+  const assignNestedString = (target, source, field, { allowEmpty = false } = {}) => {
+    if (!source || typeof source !== 'object') {
+      return;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(source, field)) {
+      const raw = source[field];
+      if (typeof raw === 'string') {
+        const trimmed = raw.trim();
+        if (trimmed || allowEmpty) {
+          target[field] = trimmed;
+        }
+      }
+    }
+  };
+
+  if (personalDetails && typeof personalDetails === 'object') {
+    if (!user.personalDetails) {
+      user.personalDetails = {};
+    }
+
+    assignNestedString(user.personalDetails, personalDetails, 'studentName');
+    assignNestedString(user.personalDetails, personalDetails, 'gender');
+    assignNestedString(user.personalDetails, personalDetails, 'dateOfBirth');
+    assignNestedString(user.personalDetails, personalDetails, 'city');
+    assignNestedString(user.personalDetails, personalDetails, 'state');
+    assignNestedString(user.personalDetails, personalDetails, 'country');
+    assignNestedString(user.personalDetails, personalDetails, 'zipCode');
+    assignNestedString(user.personalDetails, personalDetails, 'address', { allowEmpty: true });
+  }
+
+  if (educationDetails && typeof educationDetails === 'object') {
+    if (!user.educationDetails) {
+      user.educationDetails = {};
+    }
+
+    assignNestedString(user.educationDetails, educationDetails, 'institutionName');
+    assignNestedString(user.educationDetails, educationDetails, 'passingYear');
+    assignNestedString(user.educationDetails, educationDetails, 'fieldOfStudy', { allowEmpty: true });
+    assignNestedString(user.educationDetails, educationDetails, 'address', { allowEmpty: true });
   }
 
   await user.save();

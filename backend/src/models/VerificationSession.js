@@ -4,7 +4,7 @@ const verificationSessionSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ['SIGNUP', 'EMAIL_CHANGE', 'ACCOUNT_DELETE', 'ADMIN_SIGNUP', 'ADMIN_EMAIL_CHANGE', 'ADMIN_PASSWORD_RESET'],
+      enum: ['SIGNUP', 'EMAIL_CHANGE', 'PASSWORD_RESET', 'ACCOUNT_DELETE', 'ADMIN_SIGNUP', 'ADMIN_EMAIL_CHANGE', 'ADMIN_PASSWORD_RESET'],
       required: true,
     },
     email: {

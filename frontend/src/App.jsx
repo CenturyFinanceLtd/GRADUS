@@ -42,6 +42,7 @@ import InvestorsPrivacyPage from "./pages/InvestorsPrivacyPage.jsx";
 import ProductPage from "./pages/ProductPage.jsx";
 import ProductDetailsPage from "./pages/ProductDetailsPage.jsx";
 import SignInPage from "./pages/SignInPage.jsx";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import TuitionJobsPage from "./pages/TuitionJobsPage.jsx";
@@ -153,6 +154,7 @@ function App() {
         <Route exact path='/product' element={<ProductPage />} />
         <Route exact path='/product-details' element={<ProductDetailsPage />} />
         <Route exact path='/sign-in' element={<SignInPage />} />
+        <Route exact path='/forgot-password' element={<ForgotPasswordPage />} />
         <Route exact path='/sign-up' element={<SignUpPage />} />
         <Route
           exact

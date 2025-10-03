@@ -3,14 +3,34 @@ import { useNavigate } from "react-router-dom";
 import apiClient from "../services/apiClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
+const safeString = (value) => (typeof value === "string" ? value : "");
+
+const mapUserToProfileState = (user) => ({
+  firstName: safeString(user?.firstName),
+  lastName: safeString(user?.lastName),
+  mobile: safeString(user?.mobile),
+  email: safeString(user?.email),
+  personalDetails: {
+    studentName: safeString(user?.personalDetails?.studentName),
+    gender: safeString(user?.personalDetails?.gender),
+    dateOfBirth: safeString(user?.personalDetails?.dateOfBirth),
+    city: safeString(user?.personalDetails?.city),
+    state: safeString(user?.personalDetails?.state),
+    country: safeString(user?.personalDetails?.country),
+    zipCode: safeString(user?.personalDetails?.zipCode),
+    address: safeString(user?.personalDetails?.address),
+  },
+  educationDetails: {
+    institutionName: safeString(user?.educationDetails?.institutionName),
+    passingYear: safeString(user?.educationDetails?.passingYear),
+    fieldOfStudy: safeString(user?.educationDetails?.fieldOfStudy),
+    address: safeString(user?.educationDetails?.address),
+  },
+});
+
 const ProfileInner = () => {
-  const { token, updateUser, logout } = useAuth();
-  const [profileData, setProfileData] = useState({
-    firstName: "",
-    lastName: "",
-    mobile: "",
-    email: "",
-  });
+  const { token, updateUser, logout, user: authUser } = useAuth();
+  const [profileData, setProfileData] = useState(() => mapUserToProfileState(authUser));
   const [fetchingProfile, setFetchingProfile] = useState(true);
   const [profileStatus, setProfileStatus] = useState({ type: "", message: "" });
   const [emailChange, setEmailChange] = useState({
@@ -39,18 +59,18 @@ const ProfileInner = () => {
     loading: false,
   });
   const navigate = useNavigate();
+  const emailVerified = authUser?.emailVerified;
+
+  useEffect(() => {
+    setProfileData(mapUserToProfileState(authUser));
+  }, [authUser]);
 
   useEffect(() => {
     const fetchProfile = async () => {
       setFetchingProfile(true);
       try {
         const response = await apiClient.get("/users/me", { token });
-        setProfileData({
-          firstName: response.user.firstName || "",
-          lastName: response.user.lastName || "",
-          mobile: response.user.mobile || "",
-          email: response.user.email || "",
-        });
+        setProfileData(mapUserToProfileState(response.user));
         updateUser(response.user);
       } catch (error) {
         if (error.status === 401) {
@@ -76,7 +96,20 @@ const ProfileInner = () => {
 
   const handleProfileChange = (event) => {
     const { name, value } = event.target;
-    setProfileData((prev) => ({ ...prev, [name]: value }));
+    setProfileData((prev) => {
+      if (name.includes('.')) {
+        const [section, field] = name.split('.');
+        return {
+          ...prev,
+          [section]: {
+            ...(prev[section] || {}),
+            [field]: value,
+          },
+        };
+      }
+
+      return { ...prev, [name]: value };
+    });
   };
 
   const handleProfileSubmit = async (event) => {
@@ -84,16 +117,35 @@ const ProfileInner = () => {
     setProfileStatus({ type: "", message: "" });
 
     try {
+      const payload = {
+        firstName: profileData.firstName.trim(),
+        lastName: profileData.lastName.trim(),
+        mobile: profileData.mobile.trim(),
+        personalDetails: {
+          studentName: profileData.personalDetails.studentName.trim(),
+          gender: profileData.personalDetails.gender.trim(),
+          dateOfBirth: profileData.personalDetails.dateOfBirth.trim(),
+          city: profileData.personalDetails.city.trim(),
+          state: profileData.personalDetails.state.trim(),
+          country: profileData.personalDetails.country.trim(),
+          zipCode: profileData.personalDetails.zipCode.trim(),
+          address: profileData.personalDetails.address.trim(),
+        },
+        educationDetails: {
+          institutionName: profileData.educationDetails.institutionName.trim(),
+          passingYear: profileData.educationDetails.passingYear.trim(),
+          fieldOfStudy: profileData.educationDetails.fieldOfStudy.trim(),
+          address: profileData.educationDetails.address.trim(),
+        },
+      };
+
       const response = await apiClient.put(
         "/users/me",
-        {
-          firstName: profileData.firstName.trim(),
-          lastName: profileData.lastName.trim(),
-          mobile: profileData.mobile.trim(),
-        },
+        payload,
         { token }
       );
 
+      setProfileData(mapUserToProfileState(response.user));
       updateUser(response.user);
       setProfileStatus({ type: "success", message: "Profile updated successfully." });
     } catch (error) {
@@ -151,7 +203,7 @@ const ProfileInner = () => {
       );
 
       updateUser(response.user);
-      setProfileData((prev) => ({ ...prev, email: response.user.email }));
+      setProfileData(mapUserToProfileState(response.user));
       setEmailChange({
         newEmail: "",
         sessionId: null,
@@ -350,7 +402,7 @@ const ProfileInner = () => {
                 </div>
                 <div className='col-sm-6'>
                   <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='email'>
-                    Email Address (verified)
+                    Email Address {emailVerified ? "(verified)" : "(unverified)"}
                   </label>
                   <input
                     type='email'
@@ -372,6 +424,179 @@ const ProfileInner = () => {
                     value={profileData.mobile}
                     onChange={handleProfileChange}
                     required
+                  />
+                </div>
+
+                <div className='col-12 pt-8'>
+                  <h4 className='text-neutral-500 mb-0'>Personal Details</h4>
+                </div>
+                <div className='col-sm-6'>
+                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='pdStudentName'>
+                    Student Name
+                  </label>
+                  <input
+                    type='text'
+                    className='common-input rounded-pill'
+                    id='pdStudentName'
+                    name='personalDetails.studentName'
+                    value={profileData.personalDetails.studentName}
+                    onChange={handleProfileChange}
+                    required
+                  />
+                </div>
+                <div className='col-sm-6'>
+                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='pdGender'>
+                    Gender
+                  </label>
+                  <input
+                    type='text'
+                    className='common-input rounded-pill'
+                    id='pdGender'
+                    name='personalDetails.gender'
+                    value={profileData.personalDetails.gender}
+                    onChange={handleProfileChange}
+                    required
+                  />
+                </div>
+                <div className='col-sm-6'>
+                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='pdDob'>
+                    Date of Birth
+                  </label>
+                  <input
+                    type='text'
+                    className='common-input rounded-pill'
+                    id='pdDob'
+                    name='personalDetails.dateOfBirth'
+                    value={profileData.personalDetails.dateOfBirth}
+                    onChange={handleProfileChange}
+                    required
+                  />
+                </div>
+                <div className='col-sm-6'>
+                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='pdCity'>
+                    City
+                  </label>
+                  <input
+                    type='text'
+                    className='common-input rounded-pill'
+                    id='pdCity'
+                    name='personalDetails.city'
+                    value={profileData.personalDetails.city}
+                    onChange={handleProfileChange}
+                    required
+                  />
+                </div>
+                <div className='col-sm-6'>
+                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='pdState'>
+                    State
+                  </label>
+                  <input
+                    type='text'
+                    className='common-input rounded-pill'
+                    id='pdState'
+                    name='personalDetails.state'
+                    value={profileData.personalDetails.state}
+                    onChange={handleProfileChange}
+                    required
+                  />
+                </div>
+                <div className='col-sm-6'>
+                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='pdCountry'>
+                    Country
+                  </label>
+                  <input
+                    type='text'
+                    className='common-input rounded-pill'
+                    id='pdCountry'
+                    name='personalDetails.country'
+                    value={profileData.personalDetails.country}
+                    onChange={handleProfileChange}
+                    required
+                  />
+                </div>
+                <div className='col-sm-6'>
+                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='pdZip'>
+                    Zip Code
+                  </label>
+                  <input
+                    type='text'
+                    className='common-input rounded-pill'
+                    id='pdZip'
+                    name='personalDetails.zipCode'
+                    value={profileData.personalDetails.zipCode}
+                    onChange={handleProfileChange}
+                    required
+                  />
+                </div>
+                <div className='col-12'>
+                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='pdAddress'>
+                    Address
+                  </label>
+                  <textarea
+                    className='common-input rounded-16'
+                    id='pdAddress'
+                    name='personalDetails.address'
+                    value={profileData.personalDetails.address}
+                    onChange={handleProfileChange}
+                    rows={3}
+                  />
+                </div>
+
+                <div className='col-12 pt-4'>
+                  <h4 className='text-neutral-500 mb-0'>Education Details</h4>
+                </div>
+                <div className='col-sm-6'>
+                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='edInstitution'>
+                    Institution Name
+                  </label>
+                  <input
+                    type='text'
+                    className='common-input rounded-pill'
+                    id='edInstitution'
+                    name='educationDetails.institutionName'
+                    value={profileData.educationDetails.institutionName}
+                    onChange={handleProfileChange}
+                    required
+                  />
+                </div>
+                <div className='col-sm-6'>
+                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='edPassingYear'>
+                    Passing Year
+                  </label>
+                  <input
+                    type='text'
+                    className='common-input rounded-pill'
+                    id='edPassingYear'
+                    name='educationDetails.passingYear'
+                    value={profileData.educationDetails.passingYear}
+                    onChange={handleProfileChange}
+                    required
+                  />
+                </div>
+                <div className='col-sm-6'>
+                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='edFieldOfStudy'>
+                    Field of Study
+                  </label>
+                  <input
+                    type='text'
+                    className='common-input rounded-pill'
+                    id='edFieldOfStudy'
+                    name='educationDetails.fieldOfStudy'
+                    value={profileData.educationDetails.fieldOfStudy}
+                    onChange={handleProfileChange}
+                  />
+                </div>
+                <div className='col-12'>
+                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='edAddress'>
+                    Institution Address
+                  </label>
+                  <textarea
+                    className='common-input rounded-16'
+                    id='edAddress'
+                    name='educationDetails.address'
+                    value={profileData.educationDetails.address}
+                    onChange={handleProfileChange}
+                    rows={3}
                   />
                 </div>
                 <div className='col-sm-12'>
