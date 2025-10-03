@@ -10064,6 +10064,9 @@ button:focus {
 
 .hover-bg-main-25:hover {
     background-color: var(--main-25) !important;
+    background: rgba(255, 255, 255, .40);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, .6), 0px 0px 32px rgba(0, 0, 0, .12);
+    -webkit-box-shadow: 0 0 0 2px rgba(255, 255, 255, .6), 0px 0px 32px rgba(0, 0, 0, .12);
 }
 
 .hover-bg-main-50:hover {
@@ -12204,9 +12207,9 @@ button:focus {
     backdrop-filter: blur(24px);
     -webkit-animation: slideDown 0.35s ease-out;
     animation: slideDown 0.35s ease-out;
-    -webkit-box-shadow: 0 5px 16px rgba(0, 0, 0, 0.1);
-    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.1);
-    background-color: hsl(var(--white) / 0.9);
+    background: rgba(255, 255, 255, .40);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, .6), 0 16px 32px rgba(0, 0, 0, .12);
+    -webkit-box-shadow: 0 0 0 2px rgba(255, 255, 255, .6), 0 16px 32px rgba(0, 0, 0, .12);
 }
 
 @media screen and (max-width: 991px) {
