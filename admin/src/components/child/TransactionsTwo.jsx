@@ -24,7 +24,7 @@ const TransactionsTwo = () => {
                 <div className='w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-success-200 flex-shrink-0'>
                   <img
                     src='assets/images/home-nine/payment1.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </div>
@@ -44,7 +44,7 @@ const TransactionsTwo = () => {
                 <div className='w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-info-200 flex-shrink-0'>
                   <img
                     src='assets/images/home-nine/payment2.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </div>
@@ -64,7 +64,7 @@ const TransactionsTwo = () => {
                 <div className='w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-warning-200 flex-shrink-0'>
                   <img
                     src='assets/images/home-nine/payment3.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </div>
@@ -84,7 +84,7 @@ const TransactionsTwo = () => {
                 <div className='w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-lilac-200 flex-shrink-0'>
                   <img
                     src='assets/images/home-nine/payment4.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </div>

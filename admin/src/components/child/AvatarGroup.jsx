@@ -11,37 +11,37 @@ const AvatarGroup = () => {
           <div className='d-flex align-items-center flex-wrap'>
             <img
               src='assets/images/avatar/avatar-group1.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-24-px h-24-px rounded-circle object-fit-cover position-relative'
             />
             <img
               src='assets/images/avatar/avatar-group2.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-24-px h-24-px rounded-circle object-fit-cover position-relative ms--10px'
             />
             <img
               src='assets/images/avatar/avatar-group3.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-24-px h-24-px rounded-circle object-fit-cover position-relative ms--10px'
             />
             <img
               src='assets/images/avatar/avatar-group4.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-24-px h-24-px rounded-circle object-fit-cover position-relative ms--10px'
             />
             <img
               src='assets/images/avatar/avatar-group5.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-24-px h-24-px rounded-circle object-fit-cover position-relative ms--10px'
             />
             <img
               src='assets/images/avatar/avatar-group6.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-24-px h-24-px rounded-circle object-fit-cover position-relative ms--10px'
             />
             <img
               src='assets/images/avatar/avatar-group6.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-24-px h-24-px rounded-circle object-fit-cover position-relative ms--10px'
             />
             <span className='w-24-px h-24-px rounded-circle object-fit-cover position-relative ms--10px border bg-neutral-100 text-secondary-light text-xs d-inline-flex align-items-center justify-content-center'>
@@ -57,37 +57,37 @@ const AvatarGroup = () => {
           <div className='d-flex align-items-center flex-wrap mt-24'>
             <img
               src='assets/images/avatar/avatar-group1.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-32-px h-32-px rounded-circle object-fit-cover position-relative'
             />
             <img
               src='assets/images/avatar/avatar-group2.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-32-px h-32-px rounded-circle object-fit-cover position-relative ms--10px'
             />
             <img
               src='assets/images/avatar/avatar-group3.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-32-px h-32-px rounded-circle object-fit-cover position-relative ms--10px'
             />
             <img
               src='assets/images/avatar/avatar-group4.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-32-px h-32-px rounded-circle object-fit-cover position-relative ms--10px'
             />
             <img
               src='assets/images/avatar/avatar-group5.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-32-px h-32-px rounded-circle object-fit-cover position-relative ms--10px'
             />
             <img
               src='assets/images/avatar/avatar-group6.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-32-px h-32-px rounded-circle object-fit-cover position-relative ms--10px'
             />
             <img
               src='assets/images/avatar/avatar-group6.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-32-px h-32-px rounded-circle object-fit-cover position-relative ms--10px'
             />
             <span className='w-32-px h-32-px rounded-circle object-fit-cover position-relative ms--10px border bg-neutral-100 text-secondary-light text-xs d-inline-flex align-items-center justify-content-center'>

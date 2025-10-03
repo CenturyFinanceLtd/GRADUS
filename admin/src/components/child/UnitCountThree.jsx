@@ -10,7 +10,7 @@ const UnitCountThree = () => {
             <div className='d-flex flex-wrap align-items-center justify-content-between gap-3'>
               <img
                 src='assets/images/currency/crypto-img1.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-40-px h-40-px rounded-circle flex-shrink-0'
               />
               <div className='flex-grow-1'>
@@ -40,7 +40,7 @@ const UnitCountThree = () => {
             <div className='d-flex flex-wrap align-items-center justify-content-between gap-3'>
               <img
                 src='assets/images/currency/crypto-img2.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-40-px h-40-px rounded-circle flex-shrink-0'
               />
               <div className='flex-grow-1'>
@@ -70,7 +70,7 @@ const UnitCountThree = () => {
             <div className='d-flex flex-wrap align-items-center justify-content-between gap-3'>
               <img
                 src='assets/images/currency/crypto-img3.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-40-px h-40-px rounded-circle flex-shrink-0'
               />
               <div className='flex-grow-1'>
@@ -100,7 +100,7 @@ const UnitCountThree = () => {
             <div className='d-flex flex-wrap align-items-center justify-content-between gap-3'>
               <img
                 src='assets/images/currency/crypto-img4.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-40-px h-40-px rounded-circle flex-shrink-0'
               />
               <div className='flex-grow-1'>
@@ -130,7 +130,7 @@ const UnitCountThree = () => {
             <div className='d-flex flex-wrap align-items-center justify-content-between gap-3'>
               <img
                 src='assets/images/currency/crypto-img5.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-40-px h-40-px rounded-circle flex-shrink-0'
               />
               <div className='flex-grow-1'>

@@ -12,7 +12,7 @@ const CardWithImageOverlays = () => {
             <div className='card-body p-0 gradient-overlay bottom-0 start-0'>
               <img
                 src='assets/images/card-component/card-overlay-img1.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-100 h-100'
               />
               <div className='position-absolute start-0 bottom-0 p-24 z-1'>
@@ -43,7 +43,7 @@ const CardWithImageOverlays = () => {
             <div className='card-body p-0 gradient-overlay top-0 start-0'>
               <img
                 src='assets/images/card-component/card-overlay-img1.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-100 h-100'
               />
               <div className='position-absolute start-0 top-0 p-24 z-1 text-center'>
@@ -74,7 +74,7 @@ const CardWithImageOverlays = () => {
             <div className='card-body p-0 gradient-overlay bottom-0 start-0'>
               <img
                 src='assets/images/card-component/card-overlay-img1.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-100 h-100'
               />
               <div className='position-absolute start-0 bottom-0 p-24 z-1 text-end'>

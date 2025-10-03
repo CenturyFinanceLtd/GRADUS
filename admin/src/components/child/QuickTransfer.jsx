@@ -26,7 +26,7 @@ const QuickTransfer = () => {
           <div className='position-relative z-1 py-32 text-center px-3'>
             <img
               src='assets/images/home-eleven/bg/bg-orange-gradient.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='position-absolute top-0 start-0 w-100 h-100 z-n1'
             />
             <h3 className='text-white'>$500.00</h3>
@@ -55,7 +55,7 @@ const QuickTransfer = () => {
                 <div className='officer-slider__thumb w-56-px h-56-px rounded-circle overflow-hidden flex-shrink-0 mx-8'>
                   <img
                     src='assets/images/home-eleven/officer-img1.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover'
                   />
                 </div>
@@ -70,7 +70,7 @@ const QuickTransfer = () => {
                 <div className='officer-slider__thumb w-56-px h-56-px rounded-circle overflow-hidden flex-shrink-0 mx-8'>
                   <img
                     src='assets/images/home-eleven/officer-img2.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover'
                   />
                 </div>
@@ -85,7 +85,7 @@ const QuickTransfer = () => {
                 <div className='officer-slider__thumb w-56-px h-56-px rounded-circle overflow-hidden flex-shrink-0 mx-8'>
                   <img
                     src='assets/images/home-eleven/officer-img3.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover'
                   />
                 </div>
@@ -100,7 +100,7 @@ const QuickTransfer = () => {
                 <div className='officer-slider__thumb w-56-px h-56-px rounded-circle overflow-hidden flex-shrink-0 mx-8'>
                   <img
                     src='assets/images/home-eleven/officer-img4.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover'
                   />
                 </div>
@@ -115,7 +115,7 @@ const QuickTransfer = () => {
                 <div className='officer-slider__thumb w-56-px h-56-px rounded-circle overflow-hidden flex-shrink-0 mx-8'>
                   <img
                     src='assets/images/home-eleven/officer-img5.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover'
                   />
                 </div>
@@ -130,7 +130,7 @@ const QuickTransfer = () => {
                 <div className='officer-slider__thumb w-56-px h-56-px rounded-circle overflow-hidden flex-shrink-0 mx-8'>
                   <img
                     src='assets/images/home-eleven/officer-img2.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover'
                   />
                 </div>

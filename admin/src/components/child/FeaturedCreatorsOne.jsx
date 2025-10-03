@@ -21,7 +21,7 @@ const FeaturedCreatorsOne = () => {
             <div className='d-flex align-items-center'>
               <img
                 src='assets/images/nft/nft-items-img1.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
               />
               <div className='flex-grow-1'>
@@ -45,7 +45,7 @@ const FeaturedCreatorsOne = () => {
                   <div className='radius-16 overflow-hidden'>
                     <img
                       src='assets/images/nft/featured-creator1.png'
-                      alt='WowDash React Vite'
+                      alt='Gradus'
                       className='w-100 h-100 object-fit-cover'
                     />
                   </div>
@@ -57,7 +57,7 @@ const FeaturedCreatorsOne = () => {
                       <img
                         src='assets/images/nft/bitcoin.png'
                         className='w-28-px h-28-px rounded-circle object-fit-cover'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                       />
                       <span className='text-sm text-secondary-light fw-medium'>
                         0.10 BTC
@@ -71,7 +71,7 @@ const FeaturedCreatorsOne = () => {
                   <div className='radius-16 overflow-hidden'>
                     <img
                       src='assets/images/nft/featured-creator2.png'
-                      alt='WowDash React Vite'
+                      alt='Gradus'
                       className='w-100 h-100 object-fit-cover'
                     />
                   </div>
@@ -83,7 +83,7 @@ const FeaturedCreatorsOne = () => {
                       <img
                         src='assets/images/nft/bitcoin.png'
                         className='w-28-px h-28-px rounded-circle object-fit-cover'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                       />
                       <span className='text-sm text-secondary-light fw-medium'>
                         0.10 BTC

@@ -21,7 +21,7 @@ const MarketplaceDetailsLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/crypto/bitcoin.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-72-px h-72-px rounded-circle flex-shrink-0 me-12 overflow-hidden'
                   />
                   <div className='flex-grow-1 d-flex flex-column'>
@@ -251,7 +251,7 @@ const MarketplaceDetailsLayer = () => {
                             <div className='d-flex align-items-center gap-8'>
                               <img
                                 src='assets/images/crypto/crypto-img1.png'
-                                alt='WowDash React Vite'
+                                alt='Gradus'
                                 className='w-24-px h-24-px rounded-circle flex-shrink-0 overflow-hidden'
                               />
                               <div className='flex-grow-1 d-flex flex-column'>
@@ -276,7 +276,7 @@ const MarketplaceDetailsLayer = () => {
                             <div className='d-flex align-items-center gap-8'>
                               <img
                                 src='assets/images/crypto/paypal.png'
-                                alt='WowDash React Vite'
+                                alt='Gradus'
                                 className='w-24-px h-24-px rounded-circle flex-shrink-0 overflow-hidden'
                               />
                               <div className='flex-grow-1 d-flex flex-column'>
@@ -333,7 +333,7 @@ const MarketplaceDetailsLayer = () => {
                             <div className='d-flex align-items-center gap-8'>
                               <img
                                 src='assets/images/crypto/crypto-img1.png'
-                                alt='WowDash React Vite'
+                                alt='Gradus'
                                 className='w-24-px h-24-px rounded-circle flex-shrink-0 overflow-hidden'
                               />
                               <div className='flex-grow-1 d-flex flex-column'>
@@ -358,7 +358,7 @@ const MarketplaceDetailsLayer = () => {
                             <div className='d-flex align-items-center gap-8'>
                               <img
                                 src='assets/images/crypto/paypal.png'
-                                alt='WowDash React Vite'
+                                alt='Gradus'
                                 className='w-24-px h-24-px rounded-circle flex-shrink-0 overflow-hidden'
                               />
                               <div className='flex-grow-1 d-flex flex-column'>
@@ -415,7 +415,7 @@ const MarketplaceDetailsLayer = () => {
                             <div className='d-flex align-items-center gap-8'>
                               <img
                                 src='assets/images/crypto/crypto-img1.png'
-                                alt='WowDash React Vite'
+                                alt='Gradus'
                                 className='w-24-px h-24-px rounded-circle flex-shrink-0 overflow-hidden'
                               />
                               <div className='flex-grow-1 d-flex flex-column'>
@@ -440,7 +440,7 @@ const MarketplaceDetailsLayer = () => {
                             <div className='d-flex align-items-center gap-8'>
                               <img
                                 src='assets/images/crypto/paypal.png'
-                                alt='WowDash React Vite'
+                                alt='Gradus'
                                 className='w-24-px h-24-px rounded-circle flex-shrink-0 overflow-hidden'
                               />
                               <div className='flex-grow-1 d-flex flex-column'>
@@ -481,7 +481,7 @@ const MarketplaceDetailsLayer = () => {
                   <div className='d-flex align-items-center'>
                     <img
                       src='assets/images/crypto/crypto-img1.png'
-                      alt='WowDash React Vite'
+                      alt='Gradus'
                       className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden'
                     />
                     <div className='flex-grow-1 d-flex flex-column'>
@@ -506,7 +506,7 @@ const MarketplaceDetailsLayer = () => {
                   <div className='d-flex align-items-center'>
                     <img
                       src='assets/images/crypto/crypto-img2.png'
-                      alt='WowDash React Vite'
+                      alt='Gradus'
                       className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden'
                     />
                     <div className='flex-grow-1 d-flex flex-column'>
@@ -531,7 +531,7 @@ const MarketplaceDetailsLayer = () => {
                   <div className='d-flex align-items-center'>
                     <img
                       src='assets/images/crypto/crypto-img5.png'
-                      alt='WowDash React Vite'
+                      alt='Gradus'
                       className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden'
                     />
                     <div className='flex-grow-1 d-flex flex-column'>
@@ -556,7 +556,7 @@ const MarketplaceDetailsLayer = () => {
                   <div className='d-flex align-items-center'>
                     <img
                       src='assets/images/crypto/crypto-img6.png'
-                      alt='WowDash React Vite'
+                      alt='Gradus'
                       className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden'
                     />
                     <div className='flex-grow-1 d-flex flex-column'>

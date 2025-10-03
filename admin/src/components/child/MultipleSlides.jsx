@@ -41,35 +41,35 @@ const MultipleSlides = () => {
               <img
                 src='assets/images/carousel/mutiple-carousel-img1.png'
                 className='w-100 h-100 object-fit-cover'
-                alt='WowDash React Vite'
+                alt='Gradus'
               />
             </div>
             <div className=' mb-24'>
               <img
                 src='assets/images/carousel/mutiple-carousel-img2.png'
                 className='w-100 h-100 object-fit-cover'
-                alt='WowDash React Vite'
+                alt='Gradus'
               />
             </div>
             <div className=' mb-24'>
               <img
                 src='assets/images/carousel/mutiple-carousel-img3.png'
                 className='w-100 h-100 object-fit-cover'
-                alt='WowDash React Vite'
+                alt='Gradus'
               />
             </div>
             <div className=' mb-24'>
               <img
                 src='assets/images/carousel/mutiple-carousel-img4.png'
                 className='w-100 h-100 object-fit-cover'
-                alt='WowDash React Vite'
+                alt='Gradus'
               />
             </div>
             <div className=' mb-24'>
               <img
                 src='assets/images/carousel/mutiple-carousel-img2.png'
                 className='w-100 h-100 object-fit-cover'
-                alt='WowDash React Vite'
+                alt='Gradus'
               />
             </div>
           </Slider>

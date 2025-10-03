@@ -26,7 +26,7 @@ const EarningCategories = () => {
                 <span className='w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-primary-100'>
                   <img
                     src='assets/images/home-eleven/icons/earn-cat-icon1.svg'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </span>
@@ -63,7 +63,7 @@ const EarningCategories = () => {
                 <span className='w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-danger-100'>
                   <img
                     src='assets/images/home-eleven/icons/earn-cat-icon2.svg'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </span>
@@ -100,7 +100,7 @@ const EarningCategories = () => {
                 <span className='w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-warning-200'>
                   <img
                     src='assets/images/home-eleven/icons/earn-cat-icon3.svg'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </span>
@@ -137,7 +137,7 @@ const EarningCategories = () => {
                 <span className='w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-success-200'>
                   <img
                     src='assets/images/home-eleven/icons/earn-cat-icon4.svg'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </span>

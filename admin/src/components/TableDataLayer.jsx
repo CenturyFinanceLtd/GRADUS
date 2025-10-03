@@ -60,7 +60,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list1.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -113,7 +113,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list2.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -166,7 +166,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list3.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -219,7 +219,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list4.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -272,7 +272,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list5.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -325,7 +325,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list6.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -378,7 +378,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list7.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -431,7 +431,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list8.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -484,7 +484,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list9.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -537,7 +537,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list10.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -590,7 +590,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list1.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -643,7 +643,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list2.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -696,7 +696,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list3.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -749,7 +749,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list4.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -802,7 +802,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list5.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -855,7 +855,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list6.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -908,7 +908,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list7.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -961,7 +961,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list8.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -1014,7 +1014,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list9.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>
@@ -1067,7 +1067,7 @@ const TableDataLayer = () => {
                 <div className='d-flex align-items-center'>
                   <img
                     src='assets/images/user-list/user-list10.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='flex-shrink-0 me-12 radius-8'
                   />
                   <h6 className='text-md mb-0 fw-medium flex-grow-1'>

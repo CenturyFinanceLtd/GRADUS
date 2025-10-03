@@ -178,7 +178,7 @@ const TextGeneratorNewLayer = () => {
             <div className='d-flex align-items-center justify-content-center flex-column h-100 position-absolute top-50 start-50 translate-middle'>
               <img
                 src='assets/images/chatgpt/empty-message-icon1.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
               />
               <span className='text-secondary-light text-md mt-16'>
                 Type New Message{" "}

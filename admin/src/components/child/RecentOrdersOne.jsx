@@ -37,7 +37,7 @@ const RecentOrdersOne = () => {
                     <div className='d-flex align-items-center'>
                       <img
                         src='assets/images/users/user1.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='flex-shrink-0 me-12 radius-8'
                       />
                       <span className='text-lg text-secondary-light fw-semibold flex-grow-1'>
@@ -61,7 +61,7 @@ const RecentOrdersOne = () => {
                     <div className='d-flex align-items-center'>
                       <img
                         src='assets/images/users/user2.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='flex-shrink-0 me-12 radius-8'
                       />
                       <span className='text-lg text-secondary-light fw-semibold flex-grow-1'>
@@ -85,7 +85,7 @@ const RecentOrdersOne = () => {
                     <div className='d-flex align-items-center'>
                       <img
                         src='assets/images/users/user3.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='flex-shrink-0 me-12 radius-8'
                       />
                       <span className='text-lg text-secondary-light fw-semibold flex-grow-1'>
@@ -109,7 +109,7 @@ const RecentOrdersOne = () => {
                     <div className='d-flex align-items-center'>
                       <img
                         src='assets/images/users/user4.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='flex-shrink-0 me-12 radius-8'
                       />
                       <span className='text-lg text-secondary-light fw-semibold flex-grow-1'>
@@ -133,7 +133,7 @@ const RecentOrdersOne = () => {
                     <div className='d-flex align-items-center'>
                       <img
                         src='assets/images/users/user5.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='flex-shrink-0 me-12 radius-8'
                       />
                       <span className='text-lg text-secondary-light fw-semibold flex-grow-1'>

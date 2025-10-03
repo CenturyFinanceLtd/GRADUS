@@ -40,7 +40,7 @@ const GalleryGridLayer = () => {
                 >
                   <img
                     src={`assets/images/gallery/${img}`}
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='hover-scale-img__img w-100 h-100 object-fit-cover'
                   />
                 </a>

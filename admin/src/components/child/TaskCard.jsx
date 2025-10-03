@@ -24,7 +24,7 @@ const TaskCard = ({ task, index, onEdit, onDelete }) => {
             >
               <img
                 src={task.image}
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-100 h-100 object-fit-cover'
               />
             </div>

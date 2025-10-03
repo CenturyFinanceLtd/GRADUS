@@ -54,7 +54,7 @@ const UsersGridLayer = () => {
             <div className='position-relative border radius-16 overflow-hidden'>
               <img
                 src='assets/images/user-grid/user-grid-bg1.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-100 object-fit-cover'
               />
               <div className='dropdown position-absolute top-0 end-0 me-16 mt-16'>
@@ -88,7 +88,7 @@ const UsersGridLayer = () => {
               <div className='ps-16 pb-16 pe-16 text-center mt--50'>
                 <img
                   src='assets/images/user-grid/user-grid-img1.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover'
                 />
                 <h6 className='text-lg mb-0 mt-4'>Jacob Jones</h6>
@@ -126,7 +126,7 @@ const UsersGridLayer = () => {
             <div className='position-relative border radius-16 overflow-hidden'>
               <img
                 src='assets/images/user-grid/user-grid-bg2.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-100 object-fit-cover'
               />
               <div className='dropdown position-absolute top-0 end-0 me-16 mt-16'>
@@ -160,7 +160,7 @@ const UsersGridLayer = () => {
               <div className='ps-16 pb-16 pe-16 text-center mt--50'>
                 <img
                   src='assets/images/user-grid/user-grid-img2.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover'
                 />
                 <h6 className='text-lg mb-0 mt-4'>Darrell Steward</h6>
@@ -198,7 +198,7 @@ const UsersGridLayer = () => {
             <div className='position-relative border radius-16 overflow-hidden'>
               <img
                 src='assets/images/user-grid/user-grid-bg3.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-100 object-fit-cover'
               />
               <div className='dropdown position-absolute top-0 end-0 me-16 mt-16'>
@@ -232,7 +232,7 @@ const UsersGridLayer = () => {
               <div className='ps-16 pb-16 pe-16 text-center mt--50'>
                 <img
                   src='assets/images/user-grid/user-grid-img3.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover'
                 />
                 <h6 className='text-lg mb-0 mt-4'>Jerome Bell</h6>
@@ -270,7 +270,7 @@ const UsersGridLayer = () => {
             <div className='position-relative border radius-16 overflow-hidden'>
               <img
                 src='assets/images/user-grid/user-grid-bg4.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-100 object-fit-cover'
               />
               <div className='dropdown position-absolute top-0 end-0 me-16 mt-16'>
@@ -304,7 +304,7 @@ const UsersGridLayer = () => {
               <div className='ps-16 pb-16 pe-16 text-center mt--50'>
                 <img
                   src='assets/images/user-grid/user-grid-img4.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover'
                 />
                 <h6 className='text-lg mb-0 mt-4'>Eleanor Pena</h6>
@@ -342,7 +342,7 @@ const UsersGridLayer = () => {
             <div className='position-relative border radius-16 overflow-hidden'>
               <img
                 src='assets/images/user-grid/user-grid-bg5.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-100 object-fit-cover'
               />
               <div className='dropdown position-absolute top-0 end-0 me-16 mt-16'>
@@ -376,7 +376,7 @@ const UsersGridLayer = () => {
               <div className='ps-16 pb-16 pe-16 text-center mt--50'>
                 <img
                   src='assets/images/user-grid/user-grid-img5.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover'
                 />
                 <h6 className='text-lg mb-0 mt-4'>Ralph Edwards</h6>
@@ -414,7 +414,7 @@ const UsersGridLayer = () => {
             <div className='position-relative border radius-16 overflow-hidden'>
               <img
                 src='assets/images/user-grid/user-grid-bg6.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-100 object-fit-cover'
               />
               <div className='dropdown position-absolute top-0 end-0 me-16 mt-16'>
@@ -448,7 +448,7 @@ const UsersGridLayer = () => {
               <div className='ps-16 pb-16 pe-16 text-center mt--50'>
                 <img
                   src='assets/images/user-grid/user-grid-img6.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover'
                 />
                 <h6 className='text-lg mb-0 mt-4'>Annette Black</h6>
@@ -486,7 +486,7 @@ const UsersGridLayer = () => {
             <div className='position-relative border radius-16 overflow-hidden'>
               <img
                 src='assets/images/user-grid/user-grid-bg7.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-100 object-fit-cover'
               />
               <div className='dropdown position-absolute top-0 end-0 me-16 mt-16'>
@@ -520,7 +520,7 @@ const UsersGridLayer = () => {
               <div className='ps-16 pb-16 pe-16 text-center mt--50'>
                 <img
                   src='assets/images/user-grid/user-grid-img7.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover'
                 />
                 <h6 className='text-lg mb-0 mt-4'>Robert Fox</h6>
@@ -558,7 +558,7 @@ const UsersGridLayer = () => {
             <div className='position-relative border radius-16 overflow-hidden'>
               <img
                 src='assets/images/user-grid/user-grid-bg8.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-100 object-fit-cover'
               />
               <div className='dropdown position-absolute top-0 end-0 me-16 mt-16'>
@@ -592,7 +592,7 @@ const UsersGridLayer = () => {
               <div className='ps-16 pb-16 pe-16 text-center mt--50'>
                 <img
                   src='assets/images/user-grid/user-grid-img8.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover'
                 />
                 <h6 className='text-lg mb-0 mt-4'>Albert Flores</h6>
@@ -630,7 +630,7 @@ const UsersGridLayer = () => {
             <div className='position-relative border radius-16 overflow-hidden'>
               <img
                 src='assets/images/user-grid/user-grid-bg9.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-100 object-fit-cover'
               />
               <div className='dropdown position-absolute top-0 end-0 me-16 mt-16'>
@@ -664,7 +664,7 @@ const UsersGridLayer = () => {
               <div className='ps-16 pb-16 pe-16 text-center mt--50'>
                 <img
                   src='assets/images/user-grid/user-grid-img9.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover'
                 />
                 <h6 className='text-lg mb-0 mt-4'>Dianne Russell</h6>
@@ -702,7 +702,7 @@ const UsersGridLayer = () => {
             <div className='position-relative border radius-16 overflow-hidden'>
               <img
                 src='assets/images/user-grid/user-grid-bg10.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-100 object-fit-cover'
               />
               <div className='dropdown position-absolute top-0 end-0 me-16 mt-16'>
@@ -736,7 +736,7 @@ const UsersGridLayer = () => {
               <div className='ps-16 pb-16 pe-16 text-center mt--50'>
                 <img
                   src='assets/images/user-grid/user-grid-img10.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover'
                 />
                 <h6 className='text-lg mb-0 mt-4'>Esther Howard</h6>
@@ -774,7 +774,7 @@ const UsersGridLayer = () => {
             <div className='position-relative border radius-16 overflow-hidden'>
               <img
                 src='assets/images/user-grid/user-grid-bg11.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-100 object-fit-cover'
               />
               <div className='dropdown position-absolute top-0 end-0 me-16 mt-16'>
@@ -808,7 +808,7 @@ const UsersGridLayer = () => {
               <div className='ps-16 pb-16 pe-16 text-center mt--50'>
                 <img
                   src='assets/images/user-grid/user-grid-img11.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover'
                 />
                 <h6 className='text-lg mb-0 mt-4'>Marvin McKinney</h6>
@@ -846,7 +846,7 @@ const UsersGridLayer = () => {
             <div className='position-relative border radius-16 overflow-hidden'>
               <img
                 src='assets/images/user-grid/user-grid-bg12.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-100 object-fit-cover'
               />
               <div className='dropdown position-absolute top-0 end-0 me-16 mt-16'>
@@ -880,7 +880,7 @@ const UsersGridLayer = () => {
               <div className='ps-16 pb-16 pe-16 text-center mt--50'>
                 <img
                   src='assets/images/user-grid/user-grid-img12.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover'
                 />
                 <h6 className='text-lg mb-0 mt-4'>Guy Hawkins</h6>

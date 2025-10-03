@@ -18,7 +18,7 @@ const VideosWithContent = () => {
                   <img
                     src='assets/images/videos/video-img2.png'
                     className='w-100 object-fit-cover'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                   />
                   <Link
                     onClick={() => setOpen(true)}
@@ -46,7 +46,7 @@ const VideosWithContent = () => {
                   <img
                     src='assets/images/videos/video-img3.png'
                     className='w-100 object-fit-cover'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                   />
                   <Link
                     onClick={() => setOpen(true)}

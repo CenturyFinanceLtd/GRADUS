@@ -36,7 +36,7 @@ const RecentBidOne = () => {
                       <div className='d-flex align-items-center'>
                         <img
                           src='assets/images/nft/nft-items-img1.png'
-                          alt='WowDash React Vite'
+                          alt='Gradus'
                           className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
                         />
                         <div className='flex-grow-1'>
@@ -55,7 +55,7 @@ const RecentBidOne = () => {
                       <div className='d-flex align-items-center'>
                         <img
                           src='assets/images/nft/nft-offer-img1.png'
-                          alt='WowDash React Vite'
+                          alt='Gradus'
                           className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
                         />
                         <div className='flex-grow-1'>
@@ -88,7 +88,7 @@ const RecentBidOne = () => {
                       <div className='d-flex align-items-center'>
                         <img
                           src='assets/images/nft/nft-items-img2.png'
-                          alt='WowDash React Vite'
+                          alt='Gradus'
                           className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
                         />
                         <div className='flex-grow-1'>
@@ -107,7 +107,7 @@ const RecentBidOne = () => {
                       <div className='d-flex align-items-center'>
                         <img
                           src='assets/images/nft/nft-offer-img2.png'
-                          alt='WowDash React Vite'
+                          alt='Gradus'
                           className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
                         />
                         <div className='flex-grow-1'>
@@ -140,7 +140,7 @@ const RecentBidOne = () => {
                       <div className='d-flex align-items-center'>
                         <img
                           src='assets/images/nft/nft-items-img3.png'
-                          alt='WowDash React Vite'
+                          alt='Gradus'
                           className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
                         />
                         <div className='flex-grow-1'>
@@ -159,7 +159,7 @@ const RecentBidOne = () => {
                       <div className='d-flex align-items-center'>
                         <img
                           src='assets/images/nft/nft-offer-img3.png'
-                          alt='WowDash React Vite'
+                          alt='Gradus'
                           className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
                         />
                         <div className='flex-grow-1'>
@@ -192,7 +192,7 @@ const RecentBidOne = () => {
                       <div className='d-flex align-items-center'>
                         <img
                           src='assets/images/nft/nft-items-img4.png'
-                          alt='WowDash React Vite'
+                          alt='Gradus'
                           className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
                         />
                         <div className='flex-grow-1'>
@@ -211,7 +211,7 @@ const RecentBidOne = () => {
                       <div className='d-flex align-items-center'>
                         <img
                           src='assets/images/nft/nft-offer-img4.png'
-                          alt='WowDash React Vite'
+                          alt='Gradus'
                           className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
                         />
                         <div className='flex-grow-1'>
@@ -244,7 +244,7 @@ const RecentBidOne = () => {
                       <div className='d-flex align-items-center'>
                         <img
                           src='assets/images/nft/nft-items-img5.png'
-                          alt='WowDash React Vite'
+                          alt='Gradus'
                           className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
                         />
                         <div className='flex-grow-1'>
@@ -263,7 +263,7 @@ const RecentBidOne = () => {
                       <div className='d-flex align-items-center'>
                         <img
                           src='assets/images/nft/nft-offer-img5.png'
-                          alt='WowDash React Vite'
+                          alt='Gradus'
                           className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
                         />
                         <div className='flex-grow-1'>
@@ -296,7 +296,7 @@ const RecentBidOne = () => {
                       <div className='d-flex align-items-center'>
                         <img
                           src='assets/images/nft/nft-items-img6.png'
-                          alt='WowDash React Vite'
+                          alt='Gradus'
                           className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
                         />
                         <div className='flex-grow-1'>
@@ -315,7 +315,7 @@ const RecentBidOne = () => {
                       <div className='d-flex align-items-center'>
                         <img
                           src='assets/images/nft/nft-offer-img6.png'
-                          alt='WowDash React Vite'
+                          alt='Gradus'
                           className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
                         />
                         <div className='flex-grow-1'>
@@ -348,7 +348,7 @@ const RecentBidOne = () => {
                       <div className='d-flex align-items-center'>
                         <img
                           src='assets/images/nft/nft-items-img2.png'
-                          alt='WowDash React Vite'
+                          alt='Gradus'
                           className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
                         />
                         <div className='flex-grow-1'>
@@ -367,7 +367,7 @@ const RecentBidOne = () => {
                       <div className='d-flex align-items-center'>
                         <img
                           src='assets/images/nft/nft-offer-img7.png'
-                          alt='WowDash React Vite'
+                          alt='Gradus'
                           className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
                         />
                         <div className='flex-grow-1'>

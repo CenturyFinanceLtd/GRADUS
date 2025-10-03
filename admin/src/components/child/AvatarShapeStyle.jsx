@@ -9,17 +9,17 @@ const AvatarShapeStyle = () => {
           <div className='d-flex align-items-center flex-wrap justify-content-between gap-3'>
             <img
               src='assets/images/avatar/avatar-shape1.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-120-px h-120-px radius-8 object-fit-cover'
             />
             <img
               src='assets/images/avatar/avatar-shape2.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-120-px h-120-px rounded-circle object-fit-cover'
             />
             <img
               src='assets/images/avatar/avatar-shape3.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-auto h-120-px  object-fit-cover'
             />
           </div>

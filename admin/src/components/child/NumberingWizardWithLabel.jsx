@@ -480,7 +480,7 @@ const NumberingWizardWithLabel = () => {
                 <div className='text-center mb-40'>
                   <img
                     src='assets/images/gif/success-img3.gif'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='gif-image mb-24'
                   />
                   <h6 className='text-md text-neutral-600'>Congratulations </h6>

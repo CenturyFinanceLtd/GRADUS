@@ -99,7 +99,7 @@ const TopCountries = () => {
                     <div className='d-flex align-items-center w-100'>
                       <img
                         src='assets/images/flags/flag1.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12'
                       />
                       <div className='flex-grow-1'>
@@ -134,7 +134,7 @@ const TopCountries = () => {
                     <div className='d-flex align-items-center w-100'>
                       <img
                         src='assets/images/flags/flag2.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12'
                       />
                       <div className='flex-grow-1'>
@@ -169,7 +169,7 @@ const TopCountries = () => {
                     <div className='d-flex align-items-center w-100'>
                       <img
                         src='assets/images/flags/flag3.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12'
                       />
                       <div className='flex-grow-1'>
@@ -204,7 +204,7 @@ const TopCountries = () => {
                     <div className='d-flex align-items-center w-100'>
                       <img
                         src='assets/images/flags/flag4.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12'
                       />
                       <div className='flex-grow-1'>
@@ -239,7 +239,7 @@ const TopCountries = () => {
                     <div className='d-flex align-items-center w-100'>
                       <img
                         src='assets/images/flags/flag5.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12'
                       />
                       <div className='flex-grow-1'>
@@ -274,7 +274,7 @@ const TopCountries = () => {
                     <div className='d-flex align-items-center w-100'>
                       <img
                         src='assets/images/flags/flag1.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12'
                       />
                       <div className='flex-grow-1'>

@@ -30,7 +30,7 @@ const CarouselWithProgress = () => {
               <div className='gradient-overlay bottom-0 start-0 h-100 position-relative'>
                 <img
                   src='assets/images/carousel/carousel-img4.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='w-100 h-100 object-fit-cover'
                 />
                 <div className='position-absolute start-50 translate-middle-x bottom-0 pb-64 z-1 text-center w-100 max-w-440-px'>
@@ -46,7 +46,7 @@ const CarouselWithProgress = () => {
               <div className='gradient-overlay bottom-0 start-0 h-100'>
                 <img
                   src='assets/images/carousel/carousel-img2.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='w-100 h-100 object-fit-cover'
                 />
                 <div className='position-absolute start-50 translate-middle-x bottom-0 pb-64 z-1 text-center w-100 max-w-440-px'>
@@ -62,7 +62,7 @@ const CarouselWithProgress = () => {
               <div className='gradient-overlay bottom-0 start-0 h-100'>
                 <img
                   src='assets/images/carousel/carousel-img3.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='w-100 h-100 object-fit-cover'
                 />
                 <div className='position-absolute start-50 translate-middle-x bottom-0 pb-64 z-1 text-center w-100 max-w-440-px'>
@@ -78,7 +78,7 @@ const CarouselWithProgress = () => {
               <div className='gradient-overlay bottom-0 start-0 h-100'>
                 <img
                   src='assets/images/carousel/carousel-img1.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='w-100 h-100 object-fit-cover'
                 />
                 <div className='position-absolute start-50 translate-middle-x bottom-0 pb-64 z-1 text-center w-100 max-w-440-px'>

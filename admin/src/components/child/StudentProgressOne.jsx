@@ -23,7 +23,7 @@ const StudentProgressOne = () => {
             <div className='d-flex align-items-center'>
               <img
                 src='assets/images/home-six/student-img1.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-40-px h-40-px radius-8 flex-shrink-0 me-12 overflow-hidden'
               />
               <div className='flex-grow-1'>
@@ -64,7 +64,7 @@ const StudentProgressOne = () => {
             <div className='d-flex align-items-center'>
               <img
                 src='assets/images/home-six/student-img2.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-40-px h-40-px radius-8 flex-shrink-0 me-12 overflow-hidden'
               />
               <div className='flex-grow-1'>
@@ -105,7 +105,7 @@ const StudentProgressOne = () => {
             <div className='d-flex align-items-center'>
               <img
                 src='assets/images/home-six/student-img3.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-40-px h-40-px radius-8 flex-shrink-0 me-12 overflow-hidden'
               />
               <div className='flex-grow-1'>
@@ -146,7 +146,7 @@ const StudentProgressOne = () => {
             <div className='d-flex align-items-center'>
               <img
                 src='assets/images/home-six/student-img4.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-40-px h-40-px radius-8 flex-shrink-0 me-12 overflow-hidden'
               />
               <div className='flex-grow-1'>
@@ -187,7 +187,7 @@ const StudentProgressOne = () => {
             <div className='d-flex align-items-center'>
               <img
                 src='assets/images/home-six/student-img5.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-40-px h-40-px radius-8 flex-shrink-0 me-12 overflow-hidden'
               />
               <div className='flex-grow-1'>
@@ -228,7 +228,7 @@ const StudentProgressOne = () => {
             <div className='d-flex align-items-center'>
               <img
                 src='assets/images/home-six/student-img6.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='w-40-px h-40-px radius-8 flex-shrink-0 me-12 overflow-hidden'
               />
               <div className='flex-grow-1'>

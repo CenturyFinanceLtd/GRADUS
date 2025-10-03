@@ -20,7 +20,7 @@ const NoticeBoardOne = () => {
           <div className='d-flex align-items-start gap-2 mb-20'>
             <img
               src='assets/images/notice/board-img1.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='flex-shrink-0 w-40-px h-40-px me-12 radius-8 me-12'
             />
             <div className='flex-grow-1'>
@@ -37,7 +37,7 @@ const NoticeBoardOne = () => {
           <div className='d-flex align-items-start gap-2 mb-20'>
             <img
               src='assets/images/notice/board-img2.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='flex-shrink-0 w-40-px h-40-px me-12 radius-8 me-12'
             />
             <div className='flex-grow-1'>
@@ -55,7 +55,7 @@ const NoticeBoardOne = () => {
           <div className='d-flex align-items-start gap-2'>
             <img
               src='assets/images/notice/board-img3.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='flex-shrink-0 w-40-px h-40-px me-12 radius-8 me-12'
             />
             <div className='flex-grow-1'>

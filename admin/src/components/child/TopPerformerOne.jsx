@@ -22,7 +22,7 @@ const TopPerformerOne = () => {
               <div className='d-flex align-items-center'>
                 <img
                   src='assets/images/users/user1.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden'
                 />
                 <div className='flex-grow-1'>
@@ -38,7 +38,7 @@ const TopPerformerOne = () => {
               <div className='d-flex align-items-center'>
                 <img
                   src='assets/images/users/user2.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden'
                 />
                 <div className='flex-grow-1'>
@@ -54,7 +54,7 @@ const TopPerformerOne = () => {
               <div className='d-flex align-items-center'>
                 <img
                   src='assets/images/users/user3.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden'
                 />
                 <div className='flex-grow-1'>
@@ -70,7 +70,7 @@ const TopPerformerOne = () => {
               <div className='d-flex align-items-center'>
                 <img
                   src='assets/images/users/user4.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden'
                 />
                 <div className='flex-grow-1'>
@@ -86,7 +86,7 @@ const TopPerformerOne = () => {
               <div className='d-flex align-items-center'>
                 <img
                   src='assets/images/users/user5.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden'
                 />
                 <div className='flex-grow-1'>
@@ -102,7 +102,7 @@ const TopPerformerOne = () => {
               <div className='d-flex align-items-center'>
                 <img
                   src='assets/images/users/user1.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden'
                 />
                 <div className='flex-grow-1'>

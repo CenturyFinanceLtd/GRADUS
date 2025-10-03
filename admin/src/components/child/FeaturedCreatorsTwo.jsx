@@ -21,7 +21,7 @@ const FeaturedCreatorsTwo = () => {
             <div className='d-flex align-items-center'>
               <img
                 src='assets/images/nft/creator-img1.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
               />
               <div className='flex-grow-1'>
@@ -42,7 +42,7 @@ const FeaturedCreatorsTwo = () => {
             <div className='d-flex align-items-center'>
               <img
                 src='assets/images/nft/creator-img2.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
               />
               <div className='flex-grow-1'>
@@ -63,7 +63,7 @@ const FeaturedCreatorsTwo = () => {
             <div className='d-flex align-items-center'>
               <img
                 src='assets/images/nft/creator-img3.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
               />
               <div className='flex-grow-1'>
@@ -84,7 +84,7 @@ const FeaturedCreatorsTwo = () => {
             <div className='d-flex align-items-center'>
               <img
                 src='assets/images/nft/creator-img4.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
               />
               <div className='flex-grow-1'>
@@ -105,7 +105,7 @@ const FeaturedCreatorsTwo = () => {
             <div className='d-flex align-items-center'>
               <img
                 src='assets/images/nft/creator-img5.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='flex-shrink-0 me-12 w-40-px h-40-px rounded-circle me-12'
               />
               <div className='flex-grow-1'>

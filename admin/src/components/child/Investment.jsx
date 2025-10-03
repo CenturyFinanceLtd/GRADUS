@@ -21,7 +21,7 @@ const Investment = () => {
           <div className='w-170-px h-170-px rounded-circle z-1 position-relative d-inline-flex justify-content-center align-items-center border border-white border-width-2-px'>
             <img
               src='assets/images/home-eleven/bg/radial-bg1.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='position-absolute top-0 start-0 z-n1 w-100 h-100 object-fit-cover'
             />
             <h5 className='text-white'> 60% </h5>
@@ -29,7 +29,7 @@ const Investment = () => {
           <div className='w-144-px h-144-px rounded-circle z-1 position-relative d-inline-flex justify-content-center align-items-center border border-white border-width-3-px position-absolute top-0 end-0 mt--36'>
             <img
               src='assets/images/home-eleven/bg/radial-bg2.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='position-absolute top-0 start-0 z-n1 w-100 h-100 object-fit-cover'
             />
             <h5 className='text-white'> 30% </h5>
@@ -37,7 +37,7 @@ const Investment = () => {
           <div className='w-110-px h-110-px rounded-circle z-1 position-relative d-inline-flex justify-content-center align-items-center border border-white border-width-3-px position-absolute bottom-0 start-50 translate-middle-x ms-48'>
             <img
               src='assets/images/home-eleven/bg/radial-bg3.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='position-absolute top-0 start-0 z-n1 w-100 h-100 object-fit-cover'
             />
             <h5 className='text-white'> 10% </h5>

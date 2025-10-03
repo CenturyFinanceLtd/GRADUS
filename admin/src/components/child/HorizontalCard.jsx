@@ -13,7 +13,7 @@ const HorizontalCard = () => {
               <img
                 src='assets/images/card-component/horizontal-card-img1.png'
                 className='h-100 w-100 object-fit-cover'
-                alt='WowDash React Vite'
+                alt='Gradus'
               />
             </div>
             <div className='card-body p-16 flex-grow-1'>
@@ -41,7 +41,7 @@ const HorizontalCard = () => {
               <img
                 src='assets/images/card-component/horizontal-card-img2.png'
                 className='h-100 w-100 object-fit-cover'
-                alt='WowDash React Vite'
+                alt='Gradus'
               />
             </div>
             <div className='card-body p-16 flex-grow-1'>
@@ -69,7 +69,7 @@ const HorizontalCard = () => {
               <img
                 src='assets/images/card-component/horizontal-card-img3.png'
                 className='h-100 w-100 object-fit-cover'
-                alt='WowDash React Vite'
+                alt='Gradus'
               />
             </div>
             <div className='card-body p-16 flex-grow-1'>
@@ -97,7 +97,7 @@ const HorizontalCard = () => {
               <img
                 src='assets/images/card-component/horizontal-card-img4.png'
                 className='h-100 w-100 object-fit-cover'
-                alt='WowDash React Vite'
+                alt='Gradus'
               />
             </div>
             <div className='card-body p-16 flex-grow-1'>

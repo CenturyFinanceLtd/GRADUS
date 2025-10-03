@@ -23,7 +23,7 @@ const SupportTracker = () => {
                 <div className='w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-primary-100 flex-shrink-0'>
                   <img
                     src='assets/images/home-nine/ticket1.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </div>
@@ -38,7 +38,7 @@ const SupportTracker = () => {
                 <div className='w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-warning-100 flex-shrink-0'>
                   <img
                     src='assets/images/home-nine/ticket2.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </div>
@@ -53,7 +53,7 @@ const SupportTracker = () => {
                 <div className='w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-lilac-100 flex-shrink-0'>
                   <img
                     src='assets/images/home-nine/ticket3.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </div>

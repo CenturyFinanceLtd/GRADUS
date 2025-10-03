@@ -7,7 +7,7 @@ const Paypal = () => {
             <span className='w-36-px h-36-px bg-base rounded-circle d-flex justify-content-center align-items-center'>
               <img
                 src='assets/images/payment/payment-gateway1.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className=''
               />
             </span>

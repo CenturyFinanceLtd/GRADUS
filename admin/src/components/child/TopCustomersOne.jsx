@@ -22,7 +22,7 @@ const TopCustomersOne = () => {
               <div className='d-flex align-items-center gap-2'>
                 <img
                   src='assets/images/users/user6.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='w-40-px h-40-px radius-8 flex-shrink-0'
                 />
                 <div className='flex-grow-1'>
@@ -40,7 +40,7 @@ const TopCustomersOne = () => {
               <div className='d-flex align-items-center gap-2'>
                 <img
                   src='assets/images/users/user1.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='w-40-px h-40-px radius-8 flex-shrink-0'
                 />
                 <div className='flex-grow-1'>
@@ -58,7 +58,7 @@ const TopCustomersOne = () => {
               <div className='d-flex align-items-center gap-2'>
                 <img
                   src='assets/images/users/user2.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='w-40-px h-40-px radius-8 flex-shrink-0'
                 />
                 <div className='flex-grow-1'>
@@ -76,7 +76,7 @@ const TopCustomersOne = () => {
               <div className='d-flex align-items-center gap-2'>
                 <img
                   src='assets/images/users/user3.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='w-40-px h-40-px radius-8 flex-shrink-0'
                 />
                 <div className='flex-grow-1'>
@@ -94,7 +94,7 @@ const TopCustomersOne = () => {
               <div className='d-flex align-items-center gap-2'>
                 <img
                   src='assets/images/users/user4.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='w-40-px h-40-px radius-8 flex-shrink-0'
                 />
                 <div className='flex-grow-1'>
@@ -112,7 +112,7 @@ const TopCustomersOne = () => {
               <div className='d-flex align-items-center gap-2'>
                 <img
                   src='assets/images/users/user6.png'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                   className='w-40-px h-40-px radius-8 flex-shrink-0'
                 />
                 <div className='flex-grow-1'>

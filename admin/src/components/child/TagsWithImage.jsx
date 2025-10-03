@@ -13,7 +13,7 @@ const TagsWithImage = () => {
               <img
                 src='assets/images/flags/flag-tag.png'
                 className='w-16-px h-16-px rounded-circle'
-                alt='WowDash React Vite'
+                alt='Gradus'
               />
               Label
             </li>
@@ -21,7 +21,7 @@ const TagsWithImage = () => {
               <img
                 src='assets/images/flags/flag-tag.png'
                 className='w-16-px h-16-px rounded-circle'
-                alt='WowDash React Vite'
+                alt='Gradus'
               />
               Label
             </li>
@@ -29,7 +29,7 @@ const TagsWithImage = () => {
               <img
                 src='assets/images/flags/flag-tag.png'
                 className='w-16-px h-16-px rounded-circle'
-                alt='WowDash React Vite'
+                alt='Gradus'
               />
               Label
             </li>
@@ -39,7 +39,7 @@ const TagsWithImage = () => {
               <img
                 src='assets/images/flags/flag-tag.png'
                 className='w-16-px h-16-px rounded-circle'
-                alt='WowDash React Vite'
+                alt='Gradus'
               />
               Label
               <button
@@ -56,7 +56,7 @@ const TagsWithImage = () => {
               <img
                 src='assets/images/flags/flag-tag.png'
                 className='w-16-px h-16-px rounded-circle'
-                alt='WowDash React Vite'
+                alt='Gradus'
               />
               Label
               <button
@@ -73,7 +73,7 @@ const TagsWithImage = () => {
               <img
                 src='assets/images/flags/flag-tag.png'
                 className='w-16-px h-16-px rounded-circle'
-                alt='WowDash React Vite'
+                alt='Gradus'
               />
               Label
               <button

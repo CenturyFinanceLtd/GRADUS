@@ -12,7 +12,7 @@ const ListIconsLabelTwo = () => {
                 <img
                   src='assets/images/lists/list-img1.png'
                   className='w-32-px h-32-px rounded-circle'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                 />
                 Push Notification (This is push notifications)
               </div>
@@ -25,7 +25,7 @@ const ListIconsLabelTwo = () => {
                 <img
                   src='assets/images/lists/list-img2.png'
                   className='w-32-px h-32-px rounded-circle'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                 />
                 New Orders confirmed (This is Orders confirmed)
               </div>
@@ -38,7 +38,7 @@ const ListIconsLabelTwo = () => {
                 <img
                   src='assets/images/lists/list-img3.png'
                   className='w-32-px h-32-px rounded-circle'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                 />
                 Security Access (This is Security Access)
               </div>
@@ -51,7 +51,7 @@ const ListIconsLabelTwo = () => {
                 <img
                   src='assets/images/lists/list-img4.png'
                   className='w-32-px h-32-px rounded-circle'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                 />
                 Storage Folder (This is Storage Folder)
               </div>
@@ -64,7 +64,7 @@ const ListIconsLabelTwo = () => {
                 <img
                   src='assets/images/lists/list-img5.png'
                   className='w-32-px h-32-px rounded-circle'
-                  alt='WowDash React Vite'
+                  alt='Gradus'
                 />
                 Forward Message (This is Forward Message)
               </div>

@@ -409,7 +409,7 @@ const AddBlogLayer = () => {
                 <Link to='/blog-details' className='blog__thumb w-100 radius-12 overflow-hidden'>
                   <img
                     src='assets/images/blog/blog1.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover'
                   />
                 </Link>
@@ -428,7 +428,7 @@ const AddBlogLayer = () => {
                 <Link to='/blog-details' className='blog__thumb w-100 radius-12 overflow-hidden'>
                   <img
                     src='assets/images/blog/blog2.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover'
                   />
                 </Link>
@@ -447,7 +447,7 @@ const AddBlogLayer = () => {
                 <Link to='/blog-details' className='blog__thumb w-100 radius-12 overflow-hidden'>
                   <img
                     src='assets/images/blog/blog3.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover'
                   />
                 </Link>
@@ -466,7 +466,7 @@ const AddBlogLayer = () => {
                 <Link to='/blog-details' className='blog__thumb w-100 radius-12 overflow-hidden'>
                   <img
                     src='assets/images/blog/blog4.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover'
                   />
                 </Link>
@@ -485,7 +485,7 @@ const AddBlogLayer = () => {
                 <Link to='/blog-details' className='blog__thumb w-100 radius-12 overflow-hidden'>
                   <img
                     src='assets/images/blog/blog5.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover'
                   />
                 </Link>
@@ -504,7 +504,7 @@ const AddBlogLayer = () => {
                 <Link to='/blog-details' className='blog__thumb w-100 radius-12 overflow-hidden'>
                   <img
                     src='assets/images/blog/blog6.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover'
                   />
                 </Link>

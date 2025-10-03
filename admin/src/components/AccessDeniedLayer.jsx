@@ -11,7 +11,7 @@ const AccessDeniedLayer = () => {
       <div className='container container--xl'>
         <div className='d-flex align-items-center justify-content-between py-24'>
           <Link to={homePath} className=''>
-            <img src='assets/images/logo.png' alt='WowDash React Vite' />
+            <img src='assets/images/logo.png' alt='Gradus' />
           </Link>
           <Link to={homePath} className='btn btn-outline-primary-600 text-sm'>
             {" "}
@@ -22,7 +22,7 @@ const AccessDeniedLayer = () => {
           <div className='max-w-500-px mx-auto'>
             <img
               src='assets/images/forbidden/forbidden-img.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
             />
           </div>
           <div className='max-w-700-px mx-auto mt-40'>

@@ -28,7 +28,7 @@ const HealthReportsDocument = () => {
                 <div className='flex-shrink-0'>
                   <img
                     src='assets/images/home-eight/icon-pdf.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </div>
@@ -59,7 +59,7 @@ const HealthReportsDocument = () => {
                 <div className='flex-shrink-0'>
                   <img
                     src='assets/images/home-eight/icon-text.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </div>
@@ -90,7 +90,7 @@ const HealthReportsDocument = () => {
                 <div className='flex-shrink-0'>
                   <img
                     src='assets/images/home-eight/icon-pdf.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </div>
@@ -121,7 +121,7 @@ const HealthReportsDocument = () => {
                 <div className='flex-shrink-0'>
                   <img
                     src='assets/images/home-eight/icon-text.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </div>
@@ -152,7 +152,7 @@ const HealthReportsDocument = () => {
                 <div className='flex-shrink-0'>
                   <img
                     src='assets/images/home-eight/icon-pdf.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </div>
@@ -185,7 +185,7 @@ const HealthReportsDocument = () => {
                 <div className='flex-shrink-0'>
                   <img
                     src='assets/images/home-eight/icon-text.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className=''
                   />
                 </div>

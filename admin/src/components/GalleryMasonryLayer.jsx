@@ -12,7 +12,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img1.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -24,7 +24,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img2.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -36,7 +36,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img3.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -48,7 +48,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img4.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -60,7 +60,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img5.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -72,7 +72,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img6.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -84,7 +84,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img7.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -96,7 +96,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img8.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -108,7 +108,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img9.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -120,7 +120,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img10.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -132,7 +132,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img11.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -144,7 +144,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img12.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -156,7 +156,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img1.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -168,7 +168,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img2.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -180,7 +180,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img3.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -192,7 +192,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img4.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -204,7 +204,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img5.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -216,7 +216,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img6.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -228,7 +228,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img7.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -240,7 +240,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img8.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -252,7 +252,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img9.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -264,7 +264,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img10.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -276,7 +276,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img11.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>
@@ -288,7 +288,7 @@ const GalleryMasonryLayer = () => {
             >
               <img
                 src='assets/images/gallery/gallery-img12.png'
-                alt='WowDash React Vite'
+                alt='Gradus'
                 className='hover-scale-img__img w-100 h-100 object-fit-cover'
               />
             </a>

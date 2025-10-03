@@ -31,7 +31,7 @@ const MyCardsOne = () => {
                 <div className='p-20 h-240-px radius-8 overflow-hidden position-relative z-1'>
                   <img
                     src='assets/images/card/card-bg.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='position-absolute start-0 top-0 w-100 h-100 object-fit-cover z-n1'
                   />
                   <div className='d-flex flex-column justify-content-between h-100'>
@@ -39,7 +39,7 @@ const MyCardsOne = () => {
                       <h6 className='text-white mb-0'>Master Card</h6>
                       <img
                         src='assets/images/card/card-logo.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                       />
                     </div>
                     <div>
@@ -73,7 +73,7 @@ const MyCardsOne = () => {
                 <div className='p-20 h-240-px radius-8 overflow-hidden position-relative z-1'>
                   <img
                     src='assets/images/card/card-bg.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='position-absolute start-0 top-0 w-100 h-100 object-fit-cover z-n1'
                   />
                   <div className='d-flex flex-column justify-content-between h-100'>
@@ -81,7 +81,7 @@ const MyCardsOne = () => {
                       <h6 className='text-white mb-0'>Master Card</h6>
                       <img
                         src='assets/images/card/card-logo.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                       />
                     </div>
                     <div>
@@ -115,7 +115,7 @@ const MyCardsOne = () => {
                 <div className='p-20 h-240-px radius-8 overflow-hidden position-relative z-1'>
                   <img
                     src='assets/images/card/card-bg.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='position-absolute start-0 top-0 w-100 h-100 object-fit-cover z-n1'
                   />
                   <div className='d-flex flex-column justify-content-between h-100'>
@@ -123,7 +123,7 @@ const MyCardsOne = () => {
                       <h6 className='text-white mb-0'>Master Card</h6>
                       <img
                         src='assets/images/card/card-logo.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                       />
                     </div>
                     <div>

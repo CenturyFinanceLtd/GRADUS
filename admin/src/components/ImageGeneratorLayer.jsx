@@ -180,7 +180,7 @@ const ImageGeneratorLayer = () => {
                     <div className='generated-image-item radius-8 overflow-hidden position-relative'>
                       <img
                         src='assets/images/chatgpt/image-generator1.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='w-100 h-100 object-fit-cover'
                       />
                       <div className='form-check style-check d-flex align-items-center position-absolute top-0 start-0 ms-8 mt-8'>
@@ -201,7 +201,7 @@ const ImageGeneratorLayer = () => {
                     <div className='generated-image-item radius-8 overflow-hidden position-relative'>
                       <img
                         src='assets/images/chatgpt/image-generator2.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='w-100 h-100 object-fit-cover'
                       />
                       <div className='form-check style-check d-flex align-items-center position-absolute top-0 start-0 ms-8 mt-8'>
@@ -222,7 +222,7 @@ const ImageGeneratorLayer = () => {
                     <div className='generated-image-item radius-8 overflow-hidden position-relative'>
                       <img
                         src='assets/images/chatgpt/image-generator3.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='w-100 h-100 object-fit-cover'
                       />
                       <div className='form-check style-check d-flex align-items-center position-absolute top-0 start-0 ms-8 mt-8'>
@@ -243,7 +243,7 @@ const ImageGeneratorLayer = () => {
                     <div className='generated-image-item radius-8 overflow-hidden position-relative'>
                       <img
                         src='assets/images/chatgpt/image-generator4.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='w-100 h-100 object-fit-cover'
                       />
                       <div className='form-check style-check d-flex align-items-center position-absolute top-0 start-0 ms-8 mt-8'>
@@ -358,7 +358,7 @@ const ImageGeneratorLayer = () => {
                     <div className='generated-image-item radius-8 overflow-hidden position-relative'>
                       <img
                         src='assets/images/chatgpt/image-generator5.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='w-100 h-100 object-fit-cover'
                       />
                       <button

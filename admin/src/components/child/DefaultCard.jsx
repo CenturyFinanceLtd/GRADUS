@@ -11,7 +11,7 @@ const DefaultCard = () => {
             <img
               src='assets/images/card-component/card-img1.png'
               className='card-img-top'
-              alt='WowDash React Vite'
+              alt='Gradus'
             />
             <div className='card-body p-16'>
               <h5
@@ -40,7 +40,7 @@ const DefaultCard = () => {
             <img
               src='assets/images/card-component/card-img2.png'
               className='card-img-top'
-              alt='WowDash React Vite'
+              alt='Gradus'
             />
             <div className='card-body p-16 text-center'>
               <h5
@@ -69,7 +69,7 @@ const DefaultCard = () => {
             <img
               src='assets/images/card-component/card-img3.png'
               className='card-img-top'
-              alt='WowDash React Vite'
+              alt='Gradus'
             />
             <div className='card-body p-16 text-end'>
               <h5
@@ -104,7 +104,7 @@ const DefaultCard = () => {
             <img
               src='assets/images/card-component/card-img4.png'
               className='card-img-top'
-              alt='WowDash React Vite'
+              alt='Gradus'
             />
             <div className='card-body p-16 text-center'>
               <h5

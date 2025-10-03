@@ -7,13 +7,13 @@ const BannerInnerOne = () => {
         <img
           src='assets/images/nft/nft-gradient-bg.png'
           className='position-absolute start-0 top-0 w-100 h-100 z-n1'
-          alt='WowDash React Vite'
+          alt='Gradus'
         />
         <div className='nft-promo-card__inner d-flex align-items-center'>
           <div className='nft-promo-card__thumb w-100'>
             <img
               src='assets/images/nft/nf-card-img.png'
-              alt='WowDash React Vite'
+              alt='Gradus'
               className='w-100 h-100 object-fit-cover'
             />
           </div>

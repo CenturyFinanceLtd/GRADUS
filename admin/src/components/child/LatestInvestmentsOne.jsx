@@ -36,7 +36,7 @@ const LatestInvestmentsOne = () => {
                     <div className='d-flex align-items-center'>
                       <img
                         src='assets/images/asset/asset-img1.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='flex-shrink-0 me-12 w-40-px h-40-px radius-8 me-12'
                       />
                       <div className='flex-grow-1'>
@@ -66,7 +66,7 @@ const LatestInvestmentsOne = () => {
                     <div className='d-flex align-items-center'>
                       <img
                         src='assets/images/asset/asset-img2.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='flex-shrink-0 me-12 w-40-px h-40-px radius-8 me-12'
                       />
                       <div className='flex-grow-1'>
@@ -96,7 +96,7 @@ const LatestInvestmentsOne = () => {
                     <div className='d-flex align-items-center'>
                       <img
                         src='assets/images/asset/asset-img3.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='flex-shrink-0 me-12 w-40-px h-40-px radius-8 me-12'
                       />
                       <div className='flex-grow-1'>
@@ -126,7 +126,7 @@ const LatestInvestmentsOne = () => {
                     <div className='d-flex align-items-center'>
                       <img
                         src='assets/images/asset/asset-img4.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='flex-shrink-0 me-12 w-40-px h-40-px radius-8 me-12'
                       />
                       <div className='flex-grow-1'>
@@ -156,7 +156,7 @@ const LatestInvestmentsOne = () => {
                     <div className='d-flex align-items-center'>
                       <img
                         src='assets/images/asset/asset-img5.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='flex-shrink-0 me-12 w-40-px h-40-px radius-8 me-12'
                       />
                       <div className='flex-grow-1'>

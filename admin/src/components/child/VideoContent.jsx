@@ -15,7 +15,7 @@ const VideoContent = () => {
             <img
               src='assets/images/videos/video-img4.png'
               className='w-100 h-100 object-fit-cover radius-8'
-              alt='WowDash React Vite'
+              alt='Gradus'
             />
             <Link
               onClick={() => setOpen(true)}

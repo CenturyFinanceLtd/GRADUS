@@ -25,7 +25,7 @@ const StripedRows = () => {
                     <div className='d-flex align-items-center'>
                       <img
                         src='assets/images/product/product-img1.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='flex-shrink-0 me-12 radius-8 me-12'
                       />
                       <div className='flex-grow-1'>
@@ -50,7 +50,7 @@ const StripedRows = () => {
                     <div className='d-flex align-items-center'>
                       <img
                         src='assets/images/product/product-img2.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='flex-shrink-0 me-12 radius-8 me-12'
                       />
                       <div className='flex-grow-1'>
@@ -77,7 +77,7 @@ const StripedRows = () => {
                     <div className='d-flex align-items-center'>
                       <img
                         src='assets/images/product/product-img3.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='flex-shrink-0 me-12 radius-8 me-12'
                       />
                       <div className='flex-grow-1'>
@@ -104,7 +104,7 @@ const StripedRows = () => {
                     <div className='d-flex align-items-center'>
                       <img
                         src='assets/images/product/product-img4.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='flex-shrink-0 me-12 radius-8 me-12'
                       />
                       <div className='flex-grow-1'>
@@ -129,7 +129,7 @@ const StripedRows = () => {
                     <div className='d-flex align-items-center'>
                       <img
                         src='assets/images/product/product-img5.png'
-                        alt='WowDash React Vite'
+                        alt='Gradus'
                         className='flex-shrink-0 me-12 radius-8 me-12'
                       />
                       <div className='flex-grow-1'>

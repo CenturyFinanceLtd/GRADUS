@@ -9,7 +9,7 @@ const TestimonialsLayer = () => {
                 <div className='w-56-px h-56-px overflow-hidden flex-shrink-0'>
                   <img
                     src='assets/images/user-list/user-list1.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover rounded-circle'
                   />
                 </div>
@@ -53,7 +53,7 @@ const TestimonialsLayer = () => {
                 <div className='w-56-px h-56-px overflow-hidden flex-shrink-0'>
                   <img
                     src='assets/images/user-list/user-list2.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover rounded-circle'
                   />
                 </div>
@@ -97,7 +97,7 @@ const TestimonialsLayer = () => {
                 <div className='w-56-px h-56-px overflow-hidden flex-shrink-0'>
                   <img
                     src='assets/images/user-list/user-list3.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover rounded-circle'
                   />
                 </div>
@@ -141,7 +141,7 @@ const TestimonialsLayer = () => {
                 <div className='w-56-px h-56-px overflow-hidden flex-shrink-0'>
                   <img
                     src='assets/images/user-list/user-list4.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover rounded-circle'
                   />
                 </div>
@@ -185,7 +185,7 @@ const TestimonialsLayer = () => {
                 <div className='w-56-px h-56-px overflow-hidden flex-shrink-0'>
                   <img
                     src='assets/images/user-list/user-list5.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover rounded-circle'
                   />
                 </div>
@@ -229,7 +229,7 @@ const TestimonialsLayer = () => {
                 <div className='w-56-px h-56-px overflow-hidden flex-shrink-0'>
                   <img
                     src='assets/images/user-list/user-list7.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover rounded-circle'
                   />
                 </div>
@@ -273,7 +273,7 @@ const TestimonialsLayer = () => {
                 <div className='w-56-px h-56-px overflow-hidden flex-shrink-0'>
                   <img
                     src='assets/images/user-list/user-list8.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover rounded-circle'
                   />
                 </div>
@@ -317,7 +317,7 @@ const TestimonialsLayer = () => {
                 <div className='w-56-px h-56-px overflow-hidden flex-shrink-0'>
                   <img
                     src='assets/images/user-list/user-list9.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover rounded-circle'
                   />
                 </div>
@@ -361,7 +361,7 @@ const TestimonialsLayer = () => {
                 <div className='w-56-px h-56-px overflow-hidden flex-shrink-0'>
                   <img
                     src='assets/images/user-list/user-list10.png'
-                    alt='WowDash React Vite'
+                    alt='Gradus'
                     className='w-100 h-100 object-fit-cover rounded-circle'
                   />
                 </div>

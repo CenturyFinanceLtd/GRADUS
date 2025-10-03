@@ -6,7 +6,7 @@ const ErrorLayer = () => {
       <div className='card-body py-80 px-32 text-center'>
         <img
           src='assets/images/error-img.png'
-          alt='WowDash React Vite'
+          alt='Gradus'
           className='mb-24'
         />
         <h6 className='mb-16'>Page not Found</h6>
