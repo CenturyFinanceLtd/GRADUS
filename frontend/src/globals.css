@@ -12305,7 +12305,7 @@ button:focus {
     }
 }
 
-.nav-menu__item.activePage>a {
+.nav-menu__item.activePage>.nav-menu__link {
     color: hsl(var(--main));
 }
 
@@ -12313,15 +12313,11 @@ button:focus {
     color: hsl(var(--main));
 }
 
-.nav-menu__item:hover>a {
+.nav-menu__item:hover>.nav-menu__link {
     color: var(--neutral-700);
 }
 
-@media (min-width: 992px) {
-    .nav-menu__item:hover>a {
-        color: hsl(var(--main));
-    }
-}
+
 
 .nav-menu__link {
     color: var(--neutral-700);
@@ -12334,6 +12330,65 @@ button:focus {
 @media screen and (max-width: 1399px) {
     .nav-menu__link {
         font-size: 0.875rem !important;
+    }
+}
+
+@media (min-width: 992px) {
+    li.nav-menu__item {
+        padding: 25px 0;
+    }
+
+    .nav-menu__link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 14px 22px;
+        border-radius: 999px;
+        position: relative;
+        width: auto;
+        line-height: 1.2;
+        color: var(--neutral-700);
+        transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        isolation: isolate;
+    }
+
+    .nav-menu__link::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.08) 100%);
+        -webkit-backdrop-filter: blur(18px);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 18px 48px rgba(15, 23, 42, 0.18);
+        opacity: 0;
+        transform: scale(0.95);
+        transition: opacity 0.3s ease, transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .nav-menu__item:hover>.nav-menu__link,
+    .nav-menu__item:focus-within>.nav-menu__link {
+        color: hsl(var(--main));
+        transform: translateY(-2px) scale(1.03);
+    }
+
+    .nav-menu__item:hover>.nav-menu__link::after,
+    .nav-menu__item:focus-within>.nav-menu__link::after,
+    .nav-menu__item.activePage>.nav-menu__link::after {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .nav-menu__item.activePage>.nav-menu__link {
+        color: hsl(var(--main));
+    }
+
+    .nav-menu__link:focus-visible {
+        outline: none;
     }
 }
 
@@ -15938,3 +15993,4 @@ table.dataTable.display>tbody>tr>* {
 
 
 /* ========================= Contact Page Styles End ========================== */
+
