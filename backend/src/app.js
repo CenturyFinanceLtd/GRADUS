@@ -17,6 +17,7 @@ const adminPermissionRoutes = require('./routes/adminPermissionRoutes');
 const courseRoutes = require('./routes/courseRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const adminAnalyticsRoutes = require('./routes/adminAnalyticsRoutes');
+const chatbotRoutes = require('./routes/chatbotRoutes');
 const { blogImagesDirectory } = require('./middleware/uploadMiddleware');
 
 const app = express();
@@ -76,6 +77,3 @@ app.use(notFound);
 app.use(errorHandler);
 
 module.exports = app;
-
-
-
