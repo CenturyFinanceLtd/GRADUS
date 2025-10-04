@@ -7,7 +7,7 @@ import CounterOne from "../components/CounterOne";
 import FooterOne from "../components/FooterOne";
 import HeaderOne from "../components/HeaderOne";
 import HomeCourseSeriesOverview from "../components/home/HomeCourseSeriesOverview";
-import TestimonialsOne from "../components/TestimonialsOne";
+import TestimonialsThree from "../components/TestimonialsThree";
 import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
 
@@ -39,7 +39,7 @@ const AboutPage = () => {
       <CounterOne />
 
       {/* TestimonialsOne */}
-      <TestimonialsOne />
+      <TestimonialsThree />
 
       {/* BrandTwo */}
       <BrandTwo />
