@@ -4,6 +4,7 @@ import RouteScrollToTop from "./helper/RouteScrollToTop.jsx";
 import RequireAuth from "./components/RequireAuth.jsx";
 import MetaManager from "./components/MetaManager.jsx";
 import SiteAnalyticsTracker from "./components/SiteAnalyticsTracker.jsx";
+import ChatbotWidget from "./components/ChatbotWidget.jsx";
 import HomePageOne from "./pages/HomePageOne";
 import AboutPage from "./pages/AboutPage.jsx";
 import AboutFourPage from "./pages/AboutFourPage.jsx";
@@ -62,6 +63,7 @@ function App() {
       <MetaManager />
       <RouteScrollToTop />
       <SiteAnalyticsTracker />
+      <ChatbotWidget />
 
       <Routes>
         <Route exact path='/' element={<HomePageOne />} />
@@ -183,6 +185,8 @@ function App() {
 }
 
 export default App;
+
+
 
 
 

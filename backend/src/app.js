@@ -70,8 +70,12 @@ app.use('/api/admin/permissions', adminPermissionRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/admin/analytics', adminAnalyticsRoutes);
+app.use('/api/chatbot', chatbotRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
 
 module.exports = app;
+
+
+
