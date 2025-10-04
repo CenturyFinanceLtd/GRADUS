@@ -15,6 +15,83 @@ const STRING_LITERAL_REGEX = /(["'])([^"'\n]*?[A-Za-z][^"'\n]*?)\1/g;
 const IGNORE_FILE_PATTERNS = [/\.test\.jsx?$/, /\.stories\.jsx?$/];
 const VALID_EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx']);
 
+const manualEntries = [
+  {
+    id: 'gradus-overview',
+    title: 'Gradus overview',
+    tags: ['gradus', 'overview', 'company', 'mission', 'century finance'],
+    content:
+      'Gradus is the career acceleration initiative of Century Finance Limited. It closes the gap between classroom instruction and industry expectations by combining outcome-driven curricula, paid internships, and mentor-led coaching so learners convert theory into boardroom-ready competence.',
+    source: 'frontend/src/components/AboutThree.jsx',
+  },
+  {
+    id: 'value-proposition',
+    title: 'Why learners choose Gradus',
+    tags: ['why gradus', 'value', 'benefits', 'placements'],
+    content:
+      'Gradus compresses the journey from student to professional through guaranteed placements, nationwide hiring partnerships, and experiential modules. Each pathway is shaped with 178 partner companies to place learners into high-impact roles across finance, technology, and management.',
+    source: 'frontend/src/components/ChooseUsTwo.jsx',
+  },
+  {
+    id: 'flagship-programs',
+    title: 'Flagship programs',
+    tags: ['programs', 'gradusquity', 'gradusx', 'graduslead', 'courses'],
+    content:
+      'Gradus offers three signature pathways: GradusQuity for capital markets mastery, GradusX for full-stack technology and AI growth careers, and GradusLead for business and leadership excellence. Each program is approved by Skill India and NSDC and delivered with a placement MoU that secures packages from 6 LPA to 14 LPA.',
+    source: 'frontend/src/components/home/HomeCourseSeriesOverview.jsx',
+  },
+  {
+    id: 'placements',
+    title: 'Placements and hiring network',
+    tags: ['placements', 'careers', 'network', 'partners'],
+    content:
+      'Gradus operates a dedicated placement cell that mentors learners for interviews, runs nationwide hiring drives, and manages relationships with 178 strategic recruiters. Every learner signs a placement MoU offering packages between 6 LPA and 14 LPA with partner companies.',
+    source: 'frontend/src/components/InfoTwo.jsx',
+  },
+  {
+    id: 'mentors',
+    title: 'Mentor ecosystem',
+    tags: ['mentors', 'faculty', 'coach', 'support'],
+    content:
+      'Programs are delivered by SEBI-certified mentors and veteran industry leaders. They run case clinics, trading simulations, project reviews, and personalised coaching to build critical thinking, resilience, and interview-ready communication.',
+    source: 'frontend/src/components/InfoTwo.jsx',
+  },
+  {
+    id: 'internships',
+    title: 'Paid internship journey',
+    tags: ['internship', 'experience', 'industry exposure'],
+    content:
+      'Every Gradus learner completes immersive paid internships that translate classroom learning into real-world execution. Internships are designed with hiring partners so trainees gain market context before stepping into a full-time role.',
+    source: 'frontend/src/components/AboutThree.jsx',
+  },
+  {
+    id: 'admissions',
+    title: 'Admissions guidance',
+    tags: ['admissions', 'apply', 'enrolment', 'contact'],
+    content:
+      'Prospective learners can explore Gradus programs through the About Us, Our Courses, and Apply Admission pages. To start the process, review program details, submit the admission form, and connect with the Gradus team for counselling and cohort scheduling.',
+    source: 'frontend/src/pages/ApplyAdmissionPage.jsx',
+  },
+  {
+    id: 'blog-insights',
+    title: 'Gradus blog insights',
+    tags: ['blog', 'news', 'updates', 'insights'],
+    content:
+      'The Gradus blog publishes stories on program outcomes, cohort success, industry trends, and learner experiences. Readers can browse the Blogs section for the latest updates across finance, technology, artificial intelligence, and leadership topics.',
+    source: 'frontend/src/components/BlogTwo.jsx',
+  },
+  {
+    id: 'contact-support',
+    title: 'Contact and support',
+    tags: ['contact', 'support', 'help', 'reach out'],
+    content:
+      'For personalised assistance, learners can use the contact form, email the Gradus counsellor team, or reach out via the Apply Admission and Contact pages. The support staff help with program selection, cohort timelines, tuition details, and placement queries.',
+    source: 'frontend/src/pages/ContactPage.jsx',
+  },
+];
+
+const TEXT_CLASSNAME_PATTERN = /(\bpx-\d|\bpy-\d|\bmp-\d|\bmt-\d|\bmb-\d|\bbg-|\bborder-|\btext-[a-z]+|\bflex\b|\bd-inline\b|\bposition-absolute\b|\banimate|wow)/i;
+
 const seenContents = new Set();
 
 function walk(dir) {
@@ -70,7 +147,7 @@ function isInformational(text) {
     return false;
   }
 
-  if (/(?:\bpx-\d|\bpy-\d|\bmp-\d|\bmt-\d|\bmb-\d|\bbg-|\bborder-|\btext-[a-z]|\bflex\b|wow|animate|rounded|shadow|d-inline|position-absolute)/i.test(text)) {
+  if (TEXT_CLASSNAME_PATTERN.test(text)) {
     return false;
   }
 
@@ -155,7 +232,7 @@ function formatEntry(entry) {
 
 function main() {
   const files = FRONTEND_DIRS.flatMap(walk);
-  const entries = [];
+  const autoEntries = [];
 
   files.forEach((file) => {
     const raw = fs.readFileSync(file, 'utf8');
@@ -177,15 +254,32 @@ function main() {
     }
 
     seenContents.add(contentKey);
-    entries.push(entry);
+    autoEntries.push(entry);
   });
 
-  entries.sort((a, b) => a.id.localeCompare(b.id));
+  autoEntries.sort((a, b) => a.id.localeCompare(b.id));
 
-  const fileContent = ['module.exports = [', ...entries.map(formatEntry), '];\n'].join('\n');
+  const seenIds = new Set();
+  const finalEntries = [];
+
+  manualEntries.forEach((entry) => {
+    if (!seenIds.has(entry.id)) {
+      finalEntries.push(entry);
+      seenIds.add(entry.id);
+    }
+  });
+
+  autoEntries.forEach((entry) => {
+    if (!seenIds.has(entry.id)) {
+      finalEntries.push(entry);
+      seenIds.add(entry.id);
+    }
+  });
+
+  const fileContent = ['module.exports = [', ...finalEntries.map(formatEntry), '];\n'].join('\n');
 
   fs.writeFileSync(OUTPUT_PATH, fileContent, 'utf8');
-  console.log(`Generated ${entries.length} knowledge entries at ${OUTPUT_PATH}`);
+  console.log(`Generated ${finalEntries.length} knowledge entries at ${OUTPUT_PATH}`);
 }
 
 main();
