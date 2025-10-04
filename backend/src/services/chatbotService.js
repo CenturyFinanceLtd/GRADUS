@@ -37,6 +37,64 @@ const STOPWORDS = new Set([
 ]);
 
 const BLOG_KEYWORDS = ['blog', 'blogs', 'article', 'articles', 'news', 'insight', 'insights', 'post', 'posts', 'update', 'updates', 'ai', 'artificial intelligence', 'technology', 'tech', 'data science'];
+const GREETING_VARIANTS = new Set(['hi', 'hey', 'hello', 'hola', 'namaste', 'helo', 'heloo', 'hii', 'hiii', 'hiya', 'hlw', 'wassup', 'sup', 'good morning', 'good afternoon', 'good evening', 'hey there']);
+const SMALL_TALK_RULES = [
+  {
+    test: (text) => {
+      const normalized = text.replace(/[^a-z\s]/gi, ' ').replace(/\s+/g, ' ').trim();
+      if (!normalized) {
+        return false;
+      }
+      if (GREETING_VARIANTS.has(normalized)) {
+        return true;
+      }
+      return normalized.split(' ').some((word) => GREETING_VARIANTS.has(word));
+    },
+    reply: "Hi! I'm doing great and ready to help you explore Gradus programs, mentors, and placements. What would you like to know?",
+  },
+  {
+    test: (text) => /(how are (you|u)|how's it going|how are ya|how're you|how ru|how r u|howdy)/i.test(text),
+    reply: "Thanks for asking! I'm feeling energized and here to support you with anything about Gradus. How can I help you today?",
+  },
+  {
+    test: (text) => /(thank you|thanks|much appreciated|appreciate it)/i.test(text),
+    reply: "You're very welcome! If there's anything else you need about Gradus, just let me know.",
+  },
+  {
+    test: (text) => /(bye|goodbye|see you|see ya|catch you later|cya|talk soon)/i.test(text),
+    reply: "Thanks for stopping by! Whenever you need Gradus info again, I'll be right here.",
+  },
+];
+
+const getSmallTalkReply = (message) => {
+  if (!message) {
+    return null;
+  }
+
+  const raw = message.trim();
+
+  if (!raw) {
+    return null;
+  }
+
+  for (const rule of SMALL_TALK_RULES) {
+    try {
+      if (rule.test(raw)) {
+        return rule.reply;
+      }
+    } catch (error) {
+      // ignore faulty patterns
+    }
+  }
+
+  const simplified = raw.replace(/[^a-z]/gi, '').toLowerCase();
+  if (simplified && simplified.length <= 4 && GREETING_VARIANTS.has(simplified)) {
+    return "Hi! I'm doing great and ready to help you explore Gradus programs, mentors, and placements. What would you like to know?";
+  }
+
+  return null;
+};
+
 
 const tokenize = (text) => {
   if (!text) {
@@ -341,7 +399,9 @@ const buildBlogContexts = async (query, limit = 3) => {
     console.error('[chatbot] Failed to load blog contexts:', error);
     return [];
   }
-};const mergeContexts = (baseContexts, extraContexts, limit = 6) => {
+};
+
+const mergeContexts = (baseContexts, extraContexts, limit = 6) => {
   if (!Array.isArray(extraContexts) || !extraContexts.length) {
     return baseContexts;
   }
@@ -363,6 +423,15 @@ const handleChatMessage = async ({ message, history }) => {
     throw new Error('Message is required.');
   }
 
+  const smallTalkReply = getSmallTalkReply(trimmedMessage);
+  if (smallTalkReply) {
+    return {
+      reply: smallTalkReply,
+      contexts: [],
+      provider: 'smalltalk',
+    };
+  }
+
   const baseContexts = getTopContexts(trimmedMessage);
   let contexts = [...baseContexts];
 
@@ -372,11 +441,14 @@ const handleChatMessage = async ({ message, history }) => {
   }
 
   const systemPrompt = buildSystemPrompt(contexts);
-  const sanitizedHistory = sanitizeHistory(history);
-
-  const messages = [
+  const sanitizedHistory = sanitizeHistory(history);  const messages = [
     { role: 'system', content: systemPrompt },
     ...sanitizedHistory,
+    {
+      role: 'system',
+      content:
+        'Always speak as GradusAI in a warm, human tone. Rephrase every fact you cite from the knowledge snippets so it sounds freshly worded while staying accurate.',
+    },
     { role: 'user', content: trimmedMessage },
   ];
 
