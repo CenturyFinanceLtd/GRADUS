@@ -24,15 +24,15 @@ const EventOne = () => {
                 and educate
               </p>
             </div>
-            <div className='event-item-wrapper overflow-x-auto scroll-sm scroll-sm-horizontal pb-4'>
+            <div className='event-item-wrapper pb-4'>
               <div
-                className='event-item bg-main-25 rounded-12 p-24 d-flex align-items-center border border-neutral-20 min-width-max-content hover-bg-main-600 hover-border-main-600 hover-text-white transition-1 mb-24'
+                className='event-item bg-main-25 rounded-12 p-24 d-flex align-items-center border border-neutral-20 w-100 hover-bg-main-600 hover-border-main-600 hover-text-white transition-1 mb-24'
                 data-aos='fade-up-left'
                 data-aos-duration={200}
               >
                 <div className=''>
-                  <h3 className='mb-8 text-main-600'>25</h3>
-                  <span className='text-neutral-500'>May, 2024</span>
+                  <h3 className='mb-8 text-main-600'>19</h3>
+                  <span className='text-neutral-500'>Nov, 2025</span>
                 </div>
                 <span className='border border-neutral-40 border-dashed h-72' />
                 <div className=''>
@@ -42,7 +42,7 @@ const EventOne = () => {
                         <i className='ph-bold ph-clock' />
                       </span>
                       <span className='text-neutral-700 text-lg fw-normal'>
-                        02:30:am to 04:25:pm
+                        1100 Hours
                       </span>
                     </div>
                     <div className='flex-align gap-8'>
@@ -50,11 +50,11 @@ const EventOne = () => {
                         <i className='ph-bold ph-map-trifold' />
                       </span>
                       <span className='text-neutral-700 text-lg fw-normal'>
-                        New York
+                        Indian Institute of Technology (IIT-Madras) by GradusX
                       </span>
                     </div>
                   </div>
-                  <h4 className='mt-12 mb-0'>Community Service Events</h4>
+                  <h4 className='mt-12 mb-0'>AI &amp; Machine Learning</h4>
                 </div>
                 <span className='border border-neutral-40 border-dashed h-72' />
                 <div className='flex-shrink-0'>
@@ -68,13 +68,13 @@ const EventOne = () => {
                 </div>
               </div>
               <div
-                className='event-item bg-main-25 rounded-12 p-24 d-flex align-items-center border border-neutral-20 min-width-max-content hover-bg-main-600 hover-border-main-600 hover-text-white transition-1 mb-24'
+                className='event-item bg-main-25 rounded-12 p-24 d-flex align-items-center border border-neutral-20 w-100 hover-bg-main-600 hover-border-main-600 hover-text-white transition-1 mb-24'
                 data-aos='fade-up-left'
                 data-aos-duration={400}
               >
                 <div className=''>
-                  <h3 className='mb-8 text-main-600'>12</h3>
-                  <span className='text-neutral-500'>Jun, 2024</span>
+                  <h3 className='mb-8 text-main-600'>26</h3>
+                  <span className='text-neutral-500'>Nov, 2025</span>
                 </div>
                 <span className='border border-neutral-40 border-dashed h-72' />
                 <div className=''>
@@ -84,7 +84,7 @@ const EventOne = () => {
                         <i className='ph-bold ph-clock' />
                       </span>
                       <span className='text-neutral-700 text-lg fw-normal'>
-                        02:30:am to 04:25:pm
+                        1400 Hours
                       </span>
                     </div>
                     <div className='flex-align gap-8'>
@@ -92,11 +92,11 @@ const EventOne = () => {
                         <i className='ph-bold ph-map-trifold' />
                       </span>
                       <span className='text-neutral-700 text-lg fw-normal'>
-                        New York
+                        Indian Institute of Technology (IIT-Mumbai)
                       </span>
                     </div>
                   </div>
-                  <h4 className='mt-12 mb-0'>Sports &amp; Health Promotion</h4>
+                  <h4 className='mt-12 mb-0'>Quantum Computing &amp; Parallel Processing by GradusX</h4>
                 </div>
                 <span className='border border-neutral-40 border-dashed h-72' />
                 <div className='flex-shrink-0'>
@@ -110,13 +110,13 @@ const EventOne = () => {
                 </div>
               </div>
               <div
-                className='event-item bg-main-25 rounded-12 p-24 d-flex align-items-center border border-neutral-20 min-width-max-content hover-bg-main-600 hover-border-main-600 hover-text-white transition-1 mb-0'
+                className='event-item bg-main-25 rounded-12 p-24 d-flex align-items-center border border-neutral-20 w-100 hover-bg-main-600 hover-border-main-600 hover-text-white transition-1 mb-0'
                 data-aos='fade-up-left'
                 data-aos-duration={500}
               >
                 <div className=''>
-                  <h3 className='mb-8 text-main-600'>29</h3>
-                  <span className='text-neutral-500'>Jul, 2024</span>
+                  <h3 className='mb-8 text-main-600'>22</h3>
+                  <span className='text-neutral-500'>Dec, 2025</span>
                 </div>
                 <span className='border border-neutral-40 border-dashed h-72' />
                 <div className=''>
@@ -126,7 +126,7 @@ const EventOne = () => {
                         <i className='ph-bold ph-clock' />
                       </span>
                       <span className='text-neutral-700 text-lg fw-normal'>
-                        02:30:am to 04:25:pm
+                        1230 Hours
                       </span>
                     </div>
                     <div className='flex-align gap-8'>
@@ -134,11 +134,11 @@ const EventOne = () => {
                         <i className='ph-bold ph-map-trifold' />
                       </span>
                       <span className='text-neutral-700 text-lg fw-normal'>
-                        New York
+                        by GradusQuity &amp; GradusLead
                       </span>
                     </div>
                   </div>
-                  <h4 className='mt-12 mb-0'>Career Fair Festivals</h4>
+                  <h4 className='mt-12 mb-0'>Quantitative Trading in Stock Market (AI Based)</h4>
                 </div>
                 <span className='border border-neutral-40 border-dashed h-72' />
                 <div className='flex-shrink-0'>
@@ -152,13 +152,13 @@ const EventOne = () => {
                 </div>
               </div>
             </div>
-            <Link
+            {/* <Link
               to='/course'
               className='btn btn-outline-main rounded-pill flex-align d-inline-flex gap-8 mt-40'
             >
               See All Events
               <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
-            </Link>
+            </Link> */}
           </div>
           <div className='col-lg-4'>
             <div className='event-video rounded-16 overflow-hidden position-relative h-100 wow bounceIn'>

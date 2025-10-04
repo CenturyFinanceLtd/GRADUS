@@ -42,7 +42,7 @@ const ChooseUsTwo = () => {
               <ul>
                 <li className='mb-24'>
                   <Link
-                    to='/about'
+                    to='/our-courses'
                     className='flex-align gap-12 text-white hover-text-decoration-underline'
                   >
                     Paid internship pathway
@@ -51,7 +51,7 @@ const ChooseUsTwo = () => {
                 </li>
                 <li className='mb-24'>
                   <Link
-                    to='/about'
+                    to='/our-courses'
                     className='flex-align gap-12 text-white hover-text-decoration-underline'
                   >
                     Guaranteed placement support
@@ -60,7 +60,7 @@ const ChooseUsTwo = () => {
                 </li>
                 <li className='mb-24'>
                   <Link
-                    to='/about'
+                    to='/our-courses'
                     className='flex-align gap-12 text-white hover-text-decoration-underline'
                   >
                     178 strategic industry alliances
@@ -69,7 +69,7 @@ const ChooseUsTwo = () => {
                 </li>
                 <li className='mb-24'>
                   <Link
-                    to='/about'
+                    to='/our-courses'
                     className='flex-align gap-12 text-white hover-text-decoration-underline'
                   >
                     Mentor-led experiential learning
@@ -78,7 +78,7 @@ const ChooseUsTwo = () => {
                 </li>
                 <li className='mb-24'>
                   <Link
-                    to='/about'
+                    to='/our-courses'
                     className='flex-align gap-12 text-white hover-text-decoration-underline'
                   >
                     Industry-calibrated curriculum
@@ -87,7 +87,7 @@ const ChooseUsTwo = () => {
                 </li>
                 <li className='mb-0'>
                   <Link
-                    to='/about'
+                    to='/our-courses'
                     className='flex-align gap-12 text-white hover-text-decoration-underline'
                   >
                     Nationwide recruiter network
