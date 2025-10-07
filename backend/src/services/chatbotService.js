@@ -1,16 +1,153 @@
 const knowledgeBase = require('../data/chatbotKnowledge');
 const Blog = require('../models/Blog');
 const BLOG_PUBLIC_BASE = (process.env.GRADUS_WEB_BASE_URL || 'https://gradusindia.in').replace(/\/\/+$/, '');
+const http = require('http');
+const https = require('https');
+const { URL } = require('url');
 
-let fetchImpl = typeof global.fetch === 'function' ? global.fetch.bind(global) : null;
+const normalizeHeaders = (inputHeaders) => {
+  if (!inputHeaders) {
+    return {};
+  }
 
-if (!fetchImpl) {
+  if (typeof inputHeaders.forEach === 'function' && !Array.isArray(inputHeaders)) {
+    const result = {};
+
+    inputHeaders.forEach((value, key) => {
+      if (typeof key === 'string' && key) {
+        result[key] = value;
+      }
+    });
+
+    return result;
+  }
+
+  if (Array.isArray(inputHeaders)) {
+    return inputHeaders.reduce((acc, entry) => {
+      if (Array.isArray(entry) && entry.length >= 2) {
+        const [key, value] = entry;
+        if (typeof key === 'string' && key) {
+          acc[key] = value;
+        }
+      }
+
+      return acc;
+    }, {});
+  }
+
+  return { ...(inputHeaders || {}) };
+};
+
+const createNativeFetch = () => {
+  return async (input, init = {}) => {
+    const requestUrl = typeof input === 'string' ? input : input?.href || input?.url;
+
+    if (!requestUrl) {
+      throw new Error('fetch polyfill requires a request URL string.');
+    }
+
+    const url = new URL(requestUrl);
+    const transport = url.protocol === 'https:' ? https : http;
+    const method = init.method || 'GET';
+    const headers = normalizeHeaders(init.headers);
+
+    let body = init.body;
+
+    if (body && typeof body !== 'string' && !Buffer.isBuffer(body)) {
+      body = JSON.stringify(body);
+      if (!headers['content-type'] && !headers['Content-Type']) {
+        headers['Content-Type'] = 'application/json';
+      }
+    }
+
+    return new Promise((resolve, reject) => {
+      const request = transport.request(
+        url,
+        {
+          method,
+          headers,
+        },
+        (response) => {
+          const chunks = [];
+
+          response.on('data', (chunk) => chunks.push(chunk));
+          response.on('end', () => {
+            const buffer = Buffer.concat(chunks);
+            const textBody = buffer.toString('utf8');
+            const headerMap = {};
+
+            Object.entries(response.headers || {}).forEach(([key, value]) => {
+              if (typeof key === 'string') {
+                headerMap[key.toLowerCase()] = value;
+              }
+            });
+
+            resolve({
+              ok: response.statusCode >= 200 && response.statusCode < 300,
+              status: response.statusCode || 0,
+              statusText: response.statusMessage || '',
+              headers: {
+                get(name) {
+                  return headerMap[name.toLowerCase()];
+                },
+                raw() {
+                  return { ...(response.headers || {}) };
+                },
+              },
+              async text() {
+                return textBody;
+              },
+              async json() {
+                if (!textBody) {
+                  return null;
+                }
+
+                try {
+                  return JSON.parse(textBody);
+                } catch (error) {
+                  throw new Error(`Failed to parse JSON response: ${error.message}`);
+                }
+              },
+            });
+          });
+        }
+      );
+
+      request.on('error', reject);
+
+      if (body) {
+        request.write(body);
+      }
+
+      request.end();
+    });
+  };
+};
+
+const resolveFetchImplementation = () => {
+  if (typeof global.fetch === 'function') {
+    return global.fetch.bind(global);
+  }
+
   try {
     const nodeFetch = require('node-fetch');
-    fetchImpl = (nodeFetch && nodeFetch.default) ? nodeFetch.default : nodeFetch;
+    const candidate = nodeFetch && nodeFetch.default ? nodeFetch.default : nodeFetch;
+
+    if (typeof candidate === 'function') {
+      return candidate;
+    }
   } catch (error) {
-    console.warn('[chatbot] Warning: fetch API is not available and node-fetch could not be loaded.', error);
+    console.warn('[chatbot] Unable to load node-fetch. Falling back to native HTTPS client.', error);
   }
+
+  console.warn('[chatbot] Using HTTPS client shim for fetch. Install node-fetch for full WHATWG compatibility.');
+  return createNativeFetch();
+};
+
+const fetchImpl = resolveFetchImplementation();
+
+if (typeof global.fetch !== 'function') {
+  global.fetch = fetchImpl;
 }
 
 const STOPWORDS = new Set([
