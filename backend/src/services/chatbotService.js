@@ -2,6 +2,16 @@ const knowledgeBase = require('../data/chatbotKnowledge');
 const Blog = require('../models/Blog');
 const BLOG_PUBLIC_BASE = (process.env.GRADUS_WEB_BASE_URL || 'https://gradusindia.in').replace(/\/\/+$/, '');
 
+let fetchImpl = typeof global.fetch === 'function' ? global.fetch.bind(global) : null;
+
+if (!fetchImpl) {
+  try {
+    const nodeFetch = require('node-fetch');
+    fetchImpl = (nodeFetch && nodeFetch.default) ? nodeFetch.default : nodeFetch;
+  } catch (error) {
+    console.warn('[chatbot] Warning: fetch API is not available and node-fetch could not be loaded.', error);
+  }
+}
 
 const STOPWORDS = new Set([
   'a',
@@ -255,8 +265,8 @@ For further detail, explore the relevant section on our website or reach out thr
 };
 
 const callOpenAI = async (messages) => {
-  if (typeof fetch !== 'function') {
-    throw new Error('Global fetch API is not available in this environment. Upgrade Node.js or polyfill fetch.');
+  if (typeof fetchImpl !== 'function') {
+    throw new Error('No fetch implementation available. Install node-fetch or upgrade Node.js to expose a global fetch API.');
   }
 
   const apiKey = process.env.OPENAI_API_KEY;
@@ -264,6 +274,7 @@ const callOpenAI = async (messages) => {
   const baseUrl = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
 
   if (!apiKey) {
+    console.warn('[chatbot] Warning: OPENAI_API_KEY is not configured. Falling back to knowledge snippets.');
     return {
       reply: null,
       usage: null,
@@ -278,7 +289,7 @@ const callOpenAI = async (messages) => {
     max_tokens: 700,
   };
 
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  const response = await fetchImpl(`${baseUrl}/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
