@@ -10,6 +10,55 @@ const WELCOME_MESSAGE = {
 
 const createMessageId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
+const MAX_PAGE_CONTEXT_LENGTH = 2800;
+
+const collectPageContext = () => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return null;
+  }
+
+  const path = window.location?.pathname || '/';
+  const url = window.location?.href || path;
+  const title = document.title || '';
+  const main = document.querySelector('main') || document.body;
+
+  if (!main) {
+    return {
+      path,
+      url,
+      title,
+    };
+  }
+
+  const headingText = Array.from(main.querySelectorAll('h1, h2, h3'))
+    .slice(0, 12)
+    .map((element) => (element.textContent || '').trim())
+    .filter(Boolean)
+    .join(' | ')
+    .slice(0, 320);
+
+  const rawText = ((main.innerText || main.textContent || '')).replace(/\s+/g, ' ').trim();
+
+  if (!rawText) {
+    return {
+      path,
+      url,
+      title,
+      headings: headingText || undefined,
+    };
+  }
+
+  const content = rawText.slice(0, MAX_PAGE_CONTEXT_LENGTH);
+
+  return {
+    path,
+    url,
+    title,
+    headings: headingText || undefined,
+    content,
+  };
+};
+
 const extractLineSegments = (line) => {
   if (!line) {
     return [];
@@ -147,10 +196,17 @@ const ChatbotWidget = () => {
       .map((item) => ({ role: item.role, content: item.content }));
 
     try {
-      const data = await apiClient.post("/chatbot", {
+      const pageContext = collectPageContext();
+      const payload = {
         message: trimmed,
         history: historyPayload,
-      });
+      };
+
+      if (pageContext) {
+        payload.page = pageContext;
+      }
+
+      const data = await apiClient.post("/chatbot", payload);
 
       const reply = (data?.reply || "").trim()
         ? data.reply.trim()

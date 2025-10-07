@@ -564,7 +564,287 @@ const mergeContexts = (baseContexts, extraContexts, limit = 6) => {
   return merged.slice(0, limit);
 };
 
-const handleChatMessage = async ({ message, history }) => {
+
+const levenshteinDistance = (a = '', b = '') => {
+  if (!a && !b) {
+    return 0;
+  }
+  if (!a) {
+    return b.length;
+  }
+  if (!b) {
+    return a.length;
+  }
+
+  const matrix = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1));
+
+  for (let i = 0; i <= a.length; i += 1) {
+    matrix[i][0] = i;
+  }
+
+  for (let j = 0; j <= b.length; j += 1) {
+    matrix[0][j] = j;
+  }
+
+  for (let i = 1; i <= a.length; i += 1) {
+    for (let j = 1; j <= b.length; j += 1) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost
+      );
+    }
+  }
+
+  return matrix[a.length][b.length];
+};
+
+const NEAR_PAGE_TOKENS = ['page', 'pages', 'screen', 'section', 'tab', 'view', 'panel', 'one'];
+
+const PAGE_INTENT_PATTERNS = [
+  /(this|current)\s+(page|screen|section)/i,
+  /(tell|share|talk).{0,12}about\s+(this|the current)\s+(page|screen|section)/i,
+  /(what does|what is|describe).{0,12}(this|the current)\s+(page|section)/i,
+  /about\s+this\s+(page|section)/i,
+];
+
+const normalizeForMatch = (value) => {
+  if (!value || typeof value !== 'string') {
+    return '';
+  }
+
+  return value.toLowerCase().replace(/[^a-z0-9\s]+/g, ' ').replace(/\s+/g, ' ').trim();
+};
+
+const isPageContextIntent = (message, page, pageContextSnippet) => {
+  if (!message) {
+    return false;
+  }
+
+  const normalizedMessage = normalizeForMatch(message);
+  if (!normalizedMessage) {
+    return false;
+  }
+
+  if (PAGE_INTENT_PATTERNS.some((pattern) => pattern.test(message))) {
+    return true;
+  }
+
+  const shortMessage = normalizedMessage.length <= 80;
+  const tokens = normalizedMessage.split(' ').filter(Boolean);
+  const tokenSet = new Set(tokens);
+
+  if (shortMessage) {
+    if (normalizedMessage.includes('about this')) {
+      return true;
+    }
+    if (normalizedMessage.includes('this one')) {
+      return true;
+    }
+    if (normalizedMessage.startsWith('now this')) {
+      return true;
+    }
+    if (normalizedMessage.startsWith('now about this')) {
+      return true;
+    }
+    if (normalizedMessage.includes('now this one')) {
+      return true;
+    }
+    if (
+      normalizedMessage === 'this one' ||
+      normalizedMessage === 'this one please' ||
+      normalizedMessage === 'this one now' ||
+      normalizedMessage === 'now this one' ||
+      normalizedMessage === 'now this one please'
+    ) {
+      return true;
+    }
+  }
+
+  if (shortMessage && tokenSet.has('now') && tokenSet.has('this')) {
+    return true;
+  }
+
+  const refersToCurrentView = tokenSet.has('this') || tokenSet.has('current') || tokenSet.has('here');
+
+  if (refersToCurrentView) {
+    const nearToken = tokens.some((token) => {
+      if (NEAR_PAGE_TOKENS.includes(token)) {
+        return true;
+      }
+
+      return NEAR_PAGE_TOKENS.some((candidate) => levenshteinDistance(token, candidate) <= 1);
+    });
+
+    if (nearToken) {
+      return true;
+    }
+
+    if (shortMessage && tokens.length <= 5 && pageContextSnippet) {
+      const allowedTokens = new Set([
+        'tell',
+        'me',
+        'about',
+        'now',
+        'this',
+        'current',
+        'here',
+        'please',
+        'pls',
+        'kindly',
+        'info',
+        'information',
+        'on',
+        'the',
+        'one',
+        'ones',
+        'page',
+        'pages',
+        'section',
+        'screen',
+        'view',
+        'tab',
+      ]);
+
+      const unknownTokens = tokens.filter((token) => !allowedTokens.has(token));
+
+      if (
+        !unknownTokens.length ||
+        unknownTokens.every((token) =>
+          NEAR_PAGE_TOKENS.some((candidate) => levenshteinDistance(token, candidate) <= 2)
+        )
+      ) {
+        return true;
+      }
+    }
+  }
+
+  const candidates = [];
+
+  if (page && typeof page === 'object') {
+    if (typeof page.title === 'string') {
+      candidates.push(page.title);
+    }
+    if (typeof page.headings === 'string') {
+      candidates.push(page.headings);
+    }
+    if (typeof page.path === 'string') {
+      candidates.push(page.path);
+    }
+    if (typeof page.url === 'string') {
+      candidates.push(page.url);
+    }
+  }
+
+  if (pageContextSnippet && typeof pageContextSnippet.title === 'string') {
+    candidates.push(pageContextSnippet.title);
+  }
+
+  return candidates.some((candidate) => {
+    const normalizedCandidate = normalizeForMatch(candidate);
+    if (!normalizedCandidate || normalizedCandidate.length < 4) {
+      return false;
+    }
+    if (normalizedMessage.includes(normalizedCandidate)) {
+      return true;
+    }
+    return normalizedCandidate
+      .split(' ')
+      .filter((token) => token.length > 4)
+      .some((token) => normalizedMessage.includes(token));
+  });
+};
+
+const buildPageContextSnippet = (page) => {
+  if (!page || typeof page !== 'object') {
+    return null;
+  }
+
+  const rawTitle = typeof page.title === 'string' ? page.title.trim() : '';
+  const rawHeadings = typeof page.headings === 'string' ? normalizeWhitespace(page.headings) : '';
+  const rawContent = typeof page.content === 'string' ? page.content : '';
+  const rawPath = typeof page.path === 'string' ? page.path.trim() : '';
+  const rawUrl = typeof page.url === 'string' ? page.url.trim() : '';
+
+  const segments = [];
+
+  if (rawTitle) {
+    segments.push(`Page title: ${rawTitle}`);
+  }
+
+  if (rawHeadings) {
+    segments.push(`Key sections: ${rawHeadings.replace(/\s*\|\s*/g, ', ')}`);
+  }
+
+  if (rawContent) {
+    segments.push(`Page details: ${normalizeWhitespace(rawContent)}`);
+  }
+
+  const combined = normalizeWhitespace(segments.join(' '));
+
+  if (!combined) {
+    return null;
+  }
+
+  const idSource = rawPath || rawTitle || 'current-page';
+  const id = `page-${idSource.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'current'}`;
+
+  const tags = new Set();
+  if (rawTitle) {
+    rawTitle
+      .split(/\s+/)
+      .map((word) => word.toLowerCase().replace(/[^a-z0-9]/g, ''))
+      .filter((word) => word.length > 2)
+      .forEach((word) => tags.add(word));
+  }
+  if (rawPath) {
+    tags.add(rawPath.replace(/[^a-z0-9]/gi, '').toLowerCase());
+  }
+
+  return {
+    id,
+    title: rawTitle ? `Current page: ${rawTitle}` : 'Current page overview',
+    content: truncate(combined, 2400),
+    source: rawUrl || undefined,
+    tags: Array.from(tags),
+  };
+};
+
+const buildPageSummaryReply = (page) => {
+  if (!page || typeof page !== 'object') {
+    return null;
+  }
+
+  const pieces = [];
+  const title = typeof page.title === 'string' ? page.title.trim() : '';
+  if (title) {
+    pieces.push(`You're currently viewing the "${title}" page.`);
+  }
+
+  const headings = typeof page.headings === 'string' ? normalizeWhitespace(page.headings) : '';
+  if (headings) {
+    pieces.push(`Key sections include: ${headings.replace(/\s*\|\s*/g, ', ')}.`);
+  }
+
+  const content = typeof page.content === 'string' ? normalizeWhitespace(page.content) : '';
+  if (content) {
+    const sentences = content.match(/[^.!?]+[.!?]?/g) || [];
+    const summarySentences = sentences.slice(0, 5).join(' ').trim();
+    if (summarySentences) {
+      pieces.push(summarySentences);
+    }
+  }
+
+  if (!pieces.length) {
+    return null;
+  }
+
+  const summaryBody = pieces.join('\n\n');
+  return `Here is what this page covers:\n\n${summaryBody}`;
+};
+
+const handleChatMessage = async ({ message, history, page }) => {
   const trimmedMessage = typeof message === 'string' ? message.trim() : '';
 
   if (!trimmedMessage) {
@@ -580,6 +860,7 @@ const handleChatMessage = async ({ message, history }) => {
     };
   }
 
+  const pageContextSnippet = buildPageContextSnippet(page);
   const baseContexts = getTopContexts(trimmedMessage);
   let contexts = [...baseContexts];
 
@@ -588,9 +869,42 @@ const handleChatMessage = async ({ message, history }) => {
     contexts = mergeContexts(baseContexts, blogContexts, 7);
   }
 
+  const wantsPageSummary = isPageContextIntent(trimmedMessage, page, pageContextSnippet);
+
+  if (pageContextSnippet) {
+    if (wantsPageSummary) {
+      const filtered = contexts.filter((context) => context.id !== pageContextSnippet.id);
+      contexts = [pageContextSnippet, ...filtered].slice(0, 7);
+    } else {
+      contexts = mergeContexts(contexts, [pageContextSnippet], 8);
+    }
+  }
+
   const systemPrompt = buildSystemPrompt(contexts);
-  const sanitizedHistory = sanitizeHistory(history);  const messages = [
-    { role: 'system', content: systemPrompt },
+  const sanitizedHistory = sanitizeHistory(history);
+  const messages = [{ role: 'system', content: systemPrompt }];
+
+  if (pageContextSnippet) {
+    const descriptorParts = [];
+    if (pageContextSnippet.title) {
+      descriptorParts.push(pageContextSnippet.title);
+    }
+    if (page && typeof page.path === 'string' && page.path) {
+      descriptorParts.push(`path: ${page.path}`);
+    }
+    if (page && typeof page.url === 'string' && page.url && !descriptorParts.includes(page.url)) {
+      descriptorParts.push(page.url);
+    }
+
+    const descriptor = descriptorParts.join(' ') || 'the current page';
+    const guidance = wantsPageSummary
+      ? `The user is viewing ${descriptor}. They are asking about this page right now. Use the snippet labelled \"Current page\" (id: ${pageContextSnippet.id}) to craft a fresh, human summary.`
+      : `The user is viewing ${descriptor}. If they mention \"this page\", \"current page\", \"this one\", \"now this\", or similar phrasing, rely on the snippet labelled \"Current page\" (id: ${pageContextSnippet.id}) to respond, paraphrasing it naturally.`;
+
+    messages.push({ role: 'system', content: guidance });
+  }
+
+  messages.push(
     ...sanitizedHistory,
     {
       role: 'system',
@@ -598,16 +912,20 @@ const handleChatMessage = async ({ message, history }) => {
         'Always speak as GradusAI in a warm, human tone. Rephrase every fact you cite from the knowledge snippets so it sounds freshly worded while staying accurate.',
     },
     { role: 'user', content: trimmedMessage },
-  ];
+  );
+
+  const fallbackPageSummary = wantsPageSummary ? buildPageSummaryReply(page) : null;
 
   try {
     const { reply, usage, model } = await callOpenAI(messages);
 
     if (!reply) {
       return {
-        reply: buildFallbackReply(trimmedMessage, contexts),
+        reply: fallbackPageSummary || buildFallbackReply(trimmedMessage, contexts),
         contexts,
-        provider: 'fallback',
+        provider: fallbackPageSummary ? 'fallback-page' : 'fallback',
+        model,
+        usage,
       };
     }
 
@@ -621,9 +939,9 @@ const handleChatMessage = async ({ message, history }) => {
   } catch (error) {
     console.error('[chatbot] Failed to generate response:', error);
     return {
-      reply: buildFallbackReply(trimmedMessage, contexts),
+      reply: fallbackPageSummary || buildFallbackReply(trimmedMessage, contexts),
       contexts,
-      provider: 'fallback-error',
+      provider: fallbackPageSummary ? 'fallback-error-page' : 'fallback-error',
       error: error.message,
     };
   }

@@ -7,14 +7,14 @@ const router = express.Router();
 router.post(
   '/',
   asyncHandler(async (req, res) => {
-    const { message, history } = req.body || {};
+    const { message, history, page } = req.body || {};
 
     if (!message || typeof message !== 'string' || !message.trim()) {
       res.status(400).json({ message: 'Message is required.' });
       return;
     }
 
-    const response = await handleChatMessage({ message, history });
+    const response = await handleChatMessage({ message, history, page });
 
     res.json({
       reply: response.reply,
