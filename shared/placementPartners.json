@@ -2,246 +2,1089 @@
   {
     "name": "State Bank of India (SBI)",
     "website": "https://www.sbi.co.in/",
-    "logo": "/assets/images/partners/Banking-Companies/state-bank-of-india.png"
+    "logo": "/assets/images/partners/GradusQuity/state-bank-of-india.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "HDFC Bank",
     "website": "https://www.hdfcbank.com/",
-    "logo": "/assets/images/partners/Banking-Companies/HDFC-BANK.png"
+    "logo": "/assets/images/partners/GradusQuity/HDFC-BANK.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "ICICI Bank",
     "website": "https://www.icicibank.com/",
-    "logo": "/assets/images/partners/Banking-Companies/ICICI.png"
+    "logo": "/assets/images/partners/GradusQuity/ICICI.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Kotak Mahindra Bank",
     "website": "https://www.kotak.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Kotak.png"
+    "logo": "/assets/images/partners/GradusQuity/Kotak.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Axis Bank",
     "website": "https://www.axisbank.com/",
-    "logo": "/assets/images/partners/Banking-Companies/AXIS.png"
+    "logo": "/assets/images/partners/GradusQuity/AXIS.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Bank of Baroda",
     "website": "https://www.bankofbaroda.in/",
-    "logo": "/assets/images/partners/Banking-Companies/Bank-Of-Baroda.png"
+    "logo": "/assets/images/partners/GradusQuity/Bank-Of-Baroda.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Punjab National Bank",
     "website": "https://www.pnbindia.in/",
-    "logo": "/assets/images/partners/Banking-Companies/Punjab-Natunat-Bank.png"
+    "logo": "/assets/images/partners/GradusQuity/Punjab-Natunat-Bank.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "IndusInd Bank",
     "website": "https://www.indusind.com/",
-    "logo": "/assets/images/partners/Banking-Companies/IndusInd-Bank.png"
+    "logo": "/assets/images/partners/GradusQuity/IndusInd-Bank.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Bajaj Finance",
     "website": "https://www.bajajfinance.in/",
-    "logo": "/assets/images/partners/Banking-Companies/Bajaj-Finance.png"
+    "logo": "/assets/images/partners/GradusQuity/Bajaj-Finance.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Bajaj Finserv",
     "website": "https://www.bajajfinserv.in/",
-    "logo": "/assets/images/partners/Banking-Companies/Bajaj-Finserv.png"
+    "logo": "/assets/images/partners/GradusQuity/Bajaj-Finserv.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "LIC Housing Finance",
     "website": "https://www.lichousing.com/",
-    "logo": "/assets/images/partners/Banking-Companies/LIC-Housing-Finance.png"
+    "logo": "/assets/images/partners/GradusQuity/LIC-Housing-Finance.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Aditya Birla Capital",
     "website": "https://www.adityabirlacapital.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Aditya-Birla-Capital.png"
+    "logo": "/assets/images/partners/GradusQuity/Aditya-Birla-Capital.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Muthoot Finance",
     "website": "https://www.muthootfinance.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Muthoot-Finance.png"
+    "logo": "/assets/images/partners/GradusQuity/Muthoot-Finance.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Shriram Transport Finance",
     "website": "https://www.shriramfinance.in/",
-    "logo": "/assets/images/partners/Banking-Companies/Shriram-Transport-Finance.png"
+    "logo": "/assets/images/partners/GradusQuity/Shriram-Transport-Finance.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Cholamandalam Investment & Finance",
     "website": "https://www.cholamandalam.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Cholamandalam-Investment-&-Finance.png"
+    "logo": "/assets/images/partners/GradusQuity/Cholamandalam-Investment-&-Finance.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Power Finance Corporation",
     "website": "https://www.pfcindia.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Power-Finance-Corporation.png"
+    "logo": "/assets/images/partners/GradusQuity/Power-Finance-Corporation.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "HDFC Life Insurance",
     "website": "https://www.hdfclife.com/",
-    "logo": "/assets/images/partners/Banking-Companies/HDFC-Life-Insurance.png"
+    "logo": "/assets/images/partners/GradusQuity/HDFC-Life-Insurance.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "SBI Life Insurance",
     "website": "https://www.sbilife.co.in/",
-    "logo": "/assets/images/partners/Banking-Companies/SBI-Life-Insurance.png"
+    "logo": "/assets/images/partners/GradusQuity/SBI-Life-Insurance.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "HDFC AMC",
     "website": "https://www.hdfcfund.com/",
-    "logo": "/assets/images/partners/Banking-Companies/HDFC-AMC.png"
+    "logo": "/assets/images/partners/GradusQuity/HDFC-AMC.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Motilal Oswal Financial Services",
     "website": "https://www.motilaloswal.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Motilal-Oswal-Financial-Services.png"
+    "logo": "/assets/images/partners/GradusQuity/Motilal-Oswal-Financial-Services.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "BSE (Bombay Stock Exchange)",
     "website": "https://www.bseindia.com/",
-    "logo": "/assets/images/partners/Banking-Companies/BSE-(Bombay-Stock-Exchange).png"
+    "logo": "/assets/images/partners/GradusQuity/BSE-(Bombay-Stock-Exchange).png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "NSE (National Stock Exchange)",
     "website": "https://www.nseindia.com/",
-    "logo": "/assets/images/partners/Banking-Companies/NSE-(National-Stock-Exchange).png"
+    "logo": "/assets/images/partners/GradusQuity/NSE-(National-Stock-Exchange).png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "IRFC (Indian Railway Finance Corporation)",
     "website": "https://irfc.co.in/",
-    "logo": "/assets/images/partners/Banking-Companies/IRFC.png"
+    "logo": "/assets/images/partners/GradusQuity/IRFC.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "PNB Housing Finance",
     "website": "https://www.pnbhousing.com/",
-    "logo": "/assets/images/partners/Banking-Companies/PNB-Housing-Finance.png"
+    "logo": "/assets/images/partners/GradusQuity/PNB-Housing-Finance.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "L&T Finance Holdings",
     "website": "https://www.ltfs.com/",
-    "logo": "/assets/images/partners/Banking-Companies/L&T-Finance-Holdings.png"
+    "logo": "/assets/images/partners/GradusQuity/L&T-Finance-Holdings.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Zerodha",
     "website": "https://zerodha.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Zerodha.png"
+    "logo": "/assets/images/partners/GradusQuity/Zerodha.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Groww",
     "website": "https://groww.in/",
-    "logo": "/assets/images/partners/Banking-Companies/Groww.png"
+    "logo": "/assets/images/partners/GradusQuity/Groww.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Angel One (formerly Angel Broking)",
     "website": "https://www.angelone.in/",
-    "logo": "/assets/images/partners/Banking-Companies/Angel-One.png"
+    "logo": "/assets/images/partners/GradusQuity/Angel-One.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Upstox",
     "website": "https://upstox.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Upstox.png"
+    "logo": "/assets/images/partners/GradusQuity/Upstox.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "HDFC Securities",
     "website": "https://www.hdfcsec.com/",
-    "logo": "/assets/images/partners/Banking-Companies/HDFC-Securities.png"
+    "logo": "/assets/images/partners/GradusQuity/HDFC-Securities.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "ICICI Direct",
     "website": "https://www.icicidirect.com/",
-    "logo": "/assets/images/partners/Banking-Companies/ICICI-Direct.png"
+    "logo": "/assets/images/partners/GradusQuity/ICICI-Direct.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Kotak Securities",
     "website": "https://www.kotaksecurities.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Kotak-Securities.png"
+    "logo": "/assets/images/partners/GradusQuity/Kotak-Securities.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "SBI Securities",
     "website": "https://www.sbisecurities.in/",
-    "logo": "/assets/images/partners/Banking-Companies/SBI-Securities.png"
+    "logo": "/assets/images/partners/GradusQuity/SBI-Securities.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Edelweiss Financial Services",
     "website": "https://www.edelweissfin.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Edelweiss-Financial-Services.png"
+    "logo": "/assets/images/partners/GradusQuity/Edelweiss-Financial-Services.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "IIFL Securities",
     "website": "https://www.iiflsecurities.com/",
-    "logo": "/assets/images/partners/Banking-Companies/IIFL-Securities.png"
+    "logo": "/assets/images/partners/GradusQuity/IIFL-Securities.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Axis Securities",
     "website": "https://www.axisdirect.in/",
-    "logo": "/assets/images/partners/Banking-Companies/Axis-Securities.png"
+    "logo": "/assets/images/partners/GradusQuity/Axis-Securities.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "JM Financial",
     "website": "https://www.jmfl.com/",
-    "logo": "/assets/images/partners/Banking-Companies/JM-Financial.png"
+    "logo": "/assets/images/partners/GradusQuity/JM-Financial.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Karvy",
     "website": "https://www.karvy.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Karvy.png"
+    "logo": "/assets/images/partners/GradusQuity/Karvy.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Sharekhan",
     "website": "https://www.sharekhan.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Sharekhan.png"
+    "logo": "/assets/images/partners/GradusQuity/Sharekhan.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Motilal Oswal",
     "website": "https://www.motilaloswal.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Motilal-Oswal.png"
+    "logo": "/assets/images/partners/GradusQuity/Motilal-Oswal.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "5Paisa",
     "website": "https://www.5paisa.com/",
-    "logo": "/assets/images/partners/Banking-Companies/5Paisa.png"
+    "logo": "/assets/images/partners/GradusQuity/5Paisa.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Prabhudas Lilladher",
     "website": "https://www.plindia.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Prabhudas-Lilladher.png"
+    "logo": "/assets/images/partners/GradusQuity/Prabhudas-Lilladher.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Sushil Finance",
     "website": "https://www.sushilfinance.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Sushil-Finance.png"
+    "logo": "/assets/images/partners/GradusQuity/Sushil-Finance.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Centrum Capital",
     "website": "https://www.centrum.co.in/",
-    "logo": "/assets/images/partners/Banking-Companies/Centrum-Capital.png"
+    "logo": "/assets/images/partners/GradusQuity/Centrum-Capital.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Geojit Financial Services",
     "website": "https://www.geojit.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Geojit-Financial-Services.png"
+    "logo": "/assets/images/partners/GradusQuity/Geojit-Financial-Services.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Nirmal Bang",
     "website": "https://www.nirmalbang.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Nirmal-Bang.png"
+    "logo": "/assets/images/partners/GradusQuity/Nirmal-Bang.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Ventura Securities",
     "website": "https://www.venturasecurities.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Ventura-Securities.png"
+    "logo": "/assets/images/partners/GradusQuity/Ventura-Securities.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "Reliance Securities",
     "website": "https://www.reliancesmartmoney.com/",
-    "logo": "/assets/images/partners/Banking-Companies/Reliance-Securities.png"
+    "logo": "/assets/images/partners/GradusQuity/Reliance-Securities.png",
+    "programs": [
+      "GradusQuity"
+    ]
   },
   {
     "name": "DSP Mutual Fund",
     "website": "https://www.dspim.com/",
-    "logo": "/assets/images/partners/Banking-Companies/DSP-Mutual-Fund.png"
+    "logo": "/assets/images/partners/GradusQuity/DSP-Mutual-Fund.png",
+    "programs": [
+      "GradusQuity"
+    ]
+  },
+  {
+    "name": "Aditya Birla Capital Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Aditya Birla Capital Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Airports Authority of India",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Airports Authority of India.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Antrix Corporation Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Antrix Corporation Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Axis Bank",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Axis Bank.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Bajaj Finance Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Bajaj Finance Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Bajaj Holdings & Investment Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Bajaj Holdings & Investment Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Balmer Lawrie & Co. Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Balmer Lawrie & Co. Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Bank of Baroda",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Bank of Baroda.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Bharat Earth Movers Limited (BEML)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Bharat Earth Movers Limited (BEML).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Bharat Electronics Limited (BEL)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Bharat Electronics Limited (BEL).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Bharat Petroleum Corporation Limited (BPCL)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Bharat Petroleum Corporation Limited (BPCL).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "BSNL — Bharat Sanchar Nigam Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/BSNL — Bharat Sanchar Nigam Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Canara Bank",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Canara Bank.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Central Coalfields Limited (CCL)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Central Coalfields Limited (CCL).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Central Electronics Limited (CEL)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Central Electronics Limited (CEL).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Central Warehousing Corporation",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Central Warehousing Corporation.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Century Finance Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Century Finance Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Chennai Petroleum Corporation Limited (CPCL)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Chennai Petroleum Corporation Limited (CPCL).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Cholamandalam Investment & Finance Company Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Cholamandalam Investment & Finance Company Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Coal India Limited (CIL)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Coal India Limited (CIL).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Cochin Shipyard Limited (CSL)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Cochin Shipyard Limited (CSL).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Container Corporation of India Limited (CONCOR)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Container Corporation of India Limited (CONCOR).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Cotton Corporation of India Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Cotton Corporation of India Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "CreditAccess Grameen Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/CreditAccess Grameen Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Edelweiss Financial Services Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Edelweiss Financial Services Ltd.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Edelweiss Tokio Life Insurance",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Edelweiss Tokio Life Insurance.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Engineers India Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Engineers India Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Five - Star Business Finance Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Five-Star Business Finance Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "GAIL (India) Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/GAIL (India) Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Garden Reach Shipbuilders & Engineers Limited (GRSE)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Garden Reach Shipbuilders & Engineers Limited (GRSE).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "General Insurance Corporation of India (GIC Re)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/General Insurance Corporation of India (GIC Re).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Goa Shipyard Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Goa Shipyard Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "HDB Financial Services Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/HDB Financial Services Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "HDFC Bank",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/HDFC Bank.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "HDFC Life Insurance Company Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/HDFC Life Insurance Company Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Hindustan Aeronautics Limited (HAL)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Hindustan Aeronautics Limited (HAL).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Hindustan Copper Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Hindustan Copper Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Hindustan Petroleum Corporation Limited (HPCL)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Hindustan Petroleum Corporation Limited (HPCL).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Housing & Urban Development Corporation Limited (HUDCo. )",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Housing & Urban Development Corporation Limited (HUDCO).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "ICICI Bank",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/ICICI Bank.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "ICICI Lombard General Insurance Company Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/ICICI Lombard General Insurance Company Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "ICICI Prudential Life Insurance Company Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/ICICI Prudential Life Insurance Company Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "IDFC Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/IDFC Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "IIFL Finance Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/IIFL Finance Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Indian Oil Corporation (IOCL)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Indian Oil Corporation (IOCL).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Indian Renewable Energy Development Agency (IREDA)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Indian Renewable Energy Development Agency (IREDA).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Indostar Capital Finance Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Indostar Capital Finance Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "IndusInd Bank",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/IndusInd Bank.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "IRCON International Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/IRCON International Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Jio Financial Services Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Jio Financial Services Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Kotak Mahindra Bank",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Kotak Mahindra Bank.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "L & T Finance Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/L&T Finance Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Life Insurance Corporation of India (LIC)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Life Insurance Corporation of India (LIC).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Mahanagar Telephone Nigam Limited (MTNL)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Mahanagar Telephone Nigam Limited (MTNL).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Mahindra & Mahindra Financial Services Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Mahindra & Mahindra Financial Services Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Manappuram Finance Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Manappuram Finance Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Mas Financial Services Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Mas Financial Services Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Muthoot Finance Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Muthoot Finance Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "National Aluminium Company (NALCo. )",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/National Aluminium Company (NALCO).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "National Fertilizers Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/National Fertilizers Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "NBCC (India) Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/NBCC (India) Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Neyveli Lignite Corporation Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Neyveli Lignite Corporation Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "NMDC Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/NMDC Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "NTPC Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/NTPC Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Oil and Natural Gas Corporation (ONGC)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Oil and Natural Gas Corporation (ONGC).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Oil India Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Oil India Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "ONGC Videsh Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/ONGC Videsh Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Paisalo Digital Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Paisalo Digital Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "PNB MetLife India Insurance Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/PNB MetLife India Insurance Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Power Grid Corporation of India Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Power Grid Corporation of India Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Punjab National Bank (PNB)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Punjab National Bank (PNB).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Rail Vikas Nigam Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Rail Vikas Nigam Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Rashtriya Chemicals & Fertilizers Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Rashtriya Chemicals & Fertilizers Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Rashtriya Ispat Nigam Limited (RINL)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Rashtriya Ispat Nigam Limited (RINL).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Reliance Nippon Life Insurance Company Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Reliance Nippon Life Insurance Company Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "RITES Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/RITES Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Rural Electrification Corporation (REC)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Rural Electrification Corporation (REC).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "SBFC Finance Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/SBFC Finance Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "SBI Life Insurance Co. Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/SBI Life Insurance Co. Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Shipping Corporation of India Limited",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Shipping Corporation of India Limited.png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Shriram Finance Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Shriram Finance Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "State Bank of India (SBI)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/State Bank of India (SBI).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Steel Authority of India Limited (SAIL)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Steel Authority of India Limited (SAIL).png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Sundaram Finance Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Sundaram Finance Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Tata AIA Life Insurance Co. Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Tata AIA Life Insurance Co. Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "The Oriental Insurance Company Ltd.",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/The Oriental Insurance Company Ltd..png",
+    "programs": [
+      "GradusLead"
+    ]
+  },
+  {
+    "name": "Union Bank of India",
+    "website": "",
+    "logo": "/assets/images/partners/GradusLead/Union Bank of India.png",
+    "programs": [
+      "GradusLead"
+    ]
   }
 ]

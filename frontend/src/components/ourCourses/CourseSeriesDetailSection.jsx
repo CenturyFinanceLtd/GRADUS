@@ -307,7 +307,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false, onRequestE
                                     />
                                     <span>
                                       {point.isLocked
-                                        ? 'Encrypted – enroll to unlock'
+                                        ? 'Enroll to unlock'
                                         : point.text}
                                     </span>
                                   </li>

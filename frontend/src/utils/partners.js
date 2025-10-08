@@ -1,5 +1,119 @@
 export const trimValue = (value) => (typeof value === 'string' ? value.trim() : '');
 
+export const sanitizePartnerKey = (value) => {
+  if (!value) {
+    return '';
+  }
+
+  return value
+    .toString()
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/&/g, ' and ')
+    .replace(/@/g, '')
+    .replace(/[^a-z0-9]+/g, '');
+};
+
+const buildCandidateKeysFromValue = (value) => {
+  if (!value) {
+    return [];
+  }
+
+  return (Array.isArray(value) ? value : [value])
+    .filter(Boolean)
+    .flatMap((entry) => {
+      const candidate = entry.toString();
+      const sanitizedFull = sanitizePartnerKey(candidate);
+      const keys = sanitizedFull ? [sanitizedFull] : [];
+
+      candidate
+        .split(/[/|,&]/)
+        .map((segment) => sanitizePartnerKey(segment))
+        .filter(Boolean)
+        .forEach((key) => {
+          if (!keys.includes(key)) {
+            keys.push(key);
+          }
+        });
+
+      return keys;
+    });
+};
+
+const extractHostname = (value) => {
+  if (!value) {
+    return '';
+  }
+
+  try {
+    const candidate = /^https?:/i.test(value) ? value : `https://${value}`;
+    return new URL(candidate).hostname.replace(/^www\./i, '');
+  } catch {
+    return value.toString().replace(/^https?:\/\//i, '').replace(/^www\./i, '');
+  }
+};
+
+export const createPartnerCatalogLookup = (partnersCatalog = []) => {
+  const lookup = new Map();
+
+  partnersCatalog.forEach((partner) => {
+    const keys = new Set([
+      ...buildCandidateKeysFromValue(partner?.name),
+      ...buildCandidateKeysFromValue(Array.isArray(partner?.aliases) ? partner.aliases : []),
+    ]);
+
+    if (partner?.website) {
+      const hostname = extractHostname(partner.website);
+      buildCandidateKeysFromValue(hostname).forEach((key) => keys.add(key));
+    }
+
+    keys.forEach((key) => {
+      if (key && !lookup.has(key)) {
+        lookup.set(key, partner);
+      }
+    });
+  });
+
+  return lookup;
+};
+
+export const hydratePartnerDetails = (partner, catalogLookup) => {
+  if (!partner) {
+    return partner;
+  }
+
+  const candidateKeys = new Set([
+    ...buildCandidateKeysFromValue(partner.name),
+    ...buildCandidateKeysFromValue(extractHostname(partner.website)),
+  ]);
+
+  let matchedPartner = null;
+  for (const key of candidateKeys) {
+    if (key && catalogLookup?.has(key)) {
+      matchedPartner = catalogLookup.get(key);
+      break;
+    }
+  }
+
+  if (!matchedPartner && partner.name) {
+    const fallbackKey = sanitizePartnerKey(partner.name);
+    if (catalogLookup?.has(fallbackKey)) {
+      matchedPartner = catalogLookup.get(fallbackKey);
+    }
+  }
+
+  if (matchedPartner) {
+    return {
+      ...partner,
+      name: matchedPartner.name || partner.name || '',
+      logo: partner.logo || matchedPartner.logo || '',
+      website: partner.website || matchedPartner.website || '',
+    };
+  }
+
+  return partner;
+};
+
 export const normalizePartnerEntries = (partners) => {
   if (!Array.isArray(partners)) {
     return [];

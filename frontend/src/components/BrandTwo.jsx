@@ -1,13 +1,47 @@
 import Slider from "react-slick";
 import partners from "@shared/placementPartners.json";
+import {
+  createPartnerCatalogLookup,
+  derivePartnerDisplayName,
+  hydratePartnerDetails,
+  resolvePartnerWebsite,
+  sanitizePartnerKey,
+} from "../utils/partners";
 
-const bankingPartners = partners
-  .map(({ name, website, logo }) => ({
-    name,
-    href: website,
-    image: logo,
-  }))
-  .filter(({ image, href }) => image && href);
+const catalogLookup = createPartnerCatalogLookup(partners);
+
+const brandPartners = partners
+  .map((partner, index) => {
+    const hydratedPartner = hydratePartnerDetails(partner, catalogLookup);
+    const logo =
+      typeof hydratedPartner?.logo === "string" ? hydratedPartner.logo.trim() : "";
+
+    if (!logo) {
+      return null;
+    }
+
+    const href = resolvePartnerWebsite(hydratedPartner?.website);
+    const displayName =
+      derivePartnerDisplayName(hydratedPartner) ||
+      derivePartnerDisplayName(partner) ||
+      hydratedPartner?.name ||
+      partner?.name ||
+      "";
+
+    const keyBase =
+      sanitizePartnerKey(displayName) ||
+      sanitizePartnerKey(hydratedPartner?.name) ||
+      sanitizePartnerKey(partner?.name) ||
+      `partner-${index}`;
+
+    return {
+      key: `${keyBase}-${index}`,
+      href: href || "",
+      logo,
+      displayName,
+    };
+  })
+  .filter(Boolean);
 
 const BrandTwo = () => {
   const settings = {
@@ -68,17 +102,31 @@ const BrandTwo = () => {
       <div className='container container--lg'>
         <div className='brand-box py-80 px-16 '>
           <h5 className='mb-40 text-center text-neutral-500'>
-           178+ Strategic Industry Partners
+            178+ Strategic Industry Partners
           </h5>
           <div className='container'>
             <Slider {...settings} className='brand-slider'>
-              {bankingPartners.map(({ name, href, image }) => (
-                <div className='brand-slider__item px-24' key={name}>
-                  <a href={href} target='_blank' rel='noopener noreferrer'>
-                    <img src={image} alt={name} />
-                  </a>
-                </div>
-              ))}
+              {brandPartners.map(({ key, href, logo, displayName }) => {
+                const Element = href ? "a" : "div";
+                const elementProps = href
+                  ? {
+                      href,
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                    }
+                  : {};
+
+                return (
+                  <div className='brand-slider__item px-24' key={key}>
+                    <Element {...elementProps}>
+                      <img
+                        src={logo}
+                        alt={displayName || "Strategic partner logo"}
+                      />
+                    </Element>
+                  </div>
+                );
+              })}
             </Slider>
           </div>
         </div>

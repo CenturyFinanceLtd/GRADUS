@@ -1,9 +1,152 @@
 const placementPartners = require("../../../shared/placementPartners.json");
-const gradusPlacementPartners = placementPartners.map(({ name, logo, website }) => ({
-  name,
-  logo,
-  website,
-}));
+
+const trimValue = (value) => (typeof value === "string" ? value.trim() : "");
+
+const sanitizePartnerKey = (value) => {
+  if (!value) {
+    return "";
+  }
+
+  return value
+    .toString()
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/&/g, " and ")
+    .replace(/@/g, "")
+    .replace(/[^a-z0-9]+/g, "");
+};
+
+const buildCandidateKeys = (value) => {
+  if (!value) {
+    return [];
+  }
+
+  const entries = Array.isArray(value) ? value : [value];
+
+  return entries
+    .filter(Boolean)
+    .flatMap((entry) => {
+      const candidate = entry.toString();
+      const sanitizedFull = sanitizePartnerKey(candidate);
+      const keys = sanitizedFull ? [sanitizedFull] : [];
+
+      candidate
+        .split(/[/|,&]/)
+        .map((segment) => sanitizePartnerKey(segment))
+        .filter(Boolean)
+        .forEach((key) => {
+          if (!keys.includes(key)) {
+            keys.push(key);
+          }
+        });
+
+      return keys;
+    });
+};
+
+const extractHostname = (value) => {
+  if (!value) {
+    return "";
+  }
+
+  try {
+    const candidate = /^https?:/i.test(value) ? value : `https://${value}`;
+    return new URL(candidate).hostname.replace(/^www\./i, "");
+  } catch {
+    return value.toString().replace(/^https?:\/\//i, "").replace(/^www\./i, "");
+  }
+};
+
+const normalizePrograms = (programs) => {
+  if (Array.isArray(programs) && programs.length) {
+    return programs;
+  }
+
+  return ["GradusQuity"];
+};
+
+const normalizedPartners = placementPartners.map((partner) => {
+  const programs = normalizePrograms(partner?.programs);
+  const name = trimValue(partner?.name);
+  const logo = trimValue(partner?.logo);
+  const website = trimValue(partner?.website);
+  const keys = new Set([
+    ...buildCandidateKeys(name),
+    ...buildCandidateKeys(Array.isArray(partner?.aliases) ? partner.aliases : []),
+  ]);
+
+  if (website) {
+    const hostname = extractHostname(website);
+    buildCandidateKeys(hostname).forEach((key) => keys.add(key));
+  }
+
+  return {
+    name,
+    logo,
+    website,
+    programs,
+    keys: Array.from(keys).filter(Boolean),
+  };
+});
+
+const partnerLookup = new Map();
+
+normalizedPartners.forEach((partner) => {
+  partner.keys.forEach((key) => {
+    if (!partnerLookup.has(key)) {
+      partnerLookup.set(key, []);
+    }
+
+    partnerLookup.get(key).push(partner);
+  });
+});
+
+const resolvePartnerField = (partner, field) => {
+  const value = trimValue(partner?.[field]);
+
+  if (value) {
+    return value;
+  }
+
+  for (const key of partner.keys) {
+    const candidates = partnerLookup.get(key);
+    if (!candidates) {
+      continue;
+    }
+
+    const fallback = candidates.find((entry) => trimValue(entry?.[field]));
+    if (fallback) {
+      return trimValue(fallback[field]);
+    }
+  }
+
+  return "";
+};
+
+const selectPartnersByProgram = (program) => {
+  const normalizedProgram = typeof program === "string" ? program.trim() : "";
+
+  return normalizedPartners
+    .filter((partner) => {
+      if (!normalizedProgram) {
+        return true;
+      }
+
+      return partner.programs.includes(normalizedProgram);
+    })
+    .map((partner) => {
+      const resolvedName = trimValue(partner.name) || resolvePartnerField(partner, "name");
+
+      return {
+        name: resolvedName,
+        logo: resolvePartnerField(partner, "logo"),
+        website: resolvePartnerField(partner, "website"),
+      };
+    });
+};
+
+const gradusQuityPartners = selectPartnersByProgram("GradusQuity");
+const gradusLeadPartners = selectPartnersByProgram("GradusLead");
 
 const courseSeriesHeroContent = {
   tagIcon: "ph-bold ph-graduation-cap",
@@ -26,7 +169,7 @@ const gradusQuityData = {
   ],
   placementRange:
     "Guaranteed placement on package of 6 lac/Annum to 14 lac/Annum with our partnered companies.",
-  partners: gradusPlacementPartners,
+  partners: gradusQuityPartners,
   weeks: [
     {
       title: "Week 1 - Introduction to Financial Markets",
@@ -390,105 +533,7 @@ const gradusLeadData = {
   ],
   placementRange:
     "Guaranteed placement on package of 6 lac/Annum to 14 lac/Annum with our partnered companies.",
-  partners: [
-    "HDFC Bank",
-    "ICICI Bank",
-    "State Bank of India (SBI)",
-    "Kotak Mahindra Bank",
-    "Axis Bank",
-    "Bank of Baroda",
-    "Punjab National Bank (PNB)",
-    "Union Bank of India",
-    "Canara Bank",
-    "IndusInd Bank",
-    "Bajaj Finance Ltd.",
-    "Jio Financial Services Ltd.",
-    "Bajaj Holdings & Investment Ltd.",
-    "Cholamandalam Investment & Finance Company Ltd.",
-    "Muthoot Finance Ltd.",
-    "Shriram Finance Ltd.",
-    "SBI Cards & Payment Services Ltd.",
-    "HDB Financial Services Ltd.",
-    "L&T Finance Ltd.",
-    "Aditya Birla Capital Ltd.",
-    "Sundaram Finance Ltd.",
-    "Mahindra & Mahindra Financial Services Ltd.",
-    "Manappuram Finance Ltd.",
-    "CreditAccess Grameen Ltd.",
-    "IIFL Finance Ltd.",
-    "Life Insurance Corporation of India (LIC)",
-    "SBI Life Insurance Co. Ltd.",
-    "HDFC Life Insurance Company Ltd.",
-    "ICICI Prudential Life Insurance Company Ltd.",
-    "Max Life Insurance Company Ltd.",
-    "ICICI Lombard General Insurance Company Ltd.",
-    "General Insurance Corporation of India (GIC Re)",
-    "New India Assurance Co. Ltd.",
-    "The Oriental Insurance Company Ltd.",
-    "United India Insurance Co. Ltd.",
-    "PNB MetLife India Insurance Ltd.",
-    "Tata AIA Life Insurance Co. Ltd.",
-    "Reliance Nippon Life Insurance Company Ltd.",
-    "Edelweiss Life Insurance",
-    "Kinara Capital",
-    "Home First Finance Co. Ltd.",
-    "IDFC Ltd.",
-    "Five-Star Business Finance Ltd.",
-    "Mas Financial Services Ltd.",
-    "Indostar Capital Finance Ltd.",
-    "SBFC Finance Ltd.",
-    "Paisalo Digital Ltd.",
-    "Poonawalla Fincorp Ltd.",
-    "Edelweiss Financial Services Ltd.",
-    "Century Finance Limited",
-    "Oil and Natural Gas Corporation (ONGC)",
-    "Indian Oil Corporation (IOCL)",
-    "Bharat Petroleum Corporation Limited (BPCL)",
-    "Hindustan Petroleum Corporation Limited (HPCL)",
-    "Coal India Limited (CIL)",
-    "NTPC Limited",
-    "Power Grid Corporation of India Limited",
-    "Steel Authority of India Limited (SAIL)",
-    "GAIL (India) Limited",
-    "Rural Electrification Corporation (REC)",
-    "Oil India Limited",
-    "Hindustan Aeronautics Limited (HAL)",
-    "Bharat Electronics Limited (BEL)",
-    "Container Corporation of India Limited (CONCOR)",
-    "Engineers India Limited",
-    "Mahanagar Telephone Nigam Limited (MTNL)",
-    "National Aluminium Company (NALCO)",
-    "NBCC (India) Limited",
-    "Neyveli Lignite Corporation Limited",
-    "NMDC Limited",
-    "Rashtriya Ispat Nigam Limited (RINL)",
-    "Shipping Corporation of India Limited",
-    "Rail Vikas Nigam Limited",
-    "ONGC Videsh Limited",
-    "Rashtriya Chemicals & Fertilizers Limited",
-    "IRCON International Limited",
-    "RITES Limited",
-    "National Fertilizers Limited",
-    "Central Warehousing Corporation",
-    "Housing & Urban Development Corporation Limited (HUDCO)",
-    "Indian Renewable Energy Development Agency (IREDA)",
-    "Airports Authority of India",
-    "Antrix Corporation Limited",
-    "Balmer Lawrie & Co. Ltd.",
-    "Bharat Coking Coal Limited (BCCL)",
-    "Bharat Dynamics Limited (BDL)",
-    "Bharat Earth Movers Limited (BEML)",
-    "Bharat Sanchar Nigam Limited (BSNL)",
-    "Bridge & Roof Company (India) Ltd.",
-    "Central Electronics Limited (CEL)",
-    "Central Coalfields Limited (CCL)",
-    "Chennai Petroleum Corporation Limited (CPCL)",
-    "Cochin Shipyard Limited (CSL)",
-    "Cotton Corporation of India Ltd.",
-    "Garden Reach Shipbuilders & Engineers Limited (GRSE)",
-    "Goa Shipyard Limited",
-    "Hindustan Copper Limited",
-  ],
+  partners: gradusLeadPartners,
   weeks: [
     {
       title: "Week 1 - Business Foundations in the Digital Age",
