@@ -146,6 +146,7 @@ const selectPartnersByProgram = (program) => {
 };
 
 const gradusQuityPartners = selectPartnersByProgram("GradusQuity");
+const gradusXPartners = selectPartnersByProgram("GradusX");
 const gradusLeadPartners = selectPartnersByProgram("GradusLead");
 
 const courseSeriesHeroContent = {
@@ -306,58 +307,7 @@ const gradusXData = {
   ],
   placementRange:
     "Guaranteed placement on package of 6 lac/Annum to 14 lac/Annum with our partnered companies.",
-  partners: [
-    "Tata Consultancy Services (TCS)",
-    "Infosys",
-    "HCL Technologies (HCLTech)",
-    "Wipro",
-    "LTIMindtree",
-    "Tech Mahindra",
-    "Mphasis",
-    "Larsen & Toubro Infotech (LTI)",
-    "Oracle Financial Services Software",
-    "Persistent Systems",
-    "Coforge",
-    "Zensar Technologies",
-    "Sonata Software",
-    "Zoho Corporation",
-    "Cognizant",
-    "Microsoft India",
-    "Google India",
-    "IBM India",
-    "Accenture India",
-    "Capgemini India",
-    "EY (Ernst & Young)",
-    "Deloitte India",
-    "PwC India",
-    "Cigniti Technologies",
-    "Virtusa",
-    "Mobisoft Infotech",
-    "AppInventiv",
-    "Synoptek",
-    "Dotsquares",
-    "TatvaSoft",
-    "Xicom",
-    "Radixweb",
-    "Yash Technologies",
-    "KPIT Technologies",
-    "Microland",
-    "Samsung India Software Centre",
-    "Ramco Systems",
-    "Sasken Technologies",
-    "Rediff.com",
-    "Tally Solutions",
-    "Zoho Corporation (product ecosystem)",
-    "Firstsource",
-    "WNS Global Services",
-    "24-7.ai",
-    "HashedIn Technologies",
-    "EPAM Systems India",
-    "Salesforce Software Development India",
-    "Blue Yonder India",
-    "Cadence Design Systems India",
-    "Cisco Systems India",
-  ],
+  partners: gradusXPartners,
   weeks: [
     {
       title: "Week 1 - Computer Science Fundamentals",

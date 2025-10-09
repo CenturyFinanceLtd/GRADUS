@@ -16,7 +16,22 @@ const PlacementPartnersCarousel = ({ partners = [], carouselId }) => {
     const normalized = normalizePartnerEntries(partners);
     return normalized
       .map((partner) => hydratePartnerDetails(partner, catalogLookup))
-      .filter((partner) => partner && (partner.name || partner.logo || partner.website));
+      .filter((partner) => {
+        if (!partner) {
+          return false;
+        }
+
+        const trimmedLogo =
+          typeof partner.logo === "string" ? partner.logo.trim() : "";
+
+        if (!trimmedLogo) {
+          return false;
+        }
+
+        // ensure downstream markup gets the trimmed value
+        partner.logo = trimmedLogo;
+        return true;
+      });
   }, [partners]);
 
   if (!normalizedPartners.length) {
@@ -81,9 +96,6 @@ const PlacementPartnersCarousel = ({ partners = [], carouselId }) => {
                   aria-label={websiteHref ? `Visit ${displayName || 'placement partner'} website` : undefined}
                   {...cardComponentProps}
                 >
-                  <span className='our-courses-partner-card__index'>
-                    {(index + 1).toString().padStart(2, '0')}
-                  </span>
                   {partner.logo ? (
                     <div className='our-courses-partner-card__logo-wrapper'>
                       <img
@@ -93,9 +105,6 @@ const PlacementPartnersCarousel = ({ partners = [], carouselId }) => {
                         loading='lazy'
                       />
                     </div>
-                  ) : null}
-                  {displayName ? (
-                    <span className='our-courses-partner-card__name'>{displayName}</span>
                   ) : null}
                 </CardComponent>
               </div>

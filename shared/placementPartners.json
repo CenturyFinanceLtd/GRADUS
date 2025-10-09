@@ -1086,5 +1086,405 @@
     "programs": [
       "GradusLead"
     ]
+  },
+  {
+    "name": "Tata Consultancy Services (TCS)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Tata Consultancy Services (TCS).png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Infosys",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Infosys.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "HCL Technologies (HCLTech)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/HCL Technologies (HCLTech).png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Wipro",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Wipro.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "LTIMindtree",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/LTIMindtree.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Tech Mahindra",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Tech Mahindra.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Mphasis",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Mphasis.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Larsen & Toubro Infotech (LTI)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Larsen & Toubro Infotech (LTI).png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Oracle Financial Services Software",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Oracle Financial Services Software.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Persistent Systems",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Persistent Systems.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Coforge",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Coforge.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Zensar Technologies",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Zensar Technologies.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Sonata Software",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Sonata Software.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Zoho Corporation",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Zoho Corporation.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Cognizant",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Cognizant (presence in India).png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Microsoft India",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Microsoft India.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Google India",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Google India.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "IBM India",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/IBM India.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Accenture India",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Accenture India.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Capgemini India",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Capgemini India.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "EY (Ernst & Young)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/EY (Ernst & Young).png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Deloitte India",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Deloitte India.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "PwC India",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/PwC India.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Cigniti Technologies",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Cigniti Technologies.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Virtusa",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Virtusa.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Mobisoft Infotech",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Mobisoft Infotech.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "AppInventiv",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/AppInventiv.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Synoptek",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Synoptek.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Dotsquares",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Dotsquares.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "TatvaSoft",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/TatvaSoft.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Xicom",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Xicom.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Radixweb",
+    "website": "",
+    "logo": "",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Yash Technologies",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Yash Technologies.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "KPIT Technologies",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/KPIT Technologies.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Microland",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Microland.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Samsung India Software Centre",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Samsung India Software Centre.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Ramco Systems",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Ramco Systems.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Sasken Technologies",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Sasken Technologies.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Rediff.com",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Rediff.com (for web.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Tally Solutions",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Tally Solutions.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Zoho Corporation (product ecosystem)",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Zoho Corporation.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Firstsource",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Firstsource.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "WNS Global Services",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/WNS Global Services.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "24-7.ai",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/24-7.ai.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "HashedIn Technologies",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/HashedIn Technologies.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "EPAM Systems India",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/EPAM Systems India.png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Salesforce Software Development India",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Salesforce Software Development India Pvt. Ltd..png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Blue Yonder India",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Blue Yonder India Pvt. Ltd..png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Cadence Design Systems India",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Cadence Design Systems (India) Pvt. Ltd..png",
+    "programs": [
+      "GradusX"
+    ]
+  },
+  {
+    "name": "Cisco Systems India",
+    "website": "",
+    "logo": "/assets/images/partners/GradusX/Cisco Systems India Pvt. Ltd..png",
+    "programs": [
+      "GradusX"
+    ]
   }
 ]
