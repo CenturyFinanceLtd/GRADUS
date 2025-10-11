@@ -8,6 +8,7 @@ const DEFAULT_ROLE_PERMISSIONS = {
   admin: ['*'],
   seo: ['blog_list', 'blog_details', 'blog_details_alt', 'blog_add', 'inquiries'],
   sales: ['inquiries'],
+  teacher: ['live_classes'],
 };
 
 const uniqueArray = (values = []) => {

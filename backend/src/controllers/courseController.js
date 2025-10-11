@@ -471,6 +471,43 @@ const listEnrollments = asyncHandler(async (req, res) => {
   });
 });
 
+const getCourseBySlug = asyncHandler(async (req, res) => {
+  const { courseSlug } = req.params;
+  const normalizedSlug = typeof courseSlug === 'string' ? courseSlug.trim().toLowerCase() : '';
+
+  if (!normalizedSlug) {
+    res.status(400);
+    throw new Error('A valid course identifier is required.');
+  }
+
+  const course = await Course.findOne({ slug: normalizedSlug }).lean();
+
+  if (!course) {
+    res.status(404);
+    throw new Error('Course not found.');
+  }
+
+  let isEnrolled = false;
+
+  if (req.user?._id) {
+    const enrollment = await Enrollment.findOne({
+      user: req.user._id,
+      course: course._id,
+      status: 'ACTIVE',
+    });
+
+    isEnrolled = Boolean(enrollment);
+  }
+
+  res.json({
+    course: {
+      ...course,
+      id: course._id?.toString?.() || course._id,
+      isEnrolled,
+    },
+  });
+});
+
 module.exports = {
   getCoursePage,
   listCourses,
@@ -481,4 +518,5 @@ module.exports = {
   deleteCourse,
   enrollInCourse,
   listEnrollments,
+  getCourseBySlug,
 };

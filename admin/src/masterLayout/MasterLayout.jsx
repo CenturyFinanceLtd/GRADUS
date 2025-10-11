@@ -421,6 +421,15 @@ const MasterLayout = ({ children }) => {
                 <span>Courses</span>
               </NavLink>
             </li>
+            <li>
+              <NavLink
+                to='/live-classes'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='material-symbols:live-tv-outline' className='menu-icon' />
+                <span>Live Classes</span>
+              </NavLink>
+            </li>
 
             <li>
               <NavLink

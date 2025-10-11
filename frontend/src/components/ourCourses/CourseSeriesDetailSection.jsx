@@ -7,7 +7,12 @@ import { useAuth } from '../../context/AuthContext';
 
 const VISIBLE_WEEKS = 2;
 
-const CourseSeriesDetailSection = ({ course, isAltBackground = false, onRequestEnrollment }) => {
+const CourseSeriesDetailSection = ({
+  course,
+  isAltBackground = false,
+  onRequestEnrollment,
+  liveSessionPanel,
+}) => {
   const activeCourse = course && course.name ? course : null;
 
   const courseAnchorId = activeCourse?.slug || activeCourse?.id || activeCourse?._id || '';
@@ -162,7 +167,7 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false, onRequestE
     }
 
     if (isCourseEnrolled) {
-      navigate(`/our-courses${courseAnchor}`);
+      navigate(`/our-courses/${courseSlug}`);
       return;
     }
 
@@ -255,6 +260,13 @@ const CourseSeriesDetailSection = ({ course, isAltBackground = false, onRequestE
             </div>
           </div>
           <div className='col-lg-8'>
+            {liveSessionPanel ? (
+              <div className='mb-32' id={`${courseAnchorId}-live-session`}>
+                {typeof liveSessionPanel === 'function'
+                  ? liveSessionPanel({ course: activeCourse })
+                  : liveSessionPanel}
+              </div>
+            ) : null}
             {weeks.length ? (
               <div className='rounded-24 bg-white border border-neutral-30 p-32 box-shadow-md'>
                 <div className='flex-align gap-12 flex-wrap'>

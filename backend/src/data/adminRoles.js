@@ -1,6 +1,7 @@
 const ADMIN_ROLES = [
   { key: 'programmer_admin', label: 'Programmer(Admin)' },
   { key: 'admin', label: 'Admin' },
+  { key: 'teacher', label: 'Teacher' },
   { key: 'seo', label: 'SEO' },
   { key: 'sales', label: 'Sales' },
 ];
