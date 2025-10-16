@@ -243,11 +243,9 @@ export const PAGE_META = {
     robots: "noindex, nofollow",
   },
   "/privacy-policy": {
-    title: "Gradus | Privacy Policy",
+    title: "Privacy Policy | Gradus India – Your Data, Our Responsibility",
     description:
-      "Understand how Gradus collects, uses, and protects personal data across services.",
-    keywords: "gradus privacy policy, data protection, gdpr",
-    robots: "noindex, nofollow",
+      "Explore Gradus India's Privacy Policy to understand how we collect, use, and protect your personal data while you engage with our educational services.",
   },
   "/candidates-interns": {
     title: "Gradus | Candidates & Interns Privacy",
