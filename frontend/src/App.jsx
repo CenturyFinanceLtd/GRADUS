@@ -125,32 +125,32 @@ function App() {
         <Route exact path='/privacy-policy' element={<PrivacyPolicyPage />} />
         <Route
           exact
-          path='/privacy-candidates-interns'
+          path='/candidates-interns'
           element={<CandidatesAndInternsPage />}
         />
         <Route
           exact
-          path='/privacy-employee-alumni'
+          path='/employee-alumni'
           element={<EmployeeAndAlumniPage />}
         />
         <Route
           exact
-          path='/privacy-investors'
+          path='/investors'
           element={<InvestorsPrivacyPage />}
         />
         <Route
           exact
-          path='/privacy-shareholders'
+          path='/shareholders'
           element={<ShareholdersPrivacyPage />}
         />
         <Route
           exact
-          path='/privacy-visitors'
+          path='/visitors'
           element={<VisitorPrivacyNotesPage />}
         />
         <Route
           exact
-          path='/privacy-vendors'
+          path='/vendors'
           element={<VendorsPrivacyPage />}
         />
         <Route exact path='/product' element={<ProductPage />} />

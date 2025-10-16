@@ -140,11 +140,10 @@ export const PAGE_META = {
     robots: "noindex, nofollow",
   },
   "/our-courses": {
-    title: "Gradus | Our Courses",
+    title: "Explore Diverse Online Courses at Gradus India",
     description:
-      "Browse comprehensive Gradus course offerings curated for every learner level.",
-    keywords: "gradus course library, learning paths, education programs",
-    robots: "noindex, nofollow",
+      "Discover a wide range of online courses across various subjects with Gradus India. Enhance your skills and knowledge through our comprehensive learning platform.",
+    keywords: "Gradus India online course provider, Gradus India certification training, Gradus India certification courses online, Gradus India best online classes, Gradus India best online classes for data science, Gradus India best online classes for finance, Gradus India best online classes 2025, Gradus Finance online courses in India, Gradus India e-learning platform for Finance Market, Best Gradus finance training in India, Gradus India placement assistance program, Gradus India placement support after course, Gradus India corporate training solution, Gradus India training center Online in India, Gradus India online courses platform",
   },
   "/course-details": {
     title: "Gradus | Course Details",
@@ -250,42 +249,42 @@ export const PAGE_META = {
     keywords: "gradus privacy policy, data protection, gdpr",
     robots: "noindex, nofollow",
   },
-  "/privacy-candidates-interns": {
+  "/candidates-interns": {
     title: "Gradus | Candidates & Interns Privacy",
     description:
       "Review privacy practices tailored for Gradus candidates, interns, and job applicants.",
     keywords: "gradus privacy, candidates, interns",
     robots: "noindex, nofollow",
   },
-  "/privacy-employee-alumni": {
+  "/employee-alumni": {
     title: "Gradus | Employee & Alumni Privacy",
     description:
       "See how Gradus manages personal information for employees and alumni.",
     keywords: "gradus privacy policy, employee data, alumni",
     robots: "noindex, nofollow",
   },
-  "/privacy-investors": {
+  "/investors": {
     title: "Gradus | Investors Privacy",
     description:
       "Learn about Gradus privacy commitments for investors and stakeholders.",
     keywords: "gradus privacy, investors, stakeholders",
     robots: "noindex, nofollow",
   },
-  "/privacy-shareholders": {
+  "/shareholders": {
     title: "Gradus | Shareholders Privacy",
     description:
       "Understand how Gradus protects shareholder information and communications.",
     keywords: "shareholder privacy, gradus compliance",
     robots: "noindex, nofollow",
   },
-  "/privacy-visitors": {
+  "/visitors": {
     title: "Gradus | Visitor Privacy Notes",
     description:
       "Review visitor data policies covering Gradus websites, events, and digital products.",
     keywords: "visitor privacy, gradus notes, compliance",
     robots: "noindex, nofollow",
   },
-  "/privacy-vendors": {
+  "/vendors": {
     title: "Gradus | Vendors Privacy",
     description:
       "Read how Gradus processes vendor and contractor information responsibly.",

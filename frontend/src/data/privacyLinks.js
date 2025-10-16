@@ -1,26 +1,26 @@
 const privacyLinks = [
   {
-    to: "/privacy-candidates-interns",
+    to: "/candidates-interns",
     label: "Candidates and Interns",
   },
   {
-    to: "/privacy-employee-alumni",
+    to: "/employee-alumni",
     label: "Employee and Alumni",
   },
   {
-    to: "/privacy-investors",
+    to: "/investors",
     label: "Investors",
   },
   {
-    to: "/privacy-shareholders",
+    to: "/shareholders",
     label: "Shareholders",
   },
   {
-    to: "/privacy-visitors",
+    to: "/visitors",
     label: "Visitors Privacy Notes",
   },
   {
-    to: "/privacy-vendors",
+    to: "/vendors",
     label: "Vendors",
   },
 ];
