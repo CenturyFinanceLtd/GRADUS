@@ -1,11 +1,11 @@
 User-agent: *
-Disallow: /
-Disallow: Googlebot/
-Disallow: Bingbot/
+allow: /
+allow: Googlebot/
+allow: Bingbot/
 User-agent: Mediapartners-Google
-Disallow: /
+allow: /
 User-agent: facebookexternalhit
-Disallow: /
+allow: /
 
 #Important User Agents
 User-agent: Googlebot
