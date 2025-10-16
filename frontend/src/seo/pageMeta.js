@@ -248,46 +248,34 @@ export const PAGE_META = {
       "Explore Gradus India's Privacy Policy to understand how we collect, use, and protect your personal data while you engage with our educational services.",
   },
   "/candidates-interns": {
-    title: "Gradus | Candidates & Interns Privacy",
+    title: "Privacy Policy for Candidates & Interns | Gradus India",
     description:
-      "Review privacy practices tailored for Gradus candidates, interns, and job applicants.",
-    keywords: "gradus privacy, candidates, interns",
-    robots: "noindex, nofollow",
+      " Learn how Gradus India protects your personal information as a candidate or intern. Our privacy policy outlines data collection, usage, and your rights.",
   },
   "/employee-alumni": {
-    title: "Gradus | Employee & Alumni Privacy",
+    title: "Privacy Policy for Employee and Alumn | Gradus India",
     description:
-      "See how Gradus manages personal information for employees and alumni.",
-    keywords: "gradus privacy policy, employee data, alumni",
-    robots: "noindex, nofollow",
+      "Discover how Gradus India safeguards personal information of employees and alumni. Read our comprehensive privacy policy for details.",
   },
   "/investors": {
-    title: "Gradus | Investors Privacy",
+    title: "Privacy Policy for Investors | Gradus India",
     description:
-      "Learn about Gradus privacy commitments for investors and stakeholders.",
-    keywords: "gradus privacy, investors, stakeholders",
-    robots: "noindex, nofollow",
+      "At Gradus India, we prioritize investors privacy. Read our policy to understand how we handle and protect your data in accordance with legal standards.",
   },
   "/shareholders": {
-    title: "Gradus | Shareholders Privacy",
+    title: "Privacy Policy for Shareholders | Gradus India",
     description:
-      "Understand how Gradus protects shareholder information and communications.",
-    keywords: "shareholder privacy, gradus compliance",
-    robots: "noindex, nofollow",
+      "Explore Gradus India's approach to shareholder privacy. Our policy outlines how we collect, use, and safeguard your personal information.",
   },
   "/visitors": {
-    title: "Gradus | Visitor Privacy Notes",
+    title: "Privacy Policy for Visitor Privacy | Gradus India",
     description:
-      "Review visitor data policies covering Gradus websites, events, and digital products.",
-    keywords: "visitor privacy, gradus notes, compliance",
-    robots: "noindex, nofollow",
+      "Gradus’s policy for visitors: how we collect data, store it, protect it, and what choices you have over your information. ",
   },
   "/vendors": {
-    title: "Gradus | Vendors Privacy",
+    title: "Privacy Policy for Vendors | Gradus India",
     description:
-      "Read how Gradus processes vendor and contractor information responsibly.",
-    keywords: "vendor privacy, gradus partners, compliance",
-    robots: "noindex, nofollow",
+      "Explore the trusted privacy vendors partnered with Gradus India to ensure data protection and compliance with industry standards.",
   },
   "/product": {
     title: "Gradus | Products",
