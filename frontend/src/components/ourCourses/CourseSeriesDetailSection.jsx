@@ -11,7 +11,6 @@ const CourseSeriesDetailSection = ({
   course,
   isAltBackground = false,
   onRequestEnrollment,
-  liveSessionPanel,
 }) => {
   const activeCourse = course && course.name ? course : null;
 
@@ -167,7 +166,12 @@ const CourseSeriesDetailSection = ({
     }
 
     if (isCourseEnrolled) {
-      navigate(`/our-courses/${courseSlug}`);
+      const section = document.getElementById(courseSlug);
+      if (section) {
+        const rect = section.getBoundingClientRect();
+        const offset = rect.top + window.pageYOffset - 96;
+        window.scrollTo({ top: offset > 0 ? offset : 0, behavior: 'smooth' });
+      }
       return;
     }
 
@@ -260,13 +264,6 @@ const CourseSeriesDetailSection = ({
             </div>
           </div>
           <div className='col-lg-8'>
-            {liveSessionPanel ? (
-              <div className='mb-32' id={`${courseAnchorId}-live-session`}>
-                {typeof liveSessionPanel === 'function'
-                  ? liveSessionPanel({ course: activeCourse })
-                  : liveSessionPanel}
-              </div>
-            ) : null}
             {weeks.length ? (
               <div className='rounded-24 bg-white border border-neutral-30 p-32 box-shadow-md'>
                 <div className='flex-align gap-12 flex-wrap'>

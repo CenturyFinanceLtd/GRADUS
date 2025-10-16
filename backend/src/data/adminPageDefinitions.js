@@ -42,9 +42,6 @@ const ADMIN_PAGE_DEFINITIONS = [
     { key: 'code_generator', label: 'Code Generator', path: '/code-generator', category: 'Content & Media' },
     { key: 'code_generator_new', label: 'Code Generator (New)', path: '/code-generator-new', category: 'Content & Media' },
 
-    // Learning delivery
-    { key: 'live_classes', label: 'Live Classes', path: '/live-classes', category: 'Learning Delivery' },
-
     // Communication
     { key: 'email', label: 'Email', path: '/email', category: 'Communication' },
     { key: 'chat_message', label: 'Chat Message', path: '/chat-message', category: 'Communication' },

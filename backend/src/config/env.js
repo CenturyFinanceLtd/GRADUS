@@ -59,22 +59,6 @@ const config = {
     from: process.env.SMTP_FROM,
     deliveryMode: process.env.EMAIL_DELIVERY_MODE || 'live',
   },
-  liveClass: {
-    defaultProvider: (process.env.LIVE_MEETING_DEFAULT_PROVIDER || 'teams').toLowerCase(),
-    teams: {
-      tenantId: process.env.TEAMS_TENANT_ID,
-      clientId: process.env.TEAMS_CLIENT_ID,
-      clientSecret: process.env.TEAMS_CLIENT_SECRET,
-      organizerUserId: process.env.TEAMS_ORGANIZER_USER_ID || process.env.TEAMS_USER_ID,
-    },
-    zoom: {
-      accountId: process.env.ZOOM_ACCOUNT_ID,
-      clientId: process.env.ZOOM_CLIENT_ID,
-      clientSecret: process.env.ZOOM_CLIENT_SECRET,
-      userId: process.env.ZOOM_USER_ID,
-    },
-    recordingBucket: process.env.LIVE_CLASS_RECORDING_BUCKET || '',
-  },
   admin: {
     approverEmail: process.env.ADMIN_APPROVER_EMAIL || 'dvisro13@gmail.com',
     portalName: process.env.ADMIN_PORTAL_NAME || 'Gradus Admin Portal',
@@ -104,29 +88,6 @@ if (!sessionSecret && isProduction) {
   console.warn(
     '[config] Warning: environment variable SESSION_SECRET is not set. Set this value in production to secure sessions.'
   );
-}
-
-const { liveClass } = config;
-if (liveClass.defaultProvider === 'teams') {
-  const missingTeamsKeys = ['tenantId', 'clientId', 'clientSecret', 'organizerUserId'].filter(
-    (key) => !liveClass.teams[key]
-  );
-  if (missingTeamsKeys.length) {
-    console.warn(
-      `[config] Warning: Missing Microsoft Teams credentials (${missingTeamsKeys.join(', ')}) required for automatic meeting creation.`
-    );
-  }
-}
-
-if (liveClass.defaultProvider === 'zoom') {
-  const missingZoomKeys = ['accountId', 'clientId', 'clientSecret', 'userId'].filter(
-    (key) => !liveClass.zoom[key]
-  );
-  if (missingZoomKeys.length) {
-    console.warn(
-      `[config] Warning: Missing Zoom credentials (${missingZoomKeys.join(', ')}) required for automatic meeting creation.`
-    );
-  }
 }
 
 module.exports = config;

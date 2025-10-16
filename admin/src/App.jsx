@@ -40,7 +40,6 @@ import InvoiceListPage from "./pages/InvoiceListPage";
 import InvoicePreviewPage from "./pages/InvoicePreviewPage";
 import KanbanPage from "./pages/KanbanPage";
 import LanguagePage from "./pages/LanguagePage";
-import LiveClassesPage from "./pages/LiveClassesPage";
 import LineChartPage from "./pages/LineChartPage";
 import ListPage from "./pages/ListPage";
 import MarketplaceDetailsPage from "./pages/MarketplaceDetailsPage";
@@ -171,7 +170,6 @@ function App() {
         <Route exact path='/add-blog' element={<AddBlogPage />} />
         <Route exact path='/inquiries' element={<InquiryPage />} />
         <Route exact path='/courses' element={<CourseManagementPage />} />
-        <Route exact path='/live-classes' element={<LiveClassesPage />} />
         <Route exact path='/enrollments' element={<EnrollmentsPage />} />
 
         <Route exact path='/testimonials' element={<TestimonialsPage />} />

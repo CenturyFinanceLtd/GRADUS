@@ -21,7 +21,6 @@ import CheckoutPage from "./pages/CheckoutPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
 import CoursePage from "./pages/CoursePage.jsx";
 import CourseDetailsPage from "./pages/CourseDetailsPage.jsx";
-import CourseLiveDetailPage from "./pages/CourseLiveDetailPage.jsx";
 import CourseListViewPage from "./pages/CourseListViewPage.jsx";
 import EventDetailsPage from "./pages/EventDetailsPage.jsx";
 import EventsPage from "./pages/EventsPage.jsx";
@@ -93,15 +92,6 @@ function App() {
         <Route exact path='/contact' element={<ContactPage />} />
         <Route exact path='/course-grid-view' element={<CoursePage />} />
         <Route exact path='/our-courses' element={<OurCoursesPage />} />
-        <Route
-          exact
-          path='/our-courses/:slug'
-          element={
-            <RequireAuth>
-              <CourseLiveDetailPage />
-            </RequireAuth>
-          }
-        />
         <Route exact path='/course-details' element={<CourseDetailsPage />} />
         <Route
           exact

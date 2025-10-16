@@ -15,7 +15,6 @@
         "bcryptjs": "^3.0.2",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
-        "dayjs": "^1.11.18",
         "dotenv": "^17.2.2",
         "express": "^5.1.0",
         "express-async-handler": "^1.2.0",
@@ -25,8 +24,7 @@
         "mongoose": "^8.18.2",
         "multer": "^2.0.2",
         "node-fetch": "^2.7.0",
-        "nodemailer": "^7.0.6",
-        "socket.io": "^4.8.1"
+        "nodemailer": "^7.0.6"
     },
     "devDependencies": {
         "nodemon": "^3.1.10"
