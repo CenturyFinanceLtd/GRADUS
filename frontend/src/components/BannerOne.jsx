@@ -33,41 +33,42 @@ const BannerOne = () => {
           <div className='col-xl-6'>
             <div className='banner-content pe-md-4'>
               <div className='flex-align gap-8 mb-16' data-aos='fade-down'>
-                <span className='w-8 h-8 bg-main-600 rounded-circle' />
-                <h5 className='text-main-600 mb-0'>
-                  {" "}
-                  Your Future, Achieve Success
+                <span className='text-main-600 text-2xl d-flex'>
+                  <i className='ph-bold ph-book-open' />
+                </span>
+                <h5 className='text-main-600 mb-0 fw-medium'>
+                  Career Acceleration by Century Finance
                 </h5>
               </div>
               <h1 className='display2 mb-24 wow bounceInLeft'>
-                Find Your{" "}
+                Launch Your {" "}
                 <span
-                  className='text-main-two-600 wow bounceInRight'
+                  className='text-main-600 wow bounceInRight'
                   data-wow-duration='2s'
                   data-wow-delay='.5s'
                 >
-                  Ideal
-                </span>
-                Course, Build{" "}
+                  Career
+                </span>{" "}
+                with {" "}
                 <span
                   className='text-main-600 wow bounceInUp'
                   data-wow-duration='1s'
                   data-wow-delay='.5s'
                 >
-                  Skills
+                  Gradus Pathways
                 </span>
               </h1>
               <p className='text-neutral-500 text-line-2 wow bounceInUp'>
-                Welcome to Gradus, where learning knows no bounds. Whether
-                you're a student, professional, or lifelong learner...
+                Join a placement-assured journey blending classroom learning with real
+                market exposure, paid internships, and recruiter-ready training modules.
               </p>
               <div className='buttons-wrapper flex-align flex-wrap gap-24 mt-40'>
                 <Link
-                  to='/course'
+                  to='/our-courses'
                   className='btn btn-main rounded-pill flex-align gap-8'
                   data-aos='fade-right'
                 >
-                  Browse Courses
+                  Our Courses
                   <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
                 </Link>
                 <Link
@@ -75,7 +76,7 @@ const BannerOne = () => {
                   className='btn btn-outline-main rounded-pill flex-align gap-8'
                   data-aos='fade-left'
                 >
-                  About Us
+                  Know Gradus
                   <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
                 </Link>
               </div>

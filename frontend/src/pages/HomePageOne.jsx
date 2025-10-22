@@ -1,5 +1,5 @@
 import AboutThree from "../components/AboutThree";
-import BannerThree from "../components/BannerThree";
+import BannerOne from "../components/BannerOne";
 import BlogTwo from "../components/BlogTwo";
 import BrandTwo from "../components/BrandTwo";
 import ChooseUsTwo from "../components/ChooseUsTwo";
@@ -25,8 +25,8 @@ const HomePageThree = () => {
       {/* Animation */}
       <Animation />
 
-      {/* BannerThree */}
-      <BannerThree />
+      {/* BannerOne */}
+      <BannerOne />
 
       {/* InfoTwo */}
       <InfoTwo />

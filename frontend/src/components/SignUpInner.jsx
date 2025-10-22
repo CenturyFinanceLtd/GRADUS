@@ -1,3 +1,4 @@
+import '../styles/auth.css';
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import apiClient from "../services/apiClient.js";
@@ -492,7 +493,7 @@ const SignUpInner = () => {
         return (
           <>
             <div className='col-sm-12'>
-              <label htmlFor='password' className='fw-medium text-lg text-neutral-500 mb-16'>
+              <label htmlFor='password' className='fw-medium text-lg text-neutral-500 mb-12'>
                 Create Password
               </label>
               <div className='position-relative'>
@@ -512,11 +513,13 @@ const SignUpInner = () => {
                     passwordVisible ? "ph-eye" : "ph-eye-closed"
                   }`}
                   onClick={() => setPasswordVisible((prev) => !prev)}
+                  role='button'
+                  aria-label={passwordVisible ? 'Hide password' : 'Show password'}
                 ></span>
               </div>
             </div>
             <div className='col-sm-12'>
-              <label htmlFor='confirmPassword' className='fw-medium text-lg text-neutral-500 mb-16'>
+              <label htmlFor='confirmPassword' className='fw-medium text-lg text-neutral-500 mb-12'>
                 Confirm Password
               </label>
               <div className='position-relative'>
@@ -536,6 +539,8 @@ const SignUpInner = () => {
                     confirmPasswordVisible ? "ph-eye" : "ph-eye-closed"
                   }`}
                   onClick={() => setConfirmPasswordVisible((prev) => !prev)}
+                  role='button'
+                  aria-label={confirmPasswordVisible ? 'Hide password' : 'Show password'}
                 ></span>
               </div>
             </div>
@@ -555,11 +560,11 @@ const SignUpInner = () => {
         return (
           <>
             <div className='col-sm-12'>
-              <div className='border border-neutral-30 rounded-12 bg-white p-24'>
+              <div className='border border-neutral-30 rounded-12 bg-white section-card box-shadow-sm'>
                 <h5 className='mb-0'>Personal information</h5>
                 <span className='d-block border border-main-50 my-24 border-dashed' />
                 <div className='row gy-4'>
-                  <div className='col-sm-6'>
+                  <div className='col-xl-6'>
                     <label htmlFor='studentName' className='text-neutral-700 text-lg fw-medium mb-12'>
                       Student Name <span className='text-danger-600'>*</span>{" "}
                     </label>
@@ -575,7 +580,7 @@ const SignUpInner = () => {
                       required
                     />
                   </div>
-                  <div className='col-sm-6'>
+                  <div className='col-xl-6'>
                     <label htmlFor='mobile' className='text-neutral-700 text-lg fw-medium mb-12'>
                       Phone <span className='text-danger-600'>*</span>{" "}
                     </label>
@@ -595,7 +600,7 @@ const SignUpInner = () => {
                     <label htmlFor='email' className='text-neutral-700 text-lg fw-medium mb-12'>
                       Email <span className='text-danger-600'>*</span>{" "}
                     </label>
-                    <div className='d-flex flex-column flex-sm-row gap-12 align-items-stretch'>
+                    <div className='d-flex flex-column flex-xl-row gap-12 align-items-stretch'>
                       <input
                         type='email'
                         className='common-input bg-main-25 rounded-pill border-transparent focus-border-main-600 flex-grow-1'
@@ -609,7 +614,7 @@ const SignUpInner = () => {
                       />
                       <button
                         type='button'
-                        className='btn btn-main rounded-pill flex-shrink-0'
+                        className='btn btn-main rounded-pill flex-shrink-0 btn-block-sm btn-block-md'
                         onClick={() => handleSendOtp({ isResend: otpSent })}
                         disabled={loading || emailVerified}
                       >
@@ -621,7 +626,7 @@ const SignUpInner = () => {
                         <label htmlFor='otp' className='text-neutral-700 text-lg fw-medium mb-12'>
                           Verification Code <span className='text-danger-600'>*</span>{" "}
                         </label>
-                        <div className='d-flex flex-column flex-sm-row gap-12 align-items-stretch'>
+                        <div className='d-flex flex-column flex-xl-row gap-12 align-items-stretch'>
                           <input
                             type='text'
                             className='common-input bg-main-25 rounded-pill border-transparent focus-border-main-600 flex-grow-1 text-center letter-spacing-2'
@@ -636,7 +641,7 @@ const SignUpInner = () => {
                           />
                           <button
                             type='button'
-                            className='btn border border-main-600 text-main-600 rounded-pill flex-shrink-0'
+                            className='btn border border-main-600 text-main-600 rounded-pill flex-shrink-0 btn-block-sm btn-block-md'
                             onClick={handleVerifyOtp}
                             disabled={loading || emailVerified}
                           >
@@ -659,7 +664,7 @@ const SignUpInner = () => {
                     <label className='text-neutral-700 text-lg fw-medium mb-12'>
                       Gender <span className='text-danger-600'>*</span>{" "}
                     </label>
-                    <div className='flex-align gap-24'>
+                    <div className='flex-align gap-24 flex-wrap'>
                       <div className='form-check common-check common-radio mb-0'>
                         <input
                           className='form-check-input'
@@ -705,7 +710,7 @@ const SignUpInner = () => {
                       </div>
                     </div>
                   </div>
-                  <div className='col-sm-6'>
+                  <div className='col-xl-6'>
                     <label htmlFor='dateOfBirth' className='text-neutral-700 text-lg fw-medium mb-12'>
                       Date of birth <span className='text-danger-600'>*</span>{" "}
                     </label>
@@ -719,7 +724,7 @@ const SignUpInner = () => {
                       required
                     />
                   </div>
-                  <div className='col-sm-6'>
+                  <div className='col-xl-6'>
                     <label htmlFor='state' className='text-neutral-700 text-lg fw-medium mb-12'>
                       State <span className='text-danger-600'>*</span>{" "}
                     </label>
@@ -741,7 +746,7 @@ const SignUpInner = () => {
                       ))}
                     </select>
                   </div>
-                  <div className='col-sm-6'>
+                  <div className='col-xl-6'>
                     <label htmlFor='city' className='text-neutral-700 text-lg fw-medium mb-12'>
                       City <span className='text-danger-600'>*</span>{" "}
                     </label>
@@ -773,7 +778,7 @@ const SignUpInner = () => {
                       <p className='text-xs text-neutral-500 mt-8 mb-0'>{locationNotice}</p>
                     ) : null}
                   </div>
-                  <div className='col-sm-6'>
+                  <div className='col-xl-6'>
                     <label htmlFor='zipCode' className='text-neutral-700 text-lg fw-medium mb-12'>
                       Zip code <span className='text-danger-600'>*</span>{" "}
                     </label>
@@ -807,11 +812,11 @@ const SignUpInner = () => {
               </div>
             </div>
             <div className='col-sm-12'>
-              <div className='border border-neutral-30 rounded-12 bg-white p-24'>
+              <div className='border border-neutral-30 rounded-12 bg-white section-card box-shadow-sm'>
                 <h5 className='mb-0'>Education</h5>
                 <span className='d-block border border-main-50 my-24 border-dashed' />
                 <div className='row gy-4'>
-                  <div className='col-sm-6'>
+                  <div className='col-xl-6'>
                     <label htmlFor='schoolName' className='text-neutral-700 text-lg fw-medium mb-12'>
                       School or college name <span className='text-danger-600'>*</span>{" "}
                     </label>
@@ -826,7 +831,7 @@ const SignUpInner = () => {
                       required
                     />
                   </div>
-                  <div className='col-sm-6'>
+                  <div className='col-xl-6'>
                     <label htmlFor='passingYear' className='text-neutral-700 text-lg fw-medium mb-12'>
                       Year of passing <span className='text-danger-600'>*</span>{" "}
                     </label>
@@ -895,24 +900,37 @@ const SignUpInner = () => {
       <div className='container'>
         <div className='row gy-4 align-items-center'>
           <div className='col-lg-12'>
-            <div className='bg-main-25 border border-neutral-30 rounded-8 p-32'>
-              <div className='mb-40'>
-                <h3 className='mb-16 text-neutral-500'>{stepTitle}</h3>
-                <p className='text-neutral-500'>
+            <div className='bg-white border border-neutral-30 rounded-12 auth-card box-shadow-lg'>
+              <div className='mb-32'>
+                <h3 className='mb-8 text-neutral-500 auth-title'>{stepTitle}</h3>
+                <p className='mb-0 text-neutral-500'>
                   {currentStep === steps.DETAILS &&
                     "Please enter your admission details and verify your email to continue."}
                   {currentStep === steps.PASSWORD &&
                     "Choose a secure password to finish creating your account."}
                 </p>
               </div>
+              <div className='d-flex align-items-center gap-24 mb-24 auth-steps'>
+                <span
+                  className={`fw-semibold ${currentStep === steps.DETAILS ? 'text-main-600' : 'text-neutral-500'}`}
+                >
+                  1. Details
+                </span>
+                <span className='text-neutral-500'>/</span>
+                <span
+                  className={`fw-semibold ${currentStep === steps.PASSWORD ? 'text-main-600' : 'text-neutral-500'}`}
+                >
+                  2. Password
+                </span>
+              </div>
               <form onSubmit={handleSubmit}>
                 {error ? (
-                  <div className='alert alert-danger text-sm mb-20' role='alert'>
+                  <div className='alert alert-danger text-sm mb-20 rounded-8' role='alert' aria-live='polite'>
                     {error}
                   </div>
                 ) : null}
                 {message ? (
-                  <div className='alert alert-success text-sm mb-20' role='alert'>
+                  <div className='alert alert-success text-sm mb-20 rounded-8' role='alert' aria-live='polite'>
                     {message}
                   </div>
                 ) : null}
@@ -920,7 +938,7 @@ const SignUpInner = () => {
                 <div className='mt-32'>
                   <button
                     type='submit'
-                    className='btn btn-main rounded-pill flex-center gap-8'
+                    className='btn btn-main rounded-pill flex-center gap-8 btn-block-sm btn-block-md'
                     disabled={loading}
                   >
                     {loading
@@ -942,3 +960,5 @@ const SignUpInner = () => {
 };
 
 export default SignUpInner;
+
+

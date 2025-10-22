@@ -1,0 +1,63 @@
+/* Auth Pages Responsive Helpers */
+@media (max-width: 575.98px) {
+  .btn-block-sm {
+    width: 100% !important;
+    display: inline-flex !important;
+    justify-content: center !important;
+  }
+}
+
+/* Tablet: full-width buttons up to <992px */
+@media (max-width: 991.98px) {
+  .btn-block-md {
+    width: 100% !important;
+    display: inline-flex !important;
+    justify-content: center !important;
+  }
+}
+
+.auth-card {
+  padding: 20px !important;
+}
+@media (min-width: 576px) {
+  .auth-card {
+    padding: 24px !important;
+  }
+}
+@media (min-width: 992px) {
+  .auth-card {
+    padding: 32px !important;
+  }
+}
+
+.section-card {
+  padding: 16px !important;
+}
+@media (min-width: 576px) {
+  .section-card {
+    padding: 24px !important;
+  }
+}
+
+.auth-title {
+  font-size: 1.125rem !important;
+}
+@media (min-width: 576px) {
+  .auth-title {
+    font-size: 1.25rem !important;
+  }
+}
+
+.auth-steps {
+  gap: 12px !important;
+}
+@media (min-width: 576px) {
+  .auth-steps {
+    gap: 24px !important;
+  }
+}
+
+/* Minimal flex-wrap utility for tight groups */
+.flex-wrap {
+  flex-wrap: wrap !important;
+}

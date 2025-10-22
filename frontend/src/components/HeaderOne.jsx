@@ -20,13 +20,25 @@ const HeaderOne = () => {
   }, []);
 
   const options = [
-    { value: 1, label: "GradusQuity" },
-    { value: 2, label: "GradusX" },
-    { value: 3, label: "GradusLead" },
-    
+    { value: "gradusquity", label: "GradusQuity" },
+    { value: "gradusx", label: "GradusX" },
+    { value: "graduslead", label: "GradusLead" },
   ];
 
-  const [selectedOption, setSelectedOption] = useState(options[0]);
+  const [selectedOption, setSelectedOption] = useState(null);
+
+  // Course summaries to show in the popup
+  const courseSummaries = {
+    GradusQuity:
+      "Capital markets mastery designed for future-ready equity, debt, and derivative professionals.",
+    GradusX:
+      "Full‑stack technology, AI, and digital growth curriculum uniting software engineering with data storytelling.",
+    GradusLead:
+      "Business and leadership journey that cultivates emerging CXOs with finance, strategy, and people excellence.",
+  };
+
+  const [showCoursePopup, setShowCoursePopup] = useState(false);
+  const [popupCourse, setPopupCourse] = useState({ title: "", summary: "" });
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
   const profileLink = isAuthenticated ? "/profile" : "/sign-in";
@@ -54,6 +66,17 @@ const HeaderOne = () => {
   };
 
   const closeUserMenu = () => setIsUserMenuOpen(false);
+
+  // When a course is selected, show popup with short summary
+  const handleCourseChange = (option) => {
+    setSelectedOption(option);
+    const title = option?.label ?? "";
+    const summary = courseSummaries[title] ?? "";
+    if (title && summary) {
+      setPopupCourse({ title, summary });
+      setShowCoursePopup(true);
+    }
+  };
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -180,11 +203,34 @@ const HeaderOne = () => {
                             ? " border-focus"
                             : "border-neutral-30",
                       }}
+                      placeholder='Choose Course'
                       value={selectedOption}
-                      onChange={setSelectedOption}
+                      onChange={handleCourseChange}
                       options={options}
                     />
                   </div>
+                  {showCoursePopup && (
+                    <div
+                      className='course-popup'
+                      key={popupCourse.title}
+                      role='dialog'
+                      aria-live='polite'
+                      aria-label={`${popupCourse.title} summary`}
+                    >
+                      <button
+                        type='button'
+                        className='course-popup__close'
+                        aria-label='Close'
+                        onClick={() => setShowCoursePopup(false)}
+                      >
+                        <i className='ph ph-x'></i>
+                      </button>
+                      <div className='course-popup__content'>
+                        <div className='course-popup__title'>{popupCourse.title}</div>
+                        <div className='course-popup__text'>{popupCourse.summary}</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -384,11 +430,34 @@ const HeaderOne = () => {
                       control: (state) =>
                         state.isFocused ? " border-focus" : "border-neutral-30",
                     }}
+                    placeholder='Choose Course'
                     value={selectedOption}
-                    onChange={setSelectedOption}
+                    onChange={handleCourseChange}
                     options={options}
                   />
                 </div>
+                {showCoursePopup && (
+                  <div
+                    className='course-popup'
+                    key={popupCourse.title}
+                    role='dialog'
+                    aria-live='polite'
+                    aria-label={`${popupCourse.title} summary`}
+                  >
+                    <button
+                      type='button'
+                      className='course-popup__close'
+                      aria-label='Close'
+                      onClick={() => setShowCoursePopup(false)}
+                    >
+                      <i className='ph ph-x'></i>
+                    </button>
+                    <div className='course-popup__content'>
+                      <div className='course-popup__title'>{popupCourse.title}</div>
+                      <div className='course-popup__text'>{popupCourse.summary}</div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

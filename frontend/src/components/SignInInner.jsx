@@ -1,3 +1,4 @@
+import '../styles/auth.css';
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import apiClient from "../services/apiClient.js";
@@ -62,21 +63,21 @@ const SignInInner = () => {
       <div className='container'>
         <div className='row gy-4 align-items-center'>
           <div className='col-lg-6'>
-            <div className='bg-main-25 border border-neutral-30 rounded-8 p-32'>
-              <div className='mb-40'>
-                <h3 className='mb-16 text-neutral-500'>Welcome Back!</h3>
-                <p className='text-neutral-500'>Sign in to your account and join us</p>
+            <div className='bg-white border border-neutral-30 rounded-12 auth-card box-shadow-lg'>
+              <div className='mb-32'>
+                <h3 className='mb-8 text-neutral-500 auth-title'>Welcome Back!</h3>
+                <p className='mb-0 text-neutral-500'>Sign in to your account and join us</p>
               </div>
               <form onSubmit={handleSubmit}>
                 {error ? (
-                  <div className='alert alert-danger text-sm mb-24' role='alert'>
+                  <div className='alert alert-danger text-sm mb-24 rounded-8' role='alert' aria-live='polite'>
                     {error}
                   </div>
                 ) : null}
                 <div className='mb-24'>
                   <label
                     htmlFor='email'
-                    className='fw-medium text-lg text-neutral-500 mb-16'
+                    className='fw-medium text-lg text-neutral-500 mb-12'
                   >
                     Enter Your Email ID
                   </label>
@@ -92,10 +93,10 @@ const SignInInner = () => {
                     required
                   />
                 </div>
-                <div className='mb-16'>
+                <div className='mb-8'>
                   <label
                     htmlFor='password'
-                    className='fw-medium text-lg text-neutral-500 mb-16'
+                    className='fw-medium text-lg text-neutral-500 mb-12'
                   >
                     Enter Your Password
                   </label>
@@ -116,6 +117,8 @@ const SignInInner = () => {
                         passwordVisible ? "ph-eye" : "ph-eye-closed"
                       }`}
                       onClick={togglePasswordVisibility}
+                      role='button'
+                      aria-label={passwordVisible ? 'Hide password' : 'Show password'}
                     ></span>
                   </div>
                 </div>
@@ -142,7 +145,7 @@ const SignInInner = () => {
                 <div className='mt-40'>
                   <button
                     type='submit'
-                    className='btn btn-main rounded-pill flex-center gap-8 mt-40'
+                    className='btn btn-main rounded-pill flex-center gap-8 mt-40 btn-block-sm btn-block-md'
                     disabled={loading}
                   >
                     {loading ? "Signing In..." : "Sign In"}
@@ -164,4 +167,6 @@ const SignInInner = () => {
 };
 
 export default SignInInner;
+
+
 
