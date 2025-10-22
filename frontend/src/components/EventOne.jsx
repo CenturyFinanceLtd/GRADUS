@@ -183,14 +183,14 @@ const EventOne = () => {
           </div>
         </div>
       </div>
-      <ModalVideo
+      {/* <ModalVideo
         channel='youtube'
         autoplay
         isOpen={isOpen}
         videoId='XxVg_s8xAms'
         onClose={() => setIsOpen(false)}
         allowFullScreen
-      />
+      /> */}
     </section>
   );
 };

@@ -1,6 +1,7 @@
 ﻿import { useState } from "react";
 import ModalVideo from "react-modal-video";
 import { Link } from "react-router-dom";
+import MiniPartnerLogos from "./MiniPartnerLogos";
 
 const ChooseUsOne = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -105,38 +106,7 @@ const ChooseUsOne = () => {
                   data-aos='fade-left'
                 >
                   <span className='text-main-600'>178+</span> Strategic Industry Partners
-                  <div className='enrolled-students mt-12'>
-                    <img
-                      src='/assets/images/thumbs/enroll-student-img1.png'
-                      alt=''
-                      className='w-48 h-48 rounded-circle object-fit-cover'
-                    />
-                    <img
-                      src='/assets/images/thumbs/enroll-student-img2.png'
-                      alt=''
-                      className='w-48 h-48 rounded-circle object-fit-cover'
-                    />
-                    <img
-                      src='/assets/images/thumbs/enroll-student-img3.png'
-                      alt=''
-                      className='w-48 h-48 rounded-circle object-fit-cover'
-                    />
-                    <img
-                      src='/assets/images/thumbs/enroll-student-img4.png'
-                      alt=''
-                      className='w-48 h-48 rounded-circle object-fit-cover'
-                    />
-                    <img
-                      src='/assets/images/thumbs/enroll-student-img5.png'
-                      alt=''
-                      className='w-48 h-48 rounded-circle object-fit-cover'
-                    />
-                    <img
-                      src='/assets/images/thumbs/enroll-student-img6.png'
-                      alt=''
-                      className='w-48 h-48 rounded-circle object-fit-cover'
-                    />
-                  </div>
+                  <MiniPartnerLogos count={6} />
                 </div>
                 <div className='text-end' data-aos='zoom-out'>
                   <div className='d-sm-inline-block d-block position-relative'>

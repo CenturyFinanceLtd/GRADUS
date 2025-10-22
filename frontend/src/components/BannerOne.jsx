@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import MiniPartnerLogos from "./MiniPartnerLogos";
 
 const BannerOne = () => {
   return (
@@ -106,39 +107,8 @@ const BannerOne = () => {
                 className='banner-box one px-24 py-12 rounded-12 bg-white fw-medium box-shadow-lg d-inline-block'
                 data-aos='fade-down'
               >
-                <span className='text-main-600'>36k+</span> Enrolled Students
-                <div className='enrolled-students mt-12'>
-                  <img
-                    src='/assets/images/thumbs/enroll-student-img1.png'
-                    alt=''
-                    className='w-48 h-48 rounded-circle object-fit-cover transition-2'
-                  />
-                  <img
-                    src='/assets/images/thumbs/enroll-student-img2.png'
-                    alt=''
-                    className='w-48 h-48 rounded-circle object-fit-cover transition-2'
-                  />
-                  <img
-                    src='/assets/images/thumbs/enroll-student-img3.png'
-                    alt=''
-                    className='w-48 h-48 rounded-circle object-fit-cover transition-2'
-                  />
-                  <img
-                    src='/assets/images/thumbs/enroll-student-img4.png'
-                    alt=''
-                    className='w-48 h-48 rounded-circle object-fit-cover transition-2'
-                  />
-                  <img
-                    src='/assets/images/thumbs/enroll-student-img5.png'
-                    alt=''
-                    className='w-48 h-48 rounded-circle object-fit-cover transition-2'
-                  />
-                  <img
-                    src='/assets/images/thumbs/enroll-student-img6.png'
-                    alt=''
-                    className='w-48 h-48 rounded-circle object-fit-cover transition-2'
-                  />
-                </div>
+                <span className='text-main-600'>178+</span> Strategic Industry Partners
+                <MiniPartnerLogos count={6} />
               </div>
               <div
                 className='banner-box two px-24 py-12 rounded-12 bg-white fw-medium box-shadow-lg flex-align d-inline-flex gap-16'
@@ -148,7 +118,7 @@ const BannerOne = () => {
                   <i className='ph ph-watch' />
                 </span>
                 <div>
-                  <h6 className='mb-4'>20% OFF</h6>
+                  <h6 className='mb-4'>Upto 30% OFF</h6>
                   <span className=''>For All Courses</span>
                 </div>
               </div>
@@ -165,7 +135,7 @@ const BannerOne = () => {
                     href='tel:(704)555-0127'
                     className='mt-8 fw-medium text-xl d-block text-main-600 hover-text-main-500'
                   >
-                    (704) 555-0127
+                    info@gradusindia.in
                   </a>
                 </div>
               </div>

@@ -13390,7 +13390,7 @@ body::after {
 
 @media (min-width: 1700px) {
     .banner-box.three {
-        inset-inline-start: calc(100% + -60px);
+        inset-inline-start: calc(100% + -104px);
     }
 }
 
