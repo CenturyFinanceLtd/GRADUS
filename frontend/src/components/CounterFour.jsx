@@ -5,21 +5,51 @@ const CounterFour = () => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <section className='choose-us py-120 position-relative z-1 mash-bg-main mash-bg-main-two'>
-      <img
-        src='/assets/images/shapes/shape1.png'
-        alt=''
-        className='shape one animation-rotation'
-      />
-      <img
-        src='/assets/images/shapes/shape3.png'
-        alt=''
-        className='animation-walking top-10-percent left-85-percent position-absolute z-n1'
-      />
-      <img
-        src='/assets/images/shapes/shape5.png'
-        alt=''
-        className='animation-walking bottom-5-percent left-70-percent position-absolute'
-      />
+      <div className='shape one animation-rotation our-blogs-trigger'>
+        <img
+          src='/assets/images/shapes/shape1.png'
+          alt=''
+          role='button'
+          title='Blogs'
+          aria-label='Blogs'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') window.location.href = '/blogs';
+          }}
+          onClick={() => (window.location.href = '/blogs')}
+        />
+        <span className='our-blogs-tooltip'>Blogs</span>
+      </div>
+      <div className='animation-walking top-10-percent left-85-percent position-absolute z-n1 our-courses-trigger'>
+        <img
+          src='/assets/images/shapes/shape3.png'
+          alt=''
+          role='button'
+          title='Our Courses'
+          aria-label='Our Courses'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') window.location.href = '/our-courses';
+          }}
+          onClick={() => (window.location.href = '/our-courses')}
+        />
+        <span className='our-courses-tooltip'>Our Courses</span>
+      </div>
+      <div className='animation-walking bottom-5-percent left-70-percent position-absolute our-know-gradus-trigger'>
+        <img
+          src='/assets/images/shapes/shape5.png'
+          alt=''
+          role='button'
+          title='Know Gradus'
+          aria-label='Know Gradus'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') window.location.href = '/about-us';
+          }}
+          onClick={() => (window.location.href = '/about-us')}
+        />
+        <span className='our-know-gradus-tooltip'>Know Gradus</span>
+      </div>
       <div className='container'>
         <div className='row gy-4'>
           <div className='col-xl-6'>

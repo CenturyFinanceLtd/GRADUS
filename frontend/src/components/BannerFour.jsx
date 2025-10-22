@@ -4,31 +4,61 @@ const BannerFour = () => {
   return (
     <>
       <section className='banner-four bg-main-25 py-80 position-relative overflow-hidden z-1'>
-        <img
-          src='/assets/images/shapes/shape1.png'
-          alt=''
-          className='shape one animation-rotation'
-        />
+        <div className='shape one animation-rotation our-blogs-trigger'>
+          <img
+            src='/assets/images/shapes/shape1.png'
+            alt=''
+            role='button'
+            title='Blogs'
+            aria-label='Blogs'
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') window.location.href = '/blogs';
+            }}
+            onClick={() => (window.location.href = '/blogs')}
+          />
+          <span className='our-blogs-tooltip'>Blogs</span>
+        </div>
         <img
           src='/assets/images/shapes/shape2.png'
           alt=''
           className='shape two animation-scalation'
         />
-        <img
-          src='/assets/images/shapes/shape5.png'
-          alt=''
-          className='shape three animation-walking'
-        />
+        <div className='shape three animation-walking our-know-gradus-trigger'>
+          <img
+            src='/assets/images/shapes/shape5.png'
+            alt=''
+            role='button'
+            title='Know Gradus'
+            aria-label='Know Gradus'
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') window.location.href = '/about-us';
+            }}
+            onClick={() => (window.location.href = '/about-us')}
+          />
+          <span className='our-know-gradus-tooltip'>Know Gradus</span>
+        </div>
         <img
           src='/assets/images/shapes/shape2.png'
           alt=''
           className='shape four animation-scalation'
         />
-        <img
-          src='/assets/images/shapes/shape3.png'
-          alt=''
-          className='shape ten animation-walking'
-        />
+        <div className='shape ten animation-walking our-courses-trigger'>
+          <img
+            src='/assets/images/shapes/shape3.png'
+            alt=''
+            role='button'
+            title='Our Courses'
+            aria-label='Our Courses'
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') window.location.href = '/our-courses';
+            }}
+            onClick={() => (window.location.href = '/our-courses')}
+          />
+          <span className='our-courses-tooltip'>Our Courses</span>
+        </div>
         <div className='container'>
           <div className='row gy-5 align-items-center'>
             <div className='col-xl-6'>

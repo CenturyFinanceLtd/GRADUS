@@ -4,31 +4,61 @@ import MiniPartnerLogos from "./MiniPartnerLogos";
 const BannerOne = () => {
   return (
     <section className='banner py-80 position-relative overflow-hidden'>
-      <img
-        src='/assets/images/shapes/shape1.png'
-        alt=''
-        className='shape one animation-rotation'
-      />
+      <div className='shape one animation-rotation our-blogs-trigger'>
+        <img
+          src='/assets/images/shapes/shape1.png'
+          alt=''
+          role='button'
+          title='Blogs'
+          aria-label='Blogs'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') window.location.href = '/blogs';
+          }}
+          onClick={() => (window.location.href = '/blogs')}
+        />
+        <span className='our-blogs-tooltip'>Blogs</span>
+      </div>
       <img
         src='/assets/images/shapes/shape2.png'
         alt=''
         className='shape two animation-scalation'
       />
-      <img
-        src='/assets/images/shapes/shape3.png'
-        alt=''
-        className='shape three animation-walking'
-      />
+      <div className='shape three animation-walking our-courses-trigger'>
+        <img
+          src='/assets/images/shapes/shape3.png'
+          alt=''
+          role='button'
+          title='Our Courses'
+          aria-label='Our Courses'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') window.location.href = '/our-courses';
+          }}
+          onClick={() => (window.location.href = '/our-courses')}
+        />
+        <span className='our-courses-tooltip'>Our Courses</span>
+      </div>
       <img
         src='/assets/images/shapes/shape4.png'
         alt=''
         className='shape four animation-scalation'
       />
-      <img
-        src='/assets/images/shapes/shape5.png'
-        alt=''
-        className='shape five animation-walking'
-      />
+      <div className='shape five animation-walking our-know-gradus-trigger'>
+        <img
+          src='/assets/images/shapes/shape5.png'
+          alt=''
+          role='button'
+          title='Know Gradus'
+          aria-label='Know Gradus'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') window.location.href = '/about-us';
+          }}
+          onClick={() => (window.location.href = '/about-us')}
+        />
+        <span className='our-know-gradus-tooltip'>Know Gradus</span>
+      </div>
       <div className='container'>
         <div className='row gy-5 align-items-center'>
           <div className='col-xl-6'>

@@ -23,11 +23,21 @@ const BannerFive = () => {
       className='padding-top-100-px bg-img position-relative z-1'
       style={{ backgroundImage: "url(assets/images/bg/banner-5-bg-img1.png)" }}
     >
-      <img
-        src='/assets/images/shapes/shape1.png'
-        alt=''
-        className='animation-rotation d-sm-block d-none left-32-percent top-18-percent position-absolute'
-      />
+      <div className='animation-rotation d-sm-block d-none left-32-percent top-18-percent position-absolute our-blogs-trigger'>
+        <img
+          src='/assets/images/shapes/shape1.png'
+          alt=''
+          role='button'
+          title='Blogs'
+          aria-label='Blogs'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') window.location.href = '/blogs';
+          }}
+          onClick={() => (window.location.href = '/blogs')}
+        />
+        <span className='our-blogs-tooltip'>Blogs</span>
+      </div>
       <img
         src='/assets/images/shapes/shape2.png'
         alt=''
@@ -38,11 +48,21 @@ const BannerFive = () => {
         alt=''
         className='animation-scalation d-sm-block d-none left-3-percent bottom-18-percent position-absolute z-n1'
       />
-      <img
-        src='/assets/images/shapes/shape5.png'
-        alt=''
-        className='animation-walking d-sm-block d-none bottom-10-percent left-17-percent position-absolute z-n1'
-      />
+      <div className='animation-walking d-sm-block d-none bottom-10-percent left-17-percent position-absolute z-n1 our-know-gradus-trigger'>
+        <img
+          src='/assets/images/shapes/shape5.png'
+          alt=''
+          role='button'
+          title='Know Gradus'
+          aria-label='Know Gradus'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') window.location.href = '/about-us';
+          }}
+          onClick={() => (window.location.href = '/about-us')}
+        />
+        <span className='our-know-gradus-tooltip'>Know Gradus</span>
+      </div>
       <img
         src='/assets/images/shapes/shape4.png'
         alt=''
@@ -58,11 +78,21 @@ const BannerFive = () => {
         alt=''
         className='animation-scalation d-sm-block d-none top-55-percent left-30-percent position-absolute z-n1'
       />
-      <img
-        src='/assets/images/shapes/shape3.png'
-        alt=''
-        className='animation-walking d-sm-block d-none top-55-percent left-57-percent position-absolute z-n1'
-      />
+      <div className='animation-walking d-sm-block d-none top-55-percent left-57-percent position-absolute z-n1 our-courses-trigger'>
+        <img
+          src='/assets/images/shapes/shape3.png'
+          alt=''
+          role='button'
+          title='Our Courses'
+          aria-label='Our Courses'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') window.location.href = '/our-courses';
+          }}
+          onClick={() => (window.location.href = '/our-courses')}
+        />
+        <span className='our-courses-tooltip'>Our Courses</span>
+      </div>
       <img
         src='/assets/images/shapes/curve-arrow.png'
         alt=''

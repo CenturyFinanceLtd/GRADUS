@@ -3,26 +3,56 @@ import { Link } from "react-router-dom";
 const Breadcrumb = ({ title }) => {
   return (
     <section className='breadcrumb py-120 bg-main-25 position-relative z-1 overflow-hidden mb-0'>
-      <img
-        src='/assets/images/shapes/shape1.png'
-        alt=''
-        className='shape one animation-rotation d-md-block d-none'
-      />
+      <div className='shape one animation-rotation d-md-block d-none our-blogs-trigger'>
+        <img
+          src='/assets/images/shapes/shape1.png'
+          alt=''
+          role='button'
+          title='Blogs'
+          aria-label='Blogs'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') window.location.href = '/blogs';
+          }}
+          onClick={() => (window.location.href = '/blogs')}
+        />
+        <span className='our-blogs-tooltip'>Blogs</span>
+      </div>
       <img
         src='/assets/images/shapes/shape2.png'
         alt=''
         className='shape two animation-scalation d-md-block d-none'
       />
-      <img
-        src='/assets/images/shapes/shape3.png'
-        alt=''
-        className='shape eight animation-walking d-md-block d-none'
-      />
-      <img
-        src='/assets/images/shapes/shape5.png'
-        alt=''
-        className='shape six animation-walking d-md-block d-none'
-      />
+      <div className='shape eight animation-walking d-md-block d-none our-courses-trigger'>
+        <img
+          src='/assets/images/shapes/shape3.png'
+          alt=''
+          role='button'
+          title='Our Courses'
+          aria-label='Our Courses'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') window.location.href = '/our-courses';
+          }}
+          onClick={() => (window.location.href = '/our-courses')}
+        />
+        <span className='our-courses-tooltip'>Our Courses</span>
+      </div>
+      <div className='shape six animation-walking d-md-block d-none our-know-gradus-trigger'>
+        <img
+          src='/assets/images/shapes/shape5.png'
+          alt=''
+          role='button'
+          title='Know Gradus'
+          aria-label='Know Gradus'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') window.location.href = '/about-us';
+          }}
+          onClick={() => (window.location.href = '/about-us')}
+        />
+        <span className='our-know-gradus-tooltip'>Know Gradus</span>
+      </div>
       <img
         src='/assets/images/shapes/shape4.png'
         alt=''

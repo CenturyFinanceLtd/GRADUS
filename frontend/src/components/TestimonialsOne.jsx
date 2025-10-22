@@ -36,11 +36,21 @@ const TestimonialsOne = () => {
         alt=''
         className='shape six animation-scalation'
       />
-      <img
-        src='/assets/images/shapes/shape3.png'
-        alt=''
-        className='shape four animation-rotation'
-      />
+      <div className='shape four animation-rotation our-courses-trigger'>
+        <img
+          src='/assets/images/shapes/shape3.png'
+          alt=''
+          role='button'
+          title='Our Courses'
+          aria-label='Our Courses'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') window.location.href = '/our-courses';
+          }}
+          onClick={() => (window.location.href = '/our-courses')}
+        />
+        <span className='our-courses-tooltip'>Our Courses</span>
+      </div>
       <div className='container'>
         <div className='row gy-5'>
           <div className='col-lg-6'>

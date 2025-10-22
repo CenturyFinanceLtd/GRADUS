@@ -13356,7 +13356,7 @@ body::after {
 
 .banner-box.two {
     inset-inline-start: 0;
-    inset-block-end: 100px;
+    inset-block-end: 50px;
     -webkit-animation: upDown 5s linear infinite;
     animation: upDown 5s linear infinite;
     -webkit-animation-delay: 3s;
@@ -14430,6 +14430,55 @@ body::after {
         padding-inline-start: clamp(1.5rem, -2.83rem + 5.333vw, 2.5rem) !important;
         -webkit-padding-end: clamp(1.5rem, -2.83rem + 5.333vw, 2.5rem) !important;
         padding-inline-end: clamp(1.5rem, -2.83rem + 5.333vw, 2.5rem) !important;
+    }
+}
+
+/* Tablet landscape (e.g., iPad 1024px) fixes */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    /* Prevent the date text from squishing into vertical letters */
+    .event-item > div:first-child {
+        min-width: 96px;
+    }
+    .event-item > div:first-child span {
+        white-space: nowrap;
+    }
+}
+
+/* Responsive improvements: stack event items and scale media */
+@media (max-width: 991.98px) {
+    /* Stack event card content vertically on tablets and below */
+    .event-item {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 12px;
+    }
+
+    /* Convert vertical separators to horizontal lines when stacked */
+    .event-item > span.border {
+        width: 100% !important;
+        height: 1px !important;
+        border-left: 0 !important;
+        border-right: 0 !important;
+        border-top: 1px dashed var(--neutral-40, #DDE1E6) !important;
+        border-bottom: 0 !important;
+    }
+
+    /* Make the action button full-width for easier tapping */
+    .event-item .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Ensure the video image maintains aspect ratio on small screens */
+    .event-video .cover-img {
+        height: auto !important;
+        width: 100% !important;
+        display: block;
+    }
+
+    /* Add spacing above the video when it stacks under the list */
+    .event .col-lg-4 .event-video {
+        margin-top: 16px;
     }
 }
 
@@ -16376,3 +16425,198 @@ table.dataTable.display>tbody>tr>* {
 
 
 
+/* --- Interactive Our Courses tooltip for shape3 image --- */
+/* Target all instances of shape3.png across the site */
+img[src='/assets/images/shapes/shape3.png'] {
+  cursor: pointer;
+  z-index: 5 !important; /* keep interactive above decorative layers */
+  pointer-events: auto !important;
+  user-select: none;
+}
+
+/* Lift above nearby content only while hovering to ensure visibility */
+img[src='/assets/images/shapes/shape3.png']:hover {
+  z-index: 12 !important;
+}
+
+/* (Using wrapper-based tooltip for shape3; pseudo-elements removed) */
+
+/* Dedicated wrapper/tooltip to ensure reliable rendering */
+.our-courses-trigger {
+  z-index: 5 !important;
+  cursor: pointer;
+  pointer-events: auto !important;
+  user-select: none;
+  display: inline-block;
+}
+.our-courses-trigger:hover {
+  z-index: 12 !important;
+}
+.our-courses-trigger .our-courses-tooltip {
+  position: absolute;
+  left: 50%;
+  top: -52px;
+  transform: translate(-50%, 8px) scale(0.96);
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.16);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transition: opacity 220ms cubic-bezier(.2,.8,.2,1), transform 220ms cubic-bezier(.2,.8,.2,1);
+}
+.our-courses-trigger .our-courses-tooltip::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -12px;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border-left: 1px solid rgba(15, 23, 42, 0.12);
+  border-top: 1px solid rgba(15, 23, 42, 0.12);
+}
+.our-courses-trigger:hover .our-courses-tooltip,
+.our-courses-trigger:focus-within .our-courses-tooltip {
+  opacity: 1;
+  transform: translate(-50%, -4px) scale(1);
+  animation: tooltip-bounce-in 260ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .our-courses-trigger .our-courses-tooltip {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@keyframes tooltip-bounce-in {
+  0% { transform: translate(-50%, 8px) scale(0.96); opacity: 0; }
+  60% { transform: translate(-50%, -6px) scale(1.02); opacity: 1; }
+  100% { transform: translate(-50%, -4px) scale(1); opacity: 1; }
+}
+
+/* Wrapper/tooltip for shape1 -> Blogs */
+.our-blogs-trigger {
+  z-index: 5 !important;
+  cursor: pointer;
+  pointer-events: auto !important;
+  user-select: none;
+  display: inline-block;
+}
+.our-blogs-trigger:hover {
+  z-index: 12 !important;
+}
+.our-blogs-trigger .our-blogs-tooltip {
+  position: absolute;
+  left: 50%;
+  top: -52px;
+  transform: translate(-50%, 8px) scale(0.96);
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.16);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transition: opacity 220ms cubic-bezier(.2,.8,.2,1), transform 220ms cubic-bezier(.2,.8,.2,1);
+}
+.our-blogs-trigger .our-blogs-tooltip::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -12px;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border-left: 1px solid rgba(15, 23, 42, 0.12);
+  border-top: 1px solid rgba(15, 23, 42, 0.12);
+}
+.our-blogs-trigger:hover .our-blogs-tooltip,
+.our-blogs-trigger:focus-within .our-blogs-tooltip {
+  opacity: 1;
+  transform: translate(-50%, -4px) scale(1);
+  animation: tooltip-bounce-in 260ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .our-blogs-trigger .our-blogs-tooltip {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Wrapper/tooltip for shape5 -> Know Gradus (About Us) */
+.our-know-gradus-trigger {
+  z-index: 5 !important;
+  cursor: pointer;
+  pointer-events: auto !important;
+  user-select: none;
+  display: inline-block;
+}
+.our-know-gradus-trigger:hover {
+  z-index: 12 !important;
+}
+.our-know-gradus-trigger .our-know-gradus-tooltip {
+  position: absolute;
+  left: 50%;
+  top: -52px;
+  transform: translate(-50%, 8px) scale(0.96);
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.16);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transition: opacity 220ms cubic-bezier(.2,.8,.2,1), transform 220ms cubic-bezier(.2,.8,.2,1);
+}
+.our-know-gradus-trigger .our-know-gradus-tooltip::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -12px;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border-left: 1px solid rgba(15, 23, 42, 0.12);
+  border-top: 1px solid rgba(15, 23, 42, 0.12);
+}
+.our-know-gradus-trigger:hover .our-know-gradus-tooltip,
+.our-know-gradus-trigger:focus-within .our-know-gradus-tooltip {
+  opacity: 1;
+  transform: translate(-50%, -4px) scale(1);
+  animation: tooltip-bounce-in 260ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .our-know-gradus-trigger .our-know-gradus-tooltip {
+    transition: none !important;
+    animation: none !important;
+  }
+}
