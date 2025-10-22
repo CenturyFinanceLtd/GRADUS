@@ -12378,6 +12378,23 @@ button:focus {
     }
 }
 
+/* Tighter spacing on mid-sized (tablet landscape / small laptop) screens */
+@media screen and (min-width: 992px) and (max-width: 1299px) {
+    .nav-menu { gap: 14px; }
+    .nav-menu__link { padding: 10px 16px; }
+}
+
+@media screen and (min-width: 992px) and (max-width: 1200px) {
+    .nav-menu { gap: 12px; }
+    .nav-menu__link { padding: 8px 14px; font-size: 0.875rem !important; }
+    .header-content-wrapper { gap: 12px; }
+    .logo img { max-width: 170px; }
+}
+
+@media screen and (max-width: 1399px) {
+    .logo img { max-width: 180px; }
+}
+
 .nav-menu__item.activePage>.nav-menu__link {
     color: hsl(var(--main));
 }
@@ -12398,6 +12415,9 @@ button:focus {
     width: 100%;
     padding: 38px 0;
     width: 100%;
+    /* Prevent label letters from wrapping into a vertical column
+       when the flex container shrinks on tablet widths */
+    white-space: nowrap;
 }
 
 @media screen and (max-width: 1399px) {
@@ -12424,6 +12444,9 @@ button:focus {
         color: var(--neutral-700);
         transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
         isolation: isolate;
+        /* Keep links from shrinking below their content width */
+        white-space: nowrap;
+        flex-shrink: 0;
     }
 
     .nav-menu__link::after {
@@ -15540,6 +15563,11 @@ table.dataTable.display>tbody>tr>* {
 
 @media only screen and (max-width: 1200px) {
     /*Tablets [601px -> 1200px]*/
+}
+
+/* Make the course select a bit narrower on tighter desktops */
+@media screen and (min-width: 992px) and (max-width: 1200px) {
+    .custom__select { width: 150px; }
 }
 
 @media only screen and (max-width: 768px) {
