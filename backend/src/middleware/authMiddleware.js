@@ -57,8 +57,19 @@ const attachUserIfPresent = asyncHandler(async (req, res, next) => {
 
     return next();
   } catch (error) {
-    res.status(401);
-    throw new Error('Not authorized, token invalid or expired');
+    // If a token is present but invalid/expired, treat the request as anonymous
+    // rather than failing the request. This middleware is intended to be
+    // non-blocking and should not turn public routes into 401s when a stale
+    // cookie is sent by the browser.
+    try {
+      if (req.cookies?.token) {
+        // Best-effort clear of stale token cookie; ignore failures
+        res.clearCookie('token', { path: '/' });
+      }
+    } catch (_) {
+      // no-op
+    }
+    return next();
   }
 });
 
