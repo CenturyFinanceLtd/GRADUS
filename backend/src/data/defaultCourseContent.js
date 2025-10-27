@@ -140,7 +140,7 @@ const selectPartnersByProgram = (program) => {
       return {
         name: resolvedName,
         logo: resolvePartnerField(partner, "logo"),
-        website: resolvePartnerField(partner, "website"),
+        website: resolvePartnerField(partner, "#"),
       };
     });
 };
