@@ -1,7 +1,7 @@
 [
   {
     "name": "State Bank of India (SBI)",
-    "website": "https://www.sbi.co.in/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/state-bank-of-india.png",
     "programs": [
       "GradusQuity"
@@ -9,7 +9,7 @@
   },
   {
     "name": "HDFC Bank",
-    "website": "https://www.hdfcbank.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/HDFC-BANK.png",
     "programs": [
       "GradusQuity"
@@ -17,7 +17,7 @@
   },
   {
     "name": "ICICI Bank",
-    "website": "https://www.icicibank.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/ICICI.png",
     "programs": [
       "GradusQuity"
@@ -25,7 +25,7 @@
   },
   {
     "name": "Kotak Mahindra Bank",
-    "website": "https://www.kotak.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Kotak.png",
     "programs": [
       "GradusQuity"
@@ -33,7 +33,7 @@
   },
   {
     "name": "Axis Bank",
-    "website": "https://www.axisbank.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/AXIS.png",
     "programs": [
       "GradusQuity"
@@ -41,7 +41,7 @@
   },
   {
     "name": "Bank of Baroda",
-    "website": "https://www.bankofbaroda.in/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Bank-Of-Baroda.png",
     "programs": [
       "GradusQuity"
@@ -49,7 +49,7 @@
   },
   {
     "name": "Punjab National Bank",
-    "website": "https://www.pnbindia.in/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Punjab-Natunat-Bank.png",
     "programs": [
       "GradusQuity"
@@ -57,7 +57,7 @@
   },
   {
     "name": "IndusInd Bank",
-    "website": "https://www.indusind.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/IndusInd-Bank.png",
     "programs": [
       "GradusQuity"
@@ -65,7 +65,7 @@
   },
   {
     "name": "Bajaj Finance",
-    "website": "https://www.bajajfinance.in/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Bajaj-Finance.png",
     "programs": [
       "GradusQuity"
@@ -73,7 +73,7 @@
   },
   {
     "name": "Bajaj Finserv",
-    "website": "https://www.bajajfinserv.in/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Bajaj-Finserv.png",
     "programs": [
       "GradusQuity"
@@ -81,7 +81,7 @@
   },
   {
     "name": "LIC Housing Finance",
-    "website": "https://www.lichousing.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/LIC-Housing-Finance.png",
     "programs": [
       "GradusQuity"
@@ -89,7 +89,7 @@
   },
   {
     "name": "Aditya Birla Capital",
-    "website": "https://www.adityabirlacapital.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Aditya-Birla-Capital.png",
     "programs": [
       "GradusQuity"
@@ -97,7 +97,7 @@
   },
   {
     "name": "Muthoot Finance",
-    "website": "https://www.muthootfinance.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Muthoot-Finance.png",
     "programs": [
       "GradusQuity"
@@ -105,7 +105,7 @@
   },
   {
     "name": "Shriram Transport Finance",
-    "website": "https://www.shriramfinance.in/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Shriram-Transport-Finance.png",
     "programs": [
       "GradusQuity"
@@ -113,7 +113,7 @@
   },
   {
     "name": "Cholamandalam Investment & Finance",
-    "website": "https://www.cholamandalam.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Cholamandalam-Investment-&-Finance.png",
     "programs": [
       "GradusQuity"
@@ -121,7 +121,7 @@
   },
   {
     "name": "Power Finance Corporation",
-    "website": "https://www.pfcindia.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Power-Finance-Corporation.png",
     "programs": [
       "GradusQuity"
@@ -129,7 +129,7 @@
   },
   {
     "name": "HDFC Life Insurance",
-    "website": "https://www.hdfclife.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/HDFC-Life-Insurance.png",
     "programs": [
       "GradusQuity"
@@ -137,7 +137,7 @@
   },
   {
     "name": "SBI Life Insurance",
-    "website": "https://www.sbilife.co.in/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/SBI-Life-Insurance.png",
     "programs": [
       "GradusQuity"
@@ -145,7 +145,7 @@
   },
   {
     "name": "HDFC AMC",
-    "website": "https://www.hdfcfund.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/HDFC-AMC.png",
     "programs": [
       "GradusQuity"
@@ -153,7 +153,7 @@
   },
   {
     "name": "Motilal Oswal Financial Services",
-    "website": "https://www.motilaloswal.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Motilal-Oswal-Financial-Services.png",
     "programs": [
       "GradusQuity"
@@ -161,7 +161,7 @@
   },
   {
     "name": "BSE (Bombay Stock Exchange)",
-    "website": "https://www.bseindia.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/BSE-(Bombay-Stock-Exchange).png",
     "programs": [
       "GradusQuity"
@@ -169,7 +169,7 @@
   },
   {
     "name": "NSE (National Stock Exchange)",
-    "website": "https://www.nseindia.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/NSE-(National-Stock-Exchange).png",
     "programs": [
       "GradusQuity"
@@ -177,7 +177,7 @@
   },
   {
     "name": "IRFC (Indian Railway Finance Corporation)",
-    "website": "https://irfc.co.in/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/IRFC.png",
     "programs": [
       "GradusQuity"
@@ -185,7 +185,7 @@
   },
   {
     "name": "PNB Housing Finance",
-    "website": "https://www.pnbhousing.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/PNB-Housing-Finance.png",
     "programs": [
       "GradusQuity"
@@ -193,7 +193,7 @@
   },
   {
     "name": "L&T Finance Holdings",
-    "website": "https://www.ltfs.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/L&T-Finance-Holdings.png",
     "programs": [
       "GradusQuity"
@@ -201,7 +201,7 @@
   },
   {
     "name": "Zerodha",
-    "website": "https://zerodha.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Zerodha.png",
     "programs": [
       "GradusQuity"
@@ -209,7 +209,7 @@
   },
   {
     "name": "Groww",
-    "website": "https://groww.in/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Groww.png",
     "programs": [
       "GradusQuity"
@@ -217,7 +217,7 @@
   },
   {
     "name": "Angel One (formerly Angel Broking)",
-    "website": "https://www.angelone.in/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Angel-One.png",
     "programs": [
       "GradusQuity"
@@ -225,7 +225,7 @@
   },
   {
     "name": "Upstox",
-    "website": "https://upstox.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Upstox.png",
     "programs": [
       "GradusQuity"
@@ -233,7 +233,7 @@
   },
   {
     "name": "HDFC Securities",
-    "website": "https://www.hdfcsec.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/HDFC-Securities.png",
     "programs": [
       "GradusQuity"
@@ -241,7 +241,7 @@
   },
   {
     "name": "ICICI Direct",
-    "website": "https://www.icicidirect.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/ICICI-Direct.png",
     "programs": [
       "GradusQuity"
@@ -249,7 +249,7 @@
   },
   {
     "name": "Kotak Securities",
-    "website": "https://www.kotaksecurities.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Kotak-Securities.png",
     "programs": [
       "GradusQuity"
@@ -257,7 +257,7 @@
   },
   {
     "name": "SBI Securities",
-    "website": "https://www.sbisecurities.in/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/SBI-Securities.png",
     "programs": [
       "GradusQuity"
@@ -265,7 +265,7 @@
   },
   {
     "name": "Edelweiss Financial Services",
-    "website": "https://www.edelweissfin.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Edelweiss-Financial-Services.png",
     "programs": [
       "GradusQuity"
@@ -273,7 +273,7 @@
   },
   {
     "name": "IIFL Securities",
-    "website": "https://www.iiflsecurities.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/IIFL-Securities.png",
     "programs": [
       "GradusQuity"
@@ -281,7 +281,7 @@
   },
   {
     "name": "Axis Securities",
-    "website": "https://www.axisdirect.in/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Axis-Securities.png",
     "programs": [
       "GradusQuity"
@@ -289,7 +289,7 @@
   },
   {
     "name": "JM Financial",
-    "website": "https://www.jmfl.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/JM-Financial.png",
     "programs": [
       "GradusQuity"
@@ -297,7 +297,7 @@
   },
   {
     "name": "Karvy",
-    "website": "https://www.karvy.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Karvy.png",
     "programs": [
       "GradusQuity"
@@ -305,7 +305,7 @@
   },
   {
     "name": "Sharekhan",
-    "website": "https://www.sharekhan.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Sharekhan.png",
     "programs": [
       "GradusQuity"
@@ -313,7 +313,7 @@
   },
   {
     "name": "Motilal Oswal",
-    "website": "https://www.motilaloswal.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Motilal-Oswal.png",
     "programs": [
       "GradusQuity"
@@ -321,7 +321,7 @@
   },
   {
     "name": "5Paisa",
-    "website": "https://www.5paisa.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/5Paisa.png",
     "programs": [
       "GradusQuity"
@@ -329,7 +329,7 @@
   },
   {
     "name": "Prabhudas Lilladher",
-    "website": "https://www.plindia.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Prabhudas-Lilladher.png",
     "programs": [
       "GradusQuity"
@@ -337,7 +337,7 @@
   },
   {
     "name": "Sushil Finance",
-    "website": "https://www.sushilfinance.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Sushil-Finance.png",
     "programs": [
       "GradusQuity"
@@ -345,7 +345,7 @@
   },
   {
     "name": "Centrum Capital",
-    "website": "https://www.centrum.co.in/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Centrum-Capital.png",
     "programs": [
       "GradusQuity"
@@ -353,7 +353,7 @@
   },
   {
     "name": "Geojit Financial Services",
-    "website": "https://www.geojit.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Geojit-Financial-Services.png",
     "programs": [
       "GradusQuity"
@@ -361,7 +361,7 @@
   },
   {
     "name": "Nirmal Bang",
-    "website": "https://www.nirmalbang.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Nirmal-Bang.png",
     "programs": [
       "GradusQuity"
@@ -369,7 +369,7 @@
   },
   {
     "name": "Ventura Securities",
-    "website": "https://www.venturasecurities.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Ventura-Securities.png",
     "programs": [
       "GradusQuity"
@@ -377,7 +377,7 @@
   },
   {
     "name": "Reliance Securities",
-    "website": "https://www.reliancesmartmoney.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/Reliance-Securities.png",
     "programs": [
       "GradusQuity"
@@ -385,7 +385,7 @@
   },
   {
     "name": "DSP Mutual Fund",
-    "website": "https://www.dspim.com/",
+    "website": "#",
     "logo": "/assets/images/partners/GradusQuity/DSP-Mutual-Fund.png",
     "programs": [
       "GradusQuity"
