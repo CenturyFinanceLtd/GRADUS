@@ -450,8 +450,8 @@ body {
 .avatar-upload .avatar-edit input {
   display: none;
 }
-.enrolled-students a{
-  pointer-events: none;
+.enrolled-students>a{
+  pointer-events: none !important;
 }
 .avatar-upload .avatar-edit input + label {
   display: inline-block;
