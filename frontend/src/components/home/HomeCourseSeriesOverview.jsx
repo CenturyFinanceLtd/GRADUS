@@ -11,19 +11,21 @@ const FALLBACK_HERO = {
     "Each flagship program is crafted by Gradus India to combine industry credibility, immersive project work, and assured career outcomes through our guaranteed placement MoUs.",
 };
 
+// Emergency fallback courses used only if API fails or returns empty
 const FALLBACK_COURSES = [
   {
     id: "gradusquity",
     name: "GradusQuity",
     subtitle: "By Gradus India (a 100% Subsidiary of Century Finance Limited)",
-    focus: "Capital markets mastery designed for future-ready equity, debt, and derivative professionals.",
+    focus:
+      "Capital markets mastery designed for future-ready equity, debt, and derivative professionals.",
     approvals: [
       "GradusQuity is approved by Skill India & NSDC.",
       "MoU with each student for Guaranteed Placement.",
     ],
     placementRange:
       "Guaranteed placement on package of 6 lac/Annum to 14 lac/Annum with our partnered companies.",
-    price: "₹3,72,000",
+    price: "₹63700",
   },
   {
     id: "gradusx",
@@ -37,7 +39,7 @@ const FALLBACK_COURSES = [
     ],
     placementRange:
       "Guaranteed placement on package of 6 lac/Annum to 14 lac/Annum with our partnered companies.",
-    price: "₹3,72,000",
+    price: "₹63700",
   },
   {
     id: "graduslead",
@@ -51,13 +53,13 @@ const FALLBACK_COURSES = [
     ],
     placementRange:
       "Guaranteed placement on package of 6 lac/Annum to 14 lac/Annum with our partnered companies.",
-    price: "₹3,72,000",
+    price: "₹63700",
   },
 ];
 
 const HomeCourseSeriesOverview = () => {
   const { token } = useAuth();
-  const [content, setContent] = useState({ hero: FALLBACK_HERO, courses: FALLBACK_COURSES });
+  const [content, setContent] = useState({ hero: FALLBACK_HERO, courses: [] });
 
   useEffect(() => {
     let isMounted = true;
@@ -92,11 +94,8 @@ const HomeCourseSeriesOverview = () => {
   }, [token]);
 
   const featuredCourses = useMemo(() => {
-    if (!Array.isArray(content.courses)) {
-      return FALLBACK_COURSES;
-    }
-
-    return content.courses.slice(0, 3);
+    const list = Array.isArray(content.courses) ? content.courses : FALLBACK_COURSES;
+    return list.slice(0, 3);
   }, [content.courses]);
 
   return (
