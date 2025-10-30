@@ -164,8 +164,7 @@ const HelpLauncher = () => {
     setIsOpen((prev) => !prev);
     if (!isOpen) {
       if (isAuthenticated) {
-        setMode('support_list');
-        refreshTickets();
+        setMode('chooser'); // default to chooser when signed in
       } else {
         setMode('ai');
       }
@@ -263,7 +262,7 @@ const HelpLauncher = () => {
               <div className='vstack gap-12'>
                 <p className='mb-8'>What would you like to open?</p>
                 <button type='button' className='help-btn help-btn--primary w-100' onClick={async () => { setMode('support_list'); await refreshTickets(); }}>Customer Support</button>
-              <p className='small text-neutral-600 mb-0'>Customer Support uses our ticketing system and connects you to a human executive.</p>
+                <button type='button' className='help-btn help-btn--ghost w-100' onClick={() => setMode('ai')}>Ask GradusAI Chatbot</button>
               </div>
             </div>
           ) : mode === 'support_list' ? (
@@ -271,6 +270,14 @@ const HelpLauncher = () => {
               <div className='d-flex justify-content-between align-items-center mb-12'>
                 <h6 className='help-page-title mb-0'>Customer Support</h6>
                 <div className='help-toolbar d-flex gap-8'>
+                  <button
+                    type='button'
+                    className='help-btn help-btn--ghost help-btn--sm'
+                    onClick={() => setMode('chooser')}
+                    aria-label='Back to choose between AI and Support'
+                  >
+                    <i className='ph ph-arrow-left' /> <span className='btn-label'>Back</span>
+                  </button>
                   <button
                     type='button'
                     className='help-btn help-btn--ghost help-btn--sm'
