@@ -35,10 +35,9 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-// Enable strict CORS in production; relax in development for local fetch
-if (config.nodeEnv === 'production') {
-    app.use(cors(corsOptions));
-} else {
+// In production, rely on reverse proxy (e.g., Nginx/Cloudflare) to set CORS.
+// Enabling Express CORS there can cause duplicate Access-Control-Allow-Origin headers.
+if (config.nodeEnv !== 'production') {
     app.use(
         cors({
             origin: true, // reflect request origin for local dev
