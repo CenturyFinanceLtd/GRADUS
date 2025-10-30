@@ -1,3 +1,8 @@
+/*
+  Auth controller (users)
+  - Handles signup with OTP verification, login/logout, and password reset
+  - Helper utils for request sanitization and audit logging
+*/
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');

@@ -1,3 +1,8 @@
+/*
+  Data bootstrapper for course content
+  - Seeds initial Course and CoursePage documents using src/data/defaultCourseContent
+  - Normalizes arrays/partner objects to keep DB shape consistent
+*/
 const Course = require('../models/Course');
 const CoursePage = require('../models/CoursePage');
 const defaultCourseContent = require('../data/defaultCourseContent');

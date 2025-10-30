@@ -1,3 +1,8 @@
+/*
+  MongoDB connection helper
+  - Establishes a Mongoose connection using the configured URI
+  - Exits the process if a connection cannot be established
+*/
 const mongoose = require('mongoose');
 const config = require('./env');
 

@@ -1,3 +1,7 @@
+/*
+  ContactInquiry model
+  - Stores public contact form submissions and status
+*/
 const mongoose = require('mongoose');
 
 const contactInquirySchema = new mongoose.Schema(

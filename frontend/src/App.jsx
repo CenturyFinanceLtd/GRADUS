@@ -1,3 +1,8 @@
+/*
+  Application routes (public site)
+  - Centralized react-router configuration and cross-cutting providers
+  - Adds Meta manager, analytics tracker, and chatbot widget globally
+*/
 import OurCoursesPage from "./pages/OurCoursesPage.jsx";
 import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 import RouteScrollToTop from "./helper/RouteScrollToTop.jsx";

@@ -1,3 +1,8 @@
+/*
+  Public course routes
+  - Read/list courses and course pages for the public site
+  - Mounted at /api/courses
+*/
 const express = require('express');
 const { getCoursePage, listCourses, enrollInCourse, getCourseBySlug } = require('../controllers/courseController');
 const { attachUserIfPresent, protect } = require('../middleware/authMiddleware');

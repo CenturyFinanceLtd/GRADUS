@@ -1,3 +1,8 @@
+/*
+  Frontend entrypoint (public site)
+  - Loads global styles/vendor CSS and mounts the React app
+  - Wraps <App/> with AuthProvider for authenticated user state
+*/
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";

@@ -1,3 +1,8 @@
+/*
+  Admin router
+  - Centralizes admin route declarations and page wiring
+  - Uses react-router to render dashboard, content, and management pages
+*/
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import HomePageOne from "./pages/HomePageOne";
 import HomePageTwo from "./pages/HomePageTwo";

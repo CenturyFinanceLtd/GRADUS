@@ -1,3 +1,7 @@
+/*
+  User controller
+  - Authenticated user profile and related operations
+*/
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
 const { Types } = require('mongoose');

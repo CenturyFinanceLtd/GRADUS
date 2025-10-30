@@ -1,3 +1,7 @@
+/*
+  SiteVisit model
+  - Stores anonymized visit/event analytics from the public site
+*/
 const mongoose = require('mongoose');
 
 const siteVisitSchema = new mongoose.Schema(

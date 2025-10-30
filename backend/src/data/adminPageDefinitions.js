@@ -1,3 +1,7 @@
+/*
+  Static admin page definitions
+  - Used by the admin portal for sidebar/navigation and permission keys
+*/
 const ADMIN_PAGE_DEFINITIONS = [
     // Dashboards
     { key: 'dashboard_ai', label: 'Dashboard - AI', path: '/', category: 'Dashboards' },

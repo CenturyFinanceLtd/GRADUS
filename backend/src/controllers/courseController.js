@@ -1,3 +1,7 @@
+/*
+  Course controller
+  - Admin CRUD for courses/pages and public read endpoints
+*/
 const asyncHandler = require('express-async-handler');
 const crypto = require('crypto');
 const Course = require('../models/Course');

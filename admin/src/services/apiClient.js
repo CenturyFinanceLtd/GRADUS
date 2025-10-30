@@ -1,3 +1,8 @@
+/*
+  Admin fetch wrapper
+  - Uses API_BASE_URL from config/env and supports JSON or FormData bodies
+  - Includes credentials/cookies for session-based flows
+*/
 import { API_BASE_URL } from '../config/env';
 
 const apiClient = async (endpoint, { method = 'GET', data, token, headers } = {}) => {

@@ -1,3 +1,7 @@
+/*
+  CoursePage model
+  - Landing/hero and static content blocks for the course pages
+*/
 const mongoose = require('mongoose');
 
 const heroSchema = new mongoose.Schema(

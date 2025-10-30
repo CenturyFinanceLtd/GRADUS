@@ -1,3 +1,7 @@
+/*
+  Admin runtime config (Vite)
+  - Reads VITE_* variables, enforces required vars, and trims trailing slashes
+*/
 const getEnvVar = (name, { required = false } = {}) => {
   const value = import.meta.env[name];
   if (typeof value === 'string') {

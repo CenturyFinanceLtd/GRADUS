@@ -1,3 +1,8 @@
+/*
+  Multer configuration for image uploads
+  - Saves blog images to the frontend public assets directory
+  - Generates slugified, timestamped filenames and enforces MIME type/size
+*/
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');

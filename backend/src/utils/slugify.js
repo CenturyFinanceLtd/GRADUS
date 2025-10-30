@@ -1,3 +1,7 @@
+/*
+  Create a URL-friendly slug from a string
+  - Removes diacritics, non-alphanumerics, trims and collapses dashes
+*/
 const slugify = (text) => {
   if (!text) {
     return '';

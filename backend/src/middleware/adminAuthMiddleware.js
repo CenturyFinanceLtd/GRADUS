@@ -1,3 +1,8 @@
+/*
+  Admin auth middleware
+  - protectAdmin: require admin JWT and ensure account is active
+  - requireAdminRole: enforce role-based authorization for admin endpoints
+*/
 const asyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 const config = require('../config/env');

@@ -1,3 +1,7 @@
+/*
+  VerificationSession model
+  - Temporary state for OTP-based verification flows (signup, reset, etc.)
+*/
 const mongoose = require('mongoose');
 
 const verificationSessionSchema = new mongoose.Schema(

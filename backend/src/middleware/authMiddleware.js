@@ -1,3 +1,8 @@
+/*
+  User auth middleware
+  - protect: require a valid JWT for protected routes
+  - attachUserIfPresent: attach user if token exists, otherwise continue anonymously
+*/
 const asyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 const config = require('../config/env');

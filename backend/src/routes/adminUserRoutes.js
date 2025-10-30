@@ -1,3 +1,8 @@
+/*
+  Admin > Users routes
+  - List admins, update status/role, and delete
+  - Protected by admin auth middleware; mounted at /api/admin/users
+*/
 const express = require('express');
 const { body, param, query } = require('express-validator');
 const { listAdminUsers, updateAdminStatus, updateAdminRole, deleteAdminUser } = require('../controllers/adminUserController');

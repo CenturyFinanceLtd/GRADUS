@@ -1,3 +1,7 @@
+/*
+  Admin website user controller
+  - Admin-side listing and moderation for public website users
+*/
 const asyncHandler = require('express-async-handler');
 const mongoose = require('mongoose');
 const User = require('../models/User');

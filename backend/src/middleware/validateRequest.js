@@ -1,3 +1,7 @@
+/*
+  Express-Validator bridge
+  - Collects validation results and returns a consistent 422 payload
+*/
 const { validationResult } = require('express-validator');
 
 const validateRequest = (req, res, next) => {

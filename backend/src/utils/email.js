@@ -1,3 +1,9 @@
+/*
+  Email utilities
+  - sendEmail: generic nodemailer wrapper (mocked in non-live delivery mode)
+  - sendOtpEmail: formatted OTP mail for verification flows
+  - sendAdminApprovalEmail: rich email with approval/rejection links
+*/
 const nodemailer = require('nodemailer');
 const config = require('../config/env');
 

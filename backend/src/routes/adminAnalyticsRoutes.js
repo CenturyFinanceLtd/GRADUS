@@ -1,3 +1,8 @@
+/*
+  Admin > Analytics routes
+  - Aggregate/report analytics for the admin portal
+  - Mounted at /api/admin/analytics
+*/
 const express = require('express');
 const {
     fetchBlogEngagementStats,

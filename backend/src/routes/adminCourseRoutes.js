@@ -1,3 +1,8 @@
+/*
+  Admin > Course routes
+  - Manage courses and course pages/content
+  - Mounted at /api/admin/courses
+*/
 const express = require('express');
 const {
   getAdminCoursePage,

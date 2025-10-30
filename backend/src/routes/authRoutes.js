@@ -1,3 +1,8 @@
+/*
+  Auth routes (users)
+  - Signup with OTP verification, login/logout, and password reset
+  - Mounted at /api/auth in app.js
+*/
 const express = require('express');
 const { body } = require('express-validator');
 const {

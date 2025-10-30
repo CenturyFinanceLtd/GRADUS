@@ -1,3 +1,8 @@
+/*
+  Error middleware
+  - notFound: convert unknown routes to a 404 error
+  - errorHandler: consistent JSON error responses with optional stack in dev
+*/
 const notFound = (req, res, next) => {
   const error = new Error(`Not Found - ${req.originalUrl}`);
   res.status(404);

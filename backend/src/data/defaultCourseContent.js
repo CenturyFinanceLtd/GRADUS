@@ -1,3 +1,8 @@
+/*
+  Default course content seed
+  - Static content used to initialize Course and CoursePage collections
+  - Includes partner normalization helpers and base data used by ensureCourseContent
+*/
 const placementPartners = require("../../../shared/placementPartners.json");
 
 const trimValue = (value) => (typeof value === "string" ? value.trim() : "");

@@ -1,3 +1,8 @@
+/*
+  Chatbot routes
+  - Simple knowledge-base/FAQ chatbot endpoints
+  - Mounted at /api/chatbot
+*/
 const express = require('express');
 const asyncHandler = require('express-async-handler');
 const { handleChatMessage } = require('../services/chatbotService');

@@ -1,3 +1,7 @@
+/*
+  Admin user controller
+  - List/update/delete admin user accounts and roles/status
+*/
 const asyncHandler = require('express-async-handler');
 const AdminUser = require('../models/AdminUser');
 

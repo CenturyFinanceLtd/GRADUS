@@ -1,3 +1,8 @@
+/*
+  Public blog routes
+  - Read/list blogs and comments for the public site
+  - Mounted at /api/blogs
+*/
 const express = require('express');
 const {
   getBlogs,

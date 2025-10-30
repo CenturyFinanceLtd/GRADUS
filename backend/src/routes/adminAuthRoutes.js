@@ -1,3 +1,9 @@
+/*
+  Admin auth routes
+  - Admin signup flow with email OTP + approver decision links
+  - Admin login, profile + password management
+  - Mounted at /api/admin/auth in app.js
+*/
 const express = require('express');
 const { body, param } = require('express-validator');
 const {

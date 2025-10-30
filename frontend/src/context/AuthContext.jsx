@@ -1,3 +1,8 @@
+/*
+  AuthContext (public site)
+  - Stores user + token in localStorage and provides login/logout helpers
+  - Transparently includes token in API calls made during logout
+*/
 import { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
 import apiClient from "../services/apiClient";
 

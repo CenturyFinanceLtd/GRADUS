@@ -1,223 +1,39 @@
-# GRADUS Platform Operations Manual
-This repository contains the complete codebase for the **GRADUS** education platform, which is deployed as three coordinated web applications:
-| Domain | Directory | Purpose |
-| --- | --- | --- |
-| `gradusindia.in` | [`frontend/`](frontend/) | Public marketing site and course catalogue built with Vite + React. |
-| `admin.gradusindia.in` | [`admin/`](admin/) | React-based operations dashboard for managing courses, blogs, analytics, and enrolments. |
-| `api.gradusindia.in` | [`backend/`](backend/) | Node.js/Express API that handles authentication, content management, analytics, chatbot, and contact submissions. |
-All environments—local, staging, and production—follow the same structure. The sections below walk through every step required to develop, configure, deploy, and maintain the platform.
----
-## Table of contents
-1. [Technology stack](#technology-stack)
-2. [Repository layout](#repository-layout)
-3. [Prerequisites](#prerequisites)
-4. [Environment variables](#environment-variables)
-5. [Local development workflow](#local-development-workflow)
-6. [Backend services](#backend-services)
-7. [Frontend site](#frontend-site)
-8. [Admin dashboard](#admin-dashboard)
-9. [Deployment to production domains](#deployment-to-production-domains)
-10. [Nginx reverse proxy setup](#nginx-reverse-proxy-setup)
-11. [Post-deployment checklist](#post-deployment-checklist)
-12. [Maintenance & troubleshooting](#maintenance--troubleshooting)
----
-## Technology stack
-* **API** – Node.js 18+, Express 5, MongoDB (Mongoose ODM), Express Session, JWT, Nodemailer for transactional email, and Multer for media uploads. 【F:backend/package.json†L1-L34】【F:backend/src/app.js†L1-L66】
-* **Frontend** – React 18 rendered through Vite with a collection of marketing-focused libraries (AOS, Bootstrap, slick carousel, modal video, etc.). 【F:frontend/package.json†L1-L34】
-* **Admin dashboard** – React 18 + Vite with rich UI widgets (charts, calendars, drag-and-drop, TinyMCE, React Quill). 【F:admin/package.json†L1-L68】
----
-## Repository layout
-```
-GRADUS/
-├── admin/        # Vite React admin portal
-├── backend/      # Express API and MongoDB data models
-├── frontend/     # Vite React marketing site
-├── scripts/      # Infrastructure and automation helpers (if any)
-└── shared/       # Shared assets and utilities
-```
-See each project folder for its own `package.json` and source tree.
----
-## Prerequisites
-Install the following tools on any machine that will run or deploy GRADUS:
-1. **Node.js 18 LTS** (or newer) with `npm`. All three projects use Node for builds and tooling. 【F:backend/package.json†L1-L34】【F:frontend/package.json†L1-L34】
-2. **MongoDB 6+** (self-hosted or Atlas cluster). The backend terminates startup if the `MONGODB_URI` is missing. 【F:backend/src/config/db.js†L1-L20】
-3. **Git** for source control and deployments.
-4. **pm2** (recommended) to keep the API process alive in production. 【F:README.md†L198-L214】
-5. **Nginx** to serve static builds and proxy API traffic. 【F:README.md†L170-L197】
-6. **Certbot** (optional) to provision HTTPS certificates.
----
-## Environment variables
-Each application relies on environment variables supplied through `.env` files.
-### Backend (`backend/.env`)
-The API reads configuration through [`backend/src/config/env.js`](backend/src/config/env.js). Key settings include:
-* `NODE_ENV` and `PORT` – the runtime mode and HTTP port (defaults to `5000`). 【F:backend/src/config/env.js†L5-L38】
-* `SERVER_PUBLIC_URL` – the externally reachable base URL (`https://api.gradusindia.in`). 【F:backend/src/config/env.js†L8-L23】
-* `CLIENT_URLS` – comma-separated list of allowed browser origins for CORS/session cookies (`https://gradusindia.in,https://www.gradusindia.in,https://admin.gradusindia.in`). 【F:backend/src/config/env.js†L24-L36】【F:backend/src/app.js†L11-L34】
-* Mongo/auth secrets (`MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `SESSION_SECRET`). Missing values log warnings during boot. 【F:backend/src/config/env.js†L37-L63】
-* SMTP credentials for real email delivery when `EMAIL_DELIVERY_MODE=live`. 【F:backend/src/config/env.js†L37-L61】
-* Admin branding (`ADMIN_APPROVER_EMAIL`, `ADMIN_PORTAL_NAME`) and approval URL overrides. 【F:backend/src/config/env.js†L39-L55】
-> **Production note:** `SESSION_SECRET` is mandatory in production; the server warns if it is omitted. 【F:backend/src/config/env.js†L60-L63】
-### Frontend (`frontend/.env.local` or `.env.production`)
-* `VITE_API_BASE_URL` – REST endpoint consumed by the marketing site. Default logic falls back to `http://localhost:5000/api` during local development and `https://api.gradusindia.in/api` otherwise. 【F:frontend/src/services/apiClient.js†L1-L53】
-### Admin (`admin/.env.local` or `.env.production`)
-* `VITE_API_BASE_URL` – base URL for admin API calls (`https://api.gradusindia.in/api`). 【F:admin/src/config/env.js†L1-L26】
-* `VITE_PUBLIC_SITE_URL` – optional link back to the public site (used in cross-navigation). 【F:admin/src/config/env.js†L20-L28】
-Create environment files for each project before running any commands. Example production values are provided in the deployment section.
----
-## Local development workflow
-1. **Clone the repository** and install dependencies once per project:
-   ```bash
-   git clone <repo-url>
-   cd GRADUS
-   npm install --prefix backend
-   npm install --prefix frontend
-   npm install --prefix admin
-   ```
-2. **Prepare environment files** using the templates above. For quick local testing you may point all apps at `http://localhost:5000` and a local MongoDB instance.
-3. **Start the backend API**:
-   ```bash
-   cd backend
-   npm run dev
-   ```
-   This runs `nodemon src/server.js`, which connects to MongoDB, ensures default course content exists, and exposes endpoints on `http://localhost:5000/api`. 【F:backend/package.json†L4-L18】【F:backend/src/server.js†L1-L26】
-4. **Start the frontend site**:
-   ```bash
-   cd frontend
-   npm run dev -- --host
-   ```
-   Vite serves the site on `http://localhost:5173` by default and proxies API calls using the configured `VITE_API_BASE_URL`. 【F:frontend/package.json†L5-L20】【F:frontend/src/services/apiClient.js†L15-L53】
-5. **Start the admin dashboard**:
-   ```bash
-   cd admin
-   npm run dev -- --host
-   ```
-   The admin app expects valid credentials provisioned through the backend's admin signup flow. 【F:admin/package.json†L5-L20】【F:backend/src/routes/adminAuthRoutes.js†L1-L120】
-6. **Optional tooling** – Both Vite projects expose `npm run build` for production builds and `npm run preview` to serve the compiled assets locally. 【F:frontend/package.json†L5-L20】【F:admin/package.json†L5-L20】
----
-## Backend services
-* **Express application** – Registers API routers for authentication, admin management, blogs, courses, analytics, chatbot, and public contact forms under `/api/*` paths. 【F:backend/src/app.js†L1-L66】
-* **Mongo connection** – `connectDB()` validates `MONGODB_URI` and terminates on failure. 【F:backend/src/config/db.js†L1-L20】
-* **Session & CORS** – Requests include credentials and session cookies secured by `SESSION_SECRET`; allowed origins are enforced through `CLIENT_URLS`. 【F:backend/src/app.js†L11-L44】
-* **Default content seeding** – On startup the server ensures at least one course and course page exist by inserting data from `backend/src/data/defaultCourseContent.js`. 【F:backend/src/server.js†L1-L26】【F:backend/src/utils/ensureCourseContent.js†L1-L77】
-* **Health check** – `GET /api/health` returns `{ status: 'ok' }` with a timestamp; use this endpoint for uptime monitoring. 【F:backend/src/app.js†L46-L54】
-* **Static assets** – Blog images uploaded through the admin panel are served from `/blog-images`. 【F:backend/src/app.js†L40-L45】
-When deploying with pm2, start the process with `pm2 start src/server.js --name gradus-api` and run `pm2 save` to persist restarts. 【F:README.md†L129-L145】
----
-## Frontend site
-* Vite React application tailored to marketing content, carousels, counters, and animations. Dependencies include `animate.css`, `react-fast-marquee`, `react-slick`, and others. 【F:frontend/package.json†L13-L33】
-* API requests are centralized in `src/services/apiClient.js`, which automatically attaches credentials and parses JSON responses. 【F:frontend/src/services/apiClient.js†L19-L92】
-* Configure deployments by supplying `VITE_API_BASE_URL=https://api.gradusindia.in/api` in `.env.production` before running `npm run build`. 【F:frontend/src/services/apiClient.js†L1-L53】
-The build command outputs static files to `frontend/dist/` for Nginx or any static host. 【F:frontend/package.json†L5-L20】
----
-## Admin dashboard
-* Rich Vite React SPA providing course authoring, blog management, analytics views, chatbot training, and user administration.
-* Environment configuration is validated at runtime; missing `VITE_API_BASE_URL` throws an explicit error. 【F:admin/src/config/env.js†L1-L28】
-* The admin portal reuses the API base URL to construct asset links (for blog images and uploads). 【F:admin/src/config/env.js†L20-L28】
-Build with `npm run build` to produce `admin/dist/` for static hosting behind Nginx. 【F:admin/package.json†L5-L20】
----
-## Deployment to production domains
-Follow these steps on your production server (e.g., `/var/www/GRADUS`):
-1. **Fetch code**:
-   ```bash
-   cd /var/www
-   git clone <repo-url> GRADUS
-   ```
-2. **Backend environment (`backend/.env`)**:
-   ```ini
-   NODE_ENV=production
-   PORT=5000
-   SERVER_PUBLIC_URL=https://api.gradusindia.in
-   CLIENT_URLS=https://gradusindia.in,https://www.gradusindia.in,https://admin.gradusindia.in
-   MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
-   JWT_SECRET=<random-long-string>
-   JWT_EXPIRES_IN=7d
-   SESSION_SECRET=<another-random-string>
-   SMTP_HOST=smtp.yourprovider.com
-   SMTP_PORT=587
-   SMTP_USER=no-reply@gradusindia.in
-   SMTP_PASS=<smtp-password>
-   SMTP_FROM="Gradus <no-reply@gradusindia.in>"
-   EMAIL_DELIVERY_MODE=live
-   ADMIN_APPROVER_EMAIL=admin@gradusindia.in
-   ADMIN_PORTAL_NAME="Gradus Admin Portal"
-   ```
-3. **Frontend `.env.production`**:
-   ```ini
-   VITE_API_BASE_URL=https://api.gradusindia.in/api
-   ```
-4. **Admin `.env.production`**:
-   ```ini
-   VITE_API_BASE_URL=https://api.gradusindia.in/api
-   VITE_PUBLIC_SITE_URL=https://gradusindia.in
-   ```
-5. **Install and build**:
-   ```bash
-   cd /var/www/GRADUS/backend && npm ci --only=production
-   cd /var/www/GRADUS/frontend && npm ci && npm run build
-   cd /var/www/GRADUS/admin && npm ci && npm run build
-   ```
-6. **Run the API with pm2**:
-   ```bash
-   cd /var/www/GRADUS/backend
-   pm2 start src/server.js --name gradus-api
-   pm2 save
-   ```
-7. **Serve static builds** – Point Nginx to `frontend/dist/` for `gradusindia.in` and `admin/dist/` for `admin.gradusindia.in`. The API listens on `127.0.0.1:5000` for proxying.
----
-## Nginx reverse proxy setup
-Create `/etc/nginx/sites-available/gradusindia.in`:
-```nginx
-server {
-    listen 80;
-    server_name gradusindia.in www.gradusindia.in;
-    root /var/www/GRADUS/frontend/dist;
-    index index.html;
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-}
-server {
-    listen 80;
-    server_name admin.gradusindia.in;
-    root /var/www/GRADUS/admin/dist;
-    index index.html;
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-}
-server {
-    listen 80;
-    server_name api.gradusindia.in;
-    location / {
-        proxy_pass http://127.0.0.1:5000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection upgrade;
-        proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-Enable the site and reload:
-```bash
-sudo ln -s /etc/nginx/sites-available/gradusindia.in /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
-```
-After generating TLS certificates with Certbot, update `listen 80` to `listen 443 ssl http2` and add certificate paths.
----
-## Post-deployment checklist
-1. Visit `https://gradusindia.in` and `https://admin.gradusindia.in` to confirm static assets load correctly.
-2. Call `curl https://api.gradusindia.in/api/health` to verify the API responds with status `ok`. 【F:backend/src/app.js†L46-L54】
-3. Complete an admin login and ensure course/blog management features render without console errors.
-4. Submit the public contact form and confirm an email notification is received (requires SMTP).
-5. Run `pm2 status` to ensure the `gradus-api` process is online and attached to startup via `pm2 startup`. 【F:README.md†L198-L214】
----
-## Maintenance & troubleshooting
-* **Origin/CORS issues** – Add every deployed domain to `CLIENT_URLS`; otherwise browsers will block cookies and API calls. 【F:backend/src/config/env.js†L24-L36】【F:backend/src/app.js†L11-L34】
-* **Session problems** – Set a strong `SESSION_SECRET`; the server logs a warning if it falls back to the default `gradus_secret`. 【F:backend/src/config/env.js†L37-L63】
-* **Database connectivity** – Review `MONGODB_URI`; the server exits immediately on connection errors. 【F:backend/src/config/db.js†L1-L20】
-* **Missing seed data** – Startup automatically populates courses when the collections are empty. Re-run the API with an empty database to rebuild defaults. 【F:backend/src/utils/ensureCourseContent.js†L1-L77】
-* **Static uploads** – Blog images are saved under `backend/uploads/blog-images/` and exposed publicly via `/blog-images`. Ensure the folder has read permissions for Nginx. 【F:backend/src/app.js†L40-L45】
-By following this playbook you can reproduce the GRADUS platform locally, deploy it on the designated domains (`gradusindia.in`, `admin.gradusindia.in`, and `api.gradusindia.in`), and keep all services healthy over time.
+# GRADUS Platform
+
+Overview
+- Monorepo containing three coordinated web apps for the Gradus platform:
+  - `frontend/` — Public site (React + Vite)
+  - `admin/` — Admin dashboard (React + Vite)
+  - `backend/` — API server (Node.js + Express + MongoDB)
+
+Repository Layout
+- `admin/` — Admin portal sources and build output.
+- `backend/` — Express API sources and configuration.
+- `frontend/` — Public site sources and build output.
+- `scripts/` — Optional infra/automation helpers.
+- `shared/` — Shared assets/data.
+
+Quick Start (local)
+- Backend
+  - `cd backend && npm install`
+  - Add `backend/.env` with at least `MONGODB_URI` and `JWT_SECRET`.
+  - `npm run dev` (server on `http://localhost:5000`).
+- Frontend
+  - `cd frontend && npm install`
+  - Add `.env.local` with `VITE_API_BASE_URL=http://localhost:5000/api`.
+  - `npm run dev` (site on `http://localhost:5173`).
+- Admin
+  - `cd admin && npm install`
+  - Add `.env.local` with `VITE_API_BASE_URL=http://localhost:5000/api`.
+  - `npm run dev` (dashboard on `http://localhost:5174`).
+
+Documentation
+- Backend: `backend/README.md`
+- Frontend: `frontend/README.md`
+- Admin: `admin/README.md`
+
+Production Notes
+- Serve `frontend/dist` and `admin/dist` behind Nginx (SPA settings).
+- Proxy API traffic to the backend (default port `5000`).
+- Prefer setting CORS at the reverse proxy; the API enables CORS only in non-production.
+

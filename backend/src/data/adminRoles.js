@@ -1,3 +1,7 @@
+/*
+  Admin role catalog and utilities
+  - Canonical role keys, labels, and helpers for normalization
+*/
 const ADMIN_ROLES = [
   { key: 'programmer_admin', label: 'Programmer(Admin)' },
   { key: 'admin', label: 'Admin' },

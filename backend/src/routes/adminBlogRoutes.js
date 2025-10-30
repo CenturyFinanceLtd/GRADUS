@@ -1,3 +1,8 @@
+/*
+  Admin > Blog routes
+  - Create/update/delete blog posts, upload images
+  - Mounted at /api/admin/blogs
+*/
 const express = require('express');
 const {
   createBlog,

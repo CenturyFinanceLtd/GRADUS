@@ -1,3 +1,7 @@
+/*
+  Admin permission controller
+  - Defines CRUD operations for role-based permissions in admin portal
+*/
 const asyncHandler = require('express-async-handler');
 const AdminPermission = require('../models/AdminPermission');
 const { ADMIN_ROLES, ADMIN_ROLE_KEYS, normalizeAdminRole, getAdminRoleLabel } = require('../data/adminRoles');

@@ -1,3 +1,7 @@
+/*
+  Contact controller
+  - Handles public contact submissions and admin status updates
+*/
 const asyncHandler = require('express-async-handler');
 const ContactInquiry = require('../models/ContactInquiry');
 

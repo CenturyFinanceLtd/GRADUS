@@ -1,3 +1,7 @@
+/*
+  Analytics controller
+  - Records site visits/events and exposes reporting endpoints
+*/
 const asyncHandler = require('express-async-handler');
 const crypto = require('crypto');
 const Blog = require('../models/Blog');

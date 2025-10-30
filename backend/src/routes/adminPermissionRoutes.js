@@ -1,3 +1,8 @@
+/*
+  Admin > Permission routes
+  - Manage role permissions within the admin portal
+  - Mounted at /api/admin/permissions
+*/
 const express = require('express');
 const { body, param } = require('express-validator');
 const {

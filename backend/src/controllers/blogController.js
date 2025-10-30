@@ -1,3 +1,7 @@
+/*
+  Blog controller
+  - CRUD for blog posts and comments (admin + public facades)
+*/
 const asyncHandler = require('express-async-handler');
 const mongoose = require('mongoose');
 const Blog = require('../models/Blog');

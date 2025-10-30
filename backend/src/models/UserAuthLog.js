@@ -1,3 +1,7 @@
+/*
+  UserAuthLog model
+  - Audit log for user authentication events (login, logout, etc.)
+*/
 const mongoose = require('mongoose');
 
 const userAuthLogSchema = new mongoose.Schema(

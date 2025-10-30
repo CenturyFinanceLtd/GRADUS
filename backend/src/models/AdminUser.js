@@ -1,3 +1,7 @@
+/*
+  AdminUser model
+  - Admin portal accounts with role/status metadata
+*/
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 

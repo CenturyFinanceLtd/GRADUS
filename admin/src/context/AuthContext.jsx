@@ -1,3 +1,7 @@
+/*
+  Admin AuthContext
+  - Persists admin token/profile, fetches permissions, and exposes helpers
+*/
 import { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
 import apiClient from "../services/apiClient";
 import { fetchMyPermissions } from "../services/adminPermissions";

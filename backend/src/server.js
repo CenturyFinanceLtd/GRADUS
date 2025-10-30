@@ -1,3 +1,9 @@
+/*
+  HTTP server entrypoint
+  - Connects to MongoDB
+  - Performs one-time/data-ensuring tasks (e.g., default course content)
+  - Starts the Express app and wires graceful shutdown on fatal errors
+*/
 const config = require('./config/env');
 const connectDB = require('./config/db');
 const app = require('./app');
@@ -12,6 +18,7 @@ const startServer = async () => {
     console.error('[server] Failed to ensure course content:', error);
   }
 
+  // Start HTTP server
   const server = app.listen(config.port, () => {
     console.log(`[server] Listening on port ${config.port}`);
   });
@@ -23,6 +30,7 @@ const startServer = async () => {
     });
   };
 
+  // Fail fast on unexpected errors to avoid undefined state
   process.on('unhandledRejection', shutdown);
   process.on('uncaughtException', shutdown);
 };

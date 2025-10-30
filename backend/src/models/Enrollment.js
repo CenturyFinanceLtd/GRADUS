@@ -1,3 +1,7 @@
+/*
+  Enrollment model
+  - Tracks user enrollments into courses and progress metadata
+*/
 const mongoose = require('mongoose');
 
 const enrollmentSchema = new mongoose.Schema(

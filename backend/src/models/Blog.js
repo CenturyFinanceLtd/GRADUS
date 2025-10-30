@@ -1,3 +1,7 @@
+/*
+  Blog model
+  - Blog post content, metadata, and publishing fields
+*/
 const mongoose = require('mongoose');
 
 const blogSchema = new mongoose.Schema(

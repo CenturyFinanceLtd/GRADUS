@@ -1,3 +1,8 @@
+/*
+  Lightweight fetch wrapper for REST calls
+  - Picks API base URL from Vite env, with sensible localhost defaults
+  - Parses JSON/text automatically and throws enriched errors
+*/
 const DEFAULT_LOCAL_API_BASE_URL = 'http://localhost:5000/api';
 const DEFAULT_REMOTE_API_BASE_URL = 'https://api.gradusindia.in/api';
 

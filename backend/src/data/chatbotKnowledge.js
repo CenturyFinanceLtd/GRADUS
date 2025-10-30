@@ -1,3 +1,7 @@
+/*
+  Lightweight chatbot knowledge base
+  - Static Q&A/insight entries used by the chatbot service
+*/
 module.exports = [
   {
     id: 'gradus-overview',

@@ -1,3 +1,7 @@
+/*
+  AdminPermission model
+  - Declarative permissions for roles/features in admin portal
+*/
 const mongoose = require('mongoose');
 
 const adminPermissionSchema = new mongoose.Schema(

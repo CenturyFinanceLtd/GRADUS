@@ -1,3 +1,8 @@
+/*
+  Admin > Website users routes
+  - Manage public website users from the admin portal
+  - Mounted at /api/admin/website-users
+*/
 const express = require('express');
 const { query } = require('express-validator');
 const { listWebsiteUsers } = require('../controllers/adminWebsiteUserController');

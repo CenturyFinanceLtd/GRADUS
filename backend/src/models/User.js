@@ -1,3 +1,7 @@
+/*
+  User model (public site user)
+  - Stores identity, contact details, profile sections, and hashed password
+*/
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 

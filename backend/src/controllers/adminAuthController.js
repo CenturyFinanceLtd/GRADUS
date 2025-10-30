@@ -1,3 +1,8 @@
+/*
+  Admin auth controller
+  - Admin signup with OTP + approval, login, profile/password changes
+  - Produces approval links for approvers via templated emails
+*/
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');

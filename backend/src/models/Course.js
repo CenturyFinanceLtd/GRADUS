@@ -1,3 +1,7 @@
+/*
+  Course model
+  - Public course catalogue entries and structured outcomes
+*/
 const mongoose = require('mongoose');
 
 const weekSchema = new mongoose.Schema(

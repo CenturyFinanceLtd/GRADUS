@@ -1,3 +1,9 @@
+/*
+  Environment configuration loader
+  - Central place for reading and normalizing all process.env values
+  - Provides sensible defaults for local development
+  - Emits warnings for missing critical variables
+*/
 const dotenv = require('dotenv');
 
 dotenv.config();

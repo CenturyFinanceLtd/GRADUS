@@ -1,3 +1,7 @@
+/*
+  BlogComment model
+  - Comments associated with a blog post
+*/
 const mongoose = require('mongoose');
 
 const blogCommentSchema = new mongoose.Schema(

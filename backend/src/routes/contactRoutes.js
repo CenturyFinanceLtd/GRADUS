@@ -1,3 +1,8 @@
+/*
+  Contact inquiry routes
+  - Public submission endpoint and admin listing/status updates
+  - Mounted at /api/inquiries
+*/
 const express = require('express');
 const {
   createContactInquiry,

@@ -1,3 +1,8 @@
+/*
+  User routes (profile and related endpoints)
+  - Requires user authentication
+  - Mounted at /api/users
+*/
 const express = require('express');
 const { body } = require('express-validator');
 const {
