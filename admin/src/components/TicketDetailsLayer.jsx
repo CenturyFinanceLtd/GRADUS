@@ -389,7 +389,7 @@ const TicketDetailsLayer = () => {
             {ticket.status !== 'closed' && (
               <>
                 <div className='d-flex gap-8 mb-12'>
-                  <button type='button' className='btn btn-sm btn-outline-primary' onClick={handleRequestClosure} disabled={savingMeta || ticket.status === 'pending_confirmation'}>
+                  <button type='button' className='btn btn-sm btn-outline-primary' onClick={handleRequestClosure} disabled={savingMeta || ticket.status === 'pending_confirmation' || !isMine}>
                     Send OTP to user
                   </button>
                 </div>
@@ -409,11 +409,14 @@ const TicketDetailsLayer = () => {
                     <option value='true'>Problem Solved (Yes)</option>
                     <option value='false'>Not Solved (No)</option>
                   </select>
-                  <button type='button' className='btn btn-sm btn-danger' onClick={handleConfirmClosure} disabled={!closureState.otp.trim()}>
+                  <button type='button' className='btn btn-sm btn-danger' onClick={handleConfirmClosure} disabled={!closureState.otp.trim() || !isMine}>
                     Confirm and Close
                   </button>
                   {ticket.status === 'pending_confirmation' && (
                     <div className='small text-warning mt-8'>Waiting for OTP confirmation…</div>
+                  )}
+                  {!isMine && (
+                    <div className='small text-neutral-500'>Only the assigned admin can send or confirm OTP.</div>
                   )}
                 </div>
               </>

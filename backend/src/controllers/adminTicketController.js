@@ -282,6 +282,11 @@ const requestClosure = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('Ticket already closed');
   }
+  // Only current assignee can initiate OTP closure
+  if (!ticket.assignedTo || ticket.assignedTo.toString() !== req.admin._id.toString()) {
+    res.status(403);
+    throw new Error('Only the assigned admin can send the OTP.');
+  }
 
   const otp = generateOtp();
   ticket.status = 'pending_confirmation';
@@ -315,6 +320,11 @@ const confirmClosure = asyncHandler(async (req, res) => {
   if (ticket.status !== 'pending_confirmation') {
     res.status(400);
     throw new Error('Ticket is not pending confirmation');
+  }
+  // Only current assignee can confirm closure
+  if (!ticket.assignedTo || ticket.assignedTo.toString() !== req.admin._id.toString()) {
+    res.status(403);
+    throw new Error('Only the assigned admin can confirm ticket closure.');
   }
   const EXPECTED_TTL_MS = 10 * 60 * 1000; // 10 minutes
   const now = Date.now();
