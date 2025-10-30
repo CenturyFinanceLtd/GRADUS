@@ -178,7 +178,7 @@ const EnrollmentsOverview = () => {
     <div className='card p-24'>
       <div className='d-flex flex-wrap justify-content-between align-items-center gap-16 mb-24'>
         <div>
-          <h5 className='mb-8'>Recent Enrollments</h5>
+          <h5 className='mb-8'>Recent Course Enrollments</h5>
           <p className='text-neutral-500 mb-0'>Monitor which learners have been enrolled into your courses.</p>
         </div>
         <div className='d-flex gap-12'>
@@ -299,7 +299,7 @@ const EnrollmentsOverview = () => {
                 </div>
               ) : !selectedCourseKey ? (
                 <div className='alert alert-info mb-0' role='alert'>
-                  No enrollments have been recorded yet.
+                  No course enrollments have been recorded yet.
                 </div>
               ) : filteredEnrollments.length === 0 ? (
                 <div className='alert alert-info mb-0' role='alert'>

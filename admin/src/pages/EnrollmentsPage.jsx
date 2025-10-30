@@ -5,7 +5,7 @@ import EnrollmentsOverview from "../components/EnrollmentsOverview";
 const EnrollmentsPage = () => {
   return (
     <MasterLayout>
-      <Breadcrumb title='Enrollments' />
+      <Breadcrumb title='Course Enrollments' />
       <EnrollmentsOverview />
     </MasterLayout>
   );

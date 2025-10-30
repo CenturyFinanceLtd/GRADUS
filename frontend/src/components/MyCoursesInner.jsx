@@ -108,6 +108,12 @@ const MyCoursesInner = () => {
     return "Here are the programs you are enrolled in.";
   }, [user]);
 
+  const enrolledCount = state.items.length;
+  const enrolledLabel = useMemo(
+    () => `${enrolledCount} ${enrolledCount === 1 ? 'course' : 'courses'} enrolled`,
+    [enrolledCount]
+  );
+
   const handleRefresh = () => setRefreshKey((previous) => previous + 1);
 
   return (
@@ -115,14 +121,21 @@ const MyCoursesInner = () => {
       <div className='container'>
         <div className='d-flex flex-wrap align-items-center justify-content-between gap-12 mb-24'>
           <span className='text-neutral-700'>{greeting}</span>
-          <button
-            type='button'
-            className='btn btn-outline-main py-12 px-24 rounded-pill flex-align gap-8 fw-semibold'
-            onClick={handleRefresh}
-          >
-            <i className='ph-bold ph-arrow-clockwise d-flex text-lg' />
-            Refresh list
-          </button>
+          <div className='d-flex align-items-center gap-12'>
+            {!state.loading && !state.error && (
+              <span className='badge bg-main-25 text-main-600 px-16 py-8 rounded-pill text-sm fw-semibold'>
+                {enrolledLabel}
+              </span>
+            )}
+            <button
+              type='button'
+              className='btn btn-outline-main py-12 px-24 rounded-pill flex-align gap-8 fw-semibold'
+              onClick={handleRefresh}
+            >
+              <i className='ph-bold ph-arrow-clockwise d-flex text-lg' />
+              Refresh list
+            </button>
+          </div>
         </div>
         <div className='row gy-4'>
           {state.loading ? (
@@ -147,12 +160,13 @@ const MyCoursesInner = () => {
           ) : state.items.length === 0 ? (
             <div className='col-12'>
               <div className='text-center py-80'>
-                <p className='text-neutral-600 mb-16'>You haven't enrolled in any courses yet.</p>
+                <p className='text-neutral-600 mb-16'>0 courses enrolled</p>
                 <Link
                   to='/our-courses'
                   className='btn btn-main py-12 px-32 rounded-pill text-md fw-semibold'
+                  aria-label='Browse Our Courses'
                 >
-                  Explore courses
+                  Our Courses
                 </Link>
               </div>
             </div>
@@ -219,7 +233,13 @@ const MyCoursesInner = () => {
                       <div className='flex-between gap-8 pt-24 border-top border-neutral-50 mt-28 border-dashed border-0'>
                         <div className='d-flex flex-column'>
                           <span className='text-sm text-neutral-500'>Need another course?</span>
-                          <span className='text-md text-main-600 fw-semibold'>Continue learning</span>
+                          <Link
+                            to='/our-courses'
+                            className='text-md text-main-600 fw-semibold hover-text-decoration-underline'
+                            aria-label='Continue learning: browse our courses'
+                          >
+                            Continue learning
+                          </Link>
                         </div>
                         <Link
                           to='/our-courses'

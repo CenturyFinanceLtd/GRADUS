@@ -369,7 +369,8 @@ const SignUpInner = () => {
   };
 
   const handleSendOtp = async ({ isResend = false } = {}) => {
-    const validationError = validateDetails();
+    // For sending OTP, only require name, phone, and email
+    const validationError = validateOtpPrereqs();
     if (validationError) {
       setError(validationError);
       return;

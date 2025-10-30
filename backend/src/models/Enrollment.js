@@ -38,7 +38,7 @@ const enrollmentSchema = new mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true, collection: 'courses-enrollments' }
 );
 
 enrollmentSchema.index({ user: 1, course: 1 }, { unique: true });

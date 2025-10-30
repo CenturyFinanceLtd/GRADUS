@@ -205,7 +205,7 @@ const WebsiteUsersListLayer = () => {
                     <p className='mb-0 fw-bold text-lg'>{totalUsers}</p>
                   </div>
                   <div className='text-center'>
-                    <p className='mb-0 text-xs text-secondary-light text-uppercase'>Total Enrollments</p>
+                    <p className='mb-0 text-xs text-secondary-light text-uppercase'>Total Course Enrollments</p>
                     <p className='mb-0 fw-bold text-lg'>{totalEnrollments}</p>
                   </div>
                 </div>
