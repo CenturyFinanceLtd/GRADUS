@@ -316,6 +316,24 @@ const SignUpInner = () => {
     };
   };
 
+  // Only require minimal fields for sending OTP
+  const validateOtpPrereqs = () => {
+    const minimalRequired = [
+      ["studentName", "Student Name"],
+      ["email", "Email"],
+      ["mobile", "Phone"],
+    ];
+
+    for (const [field, label] of minimalRequired) {
+      const value = formData[field];
+      if (!value || !String(value).trim()) {
+        return `Please provide the ${label.toLowerCase()}.`;
+      }
+    }
+
+    return null;
+  };
+
   const validateDetails = () => {
     const requiredFields = [
       ["studentName", "Student Name"],
