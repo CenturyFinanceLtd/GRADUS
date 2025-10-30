@@ -35,7 +35,19 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-// app.use(cors(corsOptions));
+// Enable strict CORS in production; relax in development for local fetch
+if (config.nodeEnv === 'production') {
+    app.use(cors(corsOptions));
+} else {
+    app.use(
+        cors({
+            origin: true, // reflect request origin for local dev
+            credentials: true,
+            methods: corsOptions.methods,
+            allowedHeaders: corsOptions.allowedHeaders,
+        })
+    );
+}
 
 
 app.use(express.json());
