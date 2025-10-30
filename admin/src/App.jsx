@@ -99,6 +99,8 @@ import AddBlogPage from "./pages/AddBlogPage";
 import TestimonialsPage from "./pages/TestimonialsPage";
 import ComingSoonPage from "./pages/ComingSoonPage";
 import AccessDeniedPage from "./pages/AccessDeniedPage";
+import TicketsPage from "./pages/TicketsPage.jsx";
+import TicketDetailsPage from "./pages/TicketDetailsPage.jsx";
 import MaintenancePage from "./pages/MaintenancePage";
 import BlankPagePage from "./pages/BlankPagePage";
 import InquiryPage from "./pages/InquiryPage";
@@ -174,6 +176,8 @@ function App() {
         <Route exact path='/blog-details/:blogId' element={<BlogDetailsPage />} />
         <Route exact path='/add-blog' element={<AddBlogPage />} />
         <Route exact path='/inquiries' element={<InquiryPage />} />
+        <Route exact path='/tickets' element={<TicketsPage />} />
+        <Route exact path='/ticket/:id' element={<TicketDetailsPage />} />
         <Route exact path='/courses' element={<CourseManagementPage />} />
         <Route exact path='/enrollments' element={<EnrollmentsPage />} />
 

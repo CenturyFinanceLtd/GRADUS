@@ -340,11 +340,11 @@ const MasterLayout = ({ children }) => {
             <li className='sidebar-menu-group-title'>Application</li>
             <li>
               <NavLink
-                to='/email'
+                to='/tickets'
                 className={(navData) => (navData.isActive ? "active-page" : "")}
               >
-                <Icon icon='mage:email' className='menu-icon' />
-                <span>Email</span>
+                <Icon icon='mdi:ticket-outline' className='menu-icon' />
+                <span>Customer Support</span>
               </NavLink>
             </li>
             <li>
@@ -440,6 +440,8 @@ const MasterLayout = ({ children }) => {
                 <span>Inquiries</span>
               </NavLink>
             </li>
+
+            {/* Removed duplicate Support Tickets menu; Customer Support entry at top covers this */}
 
             <li>
               <NavLink
@@ -1944,13 +1946,13 @@ const MasterLayout = ({ children }) => {
                       <li>
                         <Link
                           className='dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3'
-                          to='/email'
+                          to='/tickets'
                         >
                           <Icon
-                            icon='tabler:message-check'
+                            icon='mdi:ticket-outline'
                             className='icon text-xl'
-                          />{" "}
-                          Inbox
+                          />
+                          Support Inbox
                         </Link>
                       </li>
                       <li>

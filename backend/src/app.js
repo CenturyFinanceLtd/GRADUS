@@ -26,6 +26,8 @@ const courseRoutes = require('./routes/courseRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const adminAnalyticsRoutes = require('./routes/adminAnalyticsRoutes');
 const chatbotRoutes = require('./routes/chatbotRoutes');
+const ticketRoutes = require('./routes/ticketRoutes');
+const adminTicketRoutes = require('./routes/adminTicketRoutes');
 const { blogImagesDirectory } = require('./middleware/uploadMiddleware');
 
 const app = express();
@@ -94,12 +96,14 @@ app.use('/api/admin/courses', adminCourseRoutes);
 app.use('/api/admin/permissions', adminPermissionRoutes);
 app.use('/api/admin/blogs', adminBlogRoutes);
 app.use('/api/admin/analytics', adminAnalyticsRoutes);
+app.use('/api/admin/tickets', adminTicketRoutes);
 // Public content + services
 app.use('/api/blogs', blogRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/inquiries', contactRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/tickets', ticketRoutes);
 
 // 404 and error handling (must be last)
 app.use(notFound);

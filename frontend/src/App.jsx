@@ -9,7 +9,7 @@ import RouteScrollToTop from "./helper/RouteScrollToTop.jsx";
 import RequireAuth from "./components/RequireAuth.jsx";
 import MetaManager from "./components/MetaManager.jsx";
 import SiteAnalyticsTracker from "./components/SiteAnalyticsTracker.jsx";
-import ChatbotWidget from "./components/ChatbotWidget.jsx";
+import HelpLauncher from "./components/HelpLauncher.jsx";
 import HomePageOne from "./pages/HomePageOne";
 import AboutPage from "./pages/AboutPage.jsx";
 import AboutFourPage from "./pages/AboutFourPage.jsx";
@@ -61,6 +61,8 @@ import HomePageFive from "./pages/HomePageFive.jsx";
 import HomePageSix from "./pages/HomePageSix.jsx";
 import KnowCFLPage from "./pages/KnowCFLPage.jsx";
 import CoursePaymentPage from "./pages/CoursePaymentPage.jsx";
+import SupportPage from "./pages/SupportPage.jsx";
+import SupportTicketDetailsPage from "./pages/SupportTicketDetailsPage.jsx";
 
 function App() {
   return (
@@ -68,7 +70,7 @@ function App() {
       <MetaManager />
       <RouteScrollToTop />
       <SiteAnalyticsTracker />
-      <ChatbotWidget />
+      <HelpLauncher />
 
       <Routes>
         <Route exact path='/' element={<HomePageOne />} />
@@ -112,6 +114,24 @@ function App() {
           element={
             <RequireAuth>
               <MyCoursesPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          exact
+          path='/support'
+          element={
+            <RequireAuth>
+              <SupportPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          exact
+          path='/support/:id'
+          element={
+            <RequireAuth>
+              <SupportTicketDetailsPage />
             </RequireAuth>
           }
         />

@@ -16186,7 +16186,7 @@ table.dataTable.display>tbody>tr>* {
   max-height: calc(100vh - 96px);
   min-height: 380px;
   background-color: #fff;
-  border-radius: 20px;
+  border-radius: 26px;
   box-shadow: 0 32px 80px hsla(var(--main) / 0.28);
   overflow: hidden;
   display: flex;
@@ -16198,7 +16198,7 @@ table.dataTable.display>tbody>tr>* {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  padding: 20px 24px;
+  padding: 18px 20px;
   background: linear-gradient(135deg, hsla(var(--main) / 0.08), hsla(var(--main) / 0.18));
   border-bottom: 1px solid hsla(var(--main) / 0.12);
 }
@@ -16262,7 +16262,7 @@ table.dataTable.display>tbody>tr>* {
 
 .chatbot-widget__bubble {
   padding: 12px 16px;
-  border-radius: 16px;
+  border-radius: 18px;
   font-size: 14px;
   line-height: 1.5;
   max-width: 80%;
@@ -16312,6 +16312,11 @@ table.dataTable.display>tbody>tr>* {
   color: #fff;
   border-top-right-radius: 4px;
 }
+
+/* Chat meta for visibility */
+.chatbot-widget .chat-meta { font-size: 12px; margin-bottom: 6px; color: var(--neutral-600); opacity: .9; }
+.chatbot-widget .chatbot-widget__message--user .chat-meta { color: #e8f1ff; opacity: .95; }
+.chatbot-widget .chatbot-widget__message--assistant .chat-meta { color: var(--neutral-500); }
 
 .chatbot-widget__bubble--typing {
   display: inline-flex;
@@ -16519,6 +16524,84 @@ img[src='/assets/images/shapes/shape3.png']:hover {
   transform: translate(-50%, -4px) scale(1);
   animation: tooltip-bounce-in 260ms cubic-bezier(.2,.8,.2,1) both;
 }
+
+/* Help widget buttons */
+.chatbot-widget .help-btn { 
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border-radius: 14px; padding: 12px 16px; font-weight: 700; font-size: 14px; white-space: nowrap; line-height: 1; 
+  border: 1px solid transparent; cursor: pointer; transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease, color .2s ease; 
+}
+.chatbot-widget .help-btn--sm { padding: 8px 14px; font-size: 13px; font-weight: 600; }
+.chatbot-widget .help-btn--block { width: 100%; }
+.chatbot-widget .help-btn--primary { background: hsl(var(--main)); color: #fff; box-shadow: 0 14px 28px hsla(var(--main)/.28); }
+.chatbot-widget .help-btn--primary:hover, .chatbot-widget .help-btn--primary:focus-visible { background: var(--main-500); transform: translateY(-1px); outline: none; }
+.chatbot-widget .help-btn--ghost { background: rgba(15,23,42,.02); color: hsl(var(--main)); border-color: hsla(var(--main)/.35); }
+.chatbot-widget .help-btn--ghost:hover, .chatbot-widget .help-btn--ghost:focus-visible { background: var(--main-25); transform: translateY(-1px); outline: none; }
+
+/* Help cards + inputs */
+.chatbot-widget .help-card { background: #fff; border: 1px solid rgba(15,23,42,.08); border-radius: 16px; box-shadow: 0 10px 26px rgba(2,6,23,.06); }
+.chatbot-widget .help-section-title { font-weight: 700; letter-spacing: .2px; color: var(--neutral-800); }
+.chatbot-widget .help-page-title { font-weight: 800; letter-spacing: .2px; color: var(--neutral-900); }
+.chatbot-widget .help-input { border-radius: 12px; border: 1px solid rgba(15,23,42,.12); background: #fff; }
+.chatbot-widget .help-input:focus { border-color: var(--main-400); box-shadow: 0 0 0 3px hsla(var(--main)/.16); outline: none; }
+.chatbot-widget .help-input::placeholder { color: var(--neutral-400); }
+
+/* Native select enhancement */
+.chatbot-widget select.help-input { appearance: none; -webkit-appearance: none; -moz-appearance: none; padding-right: 28px; background-repeat: no-repeat; background-size: 14px 14px; background-position: right 10px center; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); }
+
+/* Responsive toolbar + form layout */
+.chatbot-widget .help-toolbar { flex-wrap: nowrap; }
+.chatbot-widget .help-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+@media (max-width: 420px) {
+  .chatbot-widget .help-btn--sm { font-size: 12px; padding: 8px 10px; min-width: 40px; }
+  .chatbot-widget .help-toolbar { width: 100%; justify-content: flex-end; gap: 6px; margin-top: 6px; }
+  .chatbot-widget .help-page-title { font-size: 14px; }
+}
+@media (max-width: 380px) {
+  .chatbot-widget .help-toolbar .btn-label { display: none; }
+  .chatbot-widget .help-btn--sm { padding: 8px; }
+  .chatbot-widget .help-form-row { grid-template-columns: 1fr; }
+}
+
+/* Tiny circular icon button for back in chat header */
+.chatbot-widget .help-icon-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid hsla(var(--main)/.35); background: #fff; color: hsl(var(--main)); display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px hsla(var(--main)/.12); cursor: pointer; transition: transform .2s, box-shadow .2s, background-color .2s; }
+.chatbot-widget .help-icon-btn:hover, .chatbot-widget .help-icon-btn:focus-visible { background: var(--main-25); transform: translateY(-1px); outline: none; }
+
+/* Support list + chips (professional, subtle) */
+.support-item { background: #fff; border: 1px solid rgba(15,23,42,.08); border-radius: 12px; padding: 10px 12px; transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease; }
+.support-item:hover, .support-item:focus-visible { border-color: hsla(var(--main)/.35); box-shadow: 0 10px 30px hsla(var(--main)/.18); transform: translateY(-1px); outline: none; }
+.support-item--skeleton { padding: 12px; }
+.support-item__row { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; }
+.support-item__icon { color: hsl(var(--main)); font-size: 18px; display: flex; justify-content: center; }
+.support-item__title { font-weight: 600; font-size: 14px; color: var(--neutral-800); }
+.support-item__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
+.support-item__time { font-size: 12px; color: var(--neutral-500); margin-left: auto; }
+.support-item__chevron { color: var(--neutral-400); }
+
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1px solid transparent; }
+.chip--muted { background: var(--neutral-100); color: var(--neutral-700); border-color: rgba(15,23,42,.08); }
+.chip--primary { background: var(--main-25); color: hsl(var(--main)); border-color: hsla(var(--main)/.2); }
+.chip--warning { background: #fff7ed; color: #b45309; border-color: #fed7aa; }
+.chip--success { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+.chip--info { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
+.chip--neutral { background: #f3f4f6; color: #374151; border-color: #e5e7eb; }
+
+/* Skeletons */
+.skeleton-bar { height: 10px; width: 70%; background: linear-gradient(90deg,#f3f4f6 25%,#e5e7eb 37%,#f3f4f6 63%); border-radius: 6px; animation: skel 1.2s infinite ease-in-out; }
+.skeleton-pill { height: 18px; width: 84px; background: linear-gradient(90deg,#f3f4f6 25%,#e5e7eb 37%,#f3f4f6 63%); border-radius: 999px; animation: skel 1.2s infinite ease-in-out; }
+@keyframes skel { 0% { background-position: 0 0; } 100% { background-position: 200% 0; } }
+
+.card--subtle { border: 1px dashed rgba(15,23,42,.08); border-radius: 12px; }
+
+/* Support chat bubbles (page view) */
+.support-chat__row--user { display: flex; justify-content: flex-end; }
+.support-chat__row--agent { display: flex; justify-content: flex-start; }
+.support-chat__bubble { max-width: min(680px, 86%); padding: 12px 14px; border-radius: 16px; box-shadow: 0 10px 30px rgba(15,23,42,.06); }
+.support-chat__bubble--agent { background: var(--main-25); color: var(--neutral-700); border-top-left-radius: 4px; }
+.support-chat__bubble--user { background: var(--main-600); color: #fff; border-top-right-radius: 4px; }
+.support-chat__meta { font-size: 12px; opacity: .85; margin-bottom: 6px; }
+.support-chat__text { white-space: pre-wrap; word-break: break-word; }
 
 @media (prefers-reduced-motion: reduce) {
   .our-courses-trigger .our-courses-tooltip {

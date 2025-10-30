@@ -171,6 +171,20 @@ const validateSignupDetails = (details) => {
   return null;
 };
 
+// Minimal validation for the initial signup step (OTP send)
+// Ensures only the essentials are present; the rest is enforced at completion.
+const validateMinimalSignupDetails = (details) => {
+  if (!details.firstName || !details.lastName) {
+    return 'Student name is required.';
+  }
+
+  if (!details.mobile) {
+    return 'Phone number is required.';
+  }
+
+  return null;
+};
+
 const buildAuthResponse = (user) => {
   const token = generateAuthToken(user._id.toString());
   const safeUser = user.toObject();
@@ -196,7 +210,8 @@ const startSignup = asyncHandler(async (req, res) => {
   }
 
   const signupDetails = buildSignupDetails(req.body);
-  const validationError = validateSignupDetails(signupDetails);
+  // For the start step, only check minimal fields; full validation happens on completion
+  const validationError = validateMinimalSignupDetails(signupDetails);
   if (validationError) {
     res.status(400);
     throw new Error(validationError);

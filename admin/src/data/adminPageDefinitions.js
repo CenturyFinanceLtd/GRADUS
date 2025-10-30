@@ -49,6 +49,8 @@ const ADMIN_PAGE_DEFINITIONS = [
   { key: 'notification', label: 'Notification', path: '/notification', category: 'Communication' },
   { key: 'notification_alert', label: 'Notification Alert', path: '/notification-alert', category: 'Communication' },
   { key: 'faq', label: 'FAQ', path: '/faq', category: 'Communication' },
+  { key: 'tickets', label: 'Support Tickets', path: '/tickets', category: 'Communication' },
+  { key: 'ticket_details', label: 'Ticket Details', path: '/ticket/:id', category: 'Communication' },
 
   // Sales & commerce
   { key: 'company', label: 'Company', path: '/company', category: 'Sales & Commerce' },
