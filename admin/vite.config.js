@@ -18,7 +18,6 @@ export default defineConfig({
             // IMPORTANT: only split pure, non-React libs.
             if (id.includes('node_modules/bootstrap')) return 'bootstrap'
             if (id.includes('node_modules/apexcharts/')) return 'charts'
-            if (id.includes('node_modules/quill/')) return 'quill'
             if (id.includes('node_modules/lightgallery/')) return 'lightgallery'
             if (id.includes('node_modules/datatables.')) return 'datatables'
             if (id.includes('node_modules/@fullcalendar/')) return 'fullcalendar'
@@ -33,3 +32,4 @@ export default defineConfig({
     },
   },
 })
+
