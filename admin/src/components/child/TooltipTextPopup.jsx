@@ -1,28 +1,26 @@
 import { useEffect } from "react";
-// Defer loading Bootstrap Tooltip until mount
+import { Tooltip } from "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const TooltipTextPopup = () => {
   useEffect(() => {
-    let instances = [];
-    let cancelled = false;
-    (async () => {
-      const mod = await import('bootstrap/js/dist/tooltip');
-      const Tooltip = mod.default;
-      if (cancelled) return;
-      const tooltipButtons = document.querySelectorAll('.tooltip-buttonTwo');
-      instances = Array.from(tooltipButtons).map((btn) => {
-        const tooltipContent = btn.nextElementSibling?.innerHTML || '';
-        return new Tooltip(btn, {
-          title: tooltipContent,
-          trigger: 'hover',
-          html: true,
-          customClass: btn.getAttribute('data-bs-custom-class') || '',
-        });
+    // Select all elements with the class 'tooltip-buttonTwo'
+    const tooltipButtons = document.querySelectorAll(".tooltip-buttonTwo");
+
+    // Initialize a tooltip for each button
+    const tooltipInstances = Array.from(tooltipButtons).map((tooltipButton) => {
+      const tooltipContent = tooltipButton.nextElementSibling.innerHTML;
+
+      return new Tooltip(tooltipButton, {
+        title: tooltipContent,
+        trigger: "hover",
+        html: true,
+        customClass: tooltipButton.getAttribute("data-bs-custom-class") || "",
       });
-    })();
+    });
+
+    // Cleanup tooltips when the component unmounts
     return () => {
-      cancelled = true;
-      instances.forEach((t) => t?.dispose?.());
+      tooltipInstances.forEach((tooltip) => tooltip.dispose());
     };
   }, []);
   return (

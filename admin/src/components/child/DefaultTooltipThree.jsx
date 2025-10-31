@@ -1,20 +1,19 @@
 import { useEffect } from "react";
-// Defer loading Bootstrap Tooltip until mount
+import { Tooltip } from "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const DefaultTooltipThree = () => {
   useEffect(() => {
-    let instances = [];
-    let cancelled = false;
-    (async () => {
-      const mod = await import('bootstrap/js/dist/tooltip');
-      const Tooltip = mod.default;
-      if (cancelled) return;
-      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="DefaultTooltipThree"]');
-      instances = Array.from(tooltipTriggerList).map((el) => new Tooltip(el));
-    })();
+    // Select all elements with data-bs-toggle="DefaultTooltipThree"
+    const tooltipTriggerList = document.querySelectorAll(
+      '[data-bs-toggle="DefaultTooltipThree"]'
+    );
+    // Initialize tooltips
+    const tooltipList = Array.from(tooltipTriggerList).map(
+      (tooltipTriggerEl) => new Tooltip(tooltipTriggerEl)
+    );
+    // Cleanup on unmount
     return () => {
-      cancelled = true;
-      instances.forEach((t) => t?.dispose?.());
+      tooltipList.forEach((tooltip) => tooltip.dispose());
     };
   }, []);
   return (

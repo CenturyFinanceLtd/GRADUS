@@ -1,19 +1,15 @@
 import { useEffect } from "react";
-// Load Tooltip only on the client when this component mounts
+import { Tooltip } from "bootstrap/dist/js/bootstrap.bundle.min.js";
 const DefaultTooltip = () => {
   useEffect(() => {
-    let instances = [];
-    let cancelled = false;
-    (async () => {
-      const mod = await import('bootstrap/js/dist/tooltip');
-      const Tooltip = mod.default;
-      if (cancelled) return;
-      const els = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-      instances = [...els].map((el) => new Tooltip(el));
-    })();
+    const tooltipTriggerList = document.querySelectorAll(
+      '[data-bs-toggle="tooltip"]'
+    );
+    const tooltipList = [...tooltipTriggerList].map((tooltipTriggerEl) => {
+      return new Tooltip(tooltipTriggerEl);
+    });
     return () => {
-      cancelled = true;
-      instances.forEach((t) => t?.dispose?.());
+      tooltipList.forEach((tooltip) => tooltip.dispose());
     };
   }, []);
   return (
