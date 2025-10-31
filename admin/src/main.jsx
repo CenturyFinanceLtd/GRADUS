@@ -11,6 +11,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "lightgallery/css/lightgallery.css";
 import "lightgallery/css/lg-zoom.css";
 import "lightgallery/css/lg-thumbnail.css";
+// Moved global CSS from index.html into module imports so Vite can process them
 import App from "./App.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 
