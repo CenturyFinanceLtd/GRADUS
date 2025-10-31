@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import useAuth from '../hook/useAuth';
 import { listTickets } from '../services/adminTickets';
 import { Link } from 'react-router-dom';
@@ -10,7 +11,7 @@ const TicketsLayer = () => {
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({ status: '', priority: '', outcome: '', search: '' });
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     setError(null);
@@ -23,9 +24,9 @@ const TicketsLayer = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, filters]);
 
-  useEffect(() => { load(); }, [token]);
+  useEffect(() => { load(); }, [load]);
 
   const onKeyDownSearch = (e) => {
     if (e.key === 'Enter') {
@@ -63,6 +64,9 @@ const TicketsLayer = () => {
     const c = priorityColors(value);
     return <span style={{ ...chipStyleBase, backgroundColor: c.bg, color: c.fg }} className='text-capitalize'>{value}</span>;
   };
+
+  StatusChip.propTypes = { value: PropTypes.string };
+  PriorityChip.propTypes = { value: PropTypes.string };
 
   const formatDateTime = (value) => {
     try {

@@ -98,7 +98,7 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
     return () => {
       isMounted = false;
     };
-  }, [slug]);
+  }, [slug, onBlogLoaded]);
 
   useEffect(() => {
     let isMounted = true;

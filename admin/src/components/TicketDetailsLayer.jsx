@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useAuth from '../hook/useAuth';
 import { getTicketDetails, replyToTicket, updateTicket, requestClosure, confirmClosure, requestAssignment, acceptAssignment, declineAssignment } from '../services/adminTickets';
@@ -26,7 +26,7 @@ const TicketDetailsLayer = () => {
   const bottomRef = useRef(null);
   const scrollToBottom = () => bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     setError(null);
@@ -40,16 +40,16 @@ const TicketDetailsLayer = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, id]);
 
-  useEffect(() => { load(); }, [token, id]);
+  useEffect(() => { load(); }, [load]);
 
   const loadAdmins = async () => {
     try {
       const res = await fetchAdminUsers(token, { search: adminSearch });
       const items = Array.isArray(res?.items) ? res.items : (Array.isArray(res?.users) ? res.users : []);
       setAdminList(items);
-    } catch (_) {
+    } catch {
       setAdminList([]);
     }
   };

@@ -2,7 +2,7 @@ import { useState } from "react";
 import ModalVideo from "react-modal-video";
 import { Link } from "react-router-dom";
 const EventOne = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [, setIsOpen] = useState(false);
   return (
     <section className='event py-120 overflow-hidden'>
       <div className='container'>

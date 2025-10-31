@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import PropTypes from 'prop-types';
 
 const Progress = ({ percentage }) => {
   useEffect(() => {
@@ -39,6 +40,10 @@ const Progress = ({ percentage }) => {
       </div>
     </div>
   );
+};
+
+Progress.propTypes = {
+  percentage: PropTypes.string.isRequired,
 };
 
 const GradientProgressThree = () => {

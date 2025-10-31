@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import apiClient from '../services/apiClient';
 import { useAuth } from '../context/AuthContext.jsx';
 import { listMyTickets, getTicketDetails, createTicket, addTicketMessage } from '../services/ticketService.js';
@@ -97,6 +97,22 @@ const HelpLauncher = () => {
     }
   };
 
+  // Load my tickets (placed before effects to avoid TDZ on deps)
+  const refreshTickets = useCallback(async () => {
+    if (!token) return;
+    setSupportLoading(true);
+    setSupportError(null);
+    try {
+      const res = await listMyTickets({ token });
+      setTickets(res?.items || []);
+    } catch (err) {
+      setSupportError(err?.message || 'Failed to load tickets');
+      setTickets([]);
+    } finally {
+      setSupportLoading(false);
+    }
+  }, [token]);
+
   const renderLine = (line, keyBase) => {
     const segments = extractLineSegments(line);
     if (!segments.length) {
@@ -133,7 +149,7 @@ const HelpLauncher = () => {
     };
     window.addEventListener('gradus:help-open', handler);
     return () => window.removeEventListener('gradus:help-open', handler);
-  }, [isAuthenticated]);
+  }, [isAuthenticated, refreshTickets]);
 
   const sendMessage = async (rawText) => {
     const trimmed = typeof rawText === 'string' ? rawText.trim() : '';
@@ -173,22 +189,6 @@ const HelpLauncher = () => {
 
   const formatDateTime = (value) => {
     try { return new Date(value).toLocaleString(); } catch { return value; }
-  };
-
-  // Load my tickets
-  const refreshTickets = async () => {
-    if (!token) return;
-    setSupportLoading(true);
-    setSupportError(null);
-    try {
-      const res = await listMyTickets({ token });
-      setTickets(res?.items || []);
-    } catch (err) {
-      setSupportError(err?.message || 'Failed to load tickets');
-      setTickets([]);
-    } finally {
-      setSupportLoading(false);
-    }
   };
 
   // Open a ticket in chat mode

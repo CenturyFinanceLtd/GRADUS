@@ -3,6 +3,7 @@
   - Persists admin token/profile, fetches permissions, and exposes helpers
 */
 import { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
+import PropTypes from 'prop-types';
 import apiClient from "../services/apiClient";
 import { fetchMyPermissions } from "../services/adminPermissions";
 
@@ -81,7 +82,7 @@ const AuthProvider = ({ children }) => {
           setAuthState((prev) => ({ ...prev, admin: profile }));
         }
         await fetchPermissions(authState.token);
-      } catch (error) {
+      } catch {
         if (!cancelled) {
           setAuthState(initialAuthState);
           try {
@@ -125,7 +126,7 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
     const response = await apiClient("/admin/auth/login", {
       method: "POST",
       data: { email, password },
@@ -133,13 +134,13 @@ const AuthProvider = ({ children }) => {
     storeAuthResponse(response);
     await fetchPermissions(response.token);
     return response;
-  };
+  }, [fetchPermissions]);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     storeAuthResponse(null);
-  };
+  }, []);
 
-  const refreshProfile = async () => {
+  const refreshProfile = useCallback(async () => {
     if (!authState.token) {
       return null;
     }
@@ -149,7 +150,7 @@ const AuthProvider = ({ children }) => {
     setAuthState((prev) => ({ ...prev, admin: profile }));
     await fetchPermissions();
     return profile;
-  };
+  }, [authState.token, fetchPermissions]);
 
   const value = useMemo(
     () => ({
@@ -164,10 +165,14 @@ const AuthProvider = ({ children }) => {
       refreshProfile,
       refreshPermissions: fetchPermissions,
     }),
-    [authState, loading, permissionsLoading, fetchPermissions]
+    [authState, loading, permissionsLoading, login, logout, refreshProfile, fetchPermissions]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+AuthProvider.propTypes = {
+  children: PropTypes.node,
 };
 
 const useAuthContext = () => {

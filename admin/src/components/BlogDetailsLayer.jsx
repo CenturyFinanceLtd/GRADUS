@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import PropTypes from 'prop-types';
 import { useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
 import useAuth from "../hook/useAuth";
@@ -383,6 +384,10 @@ const BlogDetailsLayer = ({ onBlogLoaded }) => {
 
 BlogDetailsLayer.defaultProps = {
   onBlogLoaded: undefined,
+};
+
+BlogDetailsLayer.propTypes = {
+  onBlogLoaded: PropTypes.func,
 };
 
 export default BlogDetailsLayer;

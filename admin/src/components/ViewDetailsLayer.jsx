@@ -273,7 +273,14 @@ const ViewDetailsLayer = () => {
                 <div className='d-flex align-items-center justify-content-between'>
                   <textarea
                     className='textarea-max-height form-control p-0 border-0 py-8 pe-16 resize-none scroll-sm'
-                    oninput='adjustHeight(this)'
+                    onInput={(e) => {
+                      try {
+                        e.target.style.height = 'auto';
+                        e.target.style.height = `${e.target.scrollHeight}px`;
+                      } catch {
+                        // ignore dynamic textarea resize errors
+                      }
+                    }}
                     placeholder='Write massage'
                     defaultValue={""}
                   />

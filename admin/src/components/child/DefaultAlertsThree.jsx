@@ -1,4 +1,4 @@
-import { Icon } from "@iconify/react/dist/iconify.js";
+﻿import { Icon } from "@iconify/react/dist/iconify.js";
 
 const DefaultAlertsThree = () => {
   return (
@@ -22,7 +22,7 @@ const DefaultAlertsThree = () => {
                   This is a Primary alert
                   <p className='fw-medium text-primary-600 text-sm mt-8'>
                     Lorem Ipsum&nbsp;is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
+                    typesetting industry. Lorem Ipsum has been the industry&apos;s
                     standard dummy
                   </p>
                 </div>
@@ -47,7 +47,7 @@ const DefaultAlertsThree = () => {
                   This is a Success alert
                   <p className='fw-medium text-success-600 text-sm mt-8'>
                     Lorem Ipsum&nbsp;is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
+                    typesetting industry. Lorem Ipsum has been the industry&apos;s
                     standard dummy
                   </p>
                 </div>
@@ -72,7 +72,7 @@ const DefaultAlertsThree = () => {
                   This is a Warning alert
                   <p className='fw-medium text-warning-600 text-sm mt-8'>
                     Lorem Ipsum&nbsp;is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
+                    typesetting industry. Lorem Ipsum has been the industry&apos;s
                     standard dummy
                   </p>
                 </div>
@@ -97,7 +97,7 @@ const DefaultAlertsThree = () => {
                   This is a Info alert
                   <p className='fw-medium text-info-600 text-sm mt-8'>
                     Lorem Ipsum&nbsp;is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
+                    typesetting industry. Lorem Ipsum has been the industry&apos;s
                     standard dummy
                   </p>
                 </div>
@@ -122,7 +122,7 @@ const DefaultAlertsThree = () => {
                   This is a Danger alert
                   <p className='fw-medium text-danger-600 text-sm mt-8'>
                     Lorem Ipsum&nbsp;is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
+                    typesetting industry. Lorem Ipsum has been the industry&apos;s
                     standard dummy
                   </p>
                 </div>

@@ -1,4 +1,5 @@
 import TaskCard from "./TaskCard";
+import PropTypes from 'prop-types';
 import { Droppable } from "@hello-pangea/dnd";
 import { Icon } from "@iconify/react/dist/iconify.js";
 
@@ -67,3 +68,17 @@ const Column = ({
 };
 
 export default Column;
+
+Column.propTypes = {
+  column: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    title: PropTypes.string.isRequired,
+  }).isRequired,
+  tasks: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  })).isRequired,
+  onAddTask: PropTypes.func.isRequired,
+  onEditTask: PropTypes.func.isRequired,
+  onDeleteTask: PropTypes.func.isRequired,
+  onDuplicateTask: PropTypes.func.isRequired,
+};

@@ -22,7 +22,7 @@ const CardHeaderFooter = () => {
               <p className='card-text text-neutral-600 mb-0'>
                 Intrinsically incubate intuitive opportunities and real-time
                 potentialities for change for interoperable meta-itself the
-                viewer's attention from the layout
+                viewer&apos;s attention from the layout
               </p>
             </div>
             <div className='card-footer text-center bg-transparent border border-end-0 border-start-0 border-bottom-0 py-16 px-24'>
@@ -42,7 +42,7 @@ const CardHeaderFooter = () => {
               <p className='card-text text-neutral-600 mb-16'>
                 Intrinsically incubate intuitive opportunities and real-time
                 potentialities for change for interoperable meta-itself the
-                viewer's attention from the layout
+                viewer&apos;s attention from the layout
               </p>
               <p className='card-text text-neutral-600 mb-0'>
                 Intrinsically incubate intuitive opportunities and real-time
@@ -73,7 +73,7 @@ const CardHeaderFooter = () => {
               <p className='card-text text-neutral-600 mb-16'>
                 Intrinsically incubate intuitive opportunities and real-time
                 potentialities for change for interoperable meta-itself the
-                viewer's attention from the layout
+                viewer&apos;s attention from the layout
               </p>
               <p className='card-text text-neutral-600 mb-0'>
                 Intrinsically incubate intuitive opportunities and real-time

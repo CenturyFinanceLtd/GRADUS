@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { addTicketMessage, closeTicket, getTicketDetails } from '../services/ticketService.js';
@@ -21,10 +21,12 @@ const SupportTicketDetailsInner = () => {
   const scrollToBottom = () => {
     try {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    } catch {}
+    } catch {
+      // ignore scroll errors
+    }
   };
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     setError(null);
@@ -38,11 +40,11 @@ const SupportTicketDetailsInner = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, id]);
 
   useEffect(() => {
     load();
-  }, [token, id]);
+  }, [load]);
 
   const send = async (e) => {
     e.preventDefault();

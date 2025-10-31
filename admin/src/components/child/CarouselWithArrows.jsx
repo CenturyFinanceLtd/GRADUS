@@ -1,6 +1,7 @@
 import { Icon } from "@iconify/react/dist/iconify.js";
 
 import Slider from "react-slick";
+import PropTypes from 'prop-types';
 
 function SampleNextArrow(props) {
   const { className, onClick } = props;
@@ -27,6 +28,15 @@ function SamplePrevArrow(props) {
     </button>
   );
 }
+
+SampleNextArrow.propTypes = {
+  className: PropTypes.string,
+  onClick: PropTypes.func,
+};
+SamplePrevArrow.propTypes = {
+  className: PropTypes.string,
+  onClick: PropTypes.func,
+};
 
 const CarouselWithArrows = () => {
   const settings = {

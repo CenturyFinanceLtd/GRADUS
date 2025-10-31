@@ -1,5 +1,6 @@
 // src/components/AddEditTaskModal.js
 import { useState, useEffect } from "react";
+import PropTypes from 'prop-types';
 import { Modal, Button, Form } from "react-bootstrap";
 
 const AddEditTaskModal = ({ show, handleClose, handleSave, task }) => {
@@ -150,3 +151,17 @@ const AddEditTaskModal = ({ show, handleClose, handleSave, task }) => {
 };
 
 export default AddEditTaskModal;
+
+AddEditTaskModal.propTypes = {
+  show: PropTypes.bool.isRequired,
+  handleClose: PropTypes.func.isRequired,
+  handleSave: PropTypes.func.isRequired,
+  task: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    title: PropTypes.string,
+    tag: PropTypes.string,
+    date: PropTypes.string,
+    description: PropTypes.string,
+    image: PropTypes.string,
+  }),
+};

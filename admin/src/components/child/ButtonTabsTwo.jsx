@@ -1,4 +1,4 @@
-import { Icon } from "@iconify/react/dist/iconify.js";
+﻿import { Icon } from "@iconify/react/dist/iconify.js";
 
 const ButtonTabsTwo = () => {
   return (
@@ -97,13 +97,13 @@ const ButtonTabsTwo = () => {
                   <h6 className='text-lg mb-8'>Title</h6>
                   <p className='text-secondary-light mb-16'>
                     Lorem Ipsum&nbsp;is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
+                    typesetting industry. Lorem Ipsum has been the industry&apos;s
                     standard dummy text ever since the 1500s, when an unknown
                     printer took a galley of type and scrambled it to{" "}
                   </p>
                   <p className='text-secondary-light mb-0'>
                     {" "}
-                    make a type specimen book. It has survived not industry's
+                    make a type specimen book. It has survived not industry&apos;s
                     standard dummy
                   </p>
                 </div>
@@ -128,13 +128,13 @@ const ButtonTabsTwo = () => {
                   <h6 className='text-lg mb-8'>Title</h6>
                   <p className='text-secondary-light mb-16'>
                     Lorem Ipsum&nbsp;is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
+                    typesetting industry. Lorem Ipsum has been the industry&apos;s
                     standard dummy text ever since the 1500s, when an unknown
                     printer took a galley of type and scrambled it to{" "}
                   </p>
                   <p className='text-secondary-light mb-0'>
                     {" "}
-                    make a type specimen book. It has survived not industry's
+                    make a type specimen book. It has survived not industry&apos;s
                     standard dummy
                   </p>
                 </div>
@@ -159,13 +159,13 @@ const ButtonTabsTwo = () => {
                   <h6 className='text-lg mb-8'>Title</h6>
                   <p className='text-secondary-light mb-16'>
                     Lorem Ipsum&nbsp;is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
+                    typesetting industry. Lorem Ipsum has been the industry&apos;s
                     standard dummy text ever since the 1500s, when an unknown
                     printer took a galley of type and scrambled it to{" "}
                   </p>
                   <p className='text-secondary-light mb-0'>
                     {" "}
-                    make a type specimen book. It has survived not industry's
+                    make a type specimen book. It has survived not industry&apos;s
                     standard dummy
                   </p>
                 </div>
@@ -190,13 +190,13 @@ const ButtonTabsTwo = () => {
                   <h6 className='text-lg mb-8'>Title</h6>
                   <p className='text-secondary-light mb-16'>
                     Lorem Ipsum&nbsp;is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
+                    typesetting industry. Lorem Ipsum has been the industry&apos;s
                     standard dummy text ever since the 1500s, when an unknown
                     printer took a galley of type and scrambled it to{" "}
                   </p>
                   <p className='text-secondary-light mb-0'>
                     {" "}
-                    make a type specimen book. It has survived not industry's
+                    make a type specimen book. It has survived not industry&apos;s
                     standard dummy
                   </p>
                 </div>

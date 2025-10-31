@@ -215,18 +215,18 @@ const CodeGeneratorLayer = () => {
                 <pre className='language-html mb-16 text-secondary-light text-sm'>
                   {"        "}
                   <code>
-                    {"\n"}&lt;html lang="en"&gt;{"\n"}
+                    {"\n"}&lt;html lang=&quot;en&quot;&gt;{"\n"}
                     {"    "}&lt;head&gt;{"\n"}
-                    {"        "}&lt;meta charset="UTF-8"&gt;{"\n"}
-                    {"        "}&lt;meta name="viewport"
-                    content="width=device-width, initial-scale=1.0"&gt;{"\n"}
-                    {"        "}&lt;link rel="stylesheet" to="/styles.css"&gt;
+                    {"        "}&lt;meta charset=&quot;UTF-8&quot;&gt;{"\n"}
+                    {"        "}&lt;meta name=&quot;viewport&quot;
+                    content=&quot;width=device-width, initial-scale=1.0&quot;&gt;{"\n"}
+                    {"        "}&lt;link rel=&quot;stylesheet&quot; to=&quot;/styles.css&quot;&gt;
                     {"\n"}
                     {"        "}&lt;title&gt;5 Column Table&lt;/title&gt;{"\n"}
                     {"    "}&lt;/head&gt;{"\n"}
                     {"    "}&lt;body&gt;{"\n"}
-                    {"        "}&lt;div class="table-container"&gt;{"\n"}
-                    {"            "}&lt;table id="data-table"&gt;{"\n"}
+                    {"        "}&lt;div class=&quot;table-container&quot;&gt;{"\n"}
+                    {"            "}&lt;table id=&quot;data-table&quot;&gt;{"\n"}
                     {"                "}&lt;thead&gt;{"\n"}
                     {"                "}&lt;tr&gt;{"\n"}
                     {"                    "}&lt;th&gt;Column 1&lt;/th&gt;{"\n"}
@@ -243,7 +243,7 @@ const CodeGeneratorLayer = () => {
                     {"                "}&lt;/tbody&gt;{"\n"}
                     {"            "}&lt;/table&gt;{"\n"}
                     {"        "}&lt;/div&gt;{"\n"}
-                    {"        "}&lt;script src="script.js"&gt;&lt;/script&gt;
+                    {"        "}&lt;script src=&quot;script.js&quot;&gt;&lt;/script&gt;
                     {"\n"}
                     {"    "}&lt;/body&gt;{"\n"}&lt;/html&gt;{"\n"}
                     {"        "}

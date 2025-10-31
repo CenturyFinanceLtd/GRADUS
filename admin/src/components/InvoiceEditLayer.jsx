@@ -153,7 +153,7 @@ const InvoiceEditLayer = () => {
                       <tbody>
                         <tr>
                           <td>01</td>
-                          <td>Apple's Shoes</td>
+                          <td>{"Apple's Shoes"}</td>
                           <td>5</td>
                           <td>PC</td>
                           <td>$200</td>
@@ -169,7 +169,7 @@ const InvoiceEditLayer = () => {
                         </tr>
                         <tr>
                           <td>02</td>
-                          <td>Apple's Shoes</td>
+                          <td>{"Apple's Shoes"}</td>
                           <td>5</td>
                           <td>PC</td>
                           <td>$200</td>
@@ -185,7 +185,7 @@ const InvoiceEditLayer = () => {
                         </tr>
                         <tr>
                           <td>03</td>
-                          <td>Apple's Shoes</td>
+                          <td>{"Apple's Shoes"}</td>
                           <td>5</td>
                           <td>PC</td>
                           <td>$200</td>
@@ -201,7 +201,7 @@ const InvoiceEditLayer = () => {
                         </tr>
                         <tr>
                           <td>04</td>
-                          <td>Apple's Shoes</td>
+                          <td>{"Apple's Shoes"}</td>
                           <td>5</td>
                           <td>PC</td>
                           <td>$200</td>

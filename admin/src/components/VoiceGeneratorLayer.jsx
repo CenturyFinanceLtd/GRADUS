@@ -102,7 +102,7 @@ const VoiceGeneratorLayer = () => {
                 <i className='ri-arrow-left-line' />
               </Link>
               <h6 className='text-lg mb-0 text-line-1'>
-                Alright guys, so I've just seen this website...
+                {"Alright guys, so I've just seen this website..."}
               </h6>
             </div>
             <div className='d-flex align-items-center gap-16 flex-shrink-0'>
@@ -135,11 +135,11 @@ const VoiceGeneratorLayer = () => {
                 <div className='info'>
                   <h6 className='text-lg mb-4'>Adam Milner</h6>
                   <p className='mb-0 text-secondary-light text-sm'>
-                    Alright guys, so I've just seen this website, Fortunanest
-                    website, it's an investment website and you invest there. So
-                    I actually tried it some months, I tried it just for 3
-                    months and I realized everything was working correct. I was
-                    thinking it was this fake website, I never met this website.
+                    {"Alright guys, so I've just seen this website, Fortunanest"}
+                    {" website, it's an investment website and you invest there. So"}
+                    {" I actually tried it some months, I tried it just for 3"}
+                    {" months and I realized everything was working correct. I was"}
+                    {" thinking it was this fake website, I never met this website."}
                   </p>
                 </div>
               </div>

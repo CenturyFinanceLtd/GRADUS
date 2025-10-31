@@ -13,6 +13,12 @@ const Modal = ({ isOpen, onClose, children }) => {
   );
 };
 
+Modal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  children: PropTypes.node,
+};
+
 const styles = {
   overlay: {
     position: "fixed",
@@ -48,3 +54,4 @@ const styles = {
 };
 
 export default Modal;
+import PropTypes from 'prop-types';

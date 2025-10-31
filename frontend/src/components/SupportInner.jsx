@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { createTicket, listMyTickets } from '../services/ticketService.js';
 
@@ -32,7 +32,7 @@ const SupportInner = () => {
   const [creating, setCreating] = useState(false);
   const [message, setMessage] = useState(null);
 
-  const fetchTickets = async () => {
+  const fetchTickets = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     setError(null);
@@ -44,9 +44,9 @@ const SupportInner = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, statusFilter]);
 
-  useEffect(() => { fetchTickets(); }, [token, statusFilter]);
+  useEffect(() => { fetchTickets(); }, [fetchTickets]);
 
   const resetForm = () => {
     setSubject('');

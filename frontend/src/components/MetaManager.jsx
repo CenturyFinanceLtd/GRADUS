@@ -42,7 +42,7 @@ const MetaManager = () => {
     applyMeta("description", description);
     applyMeta("keywords", keywords);
     applyMeta("robots", robots);
-  }, [location.pathname, location.search, location.hash]);
+  }, [location]);
 
   return null;
 };

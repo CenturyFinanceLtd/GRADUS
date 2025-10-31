@@ -1,4 +1,4 @@
-const VerticalNavTabs = () => {
+﻿const VerticalNavTabs = () => {
   return (
     <div className='col-xxl-6'>
       <div className='card p-0 overflow-hidden position-relative radius-12 h-100'>
@@ -81,7 +81,7 @@ const VerticalNavTabs = () => {
                   <h6 className='text-lg mb-8'>Title</h6>
                   <p className='text-secondary-light mb-16'>
                     Lorem Ipsum&nbsp;is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
+                    typesetting industry. Lorem Ipsum has been the industry&apos;s
                     standard dummy text ever since the 1500s, when an unknown
                     printer took a galley of type and scrambled it to make a
                     type{" "}
@@ -105,7 +105,7 @@ const VerticalNavTabs = () => {
                   <h6 className='text-lg mb-8'>Title</h6>
                   <p className='text-secondary-light mb-16'>
                     Lorem Ipsum&nbsp;is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
+                    typesetting industry. Lorem Ipsum has been the industry&apos;s
                     standard dummy text ever since the 1500s, when an unknown
                     printer took a galley of type and scrambled it to make a
                     type{" "}
@@ -129,7 +129,7 @@ const VerticalNavTabs = () => {
                   <h6 className='text-lg mb-8'>Title</h6>
                   <p className='text-secondary-light mb-16'>
                     Lorem Ipsum&nbsp;is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
+                    typesetting industry. Lorem Ipsum has been the industry&apos;s
                     standard dummy text ever since the 1500s, when an unknown
                     printer took a galley of type and scrambled it to make a
                     type{" "}
@@ -153,7 +153,7 @@ const VerticalNavTabs = () => {
                   <h6 className='text-lg mb-8'>Title</h6>
                   <p className='text-secondary-light mb-16'>
                     Lorem Ipsum&nbsp;is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
+                    typesetting industry. Lorem Ipsum has been the industry&apos;s
                     standard dummy text ever since the 1500s, when an unknown
                     printer took a galley of type and scrambled it to make a
                     type{" "}
