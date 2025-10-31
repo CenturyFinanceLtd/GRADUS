@@ -6,23 +6,26 @@ export default defineConfig({
   plugins: [react()],
   build: {
     chunkSizeWarningLimit: 2500,
-        commonjsOptions: {
+    commonjsOptions: {
       include: [/node_modules/],
       transformMixedEsModules: true,
       requireReturnsDefault: 'auto'
-    },    rollupOptions: {
+    },
+    rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules')) {            if (id.includes('apexcharts')) return 'charts'
-            if (id.includes('quill')) return 'quill'
-            if (id.includes('lightgallery')) return 'lightgallery'
-            if (id.includes('bootstrap')) return 'bootstrap'
-            if (id.includes('datatables')) return 'datatables'
-            if (id.includes('fullcalendar')) return 'fullcalendar'
-            if (id.includes('jsvectormap')) return 'jsvectormap'
-            if (id.includes('slick')) return 'slick'
-            if (id.includes('magnific-popup')) return 'magnific'
-            if (id.includes('prism')) return 'prism'
+          if (id.includes('node_modules')) {
+            // IMPORTANT: only split pure, non-React libs.
+            if (id.includes('node_modules/bootstrap')) return 'bootstrap'
+            if (id.includes('node_modules/apexcharts/')) return 'charts'
+            if (id.includes('node_modules/quill/')) return 'quill'
+            if (id.includes('node_modules/lightgallery/')) return 'lightgallery'
+            if (id.includes('node_modules/datatables.')) return 'datatables'
+            if (id.includes('node_modules/@fullcalendar/')) return 'fullcalendar'
+            if (id.includes('node_modules/jsvectormap/')) return 'jsvectormap'
+            if (id.includes('node_modules/slick-carousel/')) return 'slick'
+            if (id.includes('node_modules/magnific-popup/')) return 'magnific'
+            if (id.includes('node_modules/prism')) return 'prism'
             return 'vendor'
           }
         },
@@ -30,4 +33,3 @@ export default defineConfig({
     },
   },
 })
-
