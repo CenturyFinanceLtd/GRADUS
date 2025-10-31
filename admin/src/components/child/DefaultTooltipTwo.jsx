@@ -1,20 +1,20 @@
 import { useEffect } from "react";
-import Tooltip from 'bootstrap/js/dist/tooltip';
+// Defer loading Bootstrap Tooltip until mount
 
 const DefaultTooltipTwo = () => {
   useEffect(() => {
-    // Select all elements with data-bs-toggle="DefaultTooltipTwo"
-    const tooltipTriggerList = document.querySelectorAll(
-      '[data-bs-toggle="DefaultTooltipTwo"]'
-    );
-
-    // Initialize tooltips
-    const tooltipList = Array.from(tooltipTriggerList).map(
-      (tooltipTriggerEl) => new Tooltip(tooltipTriggerEl)
-    );
-    // Cleanup on unmount
+    let instances = [];
+    let cancelled = false;
+    (async () => {
+      const mod = await import('bootstrap/js/dist/tooltip');
+      const Tooltip = mod.default;
+      if (cancelled) return;
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="DefaultTooltipTwo"]');
+      instances = Array.from(tooltipTriggerList).map((el) => new Tooltip(el));
+    })();
     return () => {
-      tooltipList.forEach((tooltip) => tooltip.dispose());
+      cancelled = true;
+      instances.forEach((t) => t?.dispose?.());
     };
   }, []);
   return (
