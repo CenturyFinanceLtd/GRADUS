@@ -6,12 +6,14 @@ export default defineConfig({
   plugins: [react()],
   build: {
     chunkSizeWarningLimit: 2500,
-    rollupOptions: {
+        commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true,
+      requireReturnsDefault: 'auto'
+    },    rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('react')) return 'react-vendor'
-            if (id.includes('apexcharts')) return 'charts'
+          if (id.includes('node_modules')) {            if (id.includes('apexcharts')) return 'charts'
             if (id.includes('quill')) return 'quill'
             if (id.includes('lightgallery')) return 'lightgallery'
             if (id.includes('bootstrap')) return 'bootstrap'
@@ -28,3 +30,4 @@ export default defineConfig({
     },
   },
 })
+
