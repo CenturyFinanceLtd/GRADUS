@@ -63,6 +63,7 @@ import KnowCFLPage from "./pages/KnowCFLPage.jsx";
 import CoursePaymentPage from "./pages/CoursePaymentPage.jsx";
 import SupportPage from "./pages/SupportPage.jsx";
 import SupportTicketDetailsPage from "./pages/SupportTicketDetailsPage.jsx";
+import SocialPortfolioPage from "./pages/SocialPortfolioPage.jsx";
 
 function App() {
   return (
@@ -204,6 +205,7 @@ function App() {
         <Route exact path='/tuition-jobs' element={<TuitionJobsPage />} />
         <Route exact path='/tutor' element={<TutorPage />} />
         <Route exact path='/tutor-details' element={<TutorDetailsPage />} />
+        <Route exact path='/social' element={<SocialPortfolioPage />} />
       </Routes>
     </BrowserRouter>
   );

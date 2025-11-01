@@ -13,6 +13,13 @@ export const PAGE_META = {
       "Discover Gradus India company your go-to platform for quality online education, interactive courses, expert tutors & modern learning tools",
     keywords: "Gradus India, Gradus Learning, Gradus India Company, Best Gradus Online Finance Courses, GradusIndia Training Programs, Gradus Online Courses, Gradus Tutors, Gradus Learn & Grow",
   },
+  "/social": {
+    title: "Connect With Gradus India | Social Links Portfolio",
+    description:
+      "Follow Gradus India on Facebook, Instagram, Reddit, Quora, and Discord. One page to connect everywhere.",
+    keywords: "Gradus India social, Gradus Instagram, Gradus Facebook, Gradus Reddit, Gradus Quora, Gradus Discord, Gradus links",
+    robots: "noindex, nofollow",
+  },
   "/index-2": {
     title: "Gradus | Home Variation Two",
     description:
