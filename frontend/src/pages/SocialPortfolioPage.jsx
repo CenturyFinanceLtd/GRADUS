@@ -25,7 +25,7 @@ const SocialPortfolioPage = () => {
     {
       name: "Facebook",
       handle: "Gradus India",
-      url: "https://www.facebook.com/profile.php?id=61583093960559&sk=about",
+      url: "https://www.facebook.com/people/Gradus/61583093960559/?sk=about",
       icon: "ph ph-facebook-logo",
       color: "#1877F2",
     },
