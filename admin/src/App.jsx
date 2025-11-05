@@ -105,8 +105,6 @@ const TicketDetailsPage = lazy(() => import("./pages/TicketDetailsPage.jsx"));
 const MaintenancePage = lazy(() => import("./pages/MaintenancePage"));
 const BlankPagePage = lazy(() => import("./pages/BlankPagePage"));
 const InquiryPage = lazy(() => import("./pages/InquiryPage"));
-const CourseManagementPage = lazy(() => import("./pages/CourseManagementPage"));
-const EnrollmentsPage = lazy(() => import("./pages/EnrollmentsPage"));
 const PermissionPage = lazy(() => import("./pages/PermissionPage"));
 import useAuth from "./hook/useAuth";
 
@@ -180,8 +178,7 @@ function App() {
         <Route exact path='/inquiries' element={<InquiryPage />} />
         <Route exact path='/tickets' element={<TicketsPage />} />
         <Route exact path='/ticket/:id' element={<TicketDetailsPage />} />
-        <Route exact path='/courses' element={<CourseManagementPage />} />
-        <Route exact path='/enrollments' element={<EnrollmentsPage />} />
+        { /* Courses management and enrollments pages removed */ }
 
         <Route exact path='/testimonials' element={<TestimonialsPage />} />
         <Route exact path='/coming-soon' element={<ComingSoonPage />} />

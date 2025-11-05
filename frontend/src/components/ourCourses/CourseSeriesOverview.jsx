@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 
-const CourseSeriesOverview = ({ heroContent, courses = [], variant = 'dark' }) => {
+const CourseSeriesOverview = ({ heroContent, courses = [], variant = 'dark', ctaLabel = 'Explore Courses' }) => {
   const safeCourses = useMemo(
     () => (Array.isArray(courses) ? courses.filter((course) => course?.name) : []),
     [courses]
@@ -24,25 +24,11 @@ const CourseSeriesOverview = ({ heroContent, courses = [], variant = 'dark' }) =
   const navigate = useNavigate();
 
   const handleExploreClick = useCallback(
-    (courseId, event) => {
-      if (!courseId) {
-        return;
-      }
-
+    (_courseId, event) => {
       if (event?.preventDefault) {
         event.preventDefault();
       }
-
-      if (typeof window !== 'undefined') {
-        const target = document.getElementById(courseId);
-        if (target) {
-          const scrollTarget = target.getBoundingClientRect().top + window.pageYOffset - 96;
-          window.scrollTo({ top: Math.max(scrollTarget, 0), behavior: 'smooth' });
-          return;
-        }
-      }
-
-      navigate(`/our-courses#${courseId}`);
+      navigate('/our-courses');
     },
     [navigate]
   );
@@ -70,6 +56,17 @@ const CourseSeriesOverview = ({ heroContent, courses = [], variant = 'dark' }) =
     const courseId = course.id || course.slug;
     const nameInitial = (course.name || '?').charAt(0).toUpperCase();
     const price = course.price;
+    const chipList = (
+      Array.isArray(course.courses)
+        ? course.courses
+        : Array.isArray(course.tags)
+        ? course.tags
+        : Array.isArray(course.items)
+        ? course.items
+        : Array.isArray(course.topics)
+        ? course.topics
+        : []
+    ).filter(Boolean);
 
     return (
       <div
@@ -85,6 +82,20 @@ const CourseSeriesOverview = ({ heroContent, courses = [], variant = 'dark' }) =
           </div>
         </div>
         {course.focus ? <p className='text-neutral-500 mb-20'>{course.focus}</p> : null}
+        {chipList.length ? (
+          <div className='d-flex flex-wrap gap-8 mb-20'>
+            {chipList.slice(0, 8).map((chip, idx) => (
+              <button
+                key={`chip-${courseId}-${idx}`}
+                type='button'
+                className='btn btn-outline-main rounded-pill py-8 px-16 text-sm fw-semibold'
+                onClick={(e) => e.preventDefault()}
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
+        ) : null}
         {price ? (
           <p className='text-neutral-800 fw-semibold mb-20'>
             Program Fee: <span className='text-main-600'>{price}</span>
@@ -112,7 +123,7 @@ const CourseSeriesOverview = ({ heroContent, courses = [], variant = 'dark' }) =
             onClick={(event) => handleExploreClick(courseId, event)}
             className='btn btn-main rounded-pill flex-align gap-8'
           >
-            Explore Series
+            {ctaLabel}
             <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
           </button>
         ) : null}

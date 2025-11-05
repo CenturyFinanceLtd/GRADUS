@@ -26,7 +26,7 @@ const FeaturesTwo = () => {
               creativity. What you find just might...
             </p>
             <Link
-              to='/course-list-view'
+              to='/our-courses'
               className='item-hover__text flex-align d-inline-flex gap-8 text-main-600 mt-24 hover-text-decoration-underline transition-1 fw-semibold'
             >
               Read More

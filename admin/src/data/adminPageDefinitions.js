@@ -65,9 +65,7 @@ const ADMIN_PAGE_DEFINITIONS = [
   { key: 'invoice_preview', label: 'Invoice Preview', path: '/invoice-preview', category: 'Sales & Commerce' },
   { key: 'wallet', label: 'Wallet', path: '/wallet', category: 'Sales & Commerce' },
 
-  // Learning & support
-  { key: 'courses', label: 'Courses', path: '/courses', category: 'Learning & Support' },
-  { key: 'enrollments', label: 'Course Enrollments', path: '/enrollments', category: 'Learning & Support' },
+  // Learning & support (courses management removed)
   { key: 'inquiries', label: 'Inquiries', path: '/inquiries', category: 'Learning & Support' },
   { key: 'support_list', label: 'List', path: '/list', category: 'Learning & Support' },
   { key: 'support_starred', label: 'Starred', path: '/starred', category: 'Learning & Support' },

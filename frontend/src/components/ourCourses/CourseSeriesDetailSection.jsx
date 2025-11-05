@@ -158,7 +158,7 @@ const CourseSeriesDetailSection = ({
       navigate('/sign-in', {
         state: {
           from: location,
-          redirectTo: `/our-courses${courseAnchor}`,
+          redirectTo: `/our-courses`,
           pendingEnrollment: courseSlug,
         },
       });

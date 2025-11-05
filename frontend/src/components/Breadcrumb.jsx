@@ -1,74 +1,18 @@
 import { Link } from "react-router-dom";
+import { slugify } from "../utils/slugify.js";
 
-const Breadcrumb = ({ title }) => {
+// Compact breadcrumb with optional programme link in the trail
+// Props:
+// - title: current page/course title (last crumb)
+// - programme: optional programme name to show between Home and title
+const Breadcrumb = ({ title, programme }) => {
   return (
-    <section className='breadcrumb py-120 bg-main-25 position-relative z-1 overflow-hidden mb-0'>
-      <div className='shape one animation-rotation d-md-block d-none our-blogs-trigger'>
-        <img
-          src='/assets/images/shapes/shape1.png'
-          alt=''
-          role='button'
-          title='Blogs'
-          aria-label='Blogs'
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') window.location.href = '/blogs';
-          }}
-          onClick={() => (window.location.href = '/blogs')}
-        />
-        <span className='our-blogs-tooltip'>Blogs</span>
-      </div>
-      <img
-        src='/assets/images/shapes/shape2.png'
-        alt=''
-        className='shape two animation-scalation d-md-block d-none'
-      />
-      <div className='shape eight animation-walking d-md-block d-none our-courses-trigger'>
-        <img
-          src='/assets/images/shapes/shape3.png'
-          alt=''
-          role='button'
-          title='Our Courses'
-          aria-label='Our Courses'
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') window.location.href = '/our-courses';
-          }}
-          onClick={() => (window.location.href = '/our-courses')}
-        />
-        <span className='our-courses-tooltip'>Our Courses</span>
-      </div>
-      <div className='shape six animation-walking d-md-block d-none our-know-gradus-trigger'>
-        <img
-          src='/assets/images/shapes/shape5.png'
-          alt=''
-          role='button'
-          title='Know Gradus'
-          aria-label='Know Gradus'
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') window.location.href = '/about-us';
-          }}
-          onClick={() => (window.location.href = '/about-us')}
-        />
-        <span className='our-know-gradus-tooltip'>Know Gradus</span>
-      </div>
-      <img
-        src='/assets/images/shapes/shape4.png'
-        alt=''
-        className='shape four animation-scalation'
-      />
-      <img
-        src='/assets/images/shapes/shape4.png'
-        alt=''
-        className='shape nine animation-scalation'
-      />
+    <section className='breadcrumb py-40 bg-main-25 position-relative z-1 mb-0'>
       <div className='container'>
         <div className='row justify-content-center'>
           <div className='col-lg-8'>
             <div className='breadcrumb__wrapper'>
               <h1 className='breadcrumb__title display-4 fw-semibold text-center'>
-                {" "}
                 {title}
               </h1>
               <ul className='breadcrumb__list d-flex align-items-center justify-content-center gap-4'>
@@ -77,16 +21,29 @@ const Breadcrumb = ({ title }) => {
                     to='/'
                     className='breadcrumb__link text-neutral-500 hover-text-main-600 fw-medium'
                   >
-                    <i className='text-lg d-inline-flex ph-bold ph-house' />{" "}
-                    Home
+                    <i className='text-lg d-inline-flex ph-bold ph-house' /> Home
                   </Link>
                 </li>
-
+                {programme ? (
+                  <>
+                    <li className='breadcrumb__item '>
+                      <i className='text-neutral-500 d-flex ph-bold ph-caret-right' />
+                    </li>
+                    <li className='breadcrumb__item'>
+                      <Link
+                        to={`/our-courses?programme=${slugify(programme)}`}
+                        className='breadcrumb__link text-neutral-500 hover-text-main-600 fw-medium'
+                      >
+                        {programme}
+                      </Link>
+                    </li>
+                  </>
+                ) : null}
                 <li className='breadcrumb__item '>
                   <i className='text-neutral-500 d-flex ph-bold ph-caret-right' />
                 </li>
                 <li className='breadcrumb__item'>
-                  <span className='text-main-two-600'> {title} </span>
+                  <span className='text-main-two-600'>{" "}{title}{" "}</span>
                 </li>
               </ul>
             </div>

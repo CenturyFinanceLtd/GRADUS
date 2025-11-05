@@ -1,15 +1,14 @@
 import AboutThree from "../components/AboutThree";
 import BannerOne from "../components/BannerOne";
 import BlogTwo from "../components/BlogTwo";
-import BrandTwo from "../components/BrandTwo";
 import ChooseUsTwo from "../components/ChooseUsTwo";
 import CounterTwo from "../components/CounterTwo";
-import EventOne from "../components/EventOne";
-import HomeCourseSeriesOverview from "../components/home/HomeCourseSeriesOverview";
+import GradusProgrammes from "../components/home/GradusProgrammes";
+import ByCflAndPartners from "../components/home/ByCflAndPartners";
+import VideoTestimonials from "../components/home/VideoTestimonials";
 import FooterThree from "../components/FooterThree";
 import HeaderOne from "../components/HeaderOne";
 import InfoTwo from "../components/InfoTwo";
-import TestimonialsThree from "../components/TestimonialsThree";
 import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
 
@@ -30,7 +29,16 @@ const HomePageThree = () => {
 
       {/* InfoTwo */}
       <InfoTwo />
-      
+
+      {/* Gradus Programmes */}
+      <GradusProgrammes />
+
+      {/* Powered by CFL + Partners (3-row carousel) */}
+      <ByCflAndPartners />
+
+      {/* Video Testimonials */}
+      <VideoTestimonials />
+
 
       {/* AboutThree */}
       <AboutThree />
@@ -40,23 +48,19 @@ const HomePageThree = () => {
       {/* CounterTwo */}
       <CounterTwo />
 
-      {/* HomeCourseSeriesOverview */}
-      <HomeCourseSeriesOverview />
+      
 
       {/* ChooseUsTwo */}
       <ChooseUsTwo />
 
-      {/* TestimonialsThree */}
-      <TestimonialsThree />
+      
 
-      {/* EventOne */}
-      <EventOne />
+      
 
       {/* BlogTwo */}
       <BlogTwo />
 
-      {/* BrandTwo */}
-      <BrandTwo />
+      
 
       {/* FooterThree */}
       <FooterThree />

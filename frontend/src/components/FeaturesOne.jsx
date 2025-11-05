@@ -77,7 +77,7 @@ const FeaturesOne = () => {
                 Mandarin etc
               </p>
               <Link
-                to='/course-list-view'
+                to='/our-courses'
                 className='item-hover__text flex-align gap-8 text-main-600 mt-24 hover-text-decoration-underline transition-1'
               >
                 View Category
@@ -102,7 +102,7 @@ const FeaturesOne = () => {
                 editing
               </p>
               <Link
-                to='/course-list-view'
+                to='/our-courses'
                 className='item-hover__text flex-align gap-8 text-main-600 mt-24 hover-text-decoration-underline transition-1'
               >
                 View Category
@@ -127,7 +127,7 @@ const FeaturesOne = () => {
                 wellness coaching...
               </p>
               <Link
-                to='/course-list-view'
+                to='/our-courses'
                 className='item-hover__text flex-align gap-8 text-main-600 mt-24 hover-text-decoration-underline transition-1'
               >
                 View Category
@@ -152,7 +152,7 @@ const FeaturesOne = () => {
                 editing
               </p>
               <Link
-                to='/course-list-view'
+                to='/our-courses'
                 className='item-hover__text flex-align gap-8 text-main-600 mt-24 hover-text-decoration-underline transition-1'
               >
                 View Category

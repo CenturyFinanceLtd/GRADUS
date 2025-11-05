@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import Select from "react-select";
+// react-select removed (course selector not used)
 import { useAuth } from "../context/AuthContext.jsx";
 
 const HeaderTwo = () => {
@@ -49,17 +49,7 @@ const HeaderTwo = () => {
     };
   }, []);
 
-  const options = [
-    { value: 1, label: "Physics" },
-    { value: 2, label: "Math" },
-    { value: 3, label: "Biology" },
-    { value: 4, label: "English" },
-    { value: 5, label: "Higher Math" },
-    { value: 6, label: "Social Science" },
-    { value: 7, label: "Chemistry" },
-  ];
-
-  const [selectedOption, setSelectedOption] = useState(null);
+  // Course select removed
 
   const toggleMenu = () => {
     setIsMenuActive(!isMenuActive);
@@ -236,70 +226,12 @@ const HeaderTwo = () => {
   };
 
   const menuItems = [
-    {
-      label: "Home",
-      links: [
-        { to: "/", label: "Home LMS" },
-        { to: "/index-2", label: "Home Online Course" },
-        { to: "/index-3", label: "Home University" },
-        { to: "/index-4", label: "Home Tutor" },
-        { to: "/index-5", label: "Home Kindergarten" },
-        { to: "/index-6", label: " Home Kindergarten two" },
-      ],
-    },
-    {
-      label: "Courses",
-      links: [
-        { to: "/course", label: "Course Grid View" },
-        { to: "/course-list-view", label: "Course List View" },
-        { to: "/course-details", label: "Course Details" },
-        { to: "/lesson-details", label: "Lesson Details" },
-      ],
-    },
-    {
-      label: "Pages",
-      links: [
-        { to: "/about-us", label: "About" },
-        { to: "/about-two", label: "About Two" },
-        { to: "/about-three", label: "About Three" },
-        { to: "/about-four", label: "About Four" },
-        { to: "/pricing-plan", label: "Pricing Plan" },
-        { to: "/instructor", label: "Instructor" },
-        { to: "/instructor-two", label: "Instructor Two" },
-        { to: "/instructor-details", label: "Instructor Details" },
-        { to: "/tutor", label: "Premium Tutors" },
-        { to: "/tutor-details", label: "Premium Tutors Details" },
-        { to: "/faq", label: "FAQ" },
-        { to: "/tuition-jobs", label: "Tuition Jobs" },
-        { to: "/events", label: "Events" },
-        { to: "/event-details", label: "Event Details" },
-        { to: "/apply-admission", label: "Apply Admission" },
-        { to: "/gallery", label: "Gallery" },
-        { to: "/privacy-policy", label: "Privacy Policy" },
-        { to: "/my-courses", label: "My Courses" },
-        { to: "/find-tutors", label: "Find Best Tutors" },
-        { to: "/book-online-class", label: "Book Online Class" },
-      ],
-    },
-    {
-      label: "Product",
-      links: [
-        { to: "/product", label: "Product" },
-        { to: "/product-details", label: "Product Details" },
-        { to: "/cart", label: "Cart" },
-        { to: "/checkout", label: "Checkout" },
-      ],
-    },
-    {
-      label: "Blog",
-      links: [
-        { to: "/blogs", label: "Blog Grid" },
-        { to: "/blog-list", label: "Blog List" },
-        { to: "/blog-classic", label: "Blog Classic" },
-        { to: "/blog-details", label: "Blog Details" },
-      ],
-    },
-    { to: "/contact", label: "Contact" },
+    { to: "/our-courses", label: "Our Courses" },
+    // Redirect to Our Courses with pre-applied filters
+    { to: "/our-courses?programme=gradus-finlit", label: "Stock Market Courses" },
+    { to: "/our-courses?programme=gradusx", label: "Tech Courses Placement" },
+    { to: "/blogs", label: "Blogs" },
+    { to: "/contact", label: "Contact us" },
   ];
 
   return (
@@ -317,23 +249,7 @@ const HeaderTwo = () => {
               </Link>
             </div>
             {/* Logo End  */}
-            {/* Search Start */}
-            <div className='d-md-flex d-none bg-white  rounded-pill p-8 ps-24 pe-56 position-relative d-flex align-items-center  min-w-320 max-w-708 w-100'>
-              <form action='#' className='  w-100 ms-5'>
-                <input
-                  type='text'
-                  className='common-input border-0 px-0 py-10'
-                  placeholder='Search Tutors...'
-                />
-                <button
-                  type='submit'
-                  className='w-44 h-44 bg-main-600 hover-bg-main-700 rounded-circle flex-center text-xl text-white position-absolute top-50 translate-middle-y inset-inline-end-0 me-8'
-                >
-                  <i className='ph-bold ph-magnifying-glass' />
-                </button>
-              </form>
-            </div>
-            {/* Search End */}
+            {/* Search removed */}
             {/* Account Actions Start */}
             {isAuthenticated ? (
               <div
@@ -405,26 +321,7 @@ const HeaderTwo = () => {
       >
         <div className='container'>
           <nav className='header-inner flex-between gap-8'>
-            {/* Select Start */}
-            <div className='header-select   rounded-pill position-relative ms-0'>
-              <span className='select-icon position-absolute top-50 translate-middle-y inset-inline-start-0 z-1 ms-lg-4 ms-12 text-xl pointer-event-none d-flex'>
-                <i className='ph-bold ph-squares-four' />
-              </span>
-
-              <div className='custom__select'>
-                <Select
-                  classNames={{
-                    control: (state) =>
-                      state.isFocused ? " border-focus" : "border-neutral-30",
-                  }}
-                  placeholder='Choose Course'
-                  value={selectedOption}
-                  onChange={setSelectedOption}
-                  options={options}
-                />
-              </div>
-            </div>
-            {/* Select End */}
+            {/* Course select removed */}
             {/* Menu Start  */}
             <div className='header-menu d-lg-block d-none'>
               <ul className='nav-menu flex-align'>
@@ -591,25 +488,7 @@ const HeaderTwo = () => {
                 )
               )}
             </ul>
-            <div className='d-sm-none d-block mt-24'>
-              <div className='header-select border border-neutral-30 bg-main-25 rounded-pill position-relative'>
-                <span className='select-icon position-absolute top-50 translate-middle-y inset-inline-start-0 z-1 ms-lg-4 ms-12 text-xl pointer-event-none d-flex'>
-                  <i className='ph-bold ph-squares-four' />
-                </span>
-                <div className='custom__select'>
-                  <Select
-                    classNames={{
-                      control: (state) =>
-                        state.isFocused ? " border-focus" : "border-neutral-30",
-                    }}
-                    placeholder='Choose Course'
-                    value={selectedOption}
-                    onChange={setSelectedOption}
-                    options={options}
-                  />
-                </div>
-              </div>
-            </div>
+            {/* Mobile course select removed */}
           </div>
         </div>
       </div>

@@ -1,66 +1,93 @@
+import { useMemo, useRef } from "react";
+
+const COURSES = [
+  // Requested Popular (will be shown since we slice top 5)
+  "commodity trading",
+  "Artificial Intelligence & Machine Learning",
+  "Python Programming",
+  "Technical analysis",
+  "Full Stack Development",
+  // Rest of catalog
+  "Data Structures & Algorithms",
+  "Full Stack Development",
+  "Mobile App Development (Android / iOS)",
+  "Database Management (SQL, MongoDB)",
+  "Cybersecurity & Ethical Hacking",
+  "Cloud Computing (AWS, Azure, Google Cloud)",
+  "Data Science & Analytics",
+  "DevOps & CI/CD",
+  "Blockchain Development",
+  "Quantum Computing Basics",
+  "Tableau / Power BI for Data Visualization",
+  "Swing Trading & Investing",
+  "NISM Certification",
+  "Scalping & Intraday",
+  "Futures and Options",
+  "Mutual Funds and SIPs",
+];
+
 const InfoTwo = () => {
+  const items = useMemo(() => COURSES, []);
+  const scrollerRef = useRef(null);
+
+  const scrollByCards = (direction = 1) => {
+    const container = scrollerRef.current;
+    if (!container) return;
+    const card = container.querySelector(".course-card");
+    if (!card) return;
+    const perView = 5; // show 5 at a time
+    const scrollAmount = card.offsetWidth * perView + 16; // include gap
+    container.scrollBy({ left: direction * scrollAmount, behavior: "smooth" });
+  };
+
   return (
-    <section className='info-two half-bg'>
+    <section className='info-two home-courses-overlap half-bg half-bg__70'>
       <div className='container'>
-        <div className='bg-white box-shadow-md rounded-16 p-16'>
-          <div className='row gy-4 justify-content-center'>
-            <div
-              className='col-xl-4 col-sm-6'
-              data-aos='fade-up'
-              data-aos-duration={400}
-            >
-              <div className='info-two-item flex-align animation-item h-100 gap-28 border border-neutral-30 rounded-12 bg-main-25'>
-                <span className='flex-shrink-0'>
-                  <img
-                    src='/assets/images/icons/info-two-icon1.png'
-                    className='animate__heartBeat'
-                    alt='Placement support icon'
-                  />
-                </span>
-                <div>
-                  <h4 className='mb-12'>Placement Track</h4>
-                  <p className='text-neutral-700 mb-0'>Dedicated placement cell with interview mentoring, hiring drives, and employer partnerships to secure your first role.</p>
-                </div>
-              </div>
+        <div className='home-courses-surface bg-white box-shadow-md rounded-16 p-24'>
+          <div className='d-flex align-items-center justify-content-between mb-20'>
+            <div className='d-flex align-items-center gap-12'>
+              <span className='badge-popular-courses'>Popular Courses</span>
             </div>
-            <div
-              className='col-xl-4 col-sm-6'
-              data-aos='fade-up'
-              data-aos-duration={600}
-            >
-              <div className='info-two-item flex-align animation-item h-100 gap-28 border border-neutral-30 rounded-12 bg-main-two-25'>
-                <span className='flex-shrink-0'>
-                  <img
-                    src='/assets/images/icons/info-two-icon2.png'
-                    className='animate__heartBeat'
-                    alt='Certified courses icon'
-                  />
-                </span>
-                <div>
-                  <h4 className='mb-12'>Certified Mentors</h4>
-                  <p className='text-neutral-700 mb-0'>Earn industry-recognised credentials from SEBI-certified mentors with rigorous assessments and project-based evaluations.</p>
-                </div>
-              </div>
+            <div className='d-flex gap-8'>
+              <button
+                type='button'
+                aria-label='Scroll left'
+                className='courses-nav-btn'
+                onClick={() => scrollByCards(-1)}
+              >
+                {"<"}
+              </button>
+              <button
+                type='button'
+                aria-label='Scroll right'
+                className='courses-nav-btn'
+                onClick={() => scrollByCards(1)}
+              >
+                {">"}
+              </button>
             </div>
-            <div
-              className='col-xl-4 col-sm-6'
-              data-aos='fade-up'
-              data-aos-duration={800}
-            >
-              <div className='info-two-item flex-align animation-item h-100 gap-28 border border-neutral-30 rounded-12 bg-main-three-25'>
-                <span className='flex-shrink-0'>
-                  <img
-                    src='/assets/images/icons/info-two-icon3.png'
-                    className='animate__heartBeat'
-                    alt='Skills development icon'
-                  />
+          </div>
+
+          <div
+            ref={scrollerRef}
+            className='courses-scroller'
+            data-aos='fade-up'
+            data-aos-duration={600}
+          >
+            {items.slice(0, 5).map((title, idx) => (
+              <a
+                key={idx}
+                className='course-card'
+                href='#'
+                onClick={(e) => e.preventDefault()}
+              >
+                <span className='course-icon'>
+                  <img src={`/assets/images/icons/category-icon${(idx % 4) + 1}.png`} alt='' />
                 </span>
-                <div>
-                  <h4 className='mb-12'>Ready Skills</h4>
-                  <p className='text-neutral-700 mb-0'>Hands-on trading simulations, soft-skill mastery, and portfolio storytelling so you walk into interviews with confidence.</p>
-                </div>
-              </div>
-            </div>
+                <span className='course-title'>{title}</span>
+                <span className='course-arrow'>{">"}</span>
+              </a>
+            ))}
           </div>
         </div>
       </div>

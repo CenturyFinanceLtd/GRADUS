@@ -19,6 +19,16 @@ export default defineConfig({
     },
   },
   server: {
+    // Reduce Windows file locking issues by using polling and
+    // prevent dev overlay from blocking the screen on transient EBUSY errors
+    watch: {
+      usePolling: true,
+      interval: 200,
+      awaitWriteFinish: { stabilityThreshold: 200, pollInterval: 100 },
+    },
+    hmr: {
+      overlay: false,
+    },
     fs: {
       allow: [path.resolve(__dirname, "..")],
     },

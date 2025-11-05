@@ -60,7 +60,7 @@ const CoursePaymentPage = () => {
         }
 
         if (matchedCourse.isEnrolled) {
-          navigate(`/our-courses#${matchedCourse.slug || courseSlug}`, {
+          navigate(`/our-courses`, {
             replace: true,
             state: { enrollmentCompleted: matchedCourse.slug || courseSlug },
           });
@@ -98,13 +98,13 @@ const CoursePaymentPage = () => {
 
     try {
       await enrollInCourse({ slug: courseSlug, token });
-      navigate(`/our-courses#${courseSlug}`, {
+      navigate(`/our-courses`, {
         replace: true,
         state: { enrollmentCompleted: courseSlug },
       });
     } catch (err) {
       if (err?.status === 409) {
-        navigate(`/our-courses#${courseSlug}`, {
+        navigate(`/our-courses`, {
           replace: true,
           state: { enrollmentCompleted: courseSlug },
         });
@@ -117,11 +117,7 @@ const CoursePaymentPage = () => {
   };
 
   const handleCancel = () => {
-    if (courseSlug) {
-      navigate(`/our-courses#${courseSlug}`);
-    } else {
-      navigate("/our-courses");
-    }
+    navigate("/our-courses");
   };
 
   const renderContent = () => {

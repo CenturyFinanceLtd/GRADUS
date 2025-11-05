@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import Select from "react-select";
+// react-select removed (course selector not used)
 import { useAuth } from "../context/AuthContext.jsx";
 
 const HeaderThree = () => {
@@ -19,21 +19,17 @@ const HeaderThree = () => {
     };
   }, []);
 
-  const options = [
-    { value: 1, label: "Physics" },
-    { value: 2, label: "Math" },
-    { value: 3, label: "Biology" },
-    { value: 4, label: "English" },
-    { value: 5, label: "Higher Math" },
-    { value: 6, label: "Social Science" },
-    { value: 7, label: "Chemistry" },
-  ];
-
-  const [selectedOption, setSelectedOption] = useState(options[0]);
+  // Course select removed
   const { isAuthenticated, user } = useAuth();
   const profileLink = isAuthenticated ? "/profile" : "/sign-in";
+  const fallbackName = user?.email ? user.email.split("@")[0] : "";
+  const displayName =
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+    user?.name ||
+    fallbackName ||
+    "Account";
   const profileLabel = isAuthenticated
-    ? `Open profile (${user?.firstName || user?.email || "account"})`
+    ? `Open profile (${displayName})`
     : "Sign in";
 
   const toggleMenu = () => {
@@ -68,66 +64,12 @@ const HeaderThree = () => {
   };
 
   const menuItems = [
-    {
-      label: "Home",
-      links: [
-        { to: "/", label: "Home LMS" },
-        { to: "/index-2", label: "Home Online Course" },
-        { to: "/index-3", label: "Home University" },
-        { to: "/index-4", label: "Home Tutor" },
-        { to: "/index-5", label: "Home Kindergarten" },
-        { to: "/index-6", label: " Home Kindergarten two" },
-      ],
-    },
-    {
-      label: "Courses",
-      links: [
-        { to: "/course", label: "Course Grid View" },
-        { to: "/course-list-view", label: "Course List View" },
-        { to: "/course-details", label: "Course Details" },
-        { to: "/lesson-details", label: "Lesson Details" },
-      ],
-    },
-    {
-      label: "Pages",
-      links: [
-        { to: "/about-us", label: "About" },
-        { to: "/about-two", label: "About Two" },
-        { to: "/about-three", label: "About Three" },
-        { to: "/about-four", label: "About Four" },
-        { to: "/product", label: "Product" },
-        { to: "/product-details", label: "Product Details" },
-        { to: "/cart", label: "Cart" },
-        { to: "/checkout", label: "Checkout" },
-        { to: "/pricing-plan", label: "Pricing Plan" },
-        { to: "/instructor", label: "Instructor" },
-        { to: "/instructor-two", label: "Instructor Two" },
-        { to: "/instructor-details", label: "Instructor Details" },
-        { to: "/tutor", label: "Premium Tutors" },
-        { to: "/tutor-details", label: "Premium Tutors Details" },
-        { to: "/faq", label: "FAQ" },
-        { to: "/tuition-jobs", label: "Tuition Jobs" },
-        { to: "/events", label: "Events" },
-        { to: "/event-details", label: "Event Details" },
-        { to: "/apply-admission", label: "Apply Admission" },
-        { to: "/gallery", label: "Gallery" },
-        { to: "/privacy-policy", label: "Privacy Policy" },
-        { to: "/my-courses", label: "My Courses" },
-        { to: "/find-tutors", label: "Find Best Tutors" },
-        { to: "/book-online-class", label: "Book Online Class" },
-      ],
-    },
-
-    {
-      label: "Blog",
-      links: [
-        { to: "/blogs", label: "Blog Grid" },
-        { to: "/blog-list", label: "Blog List" },
-        { to: "/blog-classic", label: "Blog Classic" },
-        { to: "/blog-details", label: "Blog Details" },
-      ],
-    },
-    { to: "/contact", label: "Contact" },
+    { to: "/our-courses", label: "Our Courses" },
+    // Redirect to Our Courses with pre-applied filters
+    { to: "/our-courses?programme=gradus-finlit", label: "Stock Market Courses" },
+    { to: "/our-courses?programme=gradusx", label: "Tech Courses Placement" },
+    { to: "/blogs", label: "Blogs" },
+    { to: "/contact", label: "Contact us" },
   ];
 
   return (
@@ -148,25 +90,7 @@ const HeaderThree = () => {
                 </Link>
               </div>
               {/* Logo End  */}
-              {/* Select Start */}
-              <div className='d-sm-block d-none'>
-                <div className='header-select  rounded-pill position-relative'>
-                  <div className='custom__select'>
-                    <Select
-                      classNames={{
-                        control: (state) =>
-                          state.isFocused
-                            ? " border-focus"
-                            : "border-neutral-30",
-                      }}
-                      value={selectedOption}
-                      onChange={setSelectedOption}
-                      options={options}
-                    />
-                  </div>
-                </div>
-              </div>
-              {/* Select End */}
+              {/* Course select removed */}
               {/* Menu Start  */}
               <div className='header-menu d-lg-block d-none'>
                 <ul className='nav-menu flex-align'>
@@ -216,39 +140,58 @@ const HeaderThree = () => {
             </div>
             {/* Header Right start */}
             <div className='header-right flex-align'>
-              <form
-                action='#'
-                className='search-form position-relative d-xl-block d-none'
-              >
-                <input
-                  type='text'
-                  className='common-input rounded-pill bg-white pe-48 border-neutral-30'
-                  placeholder='Search...'
-                />
-                <button
-                  type='submit'
-                  className='w-36 h-36 bg-main-600 hover-bg-main-700 rounded-circle flex-center text-md text-white position-absolute top-50 translate-middle-y inset-inline-end-0 me-8'
-                >
-                  <i className='ph-bold ph-magnifying-glass' />
-                </button>
-              </form>
-              <Link
-                to='#'
-                className='info-action w-44 h-44 bg-white hover-bg-main-600 rounded-circle flex-center text-xl text-neutral-500 hover-text-white position-relative me-6'
-              >
-                <i className='ph-bold ph-shopping-cart-simple' />
-                <span className='w-22 h-22 flex-center rounded-circle bg-main-two-600 text-white text-xs position-absolute top-n6 end-n4'>
-                  1
-                </span>
-              </Link>
-              <Link
-                to={profileLink}
-                title={profileLabel}
-                aria-label={profileLabel}
-                className='info-action w-52 h-52 bg-white hover-bg-main-600 border border-neutral-30 rounded-circle flex-center text-2xl text-neutral-500 hover-text-white hover-border-main-600'
-              >
-                <i className='ph ph-user-circle' />
-              </Link>
+              {/* Search removed */}
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    to='#'
+                    className='info-action w-44 h-44 bg-white hover-bg-main-600 rounded-circle flex-center text-xl text-neutral-500 hover-text-white position-relative me-6 d-none d-lg-flex'
+                  >
+                    <i className='ph-bold ph-shopping-cart-simple' />
+                    <span className='w-22 h-22 flex-center rounded-circle bg-main-two-600 text-white text-xs position-absolute top-n6 end-n4'>
+                      1
+                    </span>
+                  </Link>
+                  <Link
+                    to={profileLink}
+                    className='account-pill d-none d-lg-inline-flex'
+                    title={profileLabel}
+                    aria-label={profileLabel}
+                  >
+                    <span className='account-pill__icon'><i className='ph ph-user-circle' /></span>
+                    <span className='account-pill__label'>{displayName}</span>
+                  </Link>
+                  {/* Mobile compact icon */}
+                  <Link
+                    to={profileLink}
+                    title={profileLabel}
+                    aria-label={profileLabel}
+                    className='info-action w-52 h-52 bg-white hover-bg-main-600 border border-neutral-30 rounded-circle flex-center text-2xl text-neutral-500 hover-text-white hover-border-main-600 d-lg-none'
+                  >
+                    <i className='ph ph-user-circle' />
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to='/sign-in'
+                    className='account-pill d-none d-lg-inline-flex'
+                    title={profileLabel}
+                    aria-label={profileLabel}
+                  >
+                    <span className='account-pill__icon'><i className='ph ph-user-circle' /></span>
+                    <span className='account-pill__label'>Sign in</span>
+                  </Link>
+                  <Link
+                    to={profileLink}
+                    title={profileLabel}
+                    aria-label={profileLabel}
+                    className='info-action w-52 h-52 bg-white hover-bg-main-600 border border-neutral-30 rounded-circle flex-center text-2xl text-neutral-500 hover-text-white hover-border-main-600 d-lg-none'
+                  >
+                    <i className='ph ph-user-circle' />
+                  </Link>
+                </>
+              )}
               <button
                 type='button'
                 className='toggle-mobileMenu d-lg-none text-neutral-200 flex-center'

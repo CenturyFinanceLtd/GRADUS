@@ -21,7 +21,7 @@ const ExploreCourseOne = () => {
               to providing you...
             </p>
             <Link
-              to='/course-list-view'
+              to='/our-courses'
               className='item-hover__text flex-align gap-8 text-main-600 mt-24 hover-text-decoration-underline transition-1'
               tabIndex={0}
             >
