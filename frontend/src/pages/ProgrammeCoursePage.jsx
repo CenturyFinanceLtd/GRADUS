@@ -96,6 +96,48 @@ const ProgrammeCoursePage = () => {
 
   const displayCourse = course ? stripBrackets(course) : null;
 
+  const headerHeight = 88;
+
+  // Smooth scroll to sections with header offset
+  const scrollTo = (id) => (e) => {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    const el = typeof document !== 'undefined' ? document.getElementById(id) : null;
+    if (!el) return;
+    const headerOffset = headerHeight + 6; // keep just below sticky site header
+    const y = el.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+  };
+
+  const [activeTab, setActiveTab] = useState('about');
+  const [showSticky, setShowSticky] = useState(false);
+  useEffect(() => {
+    if (!programme || !course) return undefined;
+    const ids = ['about', 'outcomes', 'modules'];
+    const handler = () => {
+      const headerOffset = headerHeight + 22;
+      const positions = ids.map((id) => {
+        const el = document.getElementById(id);
+        if (!el) return { id, dist: Infinity };
+        const rect = el.getBoundingClientRect();
+        return { id, dist: Math.abs(rect.top - headerOffset) };
+      });
+      positions.sort((a, b) => a.dist - b.dist);
+      if (positions.length) setActiveTab(positions[0].id);
+
+      // Toggle sticky bar visibility after passing the hero area (around the About section)
+      const aboutEl = document.getElementById('about');
+      const trigger = aboutEl ? Math.max(0, aboutEl.offsetTop - (headerHeight + 40)) : 180;
+      setShowSticky(window.pageYOffset > trigger);
+    };
+    handler();
+    window.addEventListener('scroll', handler, { passive: true });
+    window.addEventListener('resize', handler);
+    return () => {
+      window.removeEventListener('scroll', handler);
+      window.removeEventListener('resize', handler);
+    };
+  }, [programme, course, programmeSlug, courseSlug]);
+
   if (!programme || !course) {
     return (
       <>
@@ -122,46 +164,6 @@ const ProgrammeCoursePage = () => {
 
   const content = buildDefaultContent(displayCourse, programme.title);
   const half = Math.ceil((content.outcomes || []).length / 2);
-  const headerHeight = 88;
-
-  // Smooth scroll to sections with header offset
-  const scrollTo = (id) => (e) => {
-    if (e && typeof e.preventDefault === 'function') e.preventDefault();
-    const el = typeof document !== 'undefined' ? document.getElementById(id) : null;
-    if (!el) return;
-    const headerOffset = headerHeight + 6; // keep just below sticky site header
-    const y = el.getBoundingClientRect().top + window.pageYOffset - headerOffset;
-    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
-  };
-
-  const [activeTab, setActiveTab] = useState('about');
-  const [showSticky, setShowSticky] = useState(false);
-  useEffect(() => {
-    const ids = ['about', 'outcomes', 'modules'];
-    const handler = () => {
-      const headerOffset = headerHeight + 22;
-      const positions = ids.map((id) => {
-        const el = document.getElementById(id);
-        if (!el) return { id, dist: Infinity };
-        const rect = el.getBoundingClientRect();
-        return { id, dist: Math.abs(rect.top - headerOffset) };
-      });
-      positions.sort((a, b) => a.dist - b.dist);
-      if (positions.length) setActiveTab(positions[0].id);
-
-      // Toggle sticky bar visibility after passing the hero area (around the About section)
-      const aboutEl = document.getElementById('about');
-      const trigger = aboutEl ? Math.max(0, aboutEl.offsetTop - (headerHeight + 40)) : 180;
-      setShowSticky(window.pageYOffset > trigger);
-    };
-    handler();
-    window.addEventListener('scroll', handler, { passive: true });
-    window.addEventListener('resize', handler);
-    return () => {
-      window.removeEventListener('scroll', handler);
-      window.removeEventListener('resize', handler);
-    };
-  }, [programmeSlug, courseSlug]);
 
   return (
     <>
@@ -362,37 +364,19 @@ const ProgrammeCoursePage = () => {
             </div>
           </div>
 
-          {/* Full-width: Recommendations */}
-          <div className='row g-4'>
-            <div className='col-12'>
-              <div id='recommendations' className='rounded-16 border border-neutral-30 p-24 mb-20 bg-white'>
-                <div className='d-flex flex-wrap justify-content-between align-items-center gap-16'>
-                  <div>
-                    <h6 className='mb-8 text-neutral-900'>See how employees at top companies are mastering in‑demand skills</h6>
-                    <a href='#' className='link'>Learn more about Gradus for Business</a>
-                  </div>
-                  <div className='d-flex align-items-center gap-12'>
-                    <img src='/assets/images/partners/partner-1.png' alt='' style={{ height: 28 }} />
-                    <img src='/assets/images/partners/partner-2.png' alt='' style={{ height: 28 }} />
-                    <img src='/assets/images/partners/partner-3.png' alt='' style={{ height: 28 }} />
-                    <img src='/assets/images/partners/partner-4.png' alt='' style={{ height: 28 }} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
+<<<<<<< ours
           {/* Full-width: Expertise block */}
           <div className='row g-4'>
             <div className='col-12'>
               <div className='rounded-16 border border-neutral-30 p-24 mb-20 bg-white'>
                 <h4 className='mb-12'>Build your subject-matter expertise</h4>
-                <p className='text-neutral-700 mb-16'>Learn from industry-aligned mentors, complete real projects, and earn a shareable certificate to showcase your skills.</p>
-                <img src='/assets/images/thumbs/about-us-five-img3.png' alt='' className='rounded-12 cover-img' />
+                <p className='text-neutral-700 mb-0'>Learn from industry-aligned mentors, complete real projects, and earn a shareable certificate to showcase your skills.</p>
               </div>
             </div>
           </div>
 
+=======
+>>>>>>> theirs
           {/* Two-column: Modules with sidebar */}
           <div className='row g-4'>
             <div className='col-12 col-lg-8'>
