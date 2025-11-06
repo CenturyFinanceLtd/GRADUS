@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import FooterOne from "../components/FooterOne";
 import HeaderOne from "../components/HeaderOne";
 import Animation from "../helper/Animation";
@@ -7,6 +8,9 @@ import Preloader from "../helper/Preloader";
 
 function ProgrammeCoursePage() {
   const { programme, course } = useParams();
+  const navigate = useNavigate();
+  const { token } = useAuth();
+  const combinedSlug = `${(programme || '').trim().toLowerCase()}/${(course || '').trim().toLowerCase()}`;
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,7 +21,9 @@ function ProgrammeCoursePage() {
         setLoading(true);
         setError(null);
         const base = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '');
-        const api = await fetch(`${base}/courses/${encodeURIComponent(programme || '')}/${encodeURIComponent(course || '')}`, { credentials: 'include' });
+        const headers = new Headers();
+        if (token) headers.set('Authorization', `Bearer ${token}`);
+        const api = await fetch(`${base}/courses/${encodeURIComponent(programme || '')}/${encodeURIComponent(course || '')}`, { credentials: 'include', headers });
         if (api.ok) {
           const payload = await api.json();
           const c = payload?.course || {};
@@ -73,6 +79,7 @@ function ProgrammeCoursePage() {
             modules,
             instructors,
             offeredBy,
+            isEnrolled: Boolean(c.isEnrolled),
           });
         } else {
           throw new Error(`HTTP ${api.status}`);
@@ -170,11 +177,33 @@ function ProgrammeCoursePage() {
             </div>
             <div className='d-flex flex-column gap-12'>
               <div className='text-end'>
-                <div className='fw-semibold text-neutral-900 text-lg'>
-                  {priceINR} <span className='text-sm text-neutral-600'>(+ 18% GST)</span>
-                </div>
+                {data?.isEnrolled ? (
+                  <div className='fw-semibold text-success-600 text-lg'>Already enrolled</div>
+                ) : (
+                  <div className='fw-semibold text-neutral-900 text-lg'>
+                    {priceINR} <span className='text-sm text-neutral-600'>(+ 18% GST)</span>
+                  </div>
+                )}
               </div>
-              <Link to={`/payment?course=${encodeURIComponent(course || '')}`} className='btn btn-main w-100'>Enroll Now</Link>
+              {data?.isEnrolled ? (
+                <Link to='/my-courses' className='btn btn-main w-100'>Go to Course</Link>
+              ) : (
+                <Link
+                  to={`/payment?course=${encodeURIComponent(combinedSlug)}`}
+                  className='btn btn-main w-100'
+                  onClick={(e) => {
+                    if (!token) {
+                      e.preventDefault();
+                      navigate('/sign-in', {
+                        replace: false,
+                        state: { redirectTo: `/payment?course=${encodeURIComponent(combinedSlug)}` },
+                      });
+                    }
+                  }}
+                >
+                  Enroll Now
+                </Link>
+              )}
               <span className='text-center text-sm text-neutral-600'>{data?.hero?.enrolledText || '176,437 already enrolled'}</span>
             </div>
           </div>
@@ -324,7 +353,8 @@ function ProgrammeCoursePage() {
                         <div className='accordion-item' key={`mod-${idx}`}>
                           <h2 className='accordion-header' id={`h-${idx}`}>
                             <button className={`accordion-button ${idx === 0 ? '' : 'collapsed'}`} type='button' data-bs-toggle='collapse' data-bs-target={`#module-${idx}`} aria-expanded={idx === 0} aria-controls={`module-${idx}`}>
-                              {m.title}
+                              <span className='badge bg-main-25 text-main-600 me-8 rounded-pill px-12 py-6'>Module {idx + 1}</span>
+                              <span>{m.title}</span>
                             </button>
                           </h2>
                           <div id={`module-${idx}`} className={`accordion-collapse collapse ${idx === 0 ? 'show' : ''}`} aria-labelledby={`h-${idx}`} data-bs-parent='#course-modules-accordion'>

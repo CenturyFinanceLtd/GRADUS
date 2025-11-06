@@ -51,17 +51,22 @@ const VideoTestimonials = () => {
     () => [
       {
         id: "ysz5S6PUM-U",
-        name: "Emily Manekshaw",
+        name: "Aarav Sharma",
         role: "COO, Prime Inc.",
       },
       { id: "J---aiyznGQ", name: "Arun Singh", role: "Founder, Acom Labs" },
       { id: "ScMzIvxBSi4", name: "Priya Menon", role: "Team Lead, InnoSoft" },
-      { id: "LXb3EKWsInQ", name: "Heath Badger", role: "CEO, Insinious Inc." },
+      { id: "LXb3EKWsInQ", name: "Anand Iyer", role: "CEO, Insinious Inc." },
       { id: "VYOjWnS4cMY", name: "Divya Rao", role: "Product Mgr, KodeX" },
       { id: "aqz-KE-bpKQ", name: "Ravi Kumar", role: "CTO, PineWorks" },
     ],
     []
   );
+
+  // Temporarily disable playing videos from testimonials
+  const disablePlayback = true;
+  // Render solid black placeholders instead of images
+  const showBlackPlaceholders = true;
 
   const openVideo = (id) => {
     setVideoId(id);
@@ -141,13 +146,16 @@ const VideoTestimonials = () => {
                 <div style={cardStyles.wrapper}>
                   <button
                     type="button"
-                    aria-label="Play testimonial"
-                    onClick={() => openVideo(item.id)}
+                    aria-label={disablePlayback ? "Playback disabled" : "Play testimonial"}
+                    onClick={disablePlayback ? undefined : () => openVideo(item.id)}
+                    aria-disabled={disablePlayback}
+                    tabIndex={disablePlayback ? -1 : 0}
                     style={{
                       position: "absolute",
                       inset: 0,
                       zIndex: 2,
-                      cursor: "pointer",
+                      cursor: disablePlayback ? "not-allowed" : "pointer",
+                      pointerEvents: disablePlayback ? "none" : "auto",
                       background: "transparent",
                       border: 0,
                     }}
@@ -157,22 +165,32 @@ const VideoTestimonials = () => {
                       ...cardStyles.thumb,
                       // 9:16 vertical reels
                       paddingBottom: "177.78%",
-                      backgroundImage: `url('${thumb}')`,
+                      backgroundColor: "#000",
+                      backgroundImage: showBlackPlaceholders ? "none" : `url('${thumb}')`,
                     }}
                   />
-                  <div style={cardStyles.playWrap}>
-                    <div style={cardStyles.playIcon} />
-                  </div>
+                  {showBlackPlaceholders ? null : (
+                    <div style={cardStyles.playWrap}>
+                      <div style={cardStyles.playIcon} />
+                    </div>
+                  )}
                 </div>
                 <div className="d-flex align-items-center gap-12 mt-12">
-                  <img
-                    src={`https://i.pravatar.cc/64?img=${(idx % 70) + 1}`}
-                    alt={item.name}
-                    width={36}
-                    height={36}
-                    style={{ borderRadius: 9999 }}
-                    loading="lazy"
-                  />
+                  {showBlackPlaceholders ? (
+                    <div
+                      aria-hidden="true"
+                      style={{ width: 36, height: 36, borderRadius: 9999, background: "#000" }}
+                    />
+                  ) : (
+                    <img
+                      src={`https://i.pravatar.cc/64?img=${(idx % 70) + 1}`}
+                      alt={item.name}
+                      width={36}
+                      height={36}
+                      style={{ borderRadius: 9999 }}
+                      loading="lazy"
+                    />
+                  )}
                   <div>
                     <div className="text-md fw-semibold text-neutral-900">{item.name}</div>
                     <div className="text-sm text-neutral-600">{item.role}</div>

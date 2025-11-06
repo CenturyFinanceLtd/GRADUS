@@ -1,0 +1,240 @@
+/*
+  Course controller
+  - Admin CRUD for courses/pages and public read endpoints
+*/
+const asyncHandler = require('express-async-handler');
+const crypto = require('crypto');
+const Course = require('../models/Course');
+const CoursePage = require('../models/CoursePage');
+const Enrollment = require('../models/Enrollment');
+
+const normalizeString = (value) => {
+  if (typeof value !== 'string') {
+    return '';
+  }
+  return value.trim();
+};
+
+const normalizeStringArray = (value) => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => normalizeString(item))
+    .filter((item) => item.length > 0);
+};
+
+const normalizeWeekInput = (weeks) => {
+  if (!Array.isArray(weeks)) {
+    return [];
+  }
+
+  return weeks
+    .map((week) => ({
+      title: normalizeString(week?.title),
+      hours: normalizeString(week?.hours),
+      points: normalizeStringArray(week?.points),
+    }))
+    .filter((week) => week.title || week.points.length);
+};
+
+const normalizeCertificationInput = (certifications) => {
+  if (!Array.isArray(certifications)) {
+    return [];
+  }
+
+  return certifications
+    .map((cert) => ({
+      level: normalizeString(cert?.level),
+      certificateName: normalizeString(cert?.certificateName),
+      coverage: normalizeStringArray(cert?.coverage),
+      outcome: normalizeString(cert?.outcome),
+    }))
+    .filter((cert) => cert.level || cert.certificateName || cert.coverage.length || cert.outcome);
+};
+
+const normalizePartnerInput = (partners) => {
+  if (!Array.isArray(partners)) {
+    return [];
+  }
+
+  return partners
+    .map((partner) => {
+      if (!partner) {
+        return null;
+      }
+
+      if (typeof partner === 'string') {
+        const name = normalizeString(partner);
+        return name ? { name, logo: '', website: '' } : null;
+      }
+
+      if (typeof partner === 'object') {
+        const name = normalizeString(partner?.name || partner?.title || partner?.label);
+        const logo = normalizeString(partner?.logo || partner?.logoUrl || partner?.image);
+        const website = normalizeString(partner?.website || partner?.url || partner?.link);
+
+        if (!name && !logo && !website) {
+          return null;
+        }
+
+        return { name, logo, website };
+      }
+
+      return null;
+    })
+    .filter(Boolean);
+};
+
+const generateSlug = (value) => {
+  if (!value) {
+    return '';
+  }
+
+  return value
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
+};
+
+// Build a canonical slug from programme + course segments
+const buildCombinedSlug = ({ programmeSlug, courseSlug, slug, name, programme }) => {
+  const clean = (s) => (s ? String(s).trim().toLowerCase() : '');
+  if (slug) return clean(slug);
+  const prog = clean(programmeSlug || (programme ? generateSlug(programme) : ''));
+  const coursePart = clean(courseSlug || (name ? generateSlug(name) : ''));
+  if (prog && coursePart) return `${prog}/${coursePart}`;
+  return coursePart || prog || '';
+};
+
+const buildCoursePayload = (body, existingCourse) => {
+  const name = normalizeString(body?.name || existingCourse?.name);
+
+  if (!name) {
+    const error = new Error('Course name is required');
+    error.status = 400;
+    throw error;
+  }
+
+  let slug = normalizeString(body?.slug);
+
+  if (!slug && body?.name) {
+    slug = generateSlug(body.name);
+  }
+
+  if (!slug && existingCourse?.slug) {
+    slug = existingCourse.slug;
+  }
+
+  if (!slug) {
+    slug = generateSlug(name) || `course-${Date.now()}`;
+  }
+
+  const orderValue = Number(body?.order);
+  const order = Number.isFinite(orderValue) ? orderValue : existingCourse?.order ?? Date.now();
+
+  // Programme category normalization (Gradus X, Gradus Finlit, Gradus Lead)
+  const programmeInput = normalizeString(body?.programme || existingCourse?.programme);
+  const allowedProgrammes = ['Gradus X', 'Gradus Finlit', 'Gradus Lead'];
+  const programme = allowedProgrammes.includes(programmeInput)
+    ? programmeInput
+    : existingCourse?.programme || 'Gradus X';
+
+  const partnersInput = Array.isArray(body?.partners) ? body.partners : existingCourse?.partners;
+
+  return {
+    name,
+    slug,
+    subtitle: normalizeString(body?.subtitle),
+    focus: normalizeString(body?.focus),
+    level: normalizeString(body?.level),
+    duration: normalizeString(body?.duration),
+    mode: normalizeString(body?.mode),
+    approvals: normalizeStringArray(body?.approvals),
+    placementRange: normalizeString(body?.placementRange),
+    price: normalizeString(body?.price),
+    outcomeSummary: normalizeString(body?.outcomeSummary),
+    skills: normalizeStringArray(body?.skills),
+    details: {
+      effort: normalizeString(body?.details?.effort || body?.effort),
+      language: normalizeString(body?.details?.language || body?.language),
+      prerequisites: normalizeString(body?.details?.prerequisites || body?.prerequisites),
+    },
+    deliverables: normalizeStringArray(body?.deliverables),
+    outcomes: normalizeStringArray(body?.outcomes),
+    capstonePoints: normalizeStringArray(body?.capstonePoints),
+    careerOutcomes: normalizeStringArray(body?.careerOutcomes),
+    toolsFrameworks: normalizeStringArray(body?.toolsFrameworks),
+    finalAward: normalizeString(body?.finalAward),
+    programme,
+    partners: normalizePartnerInput(partnersInput),
+    weeks: normalizeWeekInput(body?.weeks),
+    certifications: normalizeCertificationInput(body?.certifications),
+    order,
+  };
+};
+
+const ensureArray = (value) => (Array.isArray(value) ? value : []);
+
+const createLockedPoint = (point) => ({
+  text: null,
+  isLocked: true,
+  fingerprint:
+    typeof point === 'string'
+      ? crypto.createHash('sha256').update(point).digest('hex')
+      : crypto.randomBytes(12).toString('hex'),
+});
+
+const mapCourseForPublic = (course, enrollment) => {
+  const isEnrolled = Boolean(enrollment);
+
+  const partners = normalizePartnerInput(course.partners);
+
+  return {
+    id: course.slug,
+    slug: course.slug,
+    name: course.name,
+  programme: course.programme,
+  level: course.level,
+  duration: course.duration,
+  mode: course.mode,
+    subtitle: course.subtitle,
+    programme: course.programme,
+    level: course.level,
+    duration: course.duration,
+    mode: course.mode,
+    focus: course.focus,
+    approvals: ensureArray(course.approvals),
+    placementRange: course.placementRange,
+    price: course.price,
+    outcomeSummary: course.outcomeSummary,
+  skills: ensureArray(course.skills),
+  details: {
+    effort: course.details?.effort || '',
+    language: course.details?.language || '',
+    prerequisites: course.details?.prerequisites || '',
+  },
+  capstonePoints: ensureArray(course.capstonePoints),
+  careerOutcomes: ensureArray(course.careerOutcomes),
+  toolsFrameworks: ensureArray(course.toolsFrameworks),
+    skills: ensureArray(course.skills),
+    details: {
+      effort: course.details?.effort || '',
+      language: course.details?.language || '',
+      prerequisites: course.details?.prerequisites || '',
+    },
+    capstonePoints: ensureArray(course.capstonePoints),
+    careerOutcomes: ensureArray(course.careerOutcomes),
+    toolsFrameworks: ensureArray(course.toolsFrameworks),
+    deliverables: ensureArray(course.deliverables),
+    outcomes: ensureArray(course.outcomes),
+    finalAward: course.finalAward,
+    partners,
+    weeks: ensureArray(course.weeks).map((week) => {
+      const points = ensureArray(week.points).map((point) =>
+        isEnrolled
+          ? { text: point, isLocked: false }
+          : createLockedPoint(point)

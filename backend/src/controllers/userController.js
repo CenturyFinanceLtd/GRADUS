@@ -294,7 +294,7 @@ const getMyEnrollments = asyncHandler(async (req, res) => {
     status: 'ACTIVE',
   })
     .sort({ createdAt: -1 })
-    .populate('course', 'name slug subtitle focus price')
+    .populate('course', 'name slug subtitle focus price hero stats')
     .lean();
 
   const items = Array.isArray(enrollments)
@@ -305,6 +305,10 @@ const getMyEnrollments = asyncHandler(async (req, res) => {
         enrolledAt: enrollment.createdAt,
         paymentReference: enrollment.paymentReference || null,
         paidAt: enrollment.paidAt || null,
+        currency: enrollment.currency || 'INR',
+        priceBase: typeof enrollment.priceBase === 'number' ? enrollment.priceBase : null,
+        priceTax: typeof enrollment.priceTax === 'number' ? enrollment.priceTax : null,
+        priceTotal: typeof enrollment.priceTotal === 'number' ? enrollment.priceTotal : null,
         course: enrollment.course
           ? {
               id: enrollment.course._id?.toString?.() || '',
@@ -313,6 +317,7 @@ const getMyEnrollments = asyncHandler(async (req, res) => {
               subtitle: enrollment.course.subtitle || '',
               focus: enrollment.course.focus || '',
               price: enrollment.course.price || '',
+              hero: enrollment.course.hero || {},
             }
           : null,
       }))

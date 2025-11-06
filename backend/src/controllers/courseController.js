@@ -324,7 +324,7 @@ const getCoursePage = asyncHandler(async (req, res) => {
     CoursePage.findOne().lean(),
     Course.find().sort({ order: 1, createdAt: 1 }).lean(),
     req.user
-      ? Enrollment.find({ user: req.user._id, status: 'ACTIVE' }).lean()
+      ? Enrollment.find({ user: req.user._id, status: 'ACTIVE', paymentStatus: 'PAID' }).lean()
       : [],
   ]);
 
@@ -610,6 +610,7 @@ const getCourseBySlug = asyncHandler(async (req, res) => {
       user: req.user._id,
       course: course._id,
       status: 'ACTIVE',
+      paymentStatus: 'PAID',
     });
 
     isEnrolled = Boolean(enrollment);

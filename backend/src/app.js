@@ -28,6 +28,7 @@ const adminCourseRoutes = require('./routes/adminCourseRoutes');
 const chatbotRoutes = require('./routes/chatbotRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
 const adminTicketRoutes = require('./routes/adminTicketRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 const { blogImagesDirectory } = require('./middleware/uploadMiddleware');
 
 const app = express();
@@ -81,7 +82,12 @@ app.use('/blog-images', express.static(blogImagesDirectory));
 
 // Simple health check for uptime monitoring and orchestration
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    const config = require('./config/env');
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        paymentsConfigured: Boolean((config.payments || {}).razorpayKeyId) && Boolean((config.payments || {}).razorpayKeySecret),
+    });
 });
 
 // Route mounts (grouped by concern)
@@ -100,6 +106,7 @@ app.use('/api/admin/courses', adminCourseRoutes);
 // Public content + services
 app.use('/api/blogs', blogRoutes);
 app.use('/api/courses', courseRoutes);
+app.use('/api/payments', paymentRoutes);
 app.use('/api/inquiries', contactRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/chatbot', chatbotRoutes);

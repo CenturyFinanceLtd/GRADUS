@@ -57,6 +57,12 @@ const config = {
   mongoUri: process.env.MONGODB_URI,
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  payments: {
+    razorpayKeyId: process.env.RAZORPAY_KEY_ID || '',
+    razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET || '',
+    enableSandbox: (process.env.RAZORPAY_SANDBOX || 'true').toLowerCase() !== 'false',
+    gstRate: process.env.GST_RATE ? Number(process.env.GST_RATE) : 0.18,
+  },
   smtp: {
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 587,
