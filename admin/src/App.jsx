@@ -6,18 +6,14 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { lazy, Suspense } from "react";
 const HomePageOne = lazy(() => import("./pages/HomePageOne"));
-const HomePageTwo = lazy(() => import("./pages/HomePageTwo"));
-const HomePageThree = lazy(() => import("./pages/HomePageThree"));
-const HomePageFour = lazy(() => import("./pages/HomePageFour"));
-const HomePageFive = lazy(() => import("./pages/HomePageFive"));
-const HomePageSix = lazy(() => import("./pages/HomePageSix"));
-const HomePageSeven = lazy(() => import("./pages/HomePageSeven"));
 const EmailPage = lazy(() => import("./pages/EmailPage"));
 const AddUserPage = lazy(() => import("./pages/AddUserPage"));
 const AlertPage = lazy(() => import("./pages/AlertPage"));
 const AssignRolePage = lazy(() => import("./pages/AssignRolePage"));
 const AvatarPage = lazy(() => import("./pages/AvatarPage"));
 const BadgesPage = lazy(() => import("./pages/BadgesPage"));
+const CoursesAdminPage = lazy(() => import("./pages/CoursesAdmin"));
+const CustomizeCoursesPage = lazy(() => import("./pages/CustomizeCourses"));
 const ButtonPage = lazy(() => import("./pages/ButtonPage"));
 const CalendarMainPage = lazy(() => import("./pages/CalendarMainPage"));
 const CardPage = lazy(() => import("./pages/CardPage"));
@@ -122,17 +118,17 @@ function App() {
       <Suspense fallback={<div className="app-loading">Loading...</div>}>
       <Routes>
         <Route exact path='/' element={<RootDashboard />} />
-        <Route exact path='/index-2' element={<HomePageTwo />} />
-        <Route exact path='/index-3' element={<HomePageThree />} />
-        <Route exact path='/index-4' element={<HomePageFour />} />
-        <Route exact path='/index-5' element={<HomePageFive />} />
-        <Route exact path='/index-6' element={<HomePageSix />} />
-        <Route exact path='/index-7' element={<HomePageSeven />} />
+        
+        
         <Route exact path='/index-8' element={<HomePageEight />} />
         <Route exact path='/index-9' element={<HomePageNine />} />
         <Route exact path='/index-10' element={<HomePageTen />} />
         <Route exact path='/index-11' element={<HomePageEleven />} />
 
+        {/* Courses Admin */}
+        <Route exact path='/courses-admin' element={<CoursesAdminPage />} />
+        {/* Customize Courses (raw JSON) */}
+        <Route exact path='/customize-courses' element={<CustomizeCoursesPage />} />
         {/* SL */}
         <Route exact path='/add-user' element={<AddUserPage />} />
         <Route exact path='/alert' element={<AlertPage />} />

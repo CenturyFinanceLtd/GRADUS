@@ -151,19 +151,20 @@ const HeaderOne = () => {
       label: "Programmes",
       mega: PROGRAMMES.map((p) => ({
         title: p.title,
+        slug: p.slug || slugify(p.title),
         anchor: p.anchor,
         items: p.courses,
       })),
       // Fallback links for mobile menu (simple list)
       links: [
-        { to: "/our-courses?programme=gradusx", label: "GradusX" },
+        { to: "/our-courses?programme=gradus-x", label: "GradusX" },
         { to: "/our-courses?programme=gradus-finlit", label: "Gradus Finlit" },
         { to: "/our-courses?programme=gradus-lead", label: "Gradus Lead" },
       ],
     },
     // Redirect to Our Courses with pre-applied filters
     { to: "/our-courses?programme=gradus-finlit", label: "Stock Market Courses" },
-    { to: "/our-courses?programme=gradusx", label: "Tech Courses Placement" },
+    { to: "/our-courses?programme=gradus-x", label: "Tech Courses Placement" },
     { to: "/blogs", label: "Blogs" },
     { to: "/contact", label: "Contact us" },
   ];
@@ -204,17 +205,17 @@ const HeaderOne = () => {
                           <div className='nav-mega'>
                             {item.mega.map((group, gIdx) => (
                               <div className='nav-mega__col' key={`mega-col-${gIdx}`}>
-                                <Link to={`/our-courses?programme=${slugify(group.title)}`} className='nav-mega__title'>
+                                <Link to={`/our-courses?programme=${group.slug || slugify(group.title)}`} className='nav-mega__title'>
                                   {group.title}
                                 </Link>
                                 <ul className='nav-mega__list'>
                                   {group.items.map((course, cIdx) => (
                                     <li key={`mega-${gIdx}-${cIdx}`} className='nav-mega__item'>
                                       <Link
-                                        to={`/${slugify(group.title)}/${slugify(course)}`}
+                                        to={`/${group.slug || slugify(group.title)}/${typeof course === 'string' ? slugify(course) : (course?.slug || slugify(course?.name || course?.title || ''))}`}
                                         className='nav-mega__link'
                                       >
-                                        {formatCourseLabel(course)}
+                                        {formatCourseLabel(typeof course === 'string' ? course : (course?.name || course?.title || ''))}
                                       </Link>
                                     </li>
                                   ))}

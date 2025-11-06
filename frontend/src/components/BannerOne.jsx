@@ -1,7 +1,14 @@
 import Slider from "react-slick";
 
 const BannerOne = () => {
-  const images = new Array(5).fill("/assets/images/bg/banner%20top.png");
+  // Use five distinct banner images from public/assets/images/bg
+  const images = [
+    "/assets/images/bg/banner_1.png",
+    "/assets/images/bg/banner_2.png",
+    "/assets/images/bg/banner_3.png",
+    "/assets/images/bg/banner_4.png",
+    "/assets/images/bg/banner_5.png",
+  ];
   const settings = {
     slidesToShow: 1,
     slidesToScroll: 1,
@@ -15,7 +22,7 @@ const BannerOne = () => {
   };
 
   return (
-    <section className='banner banner--rounded position-relative overflow-hidden'>
+    <section className='banner banner--rounded banner--gutters position-relative overflow-hidden'>
       <Slider {...settings} className='only-image-slider'>
         {images.map((src, i) => (
           <div key={i} className='banner-image-slide'>

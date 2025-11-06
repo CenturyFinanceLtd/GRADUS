@@ -24,6 +24,7 @@ const adminPermissionRoutes = require('./routes/adminPermissionRoutes');
 const courseRoutes = require('./routes/courseRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const adminAnalyticsRoutes = require('./routes/adminAnalyticsRoutes');
+const adminCourseRoutes = require('./routes/adminCourseRoutes');
 const chatbotRoutes = require('./routes/chatbotRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
 const adminTicketRoutes = require('./routes/adminTicketRoutes');
@@ -95,6 +96,7 @@ app.use('/api/admin/permissions', adminPermissionRoutes);
 app.use('/api/admin/blogs', adminBlogRoutes);
 app.use('/api/admin/analytics', adminAnalyticsRoutes);
 app.use('/api/admin/tickets', adminTicketRoutes);
+app.use('/api/admin/courses', adminCourseRoutes);
 // Public content + services
 app.use('/api/blogs', blogRoutes);
 app.use('/api/courses', courseRoutes);

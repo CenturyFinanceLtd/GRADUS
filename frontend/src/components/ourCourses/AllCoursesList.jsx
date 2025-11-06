@@ -1,25 +1,70 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { PROGRAMMES } from "../../data/programmes.js";
 import { slugify, stripBrackets } from "../../utils/slugify.js";
 
 const AllCoursesList = () => {
-  const courses = useMemo(() => {
-    const items = [];
-    PROGRAMMES.forEach((p) => {
-      (p.courses || []).forEach((c) => {
-        items.push({
-          programme: p.title,
-          name: stripBrackets(c),
-          slug: slugify(c),
-          url: `/${slugify(p.title)}/${slugify(c)}`,
-        });
-      });
-    });
-    return items;
-  }, []);
-
   const location = useLocation();
+  const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const sort = useMemo(() => (searchParams.get('sort') || '').toLowerCase(), [searchParams]);
+
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const programmeLabel = (slug) => {
+    const map = {
+      'gradus-x': 'Gradus X',
+      'gradus-finlit': 'Gradus Finlit',
+      'gradus-lead': 'Gradus Lead',
+    };
+    return map[slug] || (slug ? slug.replace(/-/g, ' ') : '');
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const base = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '');
+        const qs = sort ? `?sort=${encodeURIComponent(sort)}` : '';
+        const resp = await fetch(`${base}/courses${qs}`, { credentials: 'include' });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        const items = Array.isArray(data?.items) ? data.items : [];
+        const mapped = items.map((it) => {
+          const slug = it.slug || it.id || '';
+          const [progSlug] = String(slug).split('/');
+          return {
+            programme: it.programme || programmeLabel(progSlug),
+            name: stripBrackets(it.name || ''),
+            slug,
+            url: `/${slug}`,
+          };
+        });
+        if (!cancelled) setCourses(mapped);
+      } catch (e) {
+        // Fallback to static list if API fails
+        if (!cancelled) {
+          const fallback = [];
+          PROGRAMMES.forEach((p) => {
+            const pslug = p.slug || slugify(p.title);
+            (p.courses || []).forEach((c) => {
+              const label = typeof c === 'string' ? c : (c?.name || c?.title || '');
+              const cslug = typeof c === 'string' ? slugify(c) : (c?.slug || slugify(label));
+              fallback.push({ programme: p.title, name: stripBrackets(label), slug: cslug, url: `/${pslug}/${cslug}` });
+            });
+          });
+          setCourses(fallback);
+          setError(e?.message || 'Failed to load');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [sort]);
 
   return (
     <section className='py-80'>
@@ -40,10 +85,15 @@ const AllCoursesList = () => {
             </div>
           ))}
         </div>
+        {loading ? (
+          <div className='text-center mt-16 text-neutral-600'>Loading courses…</div>
+        ) : null}
+        {(!loading && courses.length === 0) ? (
+          <div className='text-center mt-16 text-neutral-600'>No courses found</div>
+        ) : null}
       </div>
     </section>
   );
 };
 
 export default AllCoursesList;
-

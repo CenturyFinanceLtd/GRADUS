@@ -2,11 +2,12 @@
 export const PROGRAMMES = [
   {
     title: "GradusX",
-    anchor: "/our-courses?programme=gradusx",
+    slug: "gradus-x",
+    anchor: "/our-courses?programme=gradus-x",
     courses: [
       "Python Programming",
       "Data Structures & Algorithms",
-      "Full Stack Development (HTML, CSS, JavaScript, React, etc.)",
+      { name: "Full Stack Development Mastery (MERN)", slug: "full-stack-development-mastery-mern" },
       "Mobile App Development (Android / iOS)",
       "Database Management (SQL, MongoDB)",
       "Cybersecurity & Ethical Hacking",
@@ -23,6 +24,7 @@ export const PROGRAMMES = [
     title: "Gradus Finlit",
     anchor: "/our-courses?programme=gradus-finlit",
     courses: [
+      { name: "Complete Trading & Investment Mastery Program", slug: "complete-trading-and-investment-mastery-program" },
       "Technical analysis",
       "Swing trading & investing",
       "Scalping & Intraday",

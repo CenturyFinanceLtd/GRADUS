@@ -1,4 +1,4 @@
-﻿/* eslint-disable react/prop-types */
+/* eslint-disable react/prop-types */
 import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Link, NavLink, Navigate, useLocation, useNavigate, matchPath } from "react-router-dom";
@@ -402,24 +402,6 @@ const MasterLayout = ({ children }) => {
               </li>
             ) : null}
 
-            <li>
-              <NavLink
-                to='/courses-admin'
-                className={(navData) => (navData.isActive ? "active-page" : "")}
-              >
-                <Icon icon='ri:book-open-line' className='menu-icon' />
-                <span>Courses</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to='/customize-courses'
-                className={(navData) => (navData.isActive ? "active-page" : "")}
-              >
-                <Icon icon='mdi:cog-outline' className='menu-icon' />
-                <span>Customize Courses</span>
-              </NavLink>
-            </li>
             <li>
               <NavLink
                 to='/blog'

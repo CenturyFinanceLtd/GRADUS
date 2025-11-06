@@ -1,22 +1,25 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { slugify } from "../../utils/slugify.js";
 
 // Standalone section matching the reference layout with
 // colored, differentiated programme cards.
 const GradusProgrammes = () => {
-  const cards = [
+  // Base cards spec (title, theme and programme slug)
+  const BASE_CARDS = [
     {
       id: "gradusx",
       badge: "GradusX",
       title: "Technology Programmes",
       theme: "gp-theme-blue",
+      programmeSlug: "gradus-x",
       courses: [
         { slug: "python-programming", title: "Python Programming" },
         { slug: "data-structures-algorithms", title: "Data Structures & Algorithms" },
         {
-          slug: "full-stack-development",
-          title: "Full Stack Development",
-          subtitle: "HTML, CSS, JavaScript, React, etc.",
+          slug: "full-stack-development-mastery-mern",
+          title: "Full Stack Development Mastery (MERN)",
+          subtitle: "MERN: MongoDB • Express • React • Node.js",
         },
         { slug: "mobile-app-development", title: "Mobile App Development", subtitle: "Android / iOS" },
         { slug: "database-management", title: "Database Management", subtitle: "SQL, MongoDB" },
@@ -27,7 +30,9 @@ const GradusProgrammes = () => {
       badge: "Gradus Finlit",
       title: "Financial Markets",
       theme: "gp-theme-violet",
+      programmeSlug: "gradus-finlit",
       courses: [
+        { slug: "complete-trading-and-investment-mastery-program", title: "Complete Trading & Investment Mastery Program" },
         { slug: "technical-analysis", title: "Technical analysis" },
         { slug: "swing-trading-investing", title: "Swing trading & investing" },
         { slug: "scalping-intraday", title: "Scalping & Intraday" },
@@ -41,11 +46,55 @@ const GradusProgrammes = () => {
       badge: "Gradus Lead",
       title: "Leadership & Management",
       theme: "gp-theme-amber",
+      programmeSlug: "gradus-lead",
       courses: [
         { slug: "nism-certification", title: "NISM Certification" },
       ],
     },
   ];
+
+  const [cards, setCards] = useState(BASE_CARDS);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const base = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '');
+        const resp = await fetch(`${base}/courses?sort=new`, { credentials: 'include' });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        const items = Array.isArray(data?.items) ? data.items : [];
+
+        // Group by programmeSlug derived from the first part of the full slug
+        const grouped = new Map();
+        for (const it of items) {
+          const full = String(it.slug || '').trim();
+          if (!full.includes('/')) continue;
+          const [progSlug, courseSlug] = full.split('/');
+          if (!progSlug || !courseSlug) continue;
+          const entry = { slug: courseSlug, title: it.name || courseSlug.replace(/-/g, ' ') };
+          if (!grouped.has(progSlug)) grouped.set(progSlug, []);
+          grouped.get(progSlug).push(entry);
+        }
+
+        // Build updated cards with up to 6 chips per programme
+        const updated = BASE_CARDS.map((c) => {
+          const fromApi = grouped.get(c.programmeSlug) || [];
+          // keep any existing explicit items at the top if present, then API items without duplicates
+          const existing = Array.isArray(c.courses) ? c.courses : [];
+          const seen = new Set(existing.map((e) => e.slug));
+          const merged = existing.concat(fromApi.filter((e) => !seen.has(e.slug)));
+          return { ...c, courses: merged.slice(0, 6) };
+        });
+
+        if (!cancelled) setCards(updated);
+      } catch (e) {
+        // Silently keep BASE_CARDS on failure
+        console.warn('[GradusProgrammes] Failed to load dynamic courses:', e?.message || e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <section className="gradus-programmes py-64 position-relative z-1">
@@ -67,7 +116,7 @@ const GradusProgrammes = () => {
                 <div className="row g-0 align-items-end position-relative z-1 h-100">
                   <div className="col-12 col-lg-12 p-24 gp-content">
                     <Link
-                      to={`/our-courses?programme=${slugify(c.badge || c.title)}`}
+                      to={`/our-courses?programme=${c.programmeSlug || slugify(c.badge || c.title)}`}
                       className="gp-badge fw-semibold text-md mb-8"
                       title={`View ${c.badge} courses`}
                     >
@@ -79,7 +128,7 @@ const GradusProgrammes = () => {
                         {c.courses.map((course) => (
                           <Link
                             key={`${c.id}-${course.slug}`}
-                            to={`/${slugify(c.badge)}/${slugify(course.title)}`}
+                            to={`/${c.programmeSlug || slugify(c.badge)}/${course.slug || slugify(course.title)}`}
                             className="gp-course-item"
                           >
                             <span className="gp-course-text">
@@ -89,7 +138,7 @@ const GradusProgrammes = () => {
                         ))}
                       </div>
                     ) : null}
-                    <Link to={`/our-courses?programme=${slugify(c.badge || c.title)}`}
+                    <Link to={`/our-courses?programme=${c.programmeSlug || slugify(c.badge || c.title)}`}
                           className="btn btn-main rounded-pill flex-align gap-8 px-24 py-12 gp-cta">
                       Explore Courses <i className="ph-bold ph-arrow-up-right d-flex text-lg" />
                     </Link>

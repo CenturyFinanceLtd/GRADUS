@@ -5,27 +5,9 @@ import { PROGRAMMES } from "../../data/programmes.js";
 import { slugify, stripBrackets } from "../../utils/slugify.js";
 
 const OurCoursesListView = () => {
-  const courses = useMemo(() => {
-    const out = [];
-    PROGRAMMES.forEach((p) => {
-      (p.courses || []).forEach((c) => {
-        const clean = stripBrackets(c);
-        out.push({
-          programme: p.title,
-          programmeSlug: slugify(p.title),
-          name: clean,
-          url: `/${slugify(p.title)}/${slugify(c)}`,
-          order: out.length, // preserve insertion order for old/new sorting
-        });
-      });
-    });
-    return out;
-  }, []);
-
-  const programmeOptions = useMemo(
-    () => PROGRAMMES.map((p) => ({ id: slugify(p.title), title: p.title, count: (p.courses || []).length })),
-    []
-  );
+  // Loaded courses from backend (fallback to PROGRAMMES if API fails)
+  const [items, setItems] = useState([]);
+  const courses = useMemo(() => items, [items]);
 
   const [selectedProgrammes, setSelectedProgrammes] = useState([]);
   const [query, setQuery] = useState("");
@@ -36,7 +18,72 @@ const OurCoursesListView = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Parse filters from URL on load and when URL changes
+  const programmeLabel = (slug) => {
+    const map = { 'gradus-x': 'Gradus X', 'gradus-finlit': 'Gradus Finlit', 'gradus-lead': 'Gradus Lead' };
+    return map[slug] || (slug ? slug.replace(/-/g, ' ') : '');
+  };
+
+  // Fetch courses from backend when sort changes (server supports sort=new; others are client-side)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const base = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '');
+        const qs = sort === 'new' ? '?sort=new' : '';
+        const resp = await fetch(`${base}/courses${qs}`, { credentials: 'include' });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        const mapped = (Array.isArray(data?.items) ? data.items : []).map((it, idx) => {
+          const slug = it.slug || it.id || '';
+          const [progSlug] = String(slug).split('/');
+          const ts = Date.parse(it.updatedAt || it.createdAt || 0) || idx;
+          return {
+            programme: it.programme || programmeLabel(progSlug),
+            programmeSlug: progSlug,
+            name: stripBrackets(it.name || ''),
+            url: `/${slug}`,
+            order: ts,
+            priceINR: Number(it.priceINR || 0),
+            level: it.level || '',
+            mode: it.mode || '',
+            duration: it.duration || '',
+            modulesCount: Number(it.modulesCount || 0),
+          };
+        });
+        if (!cancelled) setItems(mapped);
+      } catch (e) {
+        // Fallback to static list
+        if (!cancelled) {
+          const fallback = [];
+          PROGRAMMES.forEach((p) => {
+            const pslug = p.slug || slugify(p.title);
+            (p.courses || []).forEach((c) => {
+              const label = typeof c === 'string' ? c : (c?.name || c?.title || '');
+              const cslug = typeof c === 'string' ? slugify(c) : (c?.slug || slugify(label));
+              fallback.push({
+                programme: p.title,
+                programmeSlug: pslug,
+                name: stripBrackets(label),
+                url: `/${pslug}/${cslug}`,
+                order: fallback.length,
+              });
+            });
+          });
+          setItems(fallback);
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [sort]);
+
+  // Build dynamic programme filter options from loaded courses
+  const programmeOptions = useMemo(() => {
+    const counts = new Map();
+    courses.forEach((c) => counts.set(c.programmeSlug, (counts.get(c.programmeSlug) || 0) + 1));
+    return Array.from(counts.entries()).map(([id, count]) => ({ id, title: programmeLabel(id), count }));
+  }, [courses]);
+
+  // Parse filters from URL on load and when URL or available programme options change
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const programmesParam = params.get("programme") || params.get("programmes");
@@ -237,7 +284,7 @@ const OurCoursesListView = () => {
                         </Link>
                         <div className='flex-align gap-8 bg-main-600 rounded-pill px-24 py-12 text-white position-absolute inset-block-start-0 inset-inline-start-0 mt-20 ms-20 z-1'>
                           <span className='text-2xl d-flex'><i className='ph ph-clock' /></span>
-                          <span className='text-lg fw-medium'>Self-paced</span>
+                          <span className='text-lg fw-medium'>{course.mode || 'Self-paced'}</span>
                         </div>
                         <button type='button' className='wishlist-btn w-48 h-48 bg-white text-main-two-600 flex-center position-absolute inset-block-start-0 inset-inline-end-0 mt-20 me-20 z-1 text-2xl rounded-circle transition-2'>
                           <i className='ph ph-heart' />
@@ -252,17 +299,19 @@ const OurCoursesListView = () => {
                           </h4>
                           <div className='flex-between gap-8 flex-wrap mb-16'>
                             <div className='flex-align gap-8'>
-                              <span className='text-neutral-700 text-2xl d-flex'><i className='ph-bold ph-video-camera' /></span>
-                              <span className='text-neutral-700 text-lg fw-medium'>20 Lessons</span>
+                              <span className='text-neutral-700 text-2xl d-flex'><i className='ph-bold ph-clock' /></span>
+                              <span className='text-neutral-700 text-lg fw-medium'>{course.duration || (course.modulesCount ? `${course.modulesCount} Modules` : '—')}</span>
                             </div>
                             <div className='flex-align gap-8'>
                               <span className='text-neutral-700 text-2xl d-flex'><i className='ph-bold ph-chart-bar' /></span>
-                              <span className='text-neutral-700 text-lg fw-medium'>Beginner</span>
+                              <span className='text-neutral-700 text-lg fw-medium'>{course.level || '—'}</span>
                             </div>
                           </div>
                         </div>
                         <div className='flex-between gap-8 pt-24 border-top border-neutral-50 mt-28 border-dashed border-0'>
-                          <h4 className='mb-0 text-main-two-600'>Free</h4>
+                          <h4 className='mb-0 text-main-two-600'>
+                            {course.priceINR > 0 ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(course.priceINR) : 'Free'}
+                          </h4>
                           <Link to={course.url} className='flex-align gap-8 text-main-600 hover-text-decoration-underline transition-1 fw-semibold' tabIndex={0}>
                             Explore
                             <i className='ph ph-arrow-right' />

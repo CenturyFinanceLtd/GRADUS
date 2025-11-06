@@ -1,4 +1,4 @@
-const ADMIN_PAGE_DEFINITIONS = [
+﻿const ADMIN_PAGE_DEFINITIONS = [
   // Dashboards
   { key: 'dashboard_ai', label: 'Dashboard - AI', path: '/', category: 'Dashboards' },
   { key: 'dashboard_crm', label: 'Dashboard - CRM', path: '/index-2', category: 'Dashboards' },
@@ -20,9 +20,9 @@ const ADMIN_PAGE_DEFINITIONS = [
   { key: 'user_permissions', label: 'Permission Settings', path: '/permissions', category: 'User Management' },
   { key: 'user_profile', label: 'View Profile', path: '/view-profile', category: 'User Management' },
   { key: 'user_details', label: 'View Details', path: '/view-details', category: 'User Management' },
-  { key: 'website_users', label: 'Website Users', path: '/website-users', category: 'User Management' },
-
-  // Content & media
+  // Courses management
+  { key: 'courses_admin', label: 'Courses', path: '/courses-admin', category: 'Application' },
+  { key: 'customize_courses', label: 'Customize Courses', path: '/customize-courses', category: 'Application' },
   { key: 'blog_list', label: 'Blogs', path: '/blog', category: 'Content & Media' },
   { key: 'blog_details', label: 'Blog Details', path: '/blog/:blogId', category: 'Content & Media' },
   { key: 'blog_details_alt', label: 'Blog Details (Alt)', path: '/blog-details/:blogId', category: 'Content & Media' },
@@ -126,3 +126,4 @@ const ADMIN_PAGE_DEFINITIONS = [
 const ADMIN_PAGE_KEYS = ADMIN_PAGE_DEFINITIONS.map((page) => page.key);
 
 export { ADMIN_PAGE_DEFINITIONS, ADMIN_PAGE_KEYS };
+

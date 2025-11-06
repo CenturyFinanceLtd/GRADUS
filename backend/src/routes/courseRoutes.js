@@ -11,6 +11,9 @@ const router = express.Router();
 
 router.get('/page', attachUserIfPresent, getCoursePage);
 router.get('/', listCourses);
+// support programme/course slugs (e.g., gradus-x/full-stack-development)
+router.get('/:programmeSlug/:courseSlug', attachUserIfPresent, getCourseBySlug);
+// legacy: single-part slug
 router.get('/:courseSlug', attachUserIfPresent, getCourseBySlug);
 router.post('/:courseSlug/enroll', protect, enrollInCourse);
 

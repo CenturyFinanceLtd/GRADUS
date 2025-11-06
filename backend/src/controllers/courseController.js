@@ -33,6 +33,7 @@ const normalizeWeekInput = (weeks) => {
   return weeks
     .map((week) => ({
       title: normalizeString(week?.title),
+      hours: normalizeString(week?.hours),
       points: normalizeStringArray(week?.points),
     }))
     .filter((week) => week.title || week.points.length);
@@ -99,6 +100,16 @@ const generateSlug = (value) => {
     .replace(/(^-|-$)+/g, '');
 };
 
+// Build a canonical slug from programme + course segments
+const buildCombinedSlug = ({ programmeSlug, courseSlug, slug, name, programme }) => {
+  const clean = (s) => (s ? String(s).trim().toLowerCase() : '');
+  if (slug) return clean(slug);
+  const prog = clean(programmeSlug || (programme ? generateSlug(programme) : ''));
+  const coursePart = clean(courseSlug || (name ? generateSlug(name) : ''));
+  if (prog && coursePart) return `${prog}/${coursePart}`;
+  return coursePart || prog || '';
+};
+
 const buildCoursePayload = (body, existingCourse) => {
   const name = normalizeString(body?.name || existingCourse?.name);
 
@@ -125,6 +136,13 @@ const buildCoursePayload = (body, existingCourse) => {
   const orderValue = Number(body?.order);
   const order = Number.isFinite(orderValue) ? orderValue : existingCourse?.order ?? Date.now();
 
+  // Programme category normalization (Gradus X, Gradus Finlit, Gradus Lead)
+  const programmeInput = normalizeString(body?.programme || existingCourse?.programme);
+  const allowedProgrammes = ['Gradus X', 'Gradus Finlit', 'Gradus Lead'];
+  const programme = allowedProgrammes.includes(programmeInput)
+    ? programmeInput
+    : existingCourse?.programme || 'Gradus X';
+
   const partnersInput = Array.isArray(body?.partners) ? body.partners : existingCourse?.partners;
 
   return {
@@ -132,13 +150,26 @@ const buildCoursePayload = (body, existingCourse) => {
     slug,
     subtitle: normalizeString(body?.subtitle),
     focus: normalizeString(body?.focus),
+    level: normalizeString(body?.level),
+    duration: normalizeString(body?.duration),
+    mode: normalizeString(body?.mode),
     approvals: normalizeStringArray(body?.approvals),
     placementRange: normalizeString(body?.placementRange),
     price: normalizeString(body?.price),
     outcomeSummary: normalizeString(body?.outcomeSummary),
+    skills: normalizeStringArray(body?.skills),
+    details: {
+      effort: normalizeString(body?.details?.effort || body?.effort),
+      language: normalizeString(body?.details?.language || body?.language),
+      prerequisites: normalizeString(body?.details?.prerequisites || body?.prerequisites),
+    },
     deliverables: normalizeStringArray(body?.deliverables),
     outcomes: normalizeStringArray(body?.outcomes),
+    capstonePoints: normalizeStringArray(body?.capstonePoints),
+    careerOutcomes: normalizeStringArray(body?.careerOutcomes),
+    toolsFrameworks: normalizeStringArray(body?.toolsFrameworks),
     finalAward: normalizeString(body?.finalAward),
+    programme,
     partners: normalizePartnerInput(partnersInput),
     weeks: normalizeWeekInput(body?.weeks),
     certifications: normalizeCertificationInput(body?.certifications),
@@ -166,12 +197,38 @@ const mapCourseForPublic = (course, enrollment) => {
     id: course.slug,
     slug: course.slug,
     name: course.name,
+  programme: course.programme,
+  level: course.level,
+  duration: course.duration,
+  mode: course.mode,
     subtitle: course.subtitle,
+    programme: course.programme,
+    level: course.level,
+    duration: course.duration,
+    mode: course.mode,
     focus: course.focus,
     approvals: ensureArray(course.approvals),
     placementRange: course.placementRange,
     price: course.price,
     outcomeSummary: course.outcomeSummary,
+  skills: ensureArray(course.skills),
+  details: {
+    effort: course.details?.effort || '',
+    language: course.details?.language || '',
+    prerequisites: course.details?.prerequisites || '',
+  },
+  capstonePoints: ensureArray(course.capstonePoints),
+  careerOutcomes: ensureArray(course.careerOutcomes),
+  toolsFrameworks: ensureArray(course.toolsFrameworks),
+    skills: ensureArray(course.skills),
+    details: {
+      effort: course.details?.effort || '',
+      language: course.details?.language || '',
+      prerequisites: course.details?.prerequisites || '',
+    },
+    capstonePoints: ensureArray(course.capstonePoints),
+    careerOutcomes: ensureArray(course.careerOutcomes),
+    toolsFrameworks: ensureArray(course.toolsFrameworks),
     deliverables: ensureArray(course.deliverables),
     outcomes: ensureArray(course.outcomes),
     finalAward: course.finalAward,
@@ -211,12 +268,38 @@ const mapCourseForAdmin = (course) => ({
   id: course._id.toString(),
   slug: course.slug,
   name: course.name,
+  programme: course.programme,
+  level: course.level,
+  duration: course.duration,
+  mode: course.mode,
   subtitle: course.subtitle,
+    programme: course.programme,
+    level: course.level,
+    duration: course.duration,
+    mode: course.mode,
   focus: course.focus,
   approvals: ensureArray(course.approvals),
   placementRange: course.placementRange,
   price: course.price,
   outcomeSummary: course.outcomeSummary,
+  skills: ensureArray(course.skills),
+  details: {
+    effort: course.details?.effort || '',
+    language: course.details?.language || '',
+    prerequisites: course.details?.prerequisites || '',
+  },
+  capstonePoints: ensureArray(course.capstonePoints),
+  careerOutcomes: ensureArray(course.careerOutcomes),
+  toolsFrameworks: ensureArray(course.toolsFrameworks),
+    skills: ensureArray(course.skills),
+    details: {
+      effort: course.details?.effort || '',
+      language: course.details?.language || '',
+      prerequisites: course.details?.prerequisites || '',
+    },
+    capstonePoints: ensureArray(course.capstonePoints),
+    careerOutcomes: ensureArray(course.careerOutcomes),
+    toolsFrameworks: ensureArray(course.toolsFrameworks),
   deliverables: ensureArray(course.deliverables),
   outcomes: ensureArray(course.outcomes),
   finalAward: course.finalAward,
@@ -261,16 +344,40 @@ const getCoursePage = asyncHandler(async (req, res) => {
 });
 
 const listCourses = asyncHandler(async (req, res) => {
+  const sort = typeof req.query?.sort === 'string' ? req.query.sort.trim().toLowerCase() : '';
+  const sortSpec = sort === 'new' ? { updatedAt: -1 } : { order: 1, createdAt: 1 };
   const courses = await Course.find()
-    .sort({ order: 1, createdAt: 1 })
-    .select(['name', 'slug'])
+    .sort(sortSpec)
+    .select(['name', 'slug', 'programme', 'updatedAt', 'createdAt', 'hero', 'stats', 'mode', 'level', 'duration', 'weeks', 'modules', 'price'])
     .lean();
 
+  const parsePrice = (rawPrice) => {
+    if (rawPrice == null) return 0;
+    if (typeof rawPrice === 'number') return Number.isFinite(rawPrice) ? rawPrice : 0;
+    const n = Number(String(rawPrice).replace(/[^0-9]/g, ''));
+    return Number.isFinite(n) ? n : 0;
+  };
+
   res.json({
-    items: ensureArray(courses).map((course) => ({
-      id: course.slug,
-      name: course.name,
-    })),
+    items: ensureArray(courses).map((course) => {
+      const priceINR = parsePrice(course?.hero?.priceINR ?? course?.price);
+      const modulesCount = (course?.stats?.modules && Number(course.stats.modules)) ||
+        (Array.isArray(course?.modules) ? course.modules.length : 0) ||
+        (Array.isArray(course?.weeks) ? course.weeks.length : 0) || 0;
+      return {
+        id: course.slug,
+        slug: course.slug,
+        name: course.name,
+        programme: course.programme || '',
+        createdAt: course.createdAt,
+        updatedAt: course.updatedAt,
+        priceINR,
+        mode: course?.stats?.mode || course?.mode || '',
+        level: course?.stats?.level || course?.level || '',
+        duration: course?.stats?.duration || course?.duration || '',
+        modulesCount,
+      };
+    }),
   });
 });
 
@@ -476,8 +583,13 @@ const listEnrollments = asyncHandler(async (req, res) => {
 });
 
 const getCourseBySlug = asyncHandler(async (req, res) => {
-  const { courseSlug } = req.params;
-  const normalizedSlug = typeof courseSlug === 'string' ? courseSlug.trim().toLowerCase() : '';
+  const { programmeSlug, courseSlug } = req.params;
+  let normalizedSlug = '';
+  if (programmeSlug && courseSlug) {
+    normalizedSlug = `${String(programmeSlug).trim().toLowerCase()}/${String(courseSlug).trim().toLowerCase()}`;
+  } else {
+    normalizedSlug = typeof courseSlug === 'string' ? courseSlug.trim().toLowerCase() : '';
+  }
 
   if (!normalizedSlug) {
     res.status(400);
@@ -524,3 +636,184 @@ module.exports = {
   listEnrollments,
   getCourseBySlug,
 };
+
+/**
+ * RAW course CRUD for full JSON shape (admin)
+ * - Upsert by slug (supports programmeSlug/courseSlug combination)
+ * - List and get raw documents
+ * - Delete by slug
+ */
+
+// Strictly validate the only accepted shape for raw courses
+const validateRawCourse = (input) => {
+  const allowRoot = new Set([
+    'name','programme','programmeSlug','courseSlug','slug',
+    'hero','stats','aboutProgram','learn','skills','details','capstone',
+    'careerOutcomes','toolsFrameworks','modules','instructors','offeredBy'
+  ]);
+
+  const unexpected = Object.keys(input || {}).filter((k) => !allowRoot.has(k));
+  if (unexpected.length) {
+    const err = new Error(`Unexpected fields at root: ${unexpected.join(', ')}`);
+    err.status = 400; throw err;
+  }
+
+  const str = (v) => (typeof v === 'string' ? v.trim() : '');
+  const strArr = (v, path) => {
+    if (!Array.isArray(v)) { const e = new Error(`${path} must be an array of strings`); e.status=400; throw e; }
+    const out = [];
+    for (let i=0;i<v.length;i++) { if (typeof v[i] !== 'string') { const e = new Error(`${path}[${i}] must be a string`); e.status=400; throw e; } const s = v[i].trim(); if (s) out.push(s); }
+    return out;
+  };
+  const obj = (v, path) => { if (v && typeof v === 'object' && !Array.isArray(v)) return v; const e = new Error(`${path} must be an object`); e.status=400; throw e; };
+  const requireKeysOnly = (o, allowed, path) => { const bad = Object.keys(o).filter((k) => !allowed.has(k)); if (bad.length) { const e = new Error(`Unexpected fields in ${path}: ${bad.join(', ')}`); e.status=400; throw e; } };
+
+  const out = {};
+  out.name = str(input.name); if (!out.name) { const e = new Error('name is required'); e.status=400; throw e; }
+  out.programme = str(input.programme);
+  out.programmeSlug = str(input.programmeSlug);
+  out.courseSlug = str(input.courseSlug);
+  out.slug = str(input.slug);
+  if (!out.slug) {
+    const built = buildCombinedSlug({ programmeSlug: out.programmeSlug, courseSlug: out.courseSlug, name: out.name, programme: out.programme });
+    if (!built) { const e = new Error('slug or (programmeSlug & courseSlug) required'); e.status=400; throw e; }
+    out.slug = built;
+  }
+
+  // hero
+  const heroAllowed = new Set(['subtitle','priceINR','enrolledText']);
+  const hero = obj(input.hero || {}, 'hero');
+  requireKeysOnly(hero, heroAllowed, 'hero');
+  out.hero = { subtitle: str(hero.subtitle), priceINR: hero.priceINR === undefined ? 0 : Number(hero.priceINR), enrolledText: str(hero.enrolledText) };
+  if (!Number.isFinite(out.hero.priceINR)) { const e = new Error('hero.priceINR must be a number'); e.status=400; throw e; }
+
+  // stats
+  const statsAllowed = new Set(['modules','mode','level','duration']);
+  const stats = obj(input.stats || {}, 'stats');
+  requireKeysOnly(stats, statsAllowed, 'stats');
+  out.stats = { modules: stats.modules === undefined ? 0 : Number(stats.modules), mode: str(stats.mode), level: str(stats.level), duration: str(stats.duration) };
+  if (!Number.isFinite(out.stats.modules)) { const e = new Error('stats.modules must be a number'); e.status=400; throw e; }
+
+  // text arrays
+  out.aboutProgram = strArr(input.aboutProgram || [], 'aboutProgram');
+  out.learn = strArr(input.learn || [], 'learn');
+  out.skills = strArr(input.skills || [], 'skills');
+  out.careerOutcomes = strArr(input.careerOutcomes || [], 'careerOutcomes');
+  out.toolsFrameworks = strArr(input.toolsFrameworks || [], 'toolsFrameworks');
+
+  // details
+  const detailsAllowed = new Set(['effort','language','prerequisites']);
+  const details = obj(input.details || {}, 'details');
+  requireKeysOnly(details, detailsAllowed, 'details');
+  out.details = { effort: str(details.effort), language: str(details.language), prerequisites: str(details.prerequisites) };
+
+  // capstone
+  const capAllowed = new Set(['summary','bullets']);
+  const cap = obj(input.capstone || {}, 'capstone');
+  requireKeysOnly(cap, capAllowed, 'capstone');
+  out.capstone = { summary: str(cap.summary), bullets: strArr(cap.bullets || [], 'capstone.bullets') };
+
+  // modules
+  if (!Array.isArray(input.modules)) { const e = new Error('modules must be an array'); e.status=400; throw e; }
+  out.modules = input.modules.map((m, i) => {
+    const mod = obj(m, `modules[${i}]`);
+    const modAllowed = new Set(['title','weeksLabel','topics','outcome','extras']);
+    requireKeysOnly(mod, modAllowed, `modules[${i}]`);
+    const extras = mod.extras === undefined ? undefined : obj(mod.extras, `modules[${i}].extras`);
+    let extrasOut;
+    if (extras) {
+      const exAllowed = new Set(['projectTitle','projectDescription','examples','deliverables']);
+      requireKeysOnly(extras, exAllowed, `modules[${i}].extras`);
+      extrasOut = {
+        projectTitle: str(extras.projectTitle),
+        projectDescription: str(extras.projectDescription),
+        examples: strArr(extras.examples || [], `modules[${i}].extras.examples`),
+        deliverables: strArr(extras.deliverables || [], `modules[${i}].extras.deliverables`),
+      };
+    }
+    return {
+      title: str(mod.title),
+      weeksLabel: str(mod.weeksLabel),
+      topics: strArr(mod.topics || [], `modules[${i}].topics`),
+      outcome: str(mod.outcome),
+      ...(extrasOut ? { extras: extrasOut } : {}),
+    };
+  });
+
+  // instructors
+  if (!Array.isArray(input.instructors)) { const e = new Error('instructors must be an array'); e.status=400; throw e; }
+  out.instructors = input.instructors.map((ins, i) => {
+    const o = obj(ins, `instructors[${i}]`);
+    const allowed = new Set(['name','subtitle']);
+    requireKeysOnly(o, allowed, `instructors[${i}]`);
+    return { name: str(o.name), subtitle: str(o.subtitle) };
+  });
+
+  // offeredBy
+  const obAllowed = new Set(['name','subtitle','logo']);
+  const offered = obj(input.offeredBy || {}, 'offeredBy');
+  requireKeysOnly(offered, obAllowed, 'offeredBy');
+  out.offeredBy = { name: str(offered.name), subtitle: str(offered.subtitle), logo: str(offered.logo) };
+
+  return out;
+};
+
+const upsertRawCourse = asyncHandler(async (req, res) => {
+  const validated = validateRawCourse(req.body || {});
+  validated.slug = String(validated.slug).trim().toLowerCase();
+
+  const legacyToUnset = [
+    'subtitle','focus','approvals','placementRange','price','level','duration','mode',
+    'outcomeSummary','deliverables','outcomes','capstonePoints','finalAward','partners','weeks','certifications','order'
+  ];
+  const unsetObj = legacyToUnset.reduce((acc, k) => { acc[k] = ''; return acc; }, {});
+
+  const saved = await Course.findOneAndUpdate(
+    { slug: validated.slug },
+    { $set: validated, $unset: unsetObj },
+    { new: true, upsert: true, setDefaultsOnInsert: true, runValidators: true }
+  ).lean();
+
+  res.status(200).json({ message: 'Course upserted', course: saved });
+});
+
+const listRawCourses = asyncHandler(async (req, res) => {
+  const courses = await Course.find().sort({ updatedAt: -1 }).lean();
+  res.json({ items: courses });
+});
+
+const getRawCourseBySlug = asyncHandler(async (req, res) => {
+  const { slug } = req.params;
+  const s = typeof slug === 'string' ? slug.trim().toLowerCase() : '';
+  if (!s) {
+    res.status(400);
+    throw new Error('Slug is required');
+  }
+  const course = await Course.findOne({ slug: s }).lean();
+  if (!course) {
+    res.status(404);
+    throw new Error('Course not found');
+  }
+  res.json({ course });
+});
+
+const deleteCourseBySlug = asyncHandler(async (req, res) => {
+  const { slug } = req.params;
+  const s = typeof slug === 'string' ? slug.trim().toLowerCase() : '';
+  if (!s) {
+    res.status(400);
+    throw new Error('Slug is required');
+  }
+  const deleted = await Course.findOneAndDelete({ slug: s });
+  if (!deleted) {
+    res.status(404);
+    throw new Error('Course not found');
+  }
+  res.json({ message: 'Course deleted', slug: s });
+});
+
+// Append exports for raw admin APIs
+module.exports.upsertRawCourse = upsertRawCourse;
+module.exports.listRawCourses = listRawCourses;
+module.exports.getRawCourseBySlug = getRawCourseBySlug;
+module.exports.deleteCourseBySlug = deleteCourseBySlug;

@@ -4,7 +4,7 @@
   - Adds Meta manager, analytics tracker, and chatbot widget globally
 */
 import OurCoursesPage from "./pages/OurCoursesPage.jsx";
-import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route, useParams } from "react-router-dom";
 import RouteScrollToTop from "./helper/RouteScrollToTop.jsx";
 import RequireAuth from "./components/RequireAuth.jsx";
 import MetaManager from "./components/MetaManager.jsx";
@@ -64,6 +64,11 @@ import SupportPage from "./pages/SupportPage.jsx";
 import SupportTicketDetailsPage from "./pages/SupportTicketDetailsPage.jsx";
 import SocialPortfolioPage from "./pages/SocialPortfolioPage.jsx";
 import ProgrammeCoursePage from "./pages/ProgrammeCoursePage.jsx";
+
+const GradusXRedirect = () => {
+  const { course } = useParams();
+  return <Navigate to={`/gradus-x/${course}`} replace />;
+};
 
 function App() {
   return (
@@ -204,7 +209,8 @@ function App() {
         <Route exact path='/tutor' element={<TutorPage />} />
         <Route exact path='/tutor-details' element={<TutorDetailsPage />} />
         <Route exact path='/social' element={<SocialPortfolioPage />} />
-        {/* Dynamic programme/course landing pages */}
+        {/* Canonicalize old programme slug to hyphenated version */}
+        <Route path='/gradusx/:course' element={<GradusXRedirect />} />
         <Route path='/:programme/:course' element={<ProgrammeCoursePage />} />
       </Routes>
     </BrowserRouter>
