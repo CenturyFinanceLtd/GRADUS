@@ -2,7 +2,32 @@
   Cloudinary configuration
   - Centralizes SDK setup and exposes helpers for common ops
 */
-const { v2: cloudinary } = require('cloudinary');
+let cloudinary;
+try {
+  ({ v2: cloudinary } = require('cloudinary'));
+} catch (err) {
+  // Fall back to a safe stub so the server can boot even if
+  // the cloudinary SDK is not installed on the host. Any feature
+  // that uses Cloudinary will respond with an error at runtime,
+  // but public routes (blogs, courses, auth, etc.) keep working.
+  // This prevents total outage due to an optional integration.
+  // eslint-disable-next-line no-console
+  console.warn('[cloudinary] SDK not found; running with stub. Install "cloudinary" to enable media uploads.');
+  const uploadStreamStub = (opts, cb) => ({
+    end() {
+      try { cb(new Error('Cloudinary SDK not available on server'), null); }
+      catch { /* noop */ }
+    },
+  });
+  cloudinary = {
+    config() {},
+    uploader: {
+      upload_stream: uploadStreamStub,
+      destroy: async () => { throw new Error('Cloudinary SDK not available on server'); },
+    },
+    url: () => '',
+  };
+}
 const config = require('./env');
 
 const {
