@@ -26,19 +26,22 @@ const resolveApiBaseUrl = () => {
   if (typeof window !== 'undefined') {
     const { hostname } = window.location;
 
+    // When running on localhost, prefer a localhost API base.
     if (isLocalhost(hostname)) {
       if (envValue && /^https?:\/\/localhost(?::\d+)?\/.*/i.test(envValue)) {
         return envValue;
       }
-
       return DEFAULT_LOCAL_API_BASE_URL;
+    }
+
+    // When NOT on localhost (production/staging), never use a localhost API base
+    // even if it was accidentally bundled at build time.
+    if (envValue && !/https?:\/\/localhost(?::\d+)?\/.*/i.test(envValue)) {
+      return envValue;
     }
   }
 
-  if (envValue) {
-    return envValue;
-  }
-
+  // Fallback to the remote API base when no safe env override is present.
   return DEFAULT_REMOTE_API_BASE_URL;
 };
 
