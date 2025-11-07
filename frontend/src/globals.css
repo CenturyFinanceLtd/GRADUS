@@ -330,7 +330,7 @@ html {
 html, body { overflow-x: hidden; }
 /* Force a single scrolling container (html) to avoid double scrollbars */
 html { overflow-y: auto; }
-body { overflow-y: visible !important; }
+body { overflow-y: hidden !important; }
 
 html::-webkit-scrollbar {
     width: 0.75rem;
