@@ -152,9 +152,9 @@ const FooterOne = () => {
               <p className='bottom-footer__text'>
                 {" "}
                 Copyright © 2025 <span className='fw-semibold'>
-                  Gradus{" "}
+                  
                 </span>{" "}
-                All Rights Reserved.
+                All Rights Reserved by Century finance limited
               </p>
               <div className='footer-links d-flex flex-wrap gap-16 justify-content-center justify-content-lg-end'>
                 <Link
