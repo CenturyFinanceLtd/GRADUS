@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { PROGRAMMES } from "../../data/programmes.js";
+import { API_BASE_URL } from "../../services/apiClient";
 import { slugify, stripBrackets } from "../../utils/slugify.js";
 
 const AllCoursesList = () => {
@@ -27,9 +28,8 @@ const AllCoursesList = () => {
       try {
         setLoading(true);
         setError("");
-        const base = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '');
         const qs = sort ? `?sort=${encodeURIComponent(sort)}` : '';
-        const resp = await fetch(`${base}/courses${qs}`, { credentials: 'include' });
+        const resp = await fetch(`${API_BASE_URL}/courses${qs}`, { credentials: 'include' });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const data = await resp.json();
         const items = Array.isArray(data?.items) ? data.items : [];

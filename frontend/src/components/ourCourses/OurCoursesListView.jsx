@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { PROGRAMMES } from "../../data/programmes.js";
+import { API_BASE_URL } from "../../services/apiClient";
 import { slugify, stripBrackets } from "../../utils/slugify.js";
 
 const OurCoursesListView = () => {
@@ -28,9 +29,8 @@ const OurCoursesListView = () => {
     let cancelled = false;
     (async () => {
       try {
-        const base = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '');
         const qs = sort === 'new' ? '?sort=new' : '';
-        const resp = await fetch(`${base}/courses${qs}`, { credentials: 'include' });
+        const resp = await fetch(`${API_BASE_URL}/courses${qs}`, { credentials: 'include' });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const data = await resp.json();
         const mapped = (Array.isArray(data?.items) ? data.items : []).map((it, idx) => {
