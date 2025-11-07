@@ -166,6 +166,13 @@ const courseSchema = new mongoose.Schema(
       bullets: { type: [String], default: [] },
     },
 
+    // Image/asset fields
+    image: {
+      url: { type: String, trim: true, default: '' },
+      publicId: { type: String, trim: true, default: '' },
+      alt: { type: String, trim: true, default: '' },
+    },
+
     order: { type: Number },
   },
   { timestamps: true }

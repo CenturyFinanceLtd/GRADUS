@@ -8,10 +8,8 @@ const COURSES = [
   "Technical analysis",
   "Full Stack Development",
   // Rest of catalog
-  "Data Structures & Algorithms",
   "Full Stack Development",
   "Mobile App Development (Android / iOS)",
-  "Database Management (SQL, MongoDB)",
   "Cybersecurity & Ethical Hacking",
   "Cloud Computing (AWS, Azure, Google Cloud)",
   "Data Science & Analytics",

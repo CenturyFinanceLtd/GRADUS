@@ -1,6 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import ModalVideo from "react-modal-video";
 import Slider from "react-slick";
+import { listTestimonials } from "../../services/testimonialService";
 
 const cardStyles = {
   wrapper: {
@@ -45,31 +46,33 @@ const cardStyles = {
 
 const VideoTestimonials = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [videoId, setVideoId] = useState("");
+  const [videoSrc, setVideoSrc] = useState("");
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const items = useMemo(
-    () => [
-      {
-        id: "ysz5S6PUM-U",
-        name: "Aarav Sharma",
-        role: "COO, Prime Inc.",
-      },
-      { id: "J---aiyznGQ", name: "Arun Singh", role: "Founder, Acom Labs" },
-      { id: "ScMzIvxBSi4", name: "Priya Menon", role: "Team Lead, InnoSoft" },
-      { id: "LXb3EKWsInQ", name: "Anand Iyer", role: "CEO, Insinious Inc." },
-      { id: "VYOjWnS4cMY", name: "Divya Rao", role: "Product Mgr, KodeX" },
-      { id: "aqz-KE-bpKQ", name: "Ravi Kumar", role: "CTO, PineWorks" },
-    ],
-    []
-  );
+  // Fetch testimonials from backend (Cloudinary-backed)
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const data = await listTestimonials();
+        if (isMounted) setItems(Array.isArray(data) ? data : []);
+      } catch (e) {
+        if (isMounted) setItems([]);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
-  // Temporarily disable playing videos from testimonials
-  const disablePlayback = true;
-  // Render solid black placeholders instead of images
-  const showBlackPlaceholders = true;
+  const disablePlayback = false;
+  const showBlackPlaceholders = false;
 
-  const openVideo = (id) => {
-    setVideoId(id);
+  const openVideo = (src) => {
+    setVideoSrc(src);
     setIsOpen(true);
   };
 
@@ -138,16 +141,17 @@ const VideoTestimonials = () => {
           </div>
         </div>
 
+        {loading ? null : (
         <Slider {...sliderSettings} className="video-reels-slider">
           {items.map((item, idx) => {
-            const thumb = `https://img.youtube.com/vi/${item.id}/hqdefault.jpg`;
+            const thumb = item.thumbnailUrl || undefined;
             return (
               <div className="px-12" key={item.id + idx}>
                 <div style={cardStyles.wrapper}>
                   <button
                     type="button"
                     aria-label={disablePlayback ? "Playback disabled" : "Play testimonial"}
-                    onClick={disablePlayback ? undefined : () => openVideo(item.id)}
+                    onClick={disablePlayback ? undefined : () => openVideo(item.playbackUrl)}
                     aria-disabled={disablePlayback}
                     tabIndex={disablePlayback ? -1 : 0}
                     style={{
@@ -165,8 +169,8 @@ const VideoTestimonials = () => {
                       ...cardStyles.thumb,
                       // 9:16 vertical reels
                       paddingBottom: "177.78%",
-                      backgroundColor: "#000",
-                      backgroundImage: showBlackPlaceholders ? "none" : `url('${thumb}')`,
+                      backgroundColor: thumb ? "#000" : "#000",
+                      backgroundImage: showBlackPlaceholders || !thumb ? "none" : `url('${thumb}')`,
                     }}
                   />
                   {showBlackPlaceholders ? null : (
@@ -176,21 +180,7 @@ const VideoTestimonials = () => {
                   )}
                 </div>
                 <div className="d-flex align-items-center gap-12 mt-12">
-                  {showBlackPlaceholders ? (
-                    <div
-                      aria-hidden="true"
-                      style={{ width: 36, height: 36, borderRadius: 9999, background: "#000" }}
-                    />
-                  ) : (
-                    <img
-                      src={`https://i.pravatar.cc/64?img=${(idx % 70) + 1}`}
-                      alt={item.name}
-                      width={36}
-                      height={36}
-                      style={{ borderRadius: 9999 }}
-                      loading="lazy"
-                    />
-                  )}
+                  <div aria-hidden="true" style={{ width: 36, height: 36, borderRadius: 9999, background: "#000" }} />
                   <div>
                     <div className="text-md fw-semibold text-neutral-900">{item.name}</div>
                     <div className="text-sm text-neutral-600">{item.role}</div>
@@ -200,14 +190,30 @@ const VideoTestimonials = () => {
             );
           })}
         </Slider>
+        )}
       </div>
 
-      <ModalVideo
-        channel="youtube"
-        isOpen={isOpen}
-        videoId={videoId}
-        onClose={() => setIsOpen(false)}
-      />
+      {/* Simple HTML5 video modal for Cloudinary playback */}
+      {isOpen ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setIsOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,.65)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div style={{ width: "min(480px, 92vw)", borderRadius: 12, overflow: "hidden", background: "#000" }}>
+            <video src={videoSrc} controls autoPlay playsInline style={{ width: "100%", height: "auto" }} />
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 };

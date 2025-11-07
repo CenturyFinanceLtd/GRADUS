@@ -145,6 +145,16 @@ const buildCoursePayload = (body, existingCourse) => {
 
   const partnersInput = Array.isArray(body?.partners) ? body.partners : existingCourse?.partners;
 
+  // Optional image fields (support both flat and nested input)
+  const imageUrl = normalizeString(body?.imageUrl || body?.image?.url);
+  const imageAlt = normalizeString(body?.imageAlt || body?.image?.alt);
+  const imagePublicId = normalizeString(body?.imagePublicId || body?.image?.publicId);
+  const nextImage = {
+    url: imageUrl || (existingCourse?.image?.url || ''),
+    alt: imageAlt || (existingCourse?.image?.alt || ''),
+    publicId: imagePublicId || (existingCourse?.image?.publicId || ''),
+  };
+
   return {
     name,
     slug,
@@ -173,6 +183,7 @@ const buildCoursePayload = (body, existingCourse) => {
     partners: normalizePartnerInput(partnersInput),
     weeks: normalizeWeekInput(body?.weeks),
     certifications: normalizeCertificationInput(body?.certifications),
+    image: nextImage,
     order,
   };
 };
@@ -197,6 +208,7 @@ const mapCourseForPublic = (course, enrollment) => {
     id: course.slug,
     slug: course.slug,
     name: course.name,
+    imageUrl: (course?.image && course.image.url) || '',
   programme: course.programme,
   level: course.level,
   duration: course.duration,
@@ -268,6 +280,9 @@ const mapCourseForAdmin = (course) => ({
   id: course._id.toString(),
   slug: course.slug,
   name: course.name,
+  imageUrl: (course?.image && course.image.url) || '',
+  imageAlt: (course?.image && course.image.alt) || '',
+  imagePublicId: (course?.image && course.image.publicId) || '',
   programme: course.programme,
   level: course.level,
   duration: course.duration,
@@ -348,7 +363,7 @@ const listCourses = asyncHandler(async (req, res) => {
   const sortSpec = sort === 'new' ? { updatedAt: -1 } : { order: 1, createdAt: 1 };
   const courses = await Course.find()
     .sort(sortSpec)
-    .select(['name', 'slug', 'programme', 'updatedAt', 'createdAt', 'hero', 'stats', 'mode', 'level', 'duration', 'weeks', 'modules', 'price'])
+    .select(['name', 'slug', 'programme', 'updatedAt', 'createdAt', 'hero', 'stats', 'mode', 'level', 'duration', 'weeks', 'modules', 'price', 'image'])
     .lean();
 
   const parsePrice = (rawPrice) => {
@@ -368,6 +383,7 @@ const listCourses = asyncHandler(async (req, res) => {
         id: course.slug,
         slug: course.slug,
         name: course.name,
+        imageUrl: (course?.image && course.image.url) || '',
         programme: course.programme || '',
         createdAt: course.createdAt,
         updatedAt: course.updatedAt,
@@ -650,7 +666,8 @@ const validateRawCourse = (input) => {
   const allowRoot = new Set([
     'name','programme','programmeSlug','courseSlug','slug',
     'hero','stats','aboutProgram','learn','skills','details','capstone',
-    'careerOutcomes','toolsFrameworks','modules','instructors','offeredBy'
+    'careerOutcomes','toolsFrameworks','modules','instructors','offeredBy',
+    'image'
   ]);
 
   const unexpected = Object.keys(input || {}).filter((k) => !allowRoot.has(k));
@@ -756,6 +773,14 @@ const validateRawCourse = (input) => {
   requireKeysOnly(offered, obAllowed, 'offeredBy');
   out.offeredBy = { name: str(offered.name), subtitle: str(offered.subtitle), logo: str(offered.logo) };
 
+  // optional image
+  if (typeof input.image !== 'undefined') {
+    const imgAllowed = new Set(['url','alt','publicId']);
+    const img = obj(input.image || {}, 'image');
+    requireKeysOnly(img, imgAllowed, 'image');
+    out.image = { url: str(img.url), alt: str(img.alt), publicId: str(img.publicId) };
+  }
+
   return out;
 };
 
@@ -795,7 +820,24 @@ const getRawCourseBySlug = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error('Course not found');
   }
-  res.json({ course });
+  // Return only the editable fields expected by the JSON editor
+  const allowRoot = new Set([
+    'name','programme','programmeSlug','courseSlug','slug',
+    'hero','stats','aboutProgram','learn','skills','details','capstone',
+    'careerOutcomes','toolsFrameworks','modules','instructors','offeredBy','image'
+  ]);
+  const sanitized = {};
+  for (const key of allowRoot) {
+    if (Object.prototype.hasOwnProperty.call(course, key)) {
+      sanitized[key] = course[key];
+    }
+  }
+  // Fallback: if new-shape props are missing, include minimal compatibility fields
+  if (!sanitized.slug && course.slug) sanitized.slug = course.slug;
+  if (!sanitized.name && course.name) sanitized.name = course.name;
+  if (!sanitized.programme && course.programme) sanitized.programme = course.programme;
+
+  res.json({ course: sanitized });
 });
 
 const deleteCourseBySlug = asyncHandler(async (req, res) => {

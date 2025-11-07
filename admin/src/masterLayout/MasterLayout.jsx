@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Link, NavLink, Navigate, useLocation, useNavigate, matchPath } from "react-router-dom";
 import ThemeToggleButton from "../helper/ThemeToggleButton";
+import { ToastContainer } from 'react-toastify';
 import useAuth from "../hook/useAuth";
 import { ADMIN_PAGE_DEFINITIONS } from "../data/adminPageDefinitions";
 import getHomePath from "../helper/getHomePath";
@@ -155,6 +156,8 @@ const MasterLayout = ({ children }) => {
 
   return (
     <section className={mobileMenu ? "overlay active" : "overlay "}>
+      {/* Global toast container for admin */}
+      <ToastContainer position='top-right' autoClose={3000} newestOnTop closeOnClick pauseOnHover theme='light' />
       {/* sidebar */}
       <aside
         className={
@@ -429,6 +432,16 @@ const MasterLayout = ({ children }) => {
                 <span>Blogs</span>
               </NavLink>
             </li>
+            <li>
+              <NavLink
+                to='/testimonials'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='mdi:account-voice' className='menu-icon' />
+                <span>Testimonials</span>
+              </NavLink>
+            </li>
+            
 
             { /* Courses management and enrollments links removed */ }
 
@@ -1145,18 +1158,7 @@ const MasterLayout = ({ children }) => {
 
             
 
-            <li>
-              <NavLink
-                to='/testimonials'
-                className={(navData) => (navData.isActive ? "active-page" : "")}
-              >
-                <Icon
-                  icon='mage:message-question-mark-round'
-                  className='menu-icon'
-                />
-                <span>Testimonials</span>
-              </NavLink>
-            </li>
+            
             <li>
               <NavLink
                 to='/faq'

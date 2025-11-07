@@ -15,14 +15,15 @@ const GradusProgrammes = () => {
       programmeSlug: "gradus-x",
       courses: [
         { slug: "python-programming", title: "Python Programming" },
-        { slug: "data-structures-algorithms", title: "Data Structures & Algorithms" },
         {
           slug: "full-stack-development-mastery-mern",
           title: "Full Stack Development Mastery (MERN)",
           subtitle: "MERN: MongoDB • Express • React • Node.js",
         },
         { slug: "mobile-app-development", title: "Mobile App Development", subtitle: "Android / iOS" },
-        { slug: "database-management", title: "Database Management", subtitle: "SQL, MongoDB" },
+        { slug: "agentic-ai-engineering-program", title: "Agentic AI Engineering Program" },
+        { slug: "quantum-computing-basics-program", title: "Quantum Computing Basics Program" },
+        { slug: "blockchain-development-fundamentals", title: "Blockchain Development Fundamentals" },
       ],
     },
     {
@@ -77,14 +78,36 @@ const GradusProgrammes = () => {
           grouped.get(progSlug).push(entry);
         }
 
-        // Build updated cards with up to 6 chips per programme
+        // Build updated cards showing all courses per programme
         const updated = BASE_CARDS.map((c) => {
           const fromApi = grouped.get(c.programmeSlug) || [];
           // keep any existing explicit items at the top if present, then API items without duplicates
           const existing = Array.isArray(c.courses) ? c.courses : [];
-          const seen = new Set(existing.map((e) => e.slug));
-          const merged = existing.concat(fromApi.filter((e) => !seen.has(e.slug)));
-          return { ...c, courses: merged.slice(0, 6) };
+          const seen = new Set();
+          for (const e of existing) {
+            if (e?.slug) seen.add(e.slug);
+            const norm = slugify(e?.title || e?.name || '');
+            if (norm) seen.add(norm);
+          }
+          const filtered = [];
+          for (const e of fromApi) {
+            const norm = slugify(e?.title || e?.name || '');
+            const cands = [e?.slug, norm].filter(Boolean);
+            const dup = cands.some((k) => seen.has(k));
+            if (!dup) {
+              filtered.push(e);
+              cands.forEach((k) => seen.add(k));
+            }
+          }
+          // hide “Data Structures & Algorithms” and “Database Management”
+          const HIDE = new Set(['data-structures-algorithms','database-management','database-management-sql-mongodb']);
+          const shouldHide = (item) => {
+            const slug = String(item?.slug || '').toLowerCase();
+            const norm = slugify(item?.title || item?.name || '');
+            return HIDE.has(slug) || HIDE.has(norm) || norm.includes('data-structures') || norm.includes('database');
+          };
+          const merged = existing.concat(filtered).filter((it) => !shouldHide(it));
+          return { ...c, courses: merged };
         });
 
         if (!cancelled) setCards(updated);

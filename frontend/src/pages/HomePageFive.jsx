@@ -1,7 +1,7 @@
 import BannerFive from "../components/BannerFive";
 import CounterFour from "../components/CounterFour";
 import FeaturesThree from "../components/FeaturesThree";
-import FooterFour from "../components/FooterFour";
+import FooterOne from "../components/FooterOne";
 import GallerySectionTwo from "../components/GallerySectionTwo";
 import HeaderThree from "../components/HeaderThree";
 import InstructorTwo from "../components/InstructorTwo";
@@ -51,8 +51,8 @@ const HomePageFive = () => {
       {/* TestimonialsFour */}
       <TestimonialsFour />
 
-      {/* FooterFour */}
-      <FooterFour />
+      {/* Footer */}
+      <FooterOne />
     </>
   );
 };

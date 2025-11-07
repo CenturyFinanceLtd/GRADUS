@@ -5,12 +5,8 @@ import PaymentGatewayLayer from "../components/PaymentGatewayLayer";
 const PaymentGatewayPage = () => {
   return (
     <>
-      {/* MasterLayout */}
       <MasterLayout>
-        {/* Breadcrumb */}
-        <Breadcrumb title='Settings - PaymentGateway' />
-
-        {/* PaymentGatewayLayer */}
+        <Breadcrumb title='Settings - Payment Gateway' />
         <PaymentGatewayLayer />
       </MasterLayout>
     </>
@@ -18,3 +14,4 @@ const PaymentGatewayPage = () => {
 };
 
 export default PaymentGatewayPage;
+

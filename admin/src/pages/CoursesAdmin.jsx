@@ -9,6 +9,7 @@ import {
   deleteAdminCourse,
   bulkCreateCourses,
 } from '../services/adminCourses';
+import { uploadImage } from '../services/uploads';
 
 const defaultForm = {
   name: '',
@@ -33,6 +34,8 @@ const defaultForm = {
   capstoneText: '',
   careerText: '',
   toolsText: '',
+  imageUrl: '',
+  imageAlt: '',
 };
 
 const programmeOptions = ['Gradus X', 'Gradus Finlit', 'Gradus Lead'];
@@ -68,6 +71,7 @@ const CoursesAdmin = () => {
   const [editId, setEditId] = useState(null);
   const [partners, setPartners] = useState([{ name: '', logo: '', website: '' }]);
   const [certifications, setCertifications] = useState([{ level: '', certificateName: '', coverageText: '', outcome: '' }]);
+  const [imageUploading, setImageUploading] = useState(false);
 
   const load = async () => {
     try {
@@ -195,8 +199,12 @@ const CoursesAdmin = () => {
           toolsFrameworks: parseLines(form.toolsText),
           weeks: weeksFromModules,
           partners: partners.map(p => ({ name: p.name.trim(), logo: p.logo.trim(), website: p.website.trim() })).filter(p => p.name),
-          certifications: certifications.map(c => ({ level: c.level.trim(), certificateName: c.certificateName.trim(), coverage: parseLines(c.coverageText), outcome: c.outcome.trim() })).filter(c => c.certificateName),
+        certifications: certifications.map(c => ({ level: c.level.trim(), certificateName: c.certificateName.trim(), coverage: parseLines(c.coverageText), outcome: c.outcome.trim() })).filter(c => c.certificateName),
         };
+
+        // Attach image fields if present
+        if (form.imageUrl) payload.imageUrl = String(form.imageUrl).trim();
+        if (form.imageAlt) payload.imageAlt = String(form.imageAlt).trim();
 
         let saved = null;
         if (editId) {
@@ -280,6 +288,22 @@ const CoursesAdmin = () => {
     setForm((f) => ({ ...f, slug: e.target.value }));
   };
 
+  const onImageChange = async (e) => {
+    const file = e?.target?.files && e.target.files[0];
+    if (!file) return;
+    try {
+      setImageUploading(true);
+      const uploaded = await uploadImage({ file, token });
+      setForm((f) => ({ ...f, imageUrl: uploaded.url }));
+    } catch (err) {
+      alert(err?.message || 'Image upload failed');
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  const clearImage = () => setForm((f) => ({ ...f, imageUrl: '' }));
+
   return (
     <MasterLayout>
       <div className='container py-4'>
@@ -320,6 +344,22 @@ const CoursesAdmin = () => {
             <div className='col-md-3'>
               <label className='form-label'>Mode</label>
               <input name='mode' value={form.mode} onChange={onChange} className='form-control' placeholder='Self-paced' />
+            </div>
+            <div className='col-md-4'>
+              <label className='form-label'>Course Image</label>
+              {form.imageUrl ? (
+                <div className='d-flex align-items-center gap-2'>
+                  <img src={form.imageUrl} alt='' style={{ width: '96px', height: '64px', objectFit: 'cover', borderRadius: 8, border: '1px solid #eee' }} />
+                  <button type='button' className='btn btn-outline-danger btn-sm' onClick={clearImage}>Remove</button>
+                </div>
+              ) : (
+                <input type='file' accept='image/*' className='form-control' onChange={onImageChange} disabled={imageUploading} />
+              )}
+              <div className='form-text'>{imageUploading ? 'Uploading…' : 'Recommended ~392x306 or similar aspect.'}</div>
+            </div>
+            <div className='col-md-4'>
+              <label className='form-label'>Image Alt Text</label>
+              <input name='imageAlt' value={form.imageAlt} onChange={onChange} className='form-control' placeholder='Short description for accessibility' />
             </div>
             <div className='col-md-4'>
               <label className='form-label'>Effort</label>

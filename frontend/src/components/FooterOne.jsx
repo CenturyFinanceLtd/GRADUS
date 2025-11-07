@@ -14,7 +14,7 @@ const FooterOne = () => {
         alt=''
         className='shape one animation-scalation'
       />
-      <div className='py-120 '>
+      <div className='py-40 '>
         <div className='container container-two'>
           <div className='row row-cols-xxl-4 row-cols-lg-3 row-cols-sm-2 row-cols-1 gy-5'>
             <div className='col' data-aos='fade-up' data-aos-duration={300}>
@@ -25,43 +25,34 @@ const FooterOne = () => {
                     <img src='/assets/images/logo/logo.png' alt='' />
                   </Link>
                 </div>
-                <p className='my-32'>
-                  Gradus exceeded all my expectations! The instructors were not
-                  only experts
-                </p>
+                {/* Removed testimonial text */}
                 <ul className='social-list flex-align gap-24'>
                   <li className='social-list__item'>
-                    <Link
-                      href='https://www.facebook.com'
-                      className='text-main-600 text-2xl hover-text-main-two-600'
-                    >
+                    <a href='https://www.facebook.com/people/Gradus/61583093960559/?sk=about' className='text-main-600 text-2xl hover-text-main-two-600' target='_blank' rel='noopener noreferrer nofollow'>
                       <i className='ph-bold ph-facebook-logo' />
-                    </Link>
+                    </a>
                   </li>
                   <li className='social-list__item'>
-                    <Link
-                      href='https://www.twitter.com'
-                      className='text-main-600 text-2xl hover-text-main-two-600'
-                    >
-                      {" "}
-                      <i className='ph-bold ph-twitter-logo' />
-                    </Link>
-                  </li>
-                  <li className='social-list__item'>
-                    <Link
-                      href='https://www.linkedin.com'
-                      className='text-main-600 text-2xl hover-text-main-two-600'
-                    >
+                    <a href='https://www.instagram.com/gradusindiaofficial?igsh=MWdhdjJhZWp6NDI1aA==' className='text-main-600 text-2xl hover-text-main-two-600' target='_blank' rel='noopener noreferrer nofollow'>
                       <i className='ph-bold ph-instagram-logo' />
-                    </Link>
+                    </a>
+                  </li>
+                  
+                  {/* Additional social links mirrored from /social */}
+                  <li className='social-list__item'>
+                    <a href='https://www.reddit.com/user/GradusIndia/' className='text-main-600 text-2xl hover-text-main-two-600' target='_blank' rel='noopener noreferrer nofollow'>
+                      <i className='ph-bold ph-reddit-logo' />
+                    </a>
                   </li>
                   <li className='social-list__item'>
-                    <Link
-                      href='https://www.pinterest.com'
-                      className='text-main-600 text-2xl hover-text-main-two-600'
-                    >
-                      <i className='ph-bold ph-pinterest-logo' />
-                    </Link>
+                    <a href='https://www.quora.com/profile/Marketing-Team-615' className='text-main-600 text-2xl hover-text-main-two-600 d-inline-flex align-items-center justify-content-center' target='_blank' rel='noopener noreferrer nofollow'>
+                      <img src='/assets/icons/quora.svg' alt='Quora' style={{ width: 20, height: 20 }} />
+                    </a>
+                  </li>
+                  <li className='social-list__item'>
+                    <a href='https://discord.com/channels/1432018650558238884/1432019463347114035' className='text-main-600 text-2xl hover-text-main-two-600' target='_blank' rel='noopener noreferrer nofollow'>
+                      <i className='ph-bold ph-discord-logo' />
+                    </a>
                   </li>
                 </ul>
               </div>
@@ -80,27 +71,20 @@ const FooterOne = () => {
                   </li>
                   <li className='mb-16'>
                     <Link
-                      to='/course-grid-view'
+                      to='/our-courses'
                       className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
                     >
                       Courses
                     </Link>
                   </li>
+                  {/* Show Instructor label but keep it non-clickable */}
                   <li className='mb-16'>
-                    <Link
-                      to='/instructor'
-                      className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
+                    <span
+                      className='text-neutral-500'
+                      aria-disabled='true'
                     >
                       Instructor
-                    </Link>
-                  </li>
-                  <li className='mb-16'>
-                    <Link
-                      to='/faq'
-                      className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
-                    >
-                      FAQs
-                    </Link>
+                    </span>
                   </li>
                   <li className='mb-0'>
                     <Link
@@ -162,7 +146,7 @@ const FooterOne = () => {
       </div>
       <div className='container'>
         {/* bottom Footer */}
-        <div className='bottom-footer bg-main-25 border-top border-dashed border-main-100 border-0 py-32'>
+        <div className='bottom-footer bg-main-25 border-top border-dashed border-main-100 border-0 py-16'>
           <div className='container container-two'>
             <div className='bottom-footer__inner flex-between gap-3 flex-wrap'>
               <p className='bottom-footer__text'>
@@ -180,10 +164,16 @@ const FooterOne = () => {
                   Privacy Policy
                 </Link>
                 <Link
-                  to='#'
+                  to='/visitors'
                   className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
                 >
-                  Terms &amp; Conditions
+                  Visitors Privacy Notes
+                </Link>
+                <Link
+                  to='/vendors'
+                  className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
+                >
+                  Vendors
                 </Link>
               </div>
             </div>

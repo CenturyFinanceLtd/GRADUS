@@ -15,14 +15,6 @@ const privacyLinks = [
     to: "/shareholders",
     label: "Shareholders",
   },
-  {
-    to: "/visitors",
-    label: "Visitors Privacy Notes",
-  },
-  {
-    to: "/vendors",
-    label: "Vendors",
-  },
 ];
 
 export default privacyLinks;

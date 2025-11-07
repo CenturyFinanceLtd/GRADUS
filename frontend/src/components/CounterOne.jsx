@@ -22,7 +22,7 @@ const CounterOne = () => {
                 <div ref={ref}>
                   {inView && (
                     <h1 className='display-four mb-16 text-neutral-700 counter'>
-                      <CountUp end={64.7} />K
+                      <CountUp end={10} />K+
                     </h1>
                   )}
                 </div>
@@ -44,7 +44,7 @@ const CounterOne = () => {
                 <div ref={ref}>
                   {inView && (
                     <h1 className='display-four mb-16 text-neutral-700 counter'>
-                      <CountUp end={123} />K
+                      <CountUp end={14.7} />K
                     </h1>
                   )}
                 </div>
@@ -66,12 +66,12 @@ const CounterOne = () => {
                 <div ref={ref}>
                   {inView && (
                     <h1 className='display-four mb-16 text-neutral-700 counter'>
-                      <CountUp end={72.2} />K
+                      <CountUp end={4.7} />
                     </h1>
                   )}
                 </div>
                 <span className='text-neutral-500 text-lg'>
-                  Satisfaction Rate
+                  Overall Rating
                 </span>
               </div>
             </div>
@@ -88,7 +88,7 @@ const CounterOne = () => {
                 <div ref={ref}>
                   {inView && (
                     <h1 className='display-four mb-16 text-neutral-700 counter'>
-                      <CountUp end={256} />K
+                      <CountUp end={135} />K
                     </h1>
                   )}
                 </div>

@@ -28,7 +28,7 @@ import CoursePage from "./pages/CoursePage.jsx";
 import CourseDetailsPage from "./pages/CourseDetailsPage.jsx";
 import EventDetailsPage from "./pages/EventDetailsPage.jsx";
 import EventsPage from "./pages/EventsPage.jsx";
-import FaqPage from "./pages/FaqPage.jsx";
+// FaqPage removed
 import MyCoursesPage from "./pages/MyCoursesPage.jsx";
 import FindTutorsPage from "./pages/FindTutorsPage.jsx";
 import GalleryPage from "./pages/GalleryPage.jsx";
@@ -103,7 +103,7 @@ function App() {
         <Route exact path='/cart' element={<CartPage />} />
         <Route exact path='/checkout' element={<CheckoutPage />} />
         <Route exact path='/contact' element={<ContactPage />} />
-        <Route exact path='/course-grid-view' element={<CoursePage />} />
+        <Route exact path='/course-grid-view' element={<Navigate to='/our-courses' replace />} />
         <Route exact path='/our-courses' element={<OurCoursesPage />} />
         { /* Programmes page removed */ }
         <Route exact path='/course-list-view' element={<Navigate to='/our-courses' replace />} />
@@ -111,7 +111,7 @@ function App() {
         
         <Route exact path='/event-details' element={<EventDetailsPage />} />
         <Route exact path='/events' element={<EventsPage />} />
-        <Route exact path='/faq' element={<FaqPage />} />
+        { /* FAQ page removed */ }
         <Route
           exact
           path='/my-courses'
@@ -142,13 +142,9 @@ function App() {
         <Route exact path='/favorite-course' element={<Navigate to='/my-courses' replace />} />
         <Route exact path='/find-tutors' element={<FindTutorsPage />} />
         <Route exact path='/gallery' element={<GalleryPage />} />
-        <Route exact path='/instructor' element={<InstructorPage />} />
-        <Route
-          exact
-          path='/instructor-details'
-          element={<InstructorDetailsPage />}
-        />
-        <Route exact path='/instructor-two' element={<InstructorTwoPage />} />
+        <Route exact path='/instructor' element={<Navigate to='/our-courses' replace />} />
+        <Route exact path='/instructor-details' element={<Navigate to='/our-courses' replace />} />
+        <Route exact path='/instructor-two' element={<Navigate to='/our-courses' replace />} />
         <Route exact path='/lesson-details' element={<LessonDetailsPage />} />
         <Route exact path='/pricing-plan' element={<PricingPlanPage />} />
         <Route exact path='/privacy-policy' element={<PrivacyPolicyPage />} />

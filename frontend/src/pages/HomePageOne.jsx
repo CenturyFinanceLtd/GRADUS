@@ -6,7 +6,7 @@ import CounterTwo from "../components/CounterTwo";
 import GradusProgrammes from "../components/home/GradusProgrammes";
 import ByCflAndPartners from "../components/home/ByCflAndPartners";
 import VideoTestimonials from "../components/home/VideoTestimonials";
-import FooterThree from "../components/FooterThree";
+import FooterOne from "../components/FooterOne";
 import HeaderOne from "../components/HeaderOne";
 import InfoTwo from "../components/InfoTwo";
 import Animation from "../helper/Animation";
@@ -62,8 +62,8 @@ const HomePageThree = () => {
 
       
 
-      {/* FooterThree */}
-      <FooterThree />
+      {/* Footer */}
+      <FooterOne />
     </>
   );
 };

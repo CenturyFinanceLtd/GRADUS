@@ -2,7 +2,7 @@ import AboutFourV2 from "../components/AboutFourV2";
 import BrandTwo from "../components/BrandTwo";
 import Breadcrumb from "../components/Breadcrumb";
 import CounterThreeV2 from "../components/CounterThreeV2";
-import FooterThree from "../components/FooterThree";
+import FooterOne from "../components/FooterOne";
 import HeaderOne from "../components/HeaderOne";
 import PopularTeacherOne from "../components/PopularTeacherOne";
 import ReviewOne from "../components/ReviewOne";
@@ -39,8 +39,8 @@ const AboutFourPage = () => {
       {/* BrandTwo */}
       <BrandTwo />
 
-      {/* FooterThree */}
-      <FooterThree />
+      {/* Footer */}
+      <FooterOne />
     </>
   );
 };

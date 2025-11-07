@@ -29,6 +29,7 @@ router.get('/', protectAdmin, async (req, res, next) => {
       name: c.name,
       programme: c.programme || 'Gradus X',
       price: c.price || '',
+      imageUrl: (c?.image && c.image.url) || '',
       updatedAt: c.updatedAt,
     })) });
   } catch (err) {

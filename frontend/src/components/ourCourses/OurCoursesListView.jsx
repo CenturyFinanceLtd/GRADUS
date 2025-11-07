@@ -48,6 +48,7 @@ const OurCoursesListView = () => {
             mode: it.mode || '',
             duration: it.duration || '',
             modulesCount: Number(it.modulesCount || 0),
+            imageUrl: it.imageUrl || (it.image && it.image.url) || '',
           };
         });
         if (!cancelled) setItems(mapped);
@@ -280,7 +281,7 @@ const OurCoursesListView = () => {
                     <div className='course-item bg-main-25 rounded-16 p-12 h-100 border border-neutral-30 list-view'>
                       <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                         <Link to={course.url} className='w-100 h-100'>
-                          <img src='/assets/images/thumbs/course-img1.png' alt={course.name} className='course-item__img rounded-12 cover-img transition-2' />
+                          <img src={course.imageUrl || '/assets/images/thumbs/course-img1.png'} alt={course.name} className='course-item__img rounded-12 cover-img transition-2' />
                         </Link>
                         <div className='flex-align gap-8 bg-main-600 rounded-pill px-24 py-12 text-white position-absolute inset-block-start-0 inset-inline-start-0 mt-20 ms-20 z-1'>
                           <span className='text-2xl d-flex'><i className='ph ph-clock' /></span>

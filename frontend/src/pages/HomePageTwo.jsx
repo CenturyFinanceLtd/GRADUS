@@ -5,7 +5,7 @@ import CertificateTwo from "../components/CertificateTwo";
 import ExploreCourseTwo from "../components/ExploreCourseTwo";
 import FaqOne from "../components/FaqOne";
 import FeaturesTwo from "../components/FeaturesTwo";
-import FooterTwo from "../components/FooterTwo";
+import FooterOne from "../components/FooterOne";
 import HeaderOne from "../components/HeaderOne";
 import InfoSectionOne from "../components/InfoSectionOne";
 import JoinCommunityOne from "../components/JoinCommunityOne";
@@ -55,8 +55,8 @@ const HomePageTwo = () => {
       {/* FaqOne */}
       <FaqOne />
 
-      {/* FooterTwo */}
-      <FooterTwo />
+      {/* Footer */}
+      <FooterOne />
     </>
   );
 };

@@ -2,7 +2,7 @@
 
 const ChooseUsTwo = () => {
   return (
-    <section className='choose-us-two pt-120'>
+    <section className='choose-us-two pt-64 bg-main-25'>
       <div className='container'>
         <div className='row align-items-end'>
           <div className='col-lg-7 pe-xl-5'>

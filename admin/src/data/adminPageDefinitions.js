@@ -27,7 +27,7 @@
   { key: 'blog_details', label: 'Blog Details', path: '/blog/:blogId', category: 'Content & Media' },
   { key: 'blog_details_alt', label: 'Blog Details (Alt)', path: '/blog-details/:blogId', category: 'Content & Media' },
   { key: 'blog_add', label: 'Add Blog', path: '/add-blog', category: 'Content & Media' },
-  { key: 'testimonials', label: 'Testimonials', path: '/testimonials', category: 'Content & Media' },
+  { key: 'testimonials', label: 'Testimonials', path: '/testimonials', category: 'Application' },
   { key: 'video_generator', label: 'Video Generator', path: '/video-generator', category: 'Content & Media' },
   { key: 'videos', label: 'Videos', path: '/videos', category: 'Content & Media' },
   { key: 'voice_generator', label: 'Voice Generator', path: '/voice-generator', category: 'Content & Media' },
@@ -54,11 +54,11 @@
 
   // Sales & commerce
   { key: 'company', label: 'Company', path: '/company', category: 'Sales & Commerce' },
+  { key: 'payment_gateway', label: 'Payment Gateway', path: '/payment-gateway', category: 'Sales & Commerce' },
   { key: 'portfolio', label: 'Portfolio', path: '/portfolio', category: 'Sales & Commerce' },
   { key: 'marketplace', label: 'Marketplace', path: '/marketplace', category: 'Sales & Commerce' },
   { key: 'marketplace_details', label: 'Marketplace Details', path: '/marketplace-details', category: 'Sales & Commerce' },
   { key: 'pricing', label: 'Pricing', path: '/pricing', category: 'Sales & Commerce' },
-  { key: 'payment_gateway', label: 'Payment Gateway', path: '/payment-gateway', category: 'Sales & Commerce' },
   { key: 'invoice_list', label: 'Invoice List', path: '/invoice-list', category: 'Sales & Commerce' },
   { key: 'invoice_add', label: 'Invoice Add', path: '/invoice-add', category: 'Sales & Commerce' },
   { key: 'invoice_edit', label: 'Invoice Edit', path: '/invoice-edit', category: 'Sales & Commerce' },

@@ -8,7 +8,7 @@ const AboutThree = () => {
     threshold: 0.1,
   });
   return (
-    <section className='about-three py-120 position-relative z-1 bg-main-25 overflow-hidden'>
+    <section className='about-three py-64 position-relative z-1 bg-main-25 overflow-hidden'>
       <div className='position-relative'>
         <div className='container'>
           <div className='row gy-xl-0 gy-5 flex-wrap-reverse align-items-center'>

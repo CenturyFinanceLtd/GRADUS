@@ -41,6 +41,7 @@ const AllCoursesList = () => {
             name: stripBrackets(it.name || ''),
             slug,
             url: `/${slug}`,
+            imageUrl: it.imageUrl || (it.image && it.image.url) || '',
           };
         });
         if (!cancelled) setCourses(mapped);
@@ -73,6 +74,11 @@ const AllCoursesList = () => {
           {courses.map((course) => (
             <div key={`${course.programme}-${course.slug}`} className='col-12 col-md-6 col-lg-4'>
               <div className='h-100 p-24 rounded-16 border border-neutral-30 bg-white box-shadow-sm'>
+                {course.imageUrl ? (
+                  <div className='mb-12'>
+                    <img src={course.imageUrl} alt={course.name} style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 12 }} />
+                  </div>
+                ) : null}
                 <div className='d-flex flex-column h-100'>
                   <span className='text-sm text-neutral-600 mb-6'>{course.programme}</span>
                   <h5 className='mb-12 text-neutral-900'>{course.name}</h5>

@@ -2,7 +2,7 @@ import AboutTwo from "../components/AboutTwo";
 import Breadcrumb from "../components/Breadcrumb";
 import CertificateTwo from "../components/CertificateTwo";
 import FeaturesTwo from "../components/FeaturesTwo";
-import FooterThree from "../components/FooterThree";
+import FooterOne from "../components/FooterOne";
 import HeaderOne from "../components/HeaderOne";
 import InfoSectionOne from "../components/InfoSectionOne";
 import JoinCommunityOne from "../components/JoinCommunityOne";
@@ -43,8 +43,8 @@ const AboutTwoPage = () => {
       {/* TestimonialsTwo */}
       <TestimonialsTwo />
 
-      {/* FooterThree */}
-      <FooterThree />
+      {/* Footer */}
+      <FooterOne />
     </>
   );
 };

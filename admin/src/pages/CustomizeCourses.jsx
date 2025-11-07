@@ -7,6 +7,8 @@ import {
   deleteCourseBySlug,
   getRawCourseBySlug,
 } from '../services/adminCourses';
+import { toast } from 'react-toastify';
+import { uploadImage } from '../services/uploads';
 
 const SAMPLE = {
   name: 'Full Stack Development Mastery (MERN)',
@@ -114,6 +116,7 @@ const CustomizeCourses = () => {
   const [jsonText, setJsonText] = useState(pretty(SAMPLE));
   const [saving, setSaving] = useState(false);
   const [selectedSlug, setSelectedSlug] = useState('');
+  const [imageUploading, setImageUploading] = useState(false);
 
   const load = async () => {
     try {
@@ -153,8 +156,11 @@ const CustomizeCourses = () => {
         setJsonText(pretty(SAMPLE));
       }
       await load();
+      toast.success('Course deleted');
     } catch (e) {
-      setError(e?.message || 'Failed to delete');
+      const msg = e?.message || 'Failed to delete';
+      setError(msg);
+      toast.error(msg);
     }
   };
 
@@ -171,19 +177,57 @@ const CustomizeCourses = () => {
       try {
         parsed = JSON.parse(jsonText);
       } catch (e) {
-        throw new Error('Invalid JSON: ' + e.message);
+        const msg = 'Invalid JSON: ' + e.message;
+        toast.error(msg);
+        throw new Error(msg);
       }
       if (!parsed || typeof parsed !== 'object') {
-        throw new Error('JSON must be an object');
+        const msg = 'JSON must be an object';
+        toast.error(msg);
+        throw new Error(msg);
       }
       const saved = await upsertRawCourse({ data: parsed, token });
       setSelectedSlug(saved?.slug || '');
       await load();
-      alert('Saved');
+      toast.success('Saved');
     } catch (e) {
-      setError(e?.message || 'Failed to save');
+      const msg = e?.message || 'Failed to save';
+      setError(msg);
+      if (!String(msg).startsWith('Invalid JSON')) toast.error(msg);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const insertImageIntoJson = (uploaded) => {
+    try {
+      const obj = JSON.parse(jsonText || '{}');
+      obj.image = {
+        ...(obj.image || {}),
+        url: uploaded?.url || '',
+        publicId: uploaded?.publicId || '',
+      };
+      setJsonText(pretty(obj));
+    } catch (e) {
+      alert('Invalid JSON. Please fix JSON before inserting image.');
+    }
+  };
+
+  const onUploadImage = async (e) => {
+    const file = e?.target?.files && e.target.files[0];
+    if (!file) return;
+    try {
+      setImageUploading(true);
+      const uploaded = await uploadImage({ file, token });
+      insertImageIntoJson(uploaded);
+      toast.success('Image uploaded');
+    } catch (err) {
+      const msg = err?.message || 'Upload failed';
+      toast.error(msg);
+    } finally {
+      setImageUploading(false);
+      // reset input so same file can be reselected
+      e.target.value = '';
     }
   };
 
@@ -242,7 +286,13 @@ const CustomizeCourses = () => {
             <div className='card card-body h-100'>
               <div className='d-flex align-items-center justify-content-between mb-8'>
                 <h6 className='mb-0'>{selectedSlug ? `Editing: ${selectedSlug}` : 'New Course'}</h6>
-                <button type='button' className='btn btn-xs btn-secondary' onClick={() => setJsonText(pretty(JSON.parse(jsonText)))}>Prettify</button>
+                <div className='d-flex gap-2'>
+                  <input id='json-course-image-input' type='file' accept='image/*' className='d-none' onChange={onUploadImage} />
+                  <button type='button' className='btn btn-xs btn-outline-primary' onClick={() => document.getElementById('json-course-image-input').click()} disabled={imageUploading}>
+                    {imageUploading ? 'Uploading…' : 'Upload Image'}
+                  </button>
+                  <button type='button' className='btn btn-xs btn-secondary' onClick={() => setJsonText(pretty(JSON.parse(jsonText)))}>Prettify</button>
+                </div>
               </div>
               <textarea
                 className='form-control'
@@ -262,4 +312,3 @@ const CustomizeCourses = () => {
 };
 
 export default CustomizeCourses;
-

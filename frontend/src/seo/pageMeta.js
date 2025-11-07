@@ -180,13 +180,6 @@ export const PAGE_META = {
     keywords: "gradus events, webinars, education calendar",
     robots: "noindex, nofollow",
   },
-  "/faq": {
-    title: "Gradus | Frequently Asked Questions",
-    description:
-      "Find helpful answers about Gradus enrollment, platform features, and support services.",
-    keywords: "gradus faq, platform help, support",
-    robots: "noindex, nofollow",
-  },
   "/my-courses": {
     title: "Gradus | My Courses",
     description:

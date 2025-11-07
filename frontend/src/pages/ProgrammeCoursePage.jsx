@@ -41,12 +41,25 @@ function ProgrammeCoursePage() {
                 topics: Array.isArray(w?.points) ? w.points : [],
               }))
             : null;
+          const toArray = (val) => {
+            if (Array.isArray(val)) return val;
+            if (typeof val === 'string') return val.split(/\r?\n|,|;|\u2022/).map((s) => s.trim()).filter(Boolean);
+            return [];
+          };
           const weeksFromModules = Array.isArray(c.modules)
             ? c.modules.map((m, idx) => ({
                 title: m?.title || `Module ${idx + 1}`,
                 weeksLabel: m?.weeksLabel || m?.hours || `Weeks ${idx + 1}`,
-                topics: Array.isArray(m?.topics) ? m.topics : (Array.isArray(m?.points) ? m.points : []),
-                extras: m?.extras || undefined,
+                topics: toArray(m?.topics?.length !== undefined ? m.topics : (Array.isArray(m?.points) ? m.points : m?.topics)),
+                outcome: m?.outcome || '',
+                extras: m?.extras
+                  ? {
+                      projectTitle: m.extras.projectTitle || '',
+                      projectDescription: m.extras.projectDescription || '',
+                      examples: toArray(m.extras.examples),
+                      deliverables: toArray(m.extras.deliverables),
+                    }
+                  : undefined,
               }))
             : null;
           const modules = weeksFromModules || weeksFromModel || [];

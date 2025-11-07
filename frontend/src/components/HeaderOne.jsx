@@ -146,15 +146,81 @@ const HeaderOne = () => {
     }
   };
 
+  // Build initial static mega groups from local data
+  const buildMegaFromProgrammes = () =>
+    PROGRAMMES.map((p) => ({
+      title: p.title,
+      slug: p.slug || slugify(p.title),
+      anchor: p.anchor,
+      items: p.courses,
+    }));
+
+  const [programmeMega, setProgrammeMega] = useState(buildMegaFromProgrammes());
+
+  // Enrich mega menu with backend courses
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const base = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '');
+        const resp = await fetch(`${base}/courses`, { credentials: 'include' });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        const items = Array.isArray(data?.items) ? data.items : [];
+
+        const grouped = new Map();
+        for (const it of items) {
+          const full = String(it.slug || '').trim();
+          const [progSlug, courseSlug] = full.split('/');
+          if (!progSlug || !courseSlug) continue;
+          const entry = { slug: courseSlug, title: it.name || courseSlug.replace(/-/g, ' ') };
+          if (!grouped.has(progSlug)) grouped.set(progSlug, []);
+          grouped.get(progSlug).push(entry);
+        }
+
+        const updated = buildMegaFromProgrammes().map((group) => {
+          const fromApi = grouped.get(group.slug) || [];
+          const existing = Array.isArray(group.items) ? group.items : [];
+
+          // Build a robust dedupe set using both explicit slugs and
+          // normalized names so that minor slug differences don't duplicate.
+          const seen = new Set();
+          for (const e of existing) {
+            const isString = typeof e === 'string';
+            const s1 = isString ? slugify(e) : (e?.slug || '');
+            const s2 = isString ? slugify(e) : slugify(e?.name || e?.title || '');
+            if (s1) seen.add(s1);
+            if (s2) seen.add(s2);
+          }
+
+          const filtered = [];
+          for (const e of fromApi) {
+            const cands = [e?.slug, slugify(e?.title || e?.name || '')].filter(Boolean);
+            const isDup = cands.some((c) => seen.has(c));
+            if (!isDup) {
+              filtered.push(e);
+              // guard against further duplicates within API list
+              cands.forEach((c) => seen.add(c));
+            }
+          }
+
+          const merged = existing.concat(filtered);
+          return { ...group, items: merged };
+        });
+
+        if (!cancelled) setProgrammeMega(updated);
+      } catch (e) {
+        // keep static mega on failure
+        console.warn('[Header] Failed to load programmes for menu:', e?.message || e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const menuItems = [
     {
       label: "Programmes",
-      mega: PROGRAMMES.map((p) => ({
-        title: p.title,
-        slug: p.slug || slugify(p.title),
-        anchor: p.anchor,
-        items: p.courses,
-      })),
+      mega: programmeMega,
       // Fallback links for mobile menu (simple list)
       links: [
         { to: "/our-courses?programme=gradus-x", label: "GradusX" },

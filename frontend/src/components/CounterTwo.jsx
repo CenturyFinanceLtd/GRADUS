@@ -7,7 +7,7 @@ const CounterTwo = () => {
     threshold: 0.1,
   });
   return (
-    <section className='counter-three py-120'>
+    <section className='counter-three py-64'>
       <div className='container'>
         <div className='p-16 rounded-16 bg-white'>
           <div className='row gy-4'>
@@ -24,7 +24,7 @@ const CounterTwo = () => {
                 <div ref={ref}>
                   {inView && (
                     <h1 className='display-four mb-16 text-neutral-700 counter'>
-                      <CountUp end={64.7} />K
+                      <CountUp end={10} />K+
                     </h1>
                   )}
                 </div>
@@ -46,7 +46,7 @@ const CounterTwo = () => {
                 <div ref={ref}>
                   {inView && (
                     <h1 className='display-four mb-16 text-neutral-700 counter'>
-                      <CountUp end={123} />K
+                      <CountUp end={14.7} />K
                     </h1>
                   )}
                 </div>
@@ -68,12 +68,12 @@ const CounterTwo = () => {
                 <div ref={ref}>
                   {inView && (
                     <h1 className='display-four mb-16 text-neutral-700 counter'>
-                      <CountUp end={72.2} />K
+                      <CountUp end={4.7} />
                     </h1>
                   )}
                 </div>
                 <span className='text-neutral-500 text-lg'>
-                  Satisfaction Rate
+                  Overall Rating
                 </span>
               </div>
             </div>
@@ -90,7 +90,7 @@ const CounterTwo = () => {
                 <div ref={ref}>
                   {inView && (
                     <h1 className='display-four mb-16 text-neutral-700 counter'>
-                      <CountUp end={256} />K
+                      <CountUp end={135} />K
                     </h1>
                   )}
                 </div>
