@@ -1,31 +1,33 @@
 import { useMemo, useRef } from "react";
+import { Link } from "react-router-dom";
 
-const COURSES = [
-  // Requested Popular (will be shown since we slice top 5)
-  "commodity trading",
-  "Artificial Intelligence & Machine Learning",
-  "Python Programming",
-  "Technical analysis",
-  "Full Stack Development",
-  // Rest of catalog
-  "Full Stack Development",
-  "Mobile App Development (Android / iOS)",
-  "Cybersecurity & Ethical Hacking",
-  "Cloud Computing (AWS, Azure, Google Cloud)",
-  "Data Science & Analytics",
-  "DevOps & CI/CD",
-  "Blockchain Development",
-  "Quantum Computing Basics",
-  "Tableau / Power BI for Data Visualization",
-  "Swing Trading & Investing",
-  "NISM Certification",
-  "Scalping & Intraday",
-  "Futures and Options",
-  "Mutual Funds and SIPs",
+// Curated list for the "Popular Courses" ribbon
+// Matches the items shared in the reference screenshots with proper URLs
+const POPULAR = [
+  {
+    title: "Full Stack Development Mastery (MERN)",
+    to: "/gradus-x/full-stack-development-mastery-mern",
+  },
+  {
+    title: "AI Engineering Program",
+    to: "/gradus-x/agentic-ai-engineering-program",
+  },
+  {
+    title: "Quantum Computing Basics Program",
+    to: "/gradus-x/quantum-computing-basics-program",
+  },
+  {
+    title: "Complete Trading & Investment Mastery Program",
+    to: "/gradus-finlit/complete-trading-and-investment-mastery-program",
+  },
+  {
+    title: "Mobile App Development Mastery (React Native)",
+    to: "/gradus-x/mobile-app-development-react-native",
+  },
 ];
 
 const InfoTwo = () => {
-  const items = useMemo(() => COURSES, []);
+  const items = useMemo(() => POPULAR, []);
   const scrollerRef = useRef(null);
 
   const scrollByCards = (direction = 1) => {
@@ -72,19 +74,19 @@ const InfoTwo = () => {
             data-aos='fade-up'
             data-aos-duration={600}
           >
-            {items.slice(0, 5).map((title, idx) => (
-              <a
+            {items.slice(0, 5).map((item, idx) => (
+              <Link
                 key={idx}
                 className='course-card'
-                href='#'
-                onClick={(e) => e.preventDefault()}
+                to={item.to}
+                title={item.title}
               >
                 <span className='course-icon'>
                   <img src={`/assets/images/icons/category-icon${(idx % 4) + 1}.png`} alt='' />
                 </span>
-                <span className='course-title'>{title}</span>
-                <span className='course-arrow'>{">"}</span>
-              </a>
+                <span className='course-title'>{item.title}</span>
+               
+              </Link>
             ))}
           </div>
         </div>

@@ -32,3 +32,13 @@
   }
 }
 
+/* Popular Courses ribbon: stack card contents vertically */
+.info-two .course-card {
+  flex-direction: column;
+}
+
+/* Popular Courses: center the course title text */
+.info-two .course-title {
+  text-align: center;
+}
+
