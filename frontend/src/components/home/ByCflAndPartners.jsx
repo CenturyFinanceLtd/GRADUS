@@ -82,28 +82,14 @@ const ByCflAndPartners = () => {
               marginBottom: 12,
             }}
           >
-            <span style={{ width: 80, height: 1, background: "#D1D5DB" }} />
-            <span style={{ fontSize: 12, letterSpacing: 1, color: "#6B7280" }}>
-              by
-            </span>
-            <span style={{ width: 80, height: 1, background: "#D1D5DB" }} />
+            
           </div>
           <img
             src="/assets/images/cfl.png"
             alt="CFL Logo"
             style={{ maxHeight: 56, width: "auto" }}
           />
-          <div
-            style={{
-              marginTop: 6,
-              fontSize: 12,
-              letterSpacing: 1,
-              color: "#6B7280",
-              textTransform: "uppercase",
-            }}
-          >
-            ESTD. 1974
-          </div>
+         
         </div>
 
         <div className="brand-box py-24 px-8">

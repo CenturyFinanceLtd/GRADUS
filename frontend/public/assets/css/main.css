@@ -13207,3 +13207,11 @@ table.dataTable.display > tbody > tr > * {
     display: block !important;
   }
 }
+
+/* Responsive button: full-width on small screens, auto on xl+ */
+
+@media (min-width: 1200px) {  }
+
+@media (min-width: 992px) {  }
+
+

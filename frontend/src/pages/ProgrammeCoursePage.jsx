@@ -10,14 +10,16 @@ import Preloader from "../helper/Preloader";
 function ProgrammeCoursePage() {
   const { programme, course } = useParams();
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token, loading: authLoading } = useAuth();
   const combinedSlug = `${(programme || '').trim().toLowerCase()}/${(course || '').trim().toLowerCase()}`;
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // Ensure we fetch after auth state is resolved so enrollment reflects correctly
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      if (authLoading) return;
       try {
         setLoading(true);
         setError(null);
@@ -104,7 +106,7 @@ function ProgrammeCoursePage() {
       }
     })();
     return () => { cancelled = true; };
-  }, [programme, course]);
+  }, [programme, course, token, authLoading]);
 
   const priceINR = useMemo(() => {
     const n = Number(data?.hero?.priceINR || 0);
@@ -154,7 +156,7 @@ function ProgrammeCoursePage() {
       <HeaderOne />
 
       <section className='py-40 bg-main-25 border-bottom border-neutral-40'>
-        <div className='container'>
+          <div className='container'>
           <div className='d-flex flex-wrap align-items-start justify-content-between gap-16'>
             <div className='flex-grow-1 min-w-0'>
               {(() => {
