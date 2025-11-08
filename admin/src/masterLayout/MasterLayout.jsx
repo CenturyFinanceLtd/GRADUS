@@ -441,6 +441,15 @@ const MasterLayout = ({ children }) => {
                 <span>Testimonials</span>
               </NavLink>
             </li>
+            <li>
+              <NavLink
+                to='/banners'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='mdi:image-multiple-outline' className='menu-icon' />
+                <span>Banners</span>
+              </NavLink>
+            </li>
             
 
             { /* Courses management and enrollments links removed */ }

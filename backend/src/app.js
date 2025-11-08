@@ -27,11 +27,13 @@ const adminAnalyticsRoutes = require('./routes/adminAnalyticsRoutes');
 const adminCourseRoutes = require('./routes/adminCourseRoutes');
 const adminTestimonialRoutes = require('./routes/adminTestimonialRoutes');
 const adminUploadRoutes = require('./routes/adminUploadRoutes');
+const adminBannerRoutes = require('./routes/adminBannerRoutes');
 const chatbotRoutes = require('./routes/chatbotRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
 const adminTicketRoutes = require('./routes/adminTicketRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const testimonialRoutes = require('./routes/testimonialRoutes');
+const bannerRoutes = require('./routes/bannerRoutes');
 const { blogImagesDirectory } = require('./middleware/uploadMiddleware');
 
 const app = express();
@@ -108,11 +110,13 @@ app.use('/api/admin/tickets', adminTicketRoutes);
 app.use('/api/admin/courses', adminCourseRoutes);
 app.use('/api/admin/testimonials', adminTestimonialRoutes);
 app.use('/api/admin/uploads', adminUploadRoutes);
+app.use('/api/admin/banners', adminBannerRoutes);
 // Public content + services
 app.use('/api/blogs', blogRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/banners', bannerRoutes);
 app.use('/api/inquiries', contactRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/chatbot', chatbotRoutes);

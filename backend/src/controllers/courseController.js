@@ -685,6 +685,79 @@ const validateRawCourse = (input) => {
   };
   const obj = (v, path) => { if (v && typeof v === 'object' && !Array.isArray(v)) return v; const e = new Error(`${path} must be an object`); e.status=400; throw e; };
   const requireKeysOnly = (o, allowed, path) => { const bad = Object.keys(o).filter((k) => !allowed.has(k)); if (bad.length) { const e = new Error(`Unexpected fields in ${path}: ${bad.join(', ')}`); e.status=400; throw e; } };
+  const normalizeLectureItems = (value, path) => {
+    if (value === undefined) {
+      return [];
+    }
+    if (!Array.isArray(value)) {
+      const e = new Error(`${path} must be an array`);
+      e.status = 400;
+      throw e;
+    }
+    const lectureAllowed = new Set(['title', 'duration', 'type']);
+    return value
+      .map((item, idx) => {
+        if (typeof item === 'string') {
+          const title = str(item);
+          return title ? { title, duration: '', type: '' } : null;
+        }
+        const lecture = obj(item, `${path}[${idx}]`);
+        requireKeysOnly(lecture, lectureAllowed, `${path}[${idx}]`);
+        const title = str(lecture.title);
+        const duration = str(lecture.duration);
+        const type = str(lecture.type);
+        if (!title) {
+          const e = new Error(`${path}[${idx}].title is required`);
+          e.status = 400;
+          throw e;
+        }
+        return { title, duration, type };
+      })
+      .filter(Boolean);
+  };
+  const normalizeWeeklyStructureInput = (value, path) => {
+    if (value === undefined) {
+      return [];
+    }
+    const blocks = Array.isArray(value) ? value : [value];
+    const weekAllowed = new Set(['title', 'subtitle', 'summary', 'lectures', 'assignments', 'projects', 'quizzes', 'notes']);
+    return blocks
+      .map((entry, idx) => {
+        if (entry == null || entry === '') {
+          return null;
+        }
+        if (typeof entry === 'string') {
+          const title = str(entry);
+          return title
+            ? {
+                title,
+                subtitle: '',
+                summary: '',
+                lectures: [],
+                assignments: [],
+                projects: [],
+                quizzes: [],
+                notes: [],
+              }
+            : null;
+        }
+        const block = obj(entry, `${path}[${idx}]`);
+        requireKeysOnly(block, weekAllowed, `${path}[${idx}]`);
+        const title = str(block.title);
+        const subtitle = str(block.subtitle);
+        const summary = str(block.summary);
+        const lectures = normalizeLectureItems(block.lectures, `${path}[${idx}].lectures`);
+        const assignments = strArr(block.assignments || [], `${path}[${idx}].assignments`);
+        const projects = strArr(block.projects || [], `${path}[${idx}].projects`);
+        const quizzes = strArr(block.quizzes || [], `${path}[${idx}].quizzes`);
+        const notes = strArr(block.notes || [], `${path}[${idx}].notes`);
+        if (!title && !subtitle && !summary && !lectures.length && !assignments.length && !projects.length && !quizzes.length && !notes.length) {
+          return null;
+        }
+        return { title, subtitle, summary, lectures, assignments, projects, quizzes, notes };
+      })
+      .filter(Boolean);
+  };
 
   const out = {};
   out.name = str(input.name); if (!out.name) { const e = new Error('name is required'); e.status=400; throw e; }
@@ -735,7 +808,7 @@ const validateRawCourse = (input) => {
   if (!Array.isArray(input.modules)) { const e = new Error('modules must be an array'); e.status=400; throw e; }
   out.modules = input.modules.map((m, i) => {
     const mod = obj(m, `modules[${i}]`);
-    const modAllowed = new Set(['title','weeksLabel','topics','outcome','extras']);
+    const modAllowed = new Set(['title','weeksLabel','topics','outcome','extras','weeklyStructure','structure','outcomes','resources']);
     requireKeysOnly(mod, modAllowed, `modules[${i}]`);
     const extras = mod.extras === undefined ? undefined : obj(mod.extras, `modules[${i}].extras`);
     let extrasOut;
@@ -749,11 +822,18 @@ const validateRawCourse = (input) => {
         deliverables: strArr(extras.deliverables || [], `modules[${i}].extras.deliverables`),
       };
     }
+    const weeklyStructureRaw = mod.weeklyStructure !== undefined ? mod.weeklyStructure : mod.structure;
+    const weeklyStructure = normalizeWeeklyStructureInput(weeklyStructureRaw, `modules[${i}].weeklyStructure`);
+    const outcomesArr = strArr(mod.outcomes || [], `modules[${i}].outcomes`);
+    const resourcesArr = strArr(mod.resources || [], `modules[${i}].resources`);
     return {
       title: str(mod.title),
       weeksLabel: str(mod.weeksLabel),
       topics: strArr(mod.topics || [], `modules[${i}].topics`),
       outcome: str(mod.outcome),
+      weeklyStructure,
+      outcomes: outcomesArr,
+      resources: resourcesArr,
       ...(extrasOut ? { extras: extrasOut } : {}),
     };
   });

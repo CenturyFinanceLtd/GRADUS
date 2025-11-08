@@ -95,6 +95,7 @@ const BlogDetailsPage = lazy(() => import("./pages/BlogDetailsPage"));
 const AddBlogPage = lazy(() => import("./pages/AddBlogPage"));
 const EditBlogPage = lazy(() => import("./pages/EditBlogPage"));
 const TestimonialsPage = lazy(() => import("./pages/TestimonialsPage"));
+const BannersPage = lazy(() => import("./pages/BannersPage"));
 const ComingSoonPage = lazy(() => import("./pages/ComingSoonPage"));
 const AccessDeniedPage = lazy(() => import("./pages/AccessDeniedPage"));
 const TicketsPage = lazy(() => import("./pages/TicketsPage.jsx"));
@@ -179,6 +180,7 @@ function App() {
         { /* Courses management and enrollments pages removed */ }
 
         <Route exact path='/testimonials' element={<TestimonialsPage />} />
+        <Route exact path='/banners' element={<BannersPage />} />
         <Route exact path='/coming-soon' element={<ComingSoonPage />} />
         <Route exact path='/access-denied' element={<AccessDeniedPage />} />
         <Route exact path='/maintenance' element={<MaintenancePage />} />
