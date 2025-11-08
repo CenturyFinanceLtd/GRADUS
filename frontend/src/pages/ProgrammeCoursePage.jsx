@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { API_BASE_URL } from "../services/apiClient";
 import FooterOne from "../components/FooterOne";
 import HeaderOne from "../components/HeaderOne";
 import Animation from "../helper/Animation";
@@ -20,10 +21,9 @@ function ProgrammeCoursePage() {
       try {
         setLoading(true);
         setError(null);
-        const base = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '');
         const headers = new Headers();
         if (token) headers.set('Authorization', `Bearer ${token}`);
-        const api = await fetch(`${base}/courses/${encodeURIComponent(programme || '')}/${encodeURIComponent(course || '')}`, { credentials: 'include', headers });
+        const api = await fetch(`${API_BASE_URL}/courses/${encodeURIComponent(programme || '')}/${encodeURIComponent(course || '')}`, { credentials: 'include', headers });
         if (api.ok) {
           const payload = await api.json();
           const c = payload?.course || {};

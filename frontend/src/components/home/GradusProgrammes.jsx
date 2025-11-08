@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { slugify } from "../../utils/slugify.js";
+import { API_BASE_URL } from "../../services/apiClient";
 
 // Standalone section matching the reference layout with
 // colored, differentiated programme cards.
@@ -60,8 +61,7 @@ const GradusProgrammes = () => {
     let cancelled = false;
     (async () => {
       try {
-        const base = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '');
-        const resp = await fetch(`${base}/courses?sort=new`, { credentials: 'include' });
+        const resp = await fetch(`${API_BASE_URL}/courses?sort=new`, { credentials: 'include' });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const data = await resp.json();
         const items = Array.isArray(data?.items) ? data.items : [];

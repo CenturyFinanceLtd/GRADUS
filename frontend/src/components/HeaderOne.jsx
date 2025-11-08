@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { PROGRAMMES } from "../data/programmes.js";
+import { API_BASE_URL } from "../services/apiClient";
 import { slugify } from "../utils/slugify.js";
 const HeaderOne = () => {
   let { pathname } = useLocation();
@@ -162,8 +163,7 @@ const HeaderOne = () => {
     let cancelled = false;
     (async () => {
       try {
-        const base = (import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '');
-        const resp = await fetch(`${base}/courses`, { credentials: 'include' });
+        const resp = await fetch(`${API_BASE_URL}/courses`, { credentials: 'include' });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const data = await resp.json();
         const items = Array.isArray(data?.items) ? data.items : [];
@@ -230,7 +230,7 @@ const HeaderOne = () => {
     },
     // Redirect to Our Courses with pre-applied filters
     { to: "/our-courses?programme=gradus-finlit", label: "Stock Market Courses" },
-    { to: "/our-courses?programme=gradus-x", label: "Tech Courses Placement" },
+    { to: "/our-courses?programme=gradus-x", label: "Tech Courses" },
     { to: "/blogs", label: "Blogs" },
     { to: "/contact", label: "Contact us" },
   ];
