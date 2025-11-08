@@ -20,67 +20,11 @@ export const PAGE_META = {
     keywords: "Gradus India social, Gradus Instagram, Gradus Facebook, Gradus Reddit, Gradus Quora, Gradus Discord, Gradus links",
     robots: "noindex, nofollow",
   },
-  "/index-2": {
-    title: "Gradus | Home Variation Two",
-    description:
-      "Explore the second Gradus landing experience featuring curated programs and success stories.",
-    keywords: "gradus layout two, education platform, tutors",
-    robots: "noindex, nofollow",
-  },
-  "/index-3": {
-    title: "Gradus | Home Variation Three",
-    description:
-      "Experience a bold landing page for institutions and training teams partnering with Gradus.",
-    keywords: "gradus layout three, lms, corporate learning",
-    robots: "noindex, nofollow",
-  },
-  "/index-4": {
-    title: "Gradus | Home Variation Four",
-    description:
-      "Showcase modern course catalogs and microlearning journeys with this Gradus layout.",
-    keywords: "gradus layout four, course catalog, microlearning",
-    robots: "noindex, nofollow",
-  },
-  "/index-5": {
-    title: "Gradus | Home Variation Five",
-    description:
-      "Highlight mentorship programs and collaborative classrooms with Gradus home page five.",
-    keywords: "gradus layout five, mentorship, collaborative learning",
-    robots: "noindex, nofollow",
-  },
-  "/index-6": {
-    title: "Gradus | Home Variation Six",
-    description:
-      "Promote skill accelerators and certification tracks with Gradus home layout six.",
-    keywords: "gradus layout six, skill accelerators, certifications",
-    robots: "noindex, nofollow",
-  },
   "/about-us": {
     title: "About Gradus India | Leading Online Education & LMS Platform",
     description:
       "Learn about Gradus India — our mission, vision, values and how we’re revolutionizing online education with cutting-edge LMS, expert tutors, and high-quality courses.",
     keywords: "Gradus India best online classes, Gradus India best online classes for data science, Gradus India best online classes for finance, Gradus India best online classes 2025, Gradus India, Gradus Learning, Gradus India Company, GradusIndia Training Programs, Gradus Online Courses, Gradus Tutors, Gradus Learn & Grow, Gradus India online course provider, Gradus India certification training, Gradus India certification courses online",
-  },
-  "/about-two": {
-    title: "Gradus | About Two",
-    description:
-      "Meet the educators, advisors, and partners powering Gradus in this alternate about presentation.",
-    keywords: "gradus about variation, tutors, partners",
-    robots: "noindex, nofollow",
-  },
-  "/about-three": {
-    title: "Gradus | About Three",
-    description:
-      "Explore impact highlights, milestones, and community stories from the Gradus network.",
-    keywords: "gradus milestones, impact, community",
-    robots: "noindex, nofollow",
-  },
-  "/about-four": {
-    title: "Gradus | About Four",
-    description:
-      "See how Gradus supports lifelong learning for students, alumni, and professionals.",
-    keywords: "lifelong learning, alumni, gradus",
-    robots: "noindex, nofollow",
   },
   "/apply-admission": {
     title: "Gradus | Apply for Admission",

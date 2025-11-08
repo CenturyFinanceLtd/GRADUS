@@ -31,6 +31,9 @@ import FindTutorsPage from "./pages/FindTutorsPage.jsx";
 import GalleryPage from "./pages/GalleryPage.jsx";
 import CandidatesAndInternsPage from "./pages/CandidatesAndInternsPage.jsx";
 import EmployeeAndAlumniPage from "./pages/EmployeeAndAlumniPage.jsx";
+import HomePageTwo from "./pages/HomePageTwo.jsx";
+import HomePageThree from "./pages/HomePageThree.jsx";
+import HomePageFour from "./pages/HomePageFour.jsx";
 import InstructorPage from "./pages/InstructorPage.jsx";
 import InstructorDetailsPage from "./pages/InstructorDetailsPage.jsx";
 import InstructorTwoPage from "./pages/InstructorTwoPage.jsx";
@@ -50,6 +53,8 @@ import TutorDetailsPage from "./pages/TutorDetailsPage.jsx";
 import ShareholdersPrivacyPage from "./pages/ShareholdersPrivacyPage.jsx";
 import VisitorPrivacyNotesPage from "./pages/VisitorPrivacyNotesPage.jsx";
 import VendorsPrivacyPage from "./pages/VendorsPrivacyPage.jsx";
+import HomePageFive from "./pages/HomePageFive.jsx";
+import HomePageSix from "./pages/HomePageSix.jsx";
 import KnowCFLPage from "./pages/KnowCFLPage.jsx";
 import CoursePaymentPage from "./pages/CoursePaymentPage.jsx";
 import SupportPage from "./pages/SupportPage.jsx";
@@ -72,6 +77,11 @@ function App() {
 
       <Routes>
         <Route exact path='/' element={<HomePageOne />} />
+        <Route exact path='/index-2' element={<HomePageTwo />} />
+        <Route exact path='/index-3' element={<HomePageThree />} />
+        <Route exact path='/index-4' element={<HomePageFour />} />
+        <Route exact path='/index-5' element={<HomePageFive />} />
+        <Route exact path='/index-6' element={<HomePageSix />} />
         <Route exact path='/about-us' element={<AboutPage />} />
         <Route exact path='/know-CFL' element={<KnowCFLPage />} />
         <Route exact path='/apply-admission' element={<ApplyAdmissionPage />} />
@@ -198,6 +208,7 @@ function App() {
 }
 
 export default App;
+
 
 
 

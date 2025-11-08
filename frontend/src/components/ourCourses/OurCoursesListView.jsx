@@ -172,7 +172,7 @@ const OurCoursesListView = () => {
   };
 
   return (
-    <section className='course-list-view py-120'>
+    <section className='course-list-view py-64'>
       <div className={`side-overlay ${sidebarActive ? "show" : ""}`} onClick={() => setSidebarActive(false)} />
       <div className='container'>
         <div className='row'>

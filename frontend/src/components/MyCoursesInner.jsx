@@ -195,6 +195,7 @@ const MyCoursesInner = () => {
               const enrollmentStatus = toTitleCase(enrollment.status);
               const enrolledAt = formatDate(enrollment.enrolledAt);
               const initials = getInitials(courseName);
+              const imageUrl = typeof course.imageUrl === 'string' ? course.imageUrl.trim() : '';
               const amount = normalizeAmount(enrollment);
               const badgeClass = (type) => {
                 if (type === 'PAID' || type === 'Paid') return 'bg-main-25 text-main-600';
@@ -209,7 +210,17 @@ const MyCoursesInner = () => {
                 <div className='col-xl-4 col-lg-6 col-sm-6' key={enrollment.id}>
                   <div className='rounded-24 border border-neutral-40 bg-white p-24 h-100 box-shadow-md'>
                     <div className='d-flex justify-content-center mb-12'>
-                      <div className='px-16 py-8 rounded-pill bg-main-25 text-main-700 fw-semibold'>{initials}</div>
+                      {imageUrl ? (
+                        <div className='rounded-24 overflow-hidden'>
+                          <img
+                            src={imageUrl}
+                            alt={`${courseName} thumbnail`}
+                            style={{ display: 'block', height: 'auto', maxWidth: '100%' }}
+                          />
+                        </div>
+                      ) : (
+                        <div className='px-16 py-8 rounded-pill bg-main-25 text-main-700 fw-semibold'>{initials}</div>
+                      )}
                     </div>
                     <h4 className='mb-8 text-neutral-900'>{courseName}</h4>
                     {enrolledAt ? (

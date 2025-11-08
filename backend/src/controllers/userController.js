@@ -294,7 +294,8 @@ const getMyEnrollments = asyncHandler(async (req, res) => {
     status: 'ACTIVE',
   })
     .sort({ createdAt: -1 })
-    .populate('course', 'name slug subtitle focus price hero stats')
+    // Include image so the frontend can render course thumbnails on My Courses
+    .populate('course', 'name slug subtitle focus price hero stats image')
     .lean();
 
   const items = Array.isArray(enrollments)
@@ -318,6 +319,9 @@ const getMyEnrollments = asyncHandler(async (req, res) => {
               focus: enrollment.course.focus || '',
               price: enrollment.course.price || '',
               hero: enrollment.course.hero || {},
+              // Flatten image URL for convenient frontend use
+              imageUrl:
+                (enrollment.course.image && enrollment.course.image.url) || '',
             }
           : null,
       }))

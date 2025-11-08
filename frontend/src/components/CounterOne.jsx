@@ -6,7 +6,7 @@ const CounterOne = () => {
     threshold: 0.1,
   });
   return (
-    <section className='counter py-120'>
+    <section className='counter py-64'>
       <div className='container'>
         <div className='row gy-4'>
             <div

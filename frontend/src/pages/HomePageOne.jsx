@@ -12,7 +12,7 @@ import InfoTwo from "../components/InfoTwo";
 import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
 
-const HomePageThree = () => {
+const HomePageOne = () => {
   return (
     <>
       {/* Preloader */}
@@ -68,4 +68,4 @@ const HomePageThree = () => {
   );
 };
 
-export default HomePageThree;
+export default HomePageOne;

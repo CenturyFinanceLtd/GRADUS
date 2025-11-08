@@ -70,7 +70,7 @@ const TestimonialsThree = () => {
     ],
   };
   return (
-    <section className='testimonials-three py-120 bg-main-25 position-relative z-1 overflow-hidden'>
+    <section className='testimonials-three py-64 bg-main-25 position-relative z-1 overflow-hidden'>
       <img
         src='/assets/images/shapes/shape2.png'
         alt=''

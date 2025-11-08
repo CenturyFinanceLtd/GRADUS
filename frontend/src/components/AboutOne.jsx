@@ -35,7 +35,7 @@ const AboutOne = () => {
     threshold: 0.1,
   });
   return (
-    <section className='about py-120 position-relative z-1 mash-bg-main mash-bg-main-two'>
+    <section className='about py-64 position-relative z-1 mash-bg-main mash-bg-main-two'>
       <img
         src='/assets/images/shapes/shape2.png'
         alt=''
