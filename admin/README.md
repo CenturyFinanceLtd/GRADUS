@@ -17,7 +17,7 @@ Permissions
 
 Environment
 - `.env.local` (dev) or `.env.production` should define:
-  - `VITE_API_BASE_URL` (e.g., `http://localhost:5000/api` or production API URL)
+  - `VITE_API_BASE_URL` (e.g., `http://localhost:5000/api` for dev, or `https://api.gradusindia.in/api` for production)
   - `VITE_PUBLIC_SITE_URL` (used for linking to public site)
 
 Run Locally
