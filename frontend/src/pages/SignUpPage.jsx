@@ -26,7 +26,7 @@ const SignUpPage = () => {
       {/* Animation */}
       <Animation />
 
-      {/* HeaderTwo */}
+      {/* HeaderOne */}
       <HeaderOne />
 
       {/* Breadcrumb */}

@@ -15,7 +15,7 @@ const MyCoursesPage = () => {
       {/* Animation */}
       <Animation />
 
-      {/* HeaderTwo */}
+      {/* HeaderOne */}
       <HeaderOne />
 
       {/* Breadcrumb */}

@@ -15,7 +15,7 @@ const CartPage = () => {
       {/* Animation */}
       <Animation />
 
-      {/* HeaderTwo */}
+      {/* HeaderOne */}
       <HeaderOne />
 
       {/* Breadcrumb */}

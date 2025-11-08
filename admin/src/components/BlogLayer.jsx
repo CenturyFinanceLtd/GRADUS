@@ -199,6 +199,9 @@ const BlogLayer = () => {
                   <td>{blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString() : '—'}</td>
                   <td className='text-end'>
                     <div className='d-flex gap-8 justify-content-end'>
+                      <Link to={'/edit-blog/' + blog.id} className='btn btn-sm btn-outline-secondary radius-8'>
+                        Edit
+                      </Link>
                       <Link to={'/blog-details/' + blog.id} className='btn btn-sm btn-primary-600 radius-8'>
                         Manage
                       </Link>

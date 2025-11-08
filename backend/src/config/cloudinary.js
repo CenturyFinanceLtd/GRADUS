@@ -36,6 +36,7 @@ const {
   CLOUDINARY_API_SECRET,
   CLOUDINARY_TESTIMONIALS_FOLDER,
   CLOUDINARY_COURSE_IMAGES_FOLDER,
+  CLOUDINARY_BLOG_IMAGES_FOLDER,
 } = process.env;
 
 // Configure from env; do not proceed if missing in production
@@ -48,9 +49,11 @@ cloudinary.config({
 
 const defaultTestimonialsFolder = CLOUDINARY_TESTIMONIALS_FOLDER || 'testimonials';
 const defaultCourseImagesFolder = CLOUDINARY_COURSE_IMAGES_FOLDER || 'courses';
+const defaultBlogImagesFolder = CLOUDINARY_BLOG_IMAGES_FOLDER || 'blogs';
 
 module.exports = {
   cloudinary,
   testimonialsFolder: defaultTestimonialsFolder,
   courseImagesFolder: defaultCourseImagesFolder,
+  blogImagesFolder: defaultBlogImagesFolder,
 };

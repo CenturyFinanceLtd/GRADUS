@@ -46,5 +46,4 @@ Run Locally
 
 Notes
 - In production, let your reverse proxy (e.g., Nginx/Cloudflare) set CORS headers. The app enables CORS only in non-production.
-- Uploaded blog images are written to `frontend/public/assets/blog-images` and exposed at `/blog-images`.
-
+- Blog featured images upload to Cloudinary (see `CLOUDINARY_*` vars). The legacy `/blog-images` static path remains available to serve older, disk-based assets.

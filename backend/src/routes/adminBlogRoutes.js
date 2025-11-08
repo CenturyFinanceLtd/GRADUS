@@ -6,6 +6,7 @@
 const express = require('express');
 const {
   createBlog,
+  updateBlog,
   listAdminBlogs,
   getAdminBlogDetails,
   listAdminBlogComments,
@@ -26,6 +27,7 @@ router
 router
   .route('/:blogId')
   .get(protectAdmin, getAdminBlogDetails)
+  .put(protectAdmin, blogImageUpload.single('featuredImage'), updateBlog)
   .delete(protectAdmin, deleteAdminBlog);
 
 router

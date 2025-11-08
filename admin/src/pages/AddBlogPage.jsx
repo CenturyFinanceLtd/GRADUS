@@ -8,7 +8,7 @@ const AddBlogPage = () => {
       {/* MasterLayout */}
       <MasterLayout>
         {/* Breadcrumb */}
-        <Breadcrumb title='Blog Details' />
+        <Breadcrumb title='Add Blog' />
 
         {/* AddBlogLayer */}
         <AddBlogLayer />

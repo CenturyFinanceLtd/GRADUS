@@ -1,12 +1,11 @@
 /*
-  Multer configuration for image uploads
-  - Saves blog images to the frontend public assets directory
-  - Generates slugified, timestamped filenames and enforces MIME type/size
+  Multer configuration for blog image uploads
+  - Uses memory storage so controllers can push buffers to Cloudinary
+  - Still exports the legacy blogImagesDirectory for serving existing files
 */
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
-const slugify = require('../utils/slugify');
 
 const blogImagesDirectory = path.resolve(__dirname, '../../../frontend/public/assets/blog-images');
 
@@ -14,19 +13,7 @@ if (!fs.existsSync(blogImagesDirectory)) {
   fs.mkdirSync(blogImagesDirectory, { recursive: true });
 }
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, blogImagesDirectory);
-  },
-  filename: (req, file, cb) => {
-    const originalExtension = path.extname(file.originalname) || '.png';
-    const title = req.body && req.body.title ? req.body.title : file.originalname || 'blog-image';
-    const baseName = slugify(title) || 'blog-image';
-    const timestamp = Date.now();
-    const filename = baseName + '-' + timestamp + originalExtension;
-    cb(null, filename);
-  },
-});
+const storage = multer.memoryStorage();
 
 const imageFileFilter = (req, file, cb) => {
   if (!file.mimetype.startsWith('image/')) {

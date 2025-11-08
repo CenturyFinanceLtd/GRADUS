@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const Blog = require('../models/Blog');
 const BlogComment = require('../models/BlogComment');
 const slugify = require('../utils/slugify');
+const { cloudinary, blogImagesFolder } = require('../config/cloudinary');
 
 const buildUniqueSlug = async (title, currentId) => {
   const baseSlug = slugify(title);
@@ -70,6 +71,58 @@ const normalizeTags = (input) => {
     .filter((tag) => tag.length > 0)
     .map((tag) => (tag.startsWith('#') ? tag : `#${tag}`))
     .filter((tag, index, array) => array.findIndex((value) => value.toLowerCase() === tag.toLowerCase()) === index);
+};
+
+const uploadFeaturedImage = (file, slug) => {
+  if (!file || !file.buffer) {
+    return null;
+  }
+
+  const originalNameWithoutExt = file.originalname ? file.originalname.replace(/\.[^/.]+$/, '') : '';
+  const fallbackName = slug || originalNameWithoutExt || 'blog-image';
+  const safeBaseName = slugify(fallbackName) || 'blog-image';
+  const uniqueSuffix = Date.now();
+  const publicId = safeBaseName + '-' + uniqueSuffix;
+
+  return new Promise((resolve, reject) => {
+    let stream;
+    try {
+      stream = cloudinary.uploader.upload_stream(
+        {
+          folder: blogImagesFolder,
+          public_id: publicId,
+          resource_type: 'image',
+          overwrite: false,
+        },
+        (error, result) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        }
+      );
+    } catch (error) {
+      reject(error);
+      return;
+    }
+
+    stream.end(file.buffer);
+  });
+};
+
+const destroyFeaturedImage = async (publicId) => {
+  if (!publicId) {
+    return;
+  }
+
+  try {
+    await cloudinary.uploader.destroy(publicId, { resource_type: 'image' });
+  } catch (error) {
+    // Best-effort cleanup; failures are logged for observability but ignored
+    // eslint-disable-next-line no-console
+    console.warn('[cloudinary] Failed to delete blog image', publicId, error.message);
+  }
 };
 
 const buildCommentTreeData = (comments, { includeEmail = false, includeStatus = false } = {}) => {
@@ -163,7 +216,19 @@ const createBlog = asyncHandler(async (req, res) => {
   }
 
   const slug = await buildUniqueSlug(title);
-  const featuredImage = req.file ? '/blog-images/' + req.file.filename : null;
+  let featuredImage = null;
+  let featuredImagePublicId = null;
+
+  if (req.file) {
+    try {
+      const uploadResult = await uploadFeaturedImage(req.file, slug);
+      featuredImage = uploadResult?.secure_url || null;
+      featuredImagePublicId = uploadResult?.public_id || null;
+    } catch (error) {
+      res.status(400);
+      throw new Error(error?.message ? 'Failed to upload featured image: ' + error.message : 'Failed to upload featured image');
+    }
+  }
 
   const normalizedTags = normalizeTags(tags);
 
@@ -173,13 +238,103 @@ const createBlog = asyncHandler(async (req, res) => {
     category: category.trim(),
     excerpt: excerpt ? excerpt.trim() : undefined,
     content,
-    featuredImage,
+    featuredImage: featuredImage || undefined,
+    featuredImagePublicId: featuredImagePublicId || undefined,
     author: author && author.trim() ? author.trim() : undefined,
     tags: normalizedTags,
     publishedAt: publishedAt ? new Date(publishedAt) : undefined,
   });
 
   res.status(201).json(blog);
+});
+
+const updateBlog = asyncHandler(async (req, res) => {
+  const { blogId } = req.params;
+  const { title, category, content, excerpt, author, publishedAt, tags, removeFeaturedImage } = req.body;
+
+  if (!title || !title.trim()) {
+    res.status(400);
+    throw new Error('Title is required');
+  }
+
+  if (!category || !category.trim()) {
+    res.status(400);
+    throw new Error('Category is required');
+  }
+
+  if (!content || !content.trim()) {
+    res.status(400);
+    throw new Error('Content is required');
+  }
+
+  const blog = await findBlogByIdentifier(blogId);
+
+  if (!blog) {
+    res.status(404);
+    throw new Error('Blog not found');
+  }
+
+  const slug = await buildUniqueSlug(title, blog._id);
+  const normalizedTags = normalizeTags(tags);
+
+  let nextFeaturedImage = blog.featuredImage || null;
+  let nextFeaturedImagePublicId = blog.featuredImagePublicId || null;
+
+  const shouldRemoveImage =
+    typeof removeFeaturedImage !== 'undefined' && String(removeFeaturedImage).toLowerCase() === 'true';
+
+  if (req.file) {
+    try {
+      const uploadResult = await uploadFeaturedImage(req.file, slug);
+      await destroyFeaturedImage(blog.featuredImagePublicId);
+      nextFeaturedImage = uploadResult?.secure_url || null;
+      nextFeaturedImagePublicId = uploadResult?.public_id || null;
+    } catch (error) {
+      res.status(400);
+      throw new Error(
+        error?.message ? 'Failed to upload featured image: ' + error.message : 'Failed to upload featured image'
+      );
+    }
+  } else if (shouldRemoveImage) {
+    await destroyFeaturedImage(blog.featuredImagePublicId);
+    nextFeaturedImage = null;
+    nextFeaturedImagePublicId = null;
+  }
+
+  blog.title = title.trim();
+  blog.slug = slug;
+  blog.category = category.trim();
+  blog.excerpt = excerpt && excerpt.trim() ? excerpt.trim() : undefined;
+  blog.content = content;
+  blog.author = author && author.trim() ? author.trim() : undefined;
+  blog.tags = normalizedTags;
+  if (publishedAt) {
+    blog.publishedAt = new Date(publishedAt);
+  }
+  blog.featuredImage = nextFeaturedImage || undefined;
+  blog.featuredImagePublicId = nextFeaturedImagePublicId || undefined;
+
+  const updatedBlog = await blog.save();
+
+  res.json({
+    blog: {
+      id: updatedBlog._id.toString(),
+      title: updatedBlog.title,
+      slug: updatedBlog.slug,
+      category: updatedBlog.category,
+      author: updatedBlog.author,
+      tags: updatedBlog.tags || [],
+      excerpt: updatedBlog.excerpt,
+      content: updatedBlog.content,
+      featuredImage: updatedBlog.featuredImage,
+      meta: {
+        views: updatedBlog.meta?.views || 0,
+        comments: updatedBlog.meta?.comments || 0,
+      },
+      publishedAt: updatedBlog.publishedAt,
+      createdAt: updatedBlog.createdAt,
+    },
+  });
 });
 
 const getBlogs = asyncHandler(async (req, res) => {
@@ -510,13 +665,14 @@ const deleteAdminBlogComment = asyncHandler(async (req, res) => {
 
 const deleteAdminBlog = asyncHandler(async (req, res) => {
   const { blogId } = req.params;
-  const blog = await findBlogByIdentifier(blogId, '_id');
+  const blog = await findBlogByIdentifier(blogId, '_id featuredImagePublicId');
 
   if (!blog) {
     res.status(404);
     throw new Error('Blog not found');
   }
 
+  await destroyFeaturedImage(blog.featuredImagePublicId);
   await Blog.deleteOne({ _id: blog._id });
   await BlogComment.deleteMany({ blog: blog._id }).catch(() => {});
 
@@ -525,6 +681,7 @@ const deleteAdminBlog = asyncHandler(async (req, res) => {
 
 module.exports = {
   createBlog,
+  updateBlog,
   getBlogs,
   getBlogBySlug,
   listBlogComments,

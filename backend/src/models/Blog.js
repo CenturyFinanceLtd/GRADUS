@@ -39,6 +39,10 @@ const blogSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    featuredImagePublicId: {
+      type: String,
+      trim: true,
+    },
     author: {
       type: String,
       trim: true,

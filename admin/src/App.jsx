@@ -93,6 +93,7 @@ const GalleryHoverPage = lazy(() => import("./pages/GalleryHoverPage"));
 const BlogPage = lazy(() => import("./pages/BlogPage"));
 const BlogDetailsPage = lazy(() => import("./pages/BlogDetailsPage"));
 const AddBlogPage = lazy(() => import("./pages/AddBlogPage"));
+const EditBlogPage = lazy(() => import("./pages/EditBlogPage"));
 const TestimonialsPage = lazy(() => import("./pages/TestimonialsPage"));
 const ComingSoonPage = lazy(() => import("./pages/ComingSoonPage"));
 const AccessDeniedPage = lazy(() => import("./pages/AccessDeniedPage"));
@@ -171,6 +172,7 @@ function App() {
         <Route exact path='/blog/:blogId' element={<BlogDetailsPage />} />
         <Route exact path='/blog-details/:blogId' element={<BlogDetailsPage />} />
         <Route exact path='/add-blog' element={<AddBlogPage />} />
+        <Route exact path='/edit-blog/:blogId' element={<EditBlogPage />} />
         <Route exact path='/inquiries' element={<InquiryPage />} />
         <Route exact path='/tickets' element={<TicketsPage />} />
         <Route exact path='/ticket/:id' element={<TicketDetailsPage />} />

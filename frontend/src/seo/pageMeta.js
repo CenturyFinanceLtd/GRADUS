@@ -37,25 +37,11 @@ export const PAGE_META = {
     description:
       " Stay updated with Gradus India’s blog — your go-to source for online course guides, tutoring techniques, EdTech innovations, and student learning resources.",
   },
-  "/blog-classic": {
-    title: "Gradus | Blog Classic",
-    description:
-      "Read featured Gradus editorials and announcements in a classic journal layout.",
-    keywords: "gradus blog classic, education insights, announcements",
-    robots: "noindex, nofollow",
-  },
   "/blog-details": {
     title: "Gradus | Blog Details",
     description:
       "Dive into individual Gradus stories with in-depth commentary and expert perspectives.",
     keywords: "gradus article, education story, detailed post",
-  },
-  "/blog-list": {
-    title: "Gradus | Blog List",
-    description:
-      "Browse curated Gradus posts designed to inspire students, mentors, and institutions.",
-    keywords: "gradus blog list, education articles",
-    robots: "noindex, nofollow",
   },
   "/book-online-class": {
     title: "Gradus | Book Online Class",

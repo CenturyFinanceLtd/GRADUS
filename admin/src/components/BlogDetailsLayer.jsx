@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from 'prop-types';
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
 import useAuth from "../hook/useAuth";
 import {
@@ -25,7 +25,7 @@ const formatDateTime = (value) => {
   return date.toLocaleString();
 };
 
-const BlogDetailsLayer = ({ onBlogLoaded }) => {
+const BlogDetailsLayer = ({ onBlogLoaded = undefined }) => {
   const { blogId } = useParams();
   const { token } = useAuth();
   const [blog, setBlog] = useState(null);
@@ -321,6 +321,12 @@ const BlogDetailsLayer = ({ onBlogLoaded }) => {
               </li>
             </ul>
             <div className='d-flex gap-12 mt-24'>
+              <Link
+                to={'/edit-blog/' + blog.id}
+                className='btn btn-primary-600 radius-8 flex-grow-1'
+              >
+                Edit Blog
+              </Link>
               <a
                 href={PUBLIC_SITE_BASE + '/blogs/' + blog.slug}
                 target='_blank'
@@ -380,10 +386,6 @@ const BlogDetailsLayer = ({ onBlogLoaded }) => {
       </div>
     </div>
   );
-};
-
-BlogDetailsLayer.defaultProps = {
-  onBlogLoaded: undefined,
 };
 
 BlogDetailsLayer.propTypes = {

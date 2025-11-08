@@ -58,6 +58,13 @@ export const deleteBlog = ({ blogId, token }) =>
     token,
   });
 
+export const updateBlog = ({ blogId, token, data }) =>
+  apiClient('/admin/blogs/' + blogId, {
+    method: 'PUT',
+    data,
+    token,
+  });
+
 export default {
   createBlog,
   fetchBlogs,
@@ -66,4 +73,5 @@ export default {
   replyToBlogComment,
   deleteBlogComment,
   deleteBlog,
+  updateBlog,
 };

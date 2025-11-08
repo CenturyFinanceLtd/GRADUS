@@ -14,9 +14,7 @@ import HomePageOne from "./pages/HomePageOne";
 import AboutPage from "./pages/AboutPage.jsx";
 import ApplyAdmissionPage from "./pages/ApplyAdmissionPage.jsx";
 import BlogPage from "./pages/BlogPage.jsx";
-import BlogClassicPage from "./pages/BlogClassicPage.jsx";
 import BlogDetailsPage from "./pages/BlogDetailsPage.jsx";
-import BlogListPage from "./pages/BlogListPage.jsx";
 import BookOnlineClassPage from "./pages/BookOnlineClassPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
@@ -76,9 +74,7 @@ function App() {
         <Route exact path='/know-CFL' element={<KnowCFLPage />} />
         <Route exact path='/apply-admission' element={<ApplyAdmissionPage />} />
         <Route exact path='/blogs' element={<BlogPage />} />
-        <Route exact path='/blog-classic' element={<BlogClassicPage />} />
         <Route exact path='/blogs/:slug' element={<BlogDetailsPage />} />
-        <Route exact path='/blog-list' element={<BlogListPage />} />
         <Route
           exact
           path='/book-online-class'

@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import PropTypes from "prop-types";
 import { Editor } from "@tinymce/tinymce-react";
 import { Link } from "react-router-dom";
 import useAuth from "../hook/useAuth";
-import { createBlog } from "../services/adminBlogs";
+import { createBlog, fetchBlogDetails, fetchBlogs, updateBlog } from "../services/adminBlogs";
+import { ASSET_BASE_URL, PUBLIC_SITE_BASE } from "../config/env";
 
 const slugifyTitle = (input) => {
   if (!input) {
@@ -24,55 +26,40 @@ const tinyPlugins = [
   "anchor",
   "autolink",
   "charmap",
+  "code",
   "codesample",
   "emoticons",
+  "fullscreen",
+  "help",
+  "image",
+  "insertdatetime",
   "link",
   "lists",
   "media",
+  "preview",
+  "quickbars",
   "searchreplace",
   "table",
   "visualblocks",
   "wordcount",
-  "checklist",
-  "mediaembed",
-  "casechange",
-  "formatpainter",
-  "pageembed",
-  "a11ychecker",
-  "tinymcespellchecker",
-  "permanentpen",
-  "powerpaste",
-  "advtable",
-  "advcode",
-  "advtemplate",
-  "ai",
-  "uploadcare",
-  "mentions",
-  "tinycomments",
-  "tableofcontents",
-  "footnotes",
-  "mergetags",
-  "autocorrect",
-  "typography",
-  "inlinecss",
-  "markdown",
-  "importword",
-  "exportword",
-  "exportpdf",
 ];
 
 const tinyToolbar = [
   "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough",
-  "| link media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography uploadcare",
-  "| align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+  "| link image media table | align lineheight | numlist bullist indent outdent",
+  "| emoticons charmap insertdatetime | code preview fullscreen | removeformat",
 ].join(" ");
 
-const mergeTags = [
-  { value: "First.Name", title: "First Name" },
-  { value: "Email", title: "Email" },
-];
+const resolveImagePath = (path) => {
+  if (!path) {
+    return null;
+  }
+  return path.startsWith("http") ? path : `${ASSET_BASE_URL}${path}`;
+};
+const FALLBACK_IMAGE = "/assets/images/blog/blog-placeholder.png";
 
-const AddBlogLayer = () => {
+const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
+  const isEditMode = mode === "edit";
   const { token, admin } = useAuth();
   const defaultAuthor = admin?.fullName || admin?.name || admin?.displayName || admin?.email || "Admin";
   const [title, setTitle] = useState("");
@@ -83,9 +70,18 @@ const AddBlogLayer = () => {
   const [tagsInput, setTagsInput] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+  const [existingImageUrl, setExistingImageUrl] = useState(null);
+  const [removeExistingImage, setRemoveExistingImage] = useState(false);
   const [content, setContent] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null);
+  const [loadingBlog, setLoadingBlog] = useState(isEditMode);
+  const [loadError, setLoadError] = useState(null);
+  const [loadVersion, setLoadVersion] = useState(0);
+  const [recentBlogs, setRecentBlogs] = useState([]);
+  const [recentLoading, setRecentLoading] = useState(false);
+  const [recentError, setRecentError] = useState(null);
   const editorRef = useRef(null);
 
   useEffect(
@@ -103,12 +99,19 @@ const AddBlogLayer = () => {
     setSlug(slugifyTitle(nextTitle));
   };
 
-  const handleFileChange = (event) => {
-    if (!event.target.files || event.target.files.length === 0) {
+  const applySelectedFile = (file) => {
+    if (!file) {
       return;
     }
 
-    const file = event.target.files[0];
+    if (!file.type?.startsWith("image/")) {
+      setFeedback({
+        type: "error",
+        message: "Only image files are supported for thumbnails.",
+      });
+      return;
+    }
+
     if (imagePreview) {
       URL.revokeObjectURL(imagePreview);
     }
@@ -116,6 +119,17 @@ const AddBlogLayer = () => {
     const previewUrl = URL.createObjectURL(file);
     setImagePreview(previewUrl);
     setImageFile(file);
+    setRemoveExistingImage(false);
+  };
+
+  const handleFileChange = (event) => {
+    if (!event.target.files || event.target.files.length === 0) {
+      return;
+    }
+
+    applySelectedFile(event.target.files[0]);
+    // Reset the input so dropping the same file again still triggers change
+    event.target.value = "";
   };
 
   const handleRemoveImage = () => {
@@ -124,11 +138,155 @@ const AddBlogLayer = () => {
     }
     setImagePreview(null);
     setImageFile(null);
+    if (!imagePreview && existingImageUrl) {
+      setExistingImageUrl(null);
+      if (isEditMode) {
+        setRemoveExistingImage(true);
+      }
+    }
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!isDragging) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.currentTarget.contains(event.relatedTarget)) {
+      return;
+    }
+    setIsDragging(false);
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragging(false);
+    const files = event.dataTransfer?.files;
+    if (!files || files.length === 0) {
+      return;
+    }
+    applySelectedFile(files[0]);
+  };
+
+  const handleReloadBlog = () => {
+    if (!isEditMode || submitting) {
+      return;
+    }
+    setLoadVersion((value) => value + 1);
   };
 
   useEffect(() => {
-    setAuthor(defaultAuthor);
-  }, [defaultAuthor]);
+    if (!isEditMode) {
+      setAuthor(defaultAuthor);
+    }
+  }, [defaultAuthor, isEditMode]);
+
+  useEffect(() => {
+    if (!isEditMode) {
+      return;
+    }
+
+    if (!blogId) {
+      setLoadError("Blog ID is required to edit this post.");
+      setLoadingBlog(false);
+      return;
+    }
+
+    if (!token) {
+      setLoadError("Authentication is required to edit this blog post.");
+      setLoadingBlog(false);
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadBlog = async () => {
+      setLoadingBlog(true);
+      setLoadError(null);
+
+      try {
+        const response = await fetchBlogDetails({ blogId, token });
+        if (!isMounted) {
+          return;
+        }
+        const currentBlog = response?.blog;
+        if (!currentBlog) {
+          throw new Error("Blog not found");
+        }
+        setTitle(currentBlog.title || "");
+        setSlug(currentBlog.slug || "");
+        setAuthor(currentBlog.author || defaultAuthor);
+        setCategory(currentBlog.category || "");
+        setExcerpt(currentBlog.excerpt || "");
+        setTagsInput((currentBlog.tags || []).join(", "));
+        setContent(currentBlog.content || "");
+        setExistingImageUrl(resolveImagePath(currentBlog.featuredImage));
+        setRemoveExistingImage(false);
+        if (editorRef.current) {
+          editorRef.current.setContent(currentBlog.content || "");
+        }
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+        setLoadError(error?.message || "Failed to load blog details.");
+      } finally {
+        if (isMounted) {
+          setLoadingBlog(false);
+        }
+      }
+    };
+
+    loadBlog();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [blogId, isEditMode, loadVersion, token]);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+
+    let isMounted = true;
+    setRecentLoading(true);
+    setRecentError(null);
+
+    const loadRecent = async () => {
+      try {
+        const response = await fetchBlogs({ token });
+        if (!isMounted) {
+          return;
+        }
+        const items = response?.items || [];
+        const filtered = isEditMode && blogId ? items.filter((blog) => blog.id !== blogId) : items;
+        setRecentBlogs(filtered.slice(0, 6));
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+        setRecentError(error?.message || "Failed to load latest posts.");
+        setRecentBlogs([]);
+      } finally {
+        if (isMounted) {
+          setRecentLoading(false);
+        }
+      }
+    };
+
+    loadRecent();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [blogId, isEditMode, token]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -153,7 +311,15 @@ const AddBlogLayer = () => {
     if (!token) {
       setFeedback({
         type: "error",
-        message: "Authentication is required to create a blog post.",
+        message: isEditMode ? "Authentication is required to update this post." : "Authentication is required to create a blog post.",
+      });
+      return;
+    }
+
+    if (isEditMode && !blogId) {
+      setFeedback({
+        type: "error",
+        message: "Missing blog identifier. Please reload the page.",
       });
       return;
     }
@@ -175,43 +341,88 @@ const AddBlogLayer = () => {
       formData.append("category", category.trim());
       formData.append("content", htmlContent);
       formData.append("author", normalizedAuthor);
-      if (normalizedTags.length > 0) {
-        formData.append("tags", JSON.stringify(normalizedTags));
-      }
-      if (excerpt.trim()) {
+
+      if (isEditMode || excerpt.trim()) {
         formData.append("excerpt", excerpt.trim());
       }
-      if (imageFile) {
-        formData.append("featuredImage", imageFile);
+
+      if (normalizedTags.length > 0 || isEditMode) {
+        formData.append("tags", JSON.stringify(normalizedTags));
       }
 
-      await createBlog({ token, data: formData });
+      if (imageFile) {
+        formData.append("featuredImage", imageFile);
+      } else if (isEditMode && removeExistingImage) {
+        formData.append("removeFeaturedImage", "true");
+      }
+
+      const response = isEditMode
+        ? await updateBlog({ blogId, token, data: formData })
+        : await createBlog({ token, data: formData });
 
       setFeedback({
         type: "success",
-        message: "Blog post created successfully.",
+        message: isEditMode ? "Blog post updated successfully." : "Blog post created successfully.",
       });
 
-      setTitle("");
-      setSlug("");
-      setAuthor(defaultAuthor);
-      setCategory("");
-      setExcerpt("");
-      setTagsInput("");
-      setContent("");
-      handleRemoveImage();
-      if (editor) {
-        editor.setContent("");
+      if (isEditMode) {
+        const updatedBlog = response?.blog;
+        if (updatedBlog) {
+          setTitle(updatedBlog.title || "");
+          setSlug(updatedBlog.slug || "");
+          setAuthor(updatedBlog.author || defaultAuthor);
+          setCategory(updatedBlog.category || "");
+          setExcerpt(updatedBlog.excerpt || "");
+          setTagsInput((updatedBlog.tags || []).join(", "));
+          setContent(updatedBlog.content || "");
+          setExistingImageUrl(resolveImagePath(updatedBlog.featuredImage));
+          setRemoveExistingImage(false);
+          if (editor) {
+            editor.setContent(updatedBlog.content || "");
+          }
+        }
+        if (imagePreview) {
+          URL.revokeObjectURL(imagePreview);
+        }
+        setImagePreview(null);
+        setImageFile(null);
+      } else {
+        if (editor) {
+          editor.setContent("");
+        }
+        if (imagePreview) {
+          URL.revokeObjectURL(imagePreview);
+        }
+        setTitle("");
+        setSlug("");
+        setAuthor(defaultAuthor);
+        setCategory("");
+        setExcerpt("");
+        setTagsInput("");
+        setContent("");
+        setImagePreview(null);
+        setImageFile(null);
+        setExistingImageUrl(null);
+        setRemoveExistingImage(false);
       }
     } catch (error) {
       setFeedback({
         type: "error",
-        message: error.message || "Failed to create blog post.",
+        message: error.message || (isEditMode ? "Failed to update blog post." : "Failed to create blog post."),
       });
     } finally {
       setSubmitting(false);
     }
   };
+
+  const displayedImage = imagePreview || existingImageUrl;
+  const dropZoneClassName = [
+    "upload-file h-160-px w-100 border input-form-light radius-8 overflow-hidden border-dashed bg-neutral-50 bg-hover-neutral-200 d-flex align-items-center flex-column justify-content-center gap-1 text-center px-16",
+    isDragging ? "border-primary-600 bg-primary-50 text-primary-600" : "",
+    submitting ? "opacity-75" : "",
+  ]
+    .join(" ")
+    .trim();
 
   const alertClass = feedback
     ? feedback.type === "success"
@@ -223,176 +434,202 @@ const AddBlogLayer = () => {
     <div className='row gy-4'>
       <div className='col-lg-8'>
         <div className='card mt-24'>
-          <div className='card-header border-bottom'>
-            <h6 className='text-xl mb-0'>Add New Post</h6>
+        <div className='card-header border-bottom'>
+            <h6 className='text-xl mb-0'>{isEditMode ? "Edit Post" : "Add New Post"}</h6>
           </div>
           <div className='card-body p-24'>
-            <form className='d-flex flex-column gap-20' onSubmit={handleSubmit} noValidate>
-              {feedback ? (
-                <div className={alertClass} role='alert'>
-                  {feedback.message}
+            {isEditMode && loadingBlog ? (
+              <div className='d-flex justify-content-center py-5'>
+                <div className='spinner-border text-primary' role='status'>
+                  <span className='visually-hidden'>Loading...</span>
                 </div>
-              ) : null}
-              <div>
-                <label className='form-label fw-bold text-neutral-900' htmlFor='title'>
-                  Post Title:{" "}
-                </label>
-                <input
-                  type='text'
-                  className='form-control border border-neutral-200 radius-8'
-                  id='title'
-                  placeholder='Enter Post Title'
-                  value={title}
-                  onChange={handleTitleChange}
-                  disabled={submitting}
-                  required
-                />
               </div>
-              <div>
-                <label className='form-label fw-bold text-neutral-900' htmlFor='slug'>
-                  Post Slug:
-                </label>
-                <input
-                  type='text'
-                  className='form-control border border-neutral-200 radius-8'
-                  id='slug'
-                  value={slug}
-                  readOnly
-                />
+            ) : loadError ? (
+              <div className='alert alert-danger d-flex flex-wrap gap-12 align-items-center' role='alert'>
+                <span className='flex-grow-1'>{loadError}</span>
+                {isEditMode ? (
+                  <button
+                    type='button'
+                    className='btn btn-sm btn-outline-primary'
+                    onClick={handleReloadBlog}
+                    disabled={submitting}
+                  >
+                    Retry
+                  </button>
+                ) : null}
               </div>
-              <div>
-                <label className='form-label fw-bold text-neutral-900' htmlFor='author'>
-                  Author
-                </label>
-                <input
-                  type='text'
-                  className='form-control border border-neutral-200 radius-8'
-                  id='author'
-                  placeholder='Enter author name'
-                  value={author}
-                  onChange={(event) => setAuthor(event.target.value)}
-                  disabled={submitting}
-                  required
-                />
-              </div>
-              <div>
-                <label className='form-label fw-bold text-neutral-900' htmlFor='category'>
-                  Post Category:
-                </label>
-                <input
-                  type='text'
-                  className='form-control border border-neutral-200 radius-8'
-                  id='category'
-                  placeholder='Enter Category'
-                  value={category}
-                  onChange={(event) => setCategory(event.target.value)}
-                  disabled={submitting}
-                  required
-                />
-              </div>
-              <div>
-                <label className='form-label fw-bold text-neutral-900' htmlFor='excerpt'>
-                  Short Description
-                </label>
-                <textarea
-                  className='form-control border border-neutral-200 radius-8'
-                  id='excerpt'
-                  placeholder='Enter a short description (optional)'
-                  rows={3}
-                  value={excerpt}
-                  onChange={(event) => setExcerpt(event.target.value)}
-                  disabled={submitting}
-                />
-              </div>
-              <div>
-                <label className='form-label fw-bold text-neutral-900' htmlFor='tags'>
-                  Tags
-                </label>
-                <input
-                  type='text'
-                  className='form-control border border-neutral-200 radius-8'
-                  id='tags'
-                  placeholder='Add tags separated by commas (e.g. #tag1, #tag2)'
-                  value={tagsInput}
-                  onChange={(event) => setTagsInput(event.target.value)}
-                  disabled={submitting}
-                />
-              </div>
-              <div>
-                <label className='form-label fw-bold text-neutral-900'>
-                  Post Content
-                </label>
-                <div className='border border-neutral-200 radius-8 overflow-hidden'>
-                  <Editor
-                    apiKey='81qrnbgkcadey6vzliszp67sut8lreadzvfkpdicpi2sw8ez'
-                    onInit={(_evt, editor) => {
-                      editorRef.current = editor;
-                    }}
-                    value={content}
-                    onEditorChange={(value) => setContent(value)}
-                    init={{
-                      plugins: tinyPlugins,
-                      toolbar: tinyToolbar,
-                      tinycomments_mode: "embedded",
-                      tinycomments_author: "Author name",
-                      mergetags_list: mergeTags,
-                      ai_request: (request, respondWith) =>
-                        respondWith.string(() =>
-                          Promise.reject("See docs to implement AI Assistant")
-                        ),
-                      uploadcare_public_key: "584aeef27549301d757a",
-                    }}
+            ) : (
+              <form className='d-flex flex-column gap-20' onSubmit={handleSubmit} noValidate>
+                {feedback ? (
+                  <div className={alertClass} role='alert'>
+                    {feedback.message}
+                  </div>
+                ) : null}
+                <div>
+                  <label className='form-label fw-bold text-neutral-900' htmlFor='title'>
+                    Post Title:{" "}
+                  </label>
+                  <input
+                    type='text'
+                    className='form-control border border-neutral-200 radius-8'
+                    id='title'
+                    placeholder='Enter Post Title'
+                    value={title}
+                    onChange={handleTitleChange}
+                    disabled={submitting}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className='form-label fw-bold text-neutral-900' htmlFor='slug'>
+                    Post Slug:
+                  </label>
+                  <input
+                    type='text'
+                    className='form-control border border-neutral-200 radius-8'
+                    id='slug'
+                    value={slug}
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className='form-label fw-bold text-neutral-900' htmlFor='author'>
+                    Author
+                  </label>
+                  <input
+                    type='text'
+                    className='form-control border border-neutral-200 radius-8'
+                    id='author'
+                    placeholder='Enter author name'
+                    value={author}
+                    onChange={(event) => setAuthor(event.target.value)}
+                    disabled={submitting}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className='form-label fw-bold text-neutral-900' htmlFor='category'>
+                    Post Category:
+                  </label>
+                  <input
+                    type='text'
+                    className='form-control border border-neutral-200 radius-8'
+                    id='category'
+                    placeholder='Enter Category'
+                    value={category}
+                    onChange={(event) => setCategory(event.target.value)}
+                    disabled={submitting}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className='form-label fw-bold text-neutral-900' htmlFor='excerpt'>
+                    Short Description
+                  </label>
+                  <textarea
+                    className='form-control border border-neutral-200 radius-8'
+                    id='excerpt'
+                    placeholder='Enter a short description (optional)'
+                    rows={3}
+                    value={excerpt}
+                    onChange={(event) => setExcerpt(event.target.value)}
                     disabled={submitting}
                   />
                 </div>
-              </div>
-              <div>
-                <label className='form-label fw-bold text-neutral-900'>
-                  Upload Thumbnail
-                </label>
-                <div className='upload-image-wrapper'>
-                  {imagePreview ? (
-                    <div className='uploaded-img position-relative h-160-px w-100 border input-form-light radius-8 overflow-hidden border-dashed bg-neutral-50'>
-                      <button
-                        type='button'
-                        className='uploaded-img__remove position-absolute top-0 end-0 z-1 text-2xxl line-height-1 me-8 mt-8 d-flex bg-danger-600 w-40-px h-40-px justify-content-center align-items-center rounded-circle'
-                        onClick={handleRemoveImage}
-                        disabled={submitting}
-                      >
-                        <iconify-icon icon='radix-icons:cross-2' className='text-2xl text-white'></iconify-icon>
-                      </button>
-                      <img
-                        id='uploaded-img__preview'
-                        className='w-100 h-100 object-fit-cover'
-                        src={imagePreview}
-                        alt='Uploaded'
-                      />
-                    </div>
-                  ) : (
-                    <label
-                      className='upload-file h-160-px w-100 border input-form-light radius-8 overflow-hidden border-dashed bg-neutral-50 bg-hover-neutral-200 d-flex align-items-center flex-column justify-content-center gap-1'
-                      htmlFor='upload-file'
-                    >
-                      <iconify-icon icon='solar:camera-outline' className='text-xl text-secondary-light'></iconify-icon>
-                      <span className='fw-semibold text-secondary-light'>
-                        Upload
-                      </span>
-                      <input
-                        id='upload-file'
-                        type='file'
-                        hidden
-                        accept='image/*'
-                        onChange={handleFileChange}
-                        disabled={submitting}
-                      />
-                    </label>
-                  )}
+                <div>
+                  <label className='form-label fw-bold text-neutral-900' htmlFor='tags'>
+                    Tags
+                  </label>
+                  <input
+                    type='text'
+                    className='form-control border border-neutral-200 radius-8'
+                    id='tags'
+                    placeholder='Add tags separated by commas (e.g. #tag1, #tag2)'
+                    value={tagsInput}
+                    onChange={(event) => setTagsInput(event.target.value)}
+                    disabled={submitting}
+                  />
                 </div>
-              </div>
-              <button type='submit' className='btn btn-primary-600 radius-8' disabled={submitting}>
-                {submitting ? "Submitting..." : "Submit"}
-              </button>
-            </form>
+                <div>
+                  <label className='form-label fw-bold text-neutral-900'>
+                    Post Content
+                  </label>
+                  <div className='border border-neutral-200 radius-8 overflow-hidden'>
+                    <Editor
+                      apiKey='81qrnbgkcadey6vzliszp67sut8lreadzvfkpdicpi2sw8ez'
+                      onInit={(_evt, editor) => {
+                        editorRef.current = editor;
+                      }}
+                      value={content}
+                      onEditorChange={(value) => setContent(value)}
+                    init={{
+                      plugins: tinyPlugins,
+                      toolbar: tinyToolbar,
+                      toolbar_mode: "sliding",
+                      quickbars_insert_toolbar: false,
+                      branding: false,
+                    }}
+                      disabled={submitting}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className='form-label fw-bold text-neutral-900'>
+                    Upload Thumbnail
+                  </label>
+                  <div className='upload-image-wrapper'>
+                    {displayedImage ? (
+                      <div className='uploaded-img position-relative h-160-px w-100 border input-form-light radius-8 overflow-hidden border-dashed bg-neutral-50'>
+                        <button
+                          type='button'
+                          className='uploaded-img__remove position-absolute top-0 end-0 z-1 text-2xxl line-height-1 me-8 mt-8 d-flex bg-danger-600 w-40-px h-40-px justify-content-center align-items-center rounded-circle'
+                          onClick={handleRemoveImage}
+                          disabled={submitting}
+                        >
+                          <iconify-icon icon='radix-icons:cross-2' className='text-2xl text-white'></iconify-icon>
+                        </button>
+                        <img
+                          id='uploaded-img__preview'
+                          className='w-100 h-100 object-fit-cover'
+                          src={displayedImage}
+                          alt='Uploaded'
+                        />
+                      </div>
+                    ) : (
+                      <label
+                        className={dropZoneClassName}
+                        htmlFor='upload-file'
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                      >
+                        <iconify-icon
+                          icon='solar:camera-outline'
+                          className={isDragging ? "text-xl" : "text-xl text-secondary-light"}
+                        ></iconify-icon>
+                        <span className='fw-semibold'>
+                          {isDragging ? "Drop image to upload" : "Click or drag an image here"}
+                        </span>
+                        <small className='text-neutral-500'>
+                          JPG, PNG, or WebP up to 5MB
+                        </small>
+                        <input
+                          id='upload-file'
+                          type='file'
+                          hidden
+                          accept='image/*'
+                          onChange={handleFileChange}
+                          disabled={submitting}
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
+                <button type='submit' className='btn btn-primary-600 radius-8' disabled={submitting}>
+                  {submitting ? (isEditMode ? "Saving..." : "Submitting...") : isEditMode ? "Save Changes" : "Submit"}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>
@@ -405,120 +642,45 @@ const AddBlogLayer = () => {
               <h6 className='text-xl mb-0'>Latest Posts</h6>
             </div>
             <div className='card-body d-flex flex-column gap-24 p-24'>
-              <div className='d-flex flex-wrap'>
-                <Link to='/blog-details' className='blog__thumb w-100 radius-12 overflow-hidden'>
-                  <img
-                    src='assets/images/blog/blog1.png'
-                    alt='Gradus'
-                    className='w-100 h-100 object-fit-cover'
-                  />
-                </Link>
-                <div className='blog__content'>
-                  <h6 className='mb-8'>
-                    <Link to='/blog-details' className='text-line-2 text-hover-primary-600 text-md transition-2'>
-                      How to hire a right business executive for your company
-                    </Link>
-                  </h6>
-                  <p className='text-line-2 text-sm text-neutral-500 mb-0'>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis dolores explicabo corrupti, fuga necessitatibus fugiat adipisci quidem eveniet enim minus.
-                  </p>
+              {recentLoading ? (
+                <div className='d-flex justify-content-center py-32'>
+                  <div className='spinner-border text-primary' role='status'>
+                    <span className='visually-hidden'>Loading...</span>
+                  </div>
                 </div>
-              </div>
-              <div className='d-flex flex-wrap'>
-                <Link to='/blog-details' className='blog__thumb w-100 radius-12 overflow-hidden'>
-                  <img
-                    src='assets/images/blog/blog2.png'
-                    alt='Gradus'
-                    className='w-100 h-100 object-fit-cover'
-                  />
-                </Link>
-                <div className='blog__content'>
-                  <h6 className='mb-8'>
-                    <Link to='/blog-details' className='text-line-2 text-hover-primary-600 text-md transition-2'>
-                      The Gig Economy: Adapting to a Flexible Workforce
-                    </Link>
-                  </h6>
-                  <p className='text-line-2 text-sm text-neutral-500 mb-0'>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis dolores explicabo corrupti, fuga necessitatibus fugiat adipisci quidem eveniet enim minus.
-                  </p>
-                </div>
-              </div>
-              <div className='d-flex flex-wrap'>
-                <Link to='/blog-details' className='blog__thumb w-100 radius-12 overflow-hidden'>
-                  <img
-                    src='assets/images/blog/blog3.png'
-                    alt='Gradus'
-                    className='w-100 h-100 object-fit-cover'
-                  />
-                </Link>
-                <div className='blog__content'>
-                  <h6 className='mb-8'>
-                    <Link to='/blog-details' className='text-line-2 text-hover-primary-600 text-md transition-2'>
-                      The Future of Remote Work: Strategies for Success
-                    </Link>
-                  </h6>
-                  <p className='text-line-2 text-sm text-neutral-500 mb-0'>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis dolores explicabo corrupti, fuga necessitatibus fugiat adipisci quidem eveniet enim minus.
-                  </p>
-                </div>
-              </div>
-              <div className='d-flex flex-wrap'>
-                <Link to='/blog-details' className='blog__thumb w-100 radius-12 overflow-hidden'>
-                  <img
-                    src='assets/images/blog/blog4.png'
-                    alt='Gradus'
-                    className='w-100 h-100 object-fit-cover'
-                  />
-                </Link>
-                <div className='blog__content'>
-                  <h6 className='mb-8'>
-                    <Link to='/blog-details' className='text-line-2 text-hover-primary-600 text-md transition-2'>
-                      Lorem ipsum dolor sit amet consectetur adipisicing.
-                    </Link>
-                  </h6>
-                  <p className='text-line-2 text-sm text-neutral-500 mb-0'>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis dolores explicabo corrupti, fuga necessitatibus fugiat adipisci quidem eveniet enim minus.
-                  </p>
-                </div>
-              </div>
-              <div className='d-flex flex-wrap'>
-                <Link to='/blog-details' className='blog__thumb w-100 radius-12 overflow-hidden'>
-                  <img
-                    src='assets/images/blog/blog5.png'
-                    alt='Gradus'
-                    className='w-100 h-100 object-fit-cover'
-                  />
-                </Link>
-                <div className='blog__content'>
-                  <h6 className='mb-8'>
-                    <Link to='/blog-details' className='text-line-2 text-hover-primary-600 text-md transition-2'>
-                      How to hire a right business executive for your company
-                    </Link>
-                  </h6>
-                  <p className='text-line-2 text-sm text-neutral-500 mb-0'>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis dolores explicabo corrupti, fuga necessitatibus fugiat adipisci quidem eveniet enim minus.
-                  </p>
-                </div>
-              </div>
-              <div className='d-flex flex-wrap'>
-                <Link to='/blog-details' className='blog__thumb w-100 radius-12 overflow-hidden'>
-                  <img
-                    src='assets/images/blog/blog6.png'
-                    alt='Gradus'
-                    className='w-100 h-100 object-fit-cover'
-                  />
-                </Link>
-                <div className='blog__content'>
-                  <h6 className='mb-8'>
-                    <Link to='/blog-details' className='text-line-2 text-hover-primary-600 text-md transition-2'>
-                      The Gig Economy: Adapting to a Flexible Workforce
-                    </Link>
-                  </h6>
-                  <p className='text-line-2 text-sm text-neutral-500 mb-0'>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis dolores explicabo corrupti, fuga necessitatibus fugiat adipisci quidem eveniet enim minus.
-                  </p>
-                </div>
-              </div>
+              ) : recentError ? (
+                <div className='alert alert-danger mb-0'>{recentError}</div>
+              ) : recentBlogs.length === 0 ? (
+                <div className='alert alert-info mb-0'>No other posts found.</div>
+              ) : (
+                recentBlogs.map((blog) => {
+                  const previewImage = resolveImagePath(blog.featuredImage) || FALLBACK_IMAGE;
+                  const publicUrl = (PUBLIC_SITE_BASE || '') + '/blogs/' + blog.slug;
+                  return (
+                    <div className='d-flex align-items-start gap-12 p-12 radius-12 border border-neutral-50 bg-neutral-10' key={blog.id}>
+                      <a
+                        href={publicUrl}
+                        target='_blank'
+                        rel='noreferrer'
+                        className='blog__thumb overflow-hidden flex-shrink-0 rounded-12'
+                        style={{ width: '96px', height: '96px' }}
+                      >
+                        <img src={previewImage} alt={blog.title} className='w-100 h-100 object-fit-cover' />
+                      </a>
+                      <div className='blog__content flex-grow-1'>
+                        <h6 className='mb-8 text-lg'>
+                          <a href={publicUrl} target='_blank' rel='noreferrer' className='text-hover-primary-600 transition-2'>
+                            {blog.title}
+                          </a>
+                        </h6>
+                        <p className='text-sm text-neutral-500 mb-0 text-line-2'>
+                          {blog.excerpt || 'View blog details'}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
           <div className='card'>
@@ -559,6 +721,11 @@ const AddBlogLayer = () => {
       </div>
     </div>
   );
+};
+
+AddBlogLayer.propTypes = {
+  mode: PropTypes.oneOf(["create", "edit"]),
+  blogId: PropTypes.string,
 };
 
 export default AddBlogLayer;
