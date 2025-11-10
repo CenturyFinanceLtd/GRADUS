@@ -44,7 +44,7 @@ const InfoTwo = () => {
     <section className='info-two home-courses-overlap half-bg half-bg__70'>
       <div className='container'>
         <div className='home-courses-surface bg-white box-shadow-md rounded-16 p-24'>
-          <div className='d-flex align-items-center justify-content-between mb-20'>
+          <div className='d-flex align-items-center justify-content-between mb-5'>
             <div className='d-flex align-items-center gap-12'>
               <span className='badge-popular-courses'>Popular Courses</span>
             </div>

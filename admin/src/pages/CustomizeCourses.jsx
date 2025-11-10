@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import MasterLayout from '../masterLayout/MasterLayout';
 import { useAuthContext } from '../context/AuthContext';
 import {
@@ -110,6 +111,7 @@ const pretty = (obj) => JSON.stringify(obj, null, 2);
 
 const CustomizeCourses = () => {
   const { token } = useAuthContext();
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -117,11 +119,14 @@ const CustomizeCourses = () => {
   const [saving, setSaving] = useState(false);
   const [selectedSlug, setSelectedSlug] = useState('');
   const [imageUploading, setImageUploading] = useState(false);
+  const [imageUploadTarget, setImageUploadTarget] = useState('image');
   const [search, setSearch] = useState('');
   const [lastSync, setLastSync] = useState(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editorMode, setEditorMode] = useState('create');
   const imageInputRef = useRef(null);
+  const uploadingCoverImage = imageUploading && imageUploadTarget === 'image';
+  const uploadingBannerImage = imageUploading && imageUploadTarget === 'banner';
 
   useEffect(() => {
     document.body.style.overflow = editorOpen ? 'hidden' : '';
@@ -204,6 +209,19 @@ const CustomizeCourses = () => {
   const closeEditor = () => {
     if (!canDismissEditor) return;
     setEditorOpen(false);
+  };
+
+  const goToDetailedData = (course) => {
+    const slugValue = typeof course === 'string' ? course : course?.slug;
+    if (!slugValue) return;
+    const friendlySegment = (course?.name || course?.courseSlug || slugValue)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '') || 'course';
+    const search = `?slug=${encodeURIComponent(slugValue)}`;
+    navigate(`/customize-courses/${friendlySegment}/detailed-course-data${search}`, {
+      state: { courseName: course?.name || '', slug: slugValue },
+    });
   };
 
   const load = useCallback(async () => {
@@ -308,8 +326,9 @@ const CustomizeCourses = () => {
     }
   };
 
-  const triggerImageUpload = () => {
+  const triggerImageUpload = (target = 'image') => {
     if (imageUploading) return;
+    setImageUploadTarget(target);
     imageInputRef.current?.click();
   };
 
@@ -328,19 +347,45 @@ const CustomizeCourses = () => {
     }
   };
 
+  const insertBannerIntoJson = (uploaded) => {
+    try {
+      const obj = JSON.parse(jsonText || '{}');
+      obj.media = {
+        ...(obj.media || {}),
+        banner: {
+          ...(obj.media?.banner || {}),
+          url: uploaded?.url || '',
+          publicId: uploaded?.publicId || '',
+          width: uploaded?.width,
+          height: uploaded?.height,
+          format: uploaded?.format,
+        },
+      };
+      setJsonText(pretty(obj));
+    } catch (err) {
+      console.error('Failed to merge uploaded banner into JSON', err);
+      toast.error('Invalid JSON. Please fix JSON before inserting banner.');
+    }
+  };
+
   const onUploadImage = async (e) => {
     const file = e?.target?.files && e.target.files[0];
     if (!file) return;
     try {
       setImageUploading(true);
       const uploaded = await uploadImage({ file, token });
-      insertImageIntoJson(uploaded);
+      if (imageUploadTarget === 'banner') {
+        insertBannerIntoJson(uploaded);
+      } else {
+        insertImageIntoJson(uploaded);
+      }
       toast.success('Image uploaded');
     } catch (err) {
       const msg = err?.message || 'Upload failed';
       toast.error(msg);
     } finally {
       setImageUploading(false);
+      setImageUploadTarget('image');
       // reset input so same file can be reselected
       e.target.value = '';
     }
@@ -472,10 +517,20 @@ const CustomizeCourses = () => {
                           {it.slug}
                             </td>
                         <td className='text-end'>
-                          <div className='btn-group btn-group-sm'>
-                            <button
-                              type='button'
-                              className='btn btn-outline-primary'
+                              <div className='btn-group btn-group-sm'>
+                                <button
+                                  type='button'
+                                  className='btn btn-outline-info'
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    goToDetailedData(it);
+                                  }}
+                                >
+                                  Detailed
+                                </button>
+                                <button
+                                  type='button'
+                                  className='btn btn-outline-primary'
                               onClick={(event) => {
                                 event.stopPropagation();
                                 onSelectForEdit(it.slug);
@@ -508,7 +563,7 @@ const CustomizeCourses = () => {
                   </table>
                 </div>
                 <div className='mt-3 small text-muted border-top pt-3'>
-                  Tip: Use the Edit button to open the JSON editor modal. Nothing is displayed on the right panel anymore, so changes only happen inside the popup.
+                  Tip: Use <strong>Edit</strong> for the JSON modal, or <strong>Detailed</strong> to open the full module designer in a new view. All edits now happen through those dedicated surfaces.
                 </div>
               </div>
             </div>
@@ -542,10 +597,18 @@ const CustomizeCourses = () => {
               <button
                 type='button'
                 className='btn btn-sm btn-outline-primary'
-                onClick={triggerImageUpload}
+                onClick={() => triggerImageUpload('image')}
                 disabled={imageUploading}
               >
-                {imageUploading ? 'Uploading...' : 'Upload Image'}
+                {uploadingCoverImage ? 'Uploading cover...' : 'Upload Image'}
+              </button>
+              <button
+                type='button'
+                className='btn btn-sm btn-outline-primary'
+                onClick={() => triggerImageUpload('banner')}
+                disabled={imageUploading}
+              >
+                {uploadingBannerImage ? 'Uploading banner...' : 'Upload Banner'}
               </button>
               <button type='button' className='btn btn-sm btn-outline-dark' onClick={prettifyJson}>
                 Prettify JSON

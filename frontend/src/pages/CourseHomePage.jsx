@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import HeaderOne from "../components/HeaderOne";
 import FooterOne from "../components/FooterOne";
@@ -8,11 +8,14 @@ import { useAuth } from "../context/AuthContext";
 import { API_BASE_URL } from "../services/apiClient";
 
 const NAV_SECTIONS = [
-  { id: "assessments", label: "Assessments", slug: "assessments" },
-  { id: "notes", label: "Notes", slug: "notes" },
-  { id: "messages", label: "Messages", slug: "messages" },
-  { id: "resources", label: "Resources", slug: "resources" },
   { id: "info", label: "Course Info", slug: "course-info" },
+  { id: "module", label: "Course Module", slug: "module" },
+  { id: "resources", label: "Resources", slug: "resources" },
+  { id: "notes", label: "Notes", slug: "notes" },
+  { id: "assessments", label: "Assessments", slug: "assessments" },
+  { id: "messages", label: "Messages", slug: "messages" },
+  
+  
 ];
 
 const MODULE_SECTION_ID = "module";
@@ -45,6 +48,19 @@ const formatSlugText = (value = "") =>
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 
+const resolveImageUrl = (input) => {
+  if (!input) {
+    return "";
+  }
+  if (typeof input === "string") {
+    return input;
+  }
+  if (typeof input === "object") {
+    return input.url || input.src || input.path || "";
+  }
+  return "";
+};
+
 const toArray = (value) => {
   if (Array.isArray(value)) {
     return value.filter(Boolean);
@@ -72,10 +88,26 @@ const normalizeLectureItems = (items) => {
         const title = String(entry.title || entry.name || entry.label || "").trim();
         const duration = String(entry.duration || entry.length || entry.time || "").trim();
         const type = String(entry.type || entry.category || "").trim();
+        const videoUrl =
+          entry.videoUrl ||
+          entry.videoURL ||
+          entry.video?.url ||
+          entry.url ||
+          entry.src ||
+          entry.link ||
+          "";
+        const poster =
+          entry.poster ||
+          entry.thumbnail ||
+          entry.cover ||
+          entry.preview ||
+          entry.image ||
+          entry.video?.poster ||
+          "";
         if (!title) {
           return null;
         }
-        return { title, duration, type };
+        return { title, duration, type, videoUrl, poster };
       }
       return null;
     })
@@ -147,6 +179,535 @@ const normalizeWeeklyStructureBlocks = (module) => {
     .filter(Boolean);
 };
 
+const formatVideoTime = (seconds) => {
+  if (!Number.isFinite(seconds)) {
+    return "00:00";
+  }
+  const rounded = Math.max(seconds, 0);
+  const minutes = Math.floor(rounded / 60)
+    .toString()
+    .padStart(2, "0");
+  const secs = Math.floor(rounded % 60)
+    .toString()
+    .padStart(2, "0");
+  return `${minutes}:${secs}`;
+};
+
+const DEFAULT_VIDEO_SRC = "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+const AUTOPLAY_STORAGE_KEY = "gradus-course-autoplay";
+
+const CourseVideoPlaceholder = ({ banner }) => (
+  <div className='course-video-banner'>
+    <div
+      className='course-video-banner__media'
+      style={banner ? { backgroundImage: `url(${banner})` } : undefined}
+    />
+  </div>
+);
+
+const CourseVideoPlayer = ({
+  src = DEFAULT_VIDEO_SRC,
+  poster,
+  title,
+  subtitle,
+  autoPlayToken = 0,
+  onClose,
+  autoPlayEnabled = true,
+  onToggleAutoplay,
+  qualityOptions = [],
+  qualityPreference = "auto",
+  onQualityChange,
+  subtitleOptions = [],
+  subtitlePreference = "off",
+  onSubtitleChange,
+}) => {
+  const playerRef = useRef(null);
+  const videoRef = useRef(null);
+  const settingsRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(0.9);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [isSettingsOpen, setSettingsOpen] = useState(false);
+  const [settingsView, setSettingsView] = useState("root");
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPiP, setIsPiP] = useState(false);
+  const lastAutoPlayTokenRef = useRef(autoPlayToken);
+
+  const handleLoadedMetadata = () => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    setDuration(video.duration || 0);
+    video.volume = volume;
+    video.playbackRate = playbackRate;
+  };
+
+  const togglePlay = () => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    if (video.paused || video.ended) {
+      video.play();
+      setIsPlaying(true);
+    } else {
+      video.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    setCurrentTime(video.currentTime || 0);
+  };
+
+  const handleProgressChange = (event) => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    const nextTime = Number(event.target.value);
+    video.currentTime = nextTime;
+    setCurrentTime(nextTime);
+  };
+
+  const handleVolumeChange = (event) => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    const nextVolume = Number(event.target.value);
+    video.volume = nextVolume;
+    setVolume(nextVolume);
+  };
+
+  const handlePlaybackRateChange = (event) => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    const rate = Number(event.target.value);
+    video.playbackRate = rate;
+    setPlaybackRate(rate);
+  };
+
+  const handleEnded = () => {
+    setIsPlaying(false);
+    const video = videoRef.current;
+    if (video) {
+      video.currentTime = 0;
+    }
+  };
+
+  const handleSkip = (amount) => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    const next = Math.min(Math.max(video.currentTime + amount, 0), video.duration || video.currentTime);
+    video.currentTime = next;
+  };
+
+  const handleSettingsToggle = () => {
+    setSettingsOpen((prev) => !prev);
+    setSettingsView("root");
+  };
+
+  const handlePictureInPicture = async () => {
+    const video = videoRef.current;
+    if (!video || !document.pictureInPictureEnabled) {
+      return;
+    }
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+        setIsPiP(false);
+      } else {
+        await video.requestPictureInPicture();
+        setIsPiP(true);
+      }
+    } catch (error) {
+      console.error("Unable to toggle Picture-in-Picture", error);
+    }
+  };
+
+  const handleFullscreenToggle = async () => {
+    const node = playerRef.current;
+    if (!node) {
+      return;
+    }
+    try {
+      if (document.fullscreenElement === node) {
+        await document.exitFullscreen();
+      } else if (node.requestFullscreen) {
+        await node.requestFullscreen();
+      }
+    } catch (error) {
+      console.error("Unable to toggle fullscreen", error);
+    }
+  };
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    video.pause();
+    video.load();
+    setIsPlaying(false);
+    setCurrentTime(0);
+  }, [src]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    video.volume = volume;
+  }, [volume]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    video.playbackRate = playbackRate;
+  }, [playbackRate]);
+
+  useEffect(() => {
+    if (!autoPlayToken) {
+      lastAutoPlayTokenRef.current = autoPlayToken;
+      return;
+    }
+    if (lastAutoPlayTokenRef.current === autoPlayToken) {
+      return;
+    }
+    lastAutoPlayTokenRef.current = autoPlayToken;
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    const playPromise = video.play();
+    if (playPromise?.then) {
+      playPromise
+        .then(() => setIsPlaying(true))
+        .catch(() => setIsPlaying(false));
+    } else {
+      setIsPlaying(true);
+    }
+  }, [autoPlayToken, src]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!isSettingsOpen) {
+        return;
+      }
+      if (
+        settingsRef.current &&
+        !settingsRef.current.contains(event.target) &&
+        !event.target.closest(".course-video-player__settings-btn")
+      ) {
+        setSettingsOpen(false);
+        setSettingsView("root");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isSettingsOpen]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === playerRef.current);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  useEffect(() => {
+    const handleLeavePiP = () => setIsPiP(false);
+    document.addEventListener("leavepictureinpicture", handleLeavePiP);
+    return () => document.removeEventListener("leavepictureinpicture", handleLeavePiP);
+  }, []);
+
+  const handleClose = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+    setIsPlaying(false);
+    if (typeof onClose === "function") {
+      onClose();
+    }
+  };
+
+  const qualityLabel =
+    qualityOptions.find((option) => option.value === qualityPreference)?.label ||
+    qualityOptions[0]?.label ||
+    "Auto";
+  const subtitleLabel =
+    subtitleOptions.find((option) => option.value === subtitlePreference)?.label || "Off";
+
+  const renderSettingsContent = () => {
+    if (settingsView === "quality") {
+      const options = qualityOptions.length ? qualityOptions : [{ value: "auto", label: "Auto" }];
+      return (
+        <div className='course-video-player__settings-panel'>
+          <button
+            type='button'
+            className='course-video-player__settings-back'
+            onClick={() => setSettingsView("root")}
+          >
+            <i className='ph-bold ph-caret-left' aria-hidden='true' /> Quality
+          </button>
+          <div className='course-video-player__settings-list'>
+            {options.map((option) => {
+              const isActive = option.value === qualityPreference;
+              return (
+                <button
+                  type='button'
+                  key={option.value}
+                  className={`course-video-player__settings-item ${isActive ? "is-active" : ""}`}
+                  onClick={() => {
+                    onQualityChange?.(option.value);
+                    setSettingsView("root");
+                    setSettingsOpen(false);
+                  }}
+                >
+                  <span>{option.label}</span>
+                  {isActive ? <i className='ph-bold ph-check' aria-hidden='true' /> : null}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    if (settingsView === "speed") {
+      const playbackOptions = [0.5, 0.75, 1, 1.25, 1.5, 2];
+      return (
+        <div className='course-video-player__settings-panel'>
+          <button
+            type='button'
+            className='course-video-player__settings-back'
+            onClick={() => setSettingsView("root")}
+          >
+            <i className='ph-bold ph-caret-left' aria-hidden='true' /> Playback speed
+          </button>
+          <div className='course-video-player__settings-list'>
+            {playbackOptions.map((rate) => (
+              <button
+                type='button'
+                key={`speed-${rate}`}
+                className={`course-video-player__settings-item ${playbackRate === rate ? "is-active" : ""}`}
+                onClick={() => {
+                  handlePlaybackRateChange({ target: { value: rate } });
+                  setSettingsView("root");
+                  setSettingsOpen(false);
+                }}
+              >
+                <span>{rate === 1 ? "Normal" : `${rate}x`}</span>
+                {playbackRate === rate ? <i className='ph-bold ph-check' aria-hidden='true' /> : null}
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (settingsView === "subtitles") {
+      return (
+        <div className='course-video-player__settings-panel'>
+          <button
+            type='button'
+            className='course-video-player__settings-back'
+            onClick={() => setSettingsView("root")}
+          >
+            <i className='ph-bold ph-caret-left' aria-hidden='true' /> Subtitles
+          </button>
+          <div className='course-video-player__settings-list'>
+            {(subtitleOptions.length ? subtitleOptions : [{ value: "off", label: "Off" }]).map((option) => (
+              <button
+                type='button'
+                key={`subtitle-${option.value}`}
+                className={`course-video-player__settings-item ${
+                  subtitlePreference === option.value ? "is-active" : ""
+                }`}
+                onClick={() => {
+                  onSubtitleChange?.(option.value);
+                  setSettingsView("root");
+                  setSettingsOpen(false);
+                }}
+              >
+                <span>{option.label}</span>
+                {subtitlePreference === option.value ? <i className='ph-bold ph-check' aria-hidden='true' /> : null}
+              </button>
+            ))}
+            {subtitleOptions.length <= 1 ? (
+              <div className='course-video-player__settings-note'>Subtitles not available for this video.</div>
+            ) : null}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className='course-video-player__settings-panel'>
+        <div className='course-video-player__settings-list'>
+          <button
+            type='button'
+            className='course-video-player__settings-item'
+            onClick={() => onToggleAutoplay?.(!autoPlayEnabled)}
+            aria-pressed={autoPlayEnabled}
+          >
+            <div className='course-video-player__settings-row'>
+              <span>Autoplay</span>
+            </div>
+            <span className={`course-video-player__switch ${autoPlayEnabled ? "is-on" : ""}`}>
+              <span />
+            </span>
+          </button>
+          <button
+            type='button'
+            className='course-video-player__settings-item'
+            onClick={() => setSettingsView("quality")}
+          >
+            <div className='course-video-player__settings-row'>
+              <span>Quality</span>
+              <small>{qualityLabel}</small>
+            </div>
+            <i className='ph-bold ph-caret-right' aria-hidden='true' />
+          </button>
+          <button
+            type='button'
+            className='course-video-player__settings-item'
+            onClick={() => setSettingsView("speed")}
+          >
+            <div className='course-video-player__settings-row'>
+              <span>Playback speed</span>
+              <small>{playbackRate === 1 ? "Normal" : `${playbackRate}x`}</small>
+            </div>
+            <i className='ph-bold ph-caret-right' aria-hidden='true' />
+          </button>
+          <button
+            type='button'
+            className='course-video-player__settings-item'
+            onClick={() => setSettingsView("subtitles")}
+          >
+            <div className='course-video-player__settings-row'>
+              <span>Subtitles</span>
+              <small>{subtitleLabel}</small>
+            </div>
+            <i className='ph-bold ph-caret-right' aria-hidden='true' />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className={`course-video-player ${isFullscreen ? "is-fullscreen" : ""}`} ref={playerRef}>
+      {onClose ? (
+        <button type='button' className='course-video-player__close' onClick={handleClose} aria-label='Close player'>
+          <i className='ph-bold ph-x' aria-hidden='true' />
+        </button>
+      ) : null}
+      <div className='course-video-player__media' tabIndex={0}>
+        <video
+          ref={videoRef}
+          src={src}
+          poster={poster}
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          onEnded={handleEnded}
+        />
+        <button
+          type='button'
+          className={`course-video-player__play ${isPlaying ? "is-hidden" : ""}`}
+          onClick={togglePlay}
+        >
+          <i className={`ph-bold ${isPlaying ? "ph-pause" : "ph-play"}`} aria-hidden='true' />
+        </button>
+        {title ? (
+          <div className='course-video-player__badge'>
+            <i className='ph-bold ph-film-strip' aria-hidden='true' />
+            <span>{title}</span>
+          </div>
+        ) : null}
+        <div className='course-video-player__controls'>
+          <button type='button' className='course-video-player__control-btn' onClick={togglePlay}>
+            <i className={`ph-bold ${isPlaying ? "ph-pause" : "ph-play"}`} aria-hidden='true' />
+          </button>
+          <button type='button' className='course-video-player__control-btn' onClick={() => handleSkip(-10)}>
+            <i className='ph-bold ph-arrow-counter-clockwise' aria-hidden='true' />
+            <span className='sr-only'>Replay 10 seconds</span>
+          </button>
+          <span className='course-video-player__time'>{formatVideoTime(currentTime)}</span>
+          <input
+            type='range'
+            min='0'
+            max={duration || 0}
+            step='0.1'
+            value={currentTime}
+            onChange={handleProgressChange}
+            className='course-video-player__progress'
+            aria-label='Seek video'
+          />
+          <span className='course-video-player__time'>{formatVideoTime(duration)}</span>
+          <div className='course-video-player__volume'>
+            <i className='ph-bold ph-speaker-high' aria-hidden='true' />
+            <input
+              type='range'
+              min='0'
+              max='1'
+              step='0.05'
+              value={volume}
+              onChange={handleVolumeChange}
+              aria-label='Adjust volume'
+            />
+          </div>
+          <button
+            type='button'
+            className='course-video-player__settings-btn'
+            aria-label='Settings'
+            onClick={handleSettingsToggle}
+          >
+            <i className='ph-bold ph-gear' aria-hidden='true' />
+          </button>
+          <button type='button' className='course-video-player__settings-btn' onClick={handlePictureInPicture}>
+            <i className={`ph-bold ${isPiP ? "ph-divider" : "ph-device-tablet-speaker"}`} aria-hidden='true' />
+            <span className='sr-only'>Toggle picture-in-picture</span>
+          </button>
+          <button type='button' className='course-video-player__settings-btn' onClick={handleFullscreenToggle}>
+            <i className={`ph-bold ${isFullscreen ? "ph-corners-in" : "ph-corners-out"}`} aria-hidden='true' />
+            <span className='sr-only'>Toggle fullscreen</span>
+          </button>
+        </div>
+        {title || subtitle ? (
+          <div className='course-video-player__info'>
+            {title ? <p className='course-video-player__info-title'>{title}</p> : null}
+            {subtitle ? <p className='course-video-player__info-subtitle'>{subtitle}</p> : null}
+          </div>
+        ) : null}
+        <div
+          className={`course-video-player__settings ${isSettingsOpen ? "is-visible" : ""}`}
+          ref={settingsRef}
+          role='dialog'
+          aria-hidden={!isSettingsOpen}
+        >
+          {renderSettingsContent()}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const deriveModuleOutcomes = (module) => {
   if (Array.isArray(module?.outcomes) && module.outcomes.length) {
     return module.outcomes.filter(Boolean);
@@ -192,6 +753,70 @@ const normalizeModules = (courseData) => {
   }
 
   return [];
+};
+
+const adaptDetailedModules = (detailModules = []) => {
+  if (!Array.isArray(detailModules)) {
+    return [];
+  }
+  return detailModules.map((module, index) => {
+    const weeklyStructure = Array.isArray(module.sections)
+      ? module.sections.map((section, sectionIndex) => ({
+          title: section.title || `Week ${sectionIndex + 1}`,
+          subtitle: section.subtitle || "",
+          summary: section.summary || "",
+          lectures: Array.isArray(section.lectures)
+            ? section.lectures.map((lecture) => ({
+                title: lecture.title || "Lecture",
+                duration:
+                  lecture.duration ||
+                  (lecture.video?.duration
+                    ? `${Math.max(1, Math.round(lecture.video.duration))} min`
+                    : ""),
+                type: lecture.video?.url ? "Video" : lecture.type || "",
+                videoUrl:
+                  lecture.video?.url ||
+                  lecture.url ||
+                  lecture.src ||
+                  lecture.link ||
+                  "",
+                poster:
+                  lecture.poster ||
+                  lecture.thumbnail ||
+                  lecture.cover ||
+                  lecture.video?.poster ||
+                  lecture.video?.thumbnail ||
+                  "",
+              }))
+            : [],
+          assignments: Array.isArray(section.assignments) ? section.assignments : toArray(section.assignments),
+          quizzes: Array.isArray(section.quizzes) ? section.quizzes : toArray(section.quizzes),
+          projects: Array.isArray(section.projects) ? section.projects : toArray(section.projects),
+          notes: Array.isArray(section.notes) ? section.notes : toArray(section.notes),
+        }))
+      : [];
+
+    const extras =
+      module.variant === "capstone" || module.capstone?.summary || module.capstone?.deliverables?.length
+        ? {
+            projectTitle: module.moduleLabel || module.title || `Module ${index + 1}`,
+            projectDescription: module.capstone?.summary || module.summary || "",
+            examples: module.capstone?.rubric || [],
+            deliverables: module.capstone?.deliverables || [],
+          }
+        : undefined;
+
+    return {
+      title: module.title || module.moduleLabel || `Module ${index + 1}`,
+      subtitle: module.weeksLabel || module.subtitle || "",
+      topics: Array.isArray(module.topicsCovered) ? module.topicsCovered : toArray(module.topicsCovered),
+      outcome: module.summary || "",
+      weeklyStructure,
+      outcomes: Array.isArray(module.outcomes) ? module.outcomes : toArray(module.outcomes),
+      resources: Array.isArray(module.resources) ? module.resources : toArray(module.resources),
+      extras,
+    };
+  });
 };
 
 const buildOverviewFromCourse = (courseData = {}) => {
@@ -309,9 +934,13 @@ const CourseHomePage = () => {
     [sectionSlugParam]
   );
   const [state, setState] = useState({ loading: true, error: null, course: null, overview: null });
+  const [detailState, setDetailState] = useState({ loading: false, error: null, modules: [] });
   const [activeSection, setActiveSection] = useState(sectionFromUrl);
-  const [materialExpanded, setMaterialExpanded] = useState(true);
-  const modules = useMemo(() => normalizeModules(state.course), [state.course]);
+  const [lastModuleIndex, setLastModuleIndex] = useState(0);
+  const [isModuleDropdownOpen, setModuleDropdownOpen] = useState(false);
+  const baseModules = useMemo(() => normalizeModules(state.course), [state.course]);
+  const modules = detailState.modules.length ? detailState.modules : baseModules;
+  const moduleSelectorRef = useRef(null);
   const moduleIndexFromUrl = useMemo(() => {
     if (sectionFromUrl !== MODULE_SECTION_ID) {
       return null;
@@ -326,6 +955,29 @@ const CourseHomePage = () => {
   useEffect(() => {
     setActiveSection(sectionFromUrl);
   }, [sectionFromUrl]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (moduleSelectorRef.current && !moduleSelectorRef.current.contains(event.target)) {
+        setModuleDropdownOpen(false);
+      }
+    };
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setModuleDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  useEffect(() => {
+    setModuleDropdownOpen(false);
+  }, [sectionFromUrl, moduleIndexFromUrl]);
 
   useEffect(() => {
     if (!programme || !course || sectionFromUrl === MODULE_SECTION_ID) {
@@ -419,8 +1071,75 @@ const CourseHomePage = () => {
     };
   }, [programme, course, token, authLoading]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const loadModuleDetail = async () => {
+      if (!programme || !course) {
+        setDetailState((prev) => ({ ...prev, modules: [] }));
+        return;
+      }
+      setDetailState((prev) => ({ ...prev, loading: true, error: null }));
+      try {
+        const headers = new Headers();
+        if (token) {
+          headers.set("Authorization", `Bearer ${token}`);
+        }
+        const response = await fetch(
+          `${API_BASE_URL}/courses/${encodeURIComponent(programme)}/${encodeURIComponent(
+            course
+          )}/modules/detail`,
+          {
+            credentials: "include",
+            headers,
+          }
+        );
+        if (!response.ok) {
+          throw new Error(`Unable to load module detail (HTTP ${response.status})`);
+        }
+        const payload = await response.json();
+        if (!cancelled) {
+          setDetailState({
+            loading: false,
+            error: null,
+            modules: adaptDetailedModules(payload?.modules || []),
+          });
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setDetailState({
+            loading: false,
+            error: error?.message || "Unable to load module detail.",
+            modules: [],
+          });
+        }
+      }
+    };
+    loadModuleDetail();
+    return () => {
+      cancelled = true;
+    };
+  }, [programme, course, token]);
+
+
+
+
+
+
+
+  useEffect(() => {
+    if (!modules.length) return;
+    if (sectionFromUrl === MODULE_SECTION_ID) {
+      const safeIndex = Math.min(
+        Math.max(moduleIndexFromUrl ?? 0, 0),
+        Math.max(modules.length - 1, 0)
+      );
+      setLastModuleIndex(safeIndex);
+    }
+  }, [modules.length, sectionFromUrl, moduleIndexFromUrl]);
+
+
+
   const programmeSlug = (programme || "").trim().toLowerCase();
-  const courseSlug = (course || "").trim().toLowerCase();
   const prettyProgrammeName = useMemo(
     () => formatSlugText(programmeSlug),
     [programmeSlug]
@@ -430,6 +1149,109 @@ const CourseHomePage = () => {
     [state.course?.name, course]
   );
   const programmeTitle = prettyProgrammeName || "Programme";
+  const introVideoSrc =
+    state.course?.introVideoUrl ||
+    state.course?.previewVideo ||
+    state.course?.overviewVideo ||
+    state.course?.videoUrl ||
+    DEFAULT_VIDEO_SRC;
+  const courseBannerUrl =
+    resolveImageUrl(state.course?.media?.banner) ||
+    resolveImageUrl(state.course?.heroImage) ||
+    resolveImageUrl(state.course?.bannerImage) ||
+    resolveImageUrl(state.course?.thumbnail) ||
+    resolveImageUrl(state.course?.image) ||
+    "";
+  const introVideoPoster = courseBannerUrl || null;
+  const defaultVideoMeta = useMemo(
+    () => ({
+      src: introVideoSrc || DEFAULT_VIDEO_SRC,
+      poster: introVideoPoster,
+      title: prettyCourseName ? `${prettyCourseName} overview` : "Course Overview",
+      subtitle: programmeTitle,
+      meta: null,
+    }),
+    [introVideoSrc, introVideoPoster, prettyCourseName, programmeTitle]
+  );
+  const [activeVideo, setActiveVideo] = useState(null);
+  const [videoAutoPlayToken, setVideoAutoPlayToken] = useState(0);
+  const [autoPlayEnabled, setAutoPlayEnabled] = useState(() => {
+    if (typeof window === "undefined") {
+      return true;
+    }
+    const stored = window.localStorage.getItem(AUTOPLAY_STORAGE_KEY);
+    if (stored === null) {
+      return true;
+    }
+    return stored !== "false";
+  });
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    window.localStorage.setItem(AUTOPLAY_STORAGE_KEY, autoPlayEnabled ? "true" : "false");
+  }, [autoPlayEnabled]);
+  const derivedQualityOptions = useMemo(() => {
+    const fromCourse = Array.isArray(state.course?.media?.qualities)
+      ? state.course.media.qualities
+          .map((entry) => {
+            if (!entry) {
+              return null;
+            }
+            if (typeof entry === "string") {
+              return { value: entry.toLowerCase(), label: entry };
+            }
+            if (typeof entry === "object") {
+              const value = String(entry.value || entry.label || "")
+                .trim()
+                .toLowerCase();
+              const label = entry.label || entry.value || entry.display || "";
+              return value ? { value, label } : null;
+            }
+            return null;
+          })
+          .filter(Boolean)
+      : [];
+    const defaults =
+      fromCourse.length > 0
+        ? fromCourse
+        : [
+            { value: "auto", label: "Auto" },
+            { value: "1080p", label: "1080p" },
+            { value: "720p", label: "720p" },
+            { value: "480p", label: "480p" },
+          ];
+    if (!defaults.find((opt) => opt.value === "auto")) {
+      return [{ value: "auto", label: "Auto" }, ...defaults];
+    }
+    return defaults;
+  }, [state.course?.media?.qualities]);
+  const subtitleOptions = useMemo(() => {
+    const languages = Array.isArray(state.course?.media?.subtitles)
+      ? state.course.media.subtitles
+          .map((entry) => {
+            if (!entry) {
+              return null;
+            }
+            if (typeof entry === "string") {
+              const value = entry.trim().toLowerCase();
+              return value ? { value, label: entry } : null;
+            }
+            if (typeof entry === "object") {
+              const value = String(entry.value || entry.code || entry.language || "")
+                .trim()
+                .toLowerCase();
+              const label = entry.label || entry.name || entry.language || entry.value || "";
+              return value ? { value, label } : null;
+            }
+            return null;
+          })
+          .filter(Boolean)
+      : [];
+    return [{ value: "off", label: "Off" }, ...languages];
+  }, [state.course?.media?.subtitles]);
+  const [qualityPreference, setQualityPreference] = useState("auto");
+  const [subtitlePreference, setSubtitlePreference] = useState("off");
 
   const isEnrolled = Boolean(state.course?.isEnrolled);
   const handleSectionChange = (nextSectionId) => {
@@ -447,11 +1269,61 @@ const CourseHomePage = () => {
     const safeIndex = Math.min(Math.max(moduleIndex, 0), modules.length - 1);
     setActiveSection(MODULE_SECTION_ID);
     navigate(`/${programme}/${course}/home/${MODULE_SECTION_SLUG}/${safeIndex + 1}`);
+    setLastModuleIndex(safeIndex);
   };
   const handleModuleKeyDown = (event, moduleIndex) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       handleModuleClick(moduleIndex);
+    }
+  };
+  const handleAutoplayToggle = (nextValue) => {
+    setAutoPlayEnabled((prev) =>
+      typeof nextValue === "boolean" ? nextValue : !prev
+    );
+  };
+
+  const handleLecturePlay = (lecture, meta = {}) => {
+    if (!lecture?.videoUrl) {
+      return;
+    }
+    const subtitleParts = [];
+    if (meta.moduleTitle) {
+      subtitleParts.push(meta.moduleTitle);
+    }
+    if (meta.weekTitle) {
+      subtitleParts.push(meta.weekTitle);
+    }
+    const subtitle = subtitleParts.length ? subtitleParts.join(" - ") : defaultVideoMeta.subtitle;
+    setActiveVideo({
+      src: lecture.videoUrl,
+      poster: lecture.poster || meta.poster || introVideoPoster || defaultVideoMeta.poster,
+      title: lecture.title || "Lecture",
+      subtitle,
+      meta: { ...meta, subtitles: lecture.subtitles || lecture.captions || [] },
+    });
+    if (autoPlayEnabled) {
+      setVideoAutoPlayToken((token) => token + 1);
+    } else {
+      setVideoAutoPlayToken((token) => token);
+    }
+  };
+  const toggleModuleDropdown = () => {
+    if (!modules.length) {
+      return;
+    }
+    setModuleDropdownOpen((prev) => !prev);
+  };
+  const handleModuleSelectFromDropdown = (moduleIndex) => {
+    handleModuleClick(moduleIndex);
+    setModuleDropdownOpen(false);
+  };
+  const handleModuleSelectorKeyDown = (event) => {
+    if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      if (!isModuleDropdownOpen) {
+        setModuleDropdownOpen(true);
+      }
     }
   };
 
@@ -466,6 +1338,15 @@ const CourseHomePage = () => {
     const safeIndex = Math.min(Math.max(moduleIndexFromUrl ?? 0, 0), modules.length - 1);
     const module = modules[safeIndex];
     const weeklyStructure = Array.isArray(module.weeklyStructure) ? module.weeklyStructure : [];
+    const totalLectures = weeklyStructure.reduce(
+      (count, week) => count + (week.lectures?.length || 0),
+      0
+    );
+    const totalAssignments = weeklyStructure.reduce(
+      (count, week) => count + (week.assignments?.length || 0),
+      0
+    );
+    const isCapstoneModule = module.extras || module.variant === "capstone";
     const moduleOutcomes =
       Array.isArray(module.outcomes) && module.outcomes.length
         ? module.outcomes
@@ -496,18 +1377,106 @@ const CourseHomePage = () => {
     };
 
     return (
-      <div className='course-home-panel course-info-panel'>
-        <div className='course-home-panel__header mb-24'>
-          <div>
-            <p className='course-home-panel__eyebrow mb-8'>Module {safeIndex + 1}</p>
-            <h2 className='course-home-panel__title mb-0'>{module.title}</h2>
+        <div className='course-home-panel course-info-panel module-detail-panel'>
+          <div className='course-home-panel__header mb-24 course-module-header'>
+            <div>
+              <div
+                className={`course-module-selector ${isModuleDropdownOpen ? "is-open" : ""}`}
+                ref={moduleSelectorRef}
+              >
+                <button
+                  type='button'
+                  id='module-selector'
+                  className='course-module-selector__trigger'
+                  aria-haspopup='listbox'
+                  aria-expanded={isModuleDropdownOpen}
+                  aria-controls='module-selector-list'
+                  onClick={toggleModuleDropdown}
+                  onKeyDown={handleModuleSelectorKeyDown}
+                >
+                  <span className='course-module-selector__current'>
+                    Module {safeIndex + 1}: {module.title}
+                  </span>
+                  <i className='ph-bold ph-caret-down' aria-hidden='true' />
+                </button>
+                <div
+                  className='course-module-selector__list-wrap'
+                  aria-hidden={!isModuleDropdownOpen}
+                >
+                  <ul
+                    id='module-selector-list'
+                    className='course-module-selector__list'
+                    role='listbox'
+                    aria-activedescendant={`module-option-${safeIndex}`}
+                  >
+                    {modules.map((m, idx) => {
+                      const optionId = `module-option-${idx}`;
+                      const isActive = idx === safeIndex;
+                      return (
+                        <li key={optionId}>
+                          <button
+                            type='button'
+                            id={optionId}
+                            role='option'
+                            aria-selected={isActive}
+                            className={`course-module-selector__option ${
+                              isActive ? "is-active" : ""
+                            }`}
+                            tabIndex={isModuleDropdownOpen ? 0 : -1}
+                            onClick={() => handleModuleSelectFromDropdown(idx)}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                handleModuleSelectFromDropdown(idx);
+                              }
+                            }}
+                          >
+                            <div className='course-module-selector__option-text'>
+                              <span className='course-module-selector__option-title'>
+                                Module {idx + 1}: {m.title}
+                              </span>
+                              {m.subtitle ? (
+                                <span className='course-module-selector__option-subtitle'>
+                                  {m.subtitle}
+                                </span>
+                              ) : null}
+                            </div>
+                            {isActive ? (
+                              <i className='ph-bold ph-check-circle' aria-hidden='true' />
+                            ) : null}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </div>
+              <h2 className='course-home-panel__title mb-0'>{module.title}</h2>
+              {module.summary ? <p className='module-summary text-neutral-600 mb-0'>{module.summary}</p> : null}
+            </div>
+            <div className='course-module-meta'>
+            {module.subtitle ? <span className='course-module-pill'>{module.subtitle}</span> : null}
+            {totalLectures ? (
+              <span className='course-module-pill'>
+                <i className='ph-bold ph-play-circle' /> {totalLectures} lectures
+              </span>
+            ) : null}
+            {totalAssignments ? (
+              <span className='course-module-pill'>
+                <i className='ph-bold ph-checks' /> {totalAssignments} assignments
+              </span>
+            ) : null}
+            {isCapstoneModule ? (
+              <span className='course-module-pill pill-accent'>
+                <i className='ph-bold ph-star' /> Capstone
+              </span>
+            ) : null}
           </div>
-          {module.subtitle ? <span className='course-info-module__meta'>{module.subtitle}</span> : null}
         </div>
         {hasTopics ? (
-          <div className='course-info-section'>
+          <div className='course-info-section module-topics'>
             <h3 className='course-info-section__title'>Topics covered</h3>
-            <ul className='course-info-list'>
+            <ul className='module-topic-list'>
               {module.topics.map((topic, idx) => (
                 <li key={`module-detail-${safeIndex}-topic-${idx}`}>
                   <i className='ph-bold ph-circle-wavy-check text-main-500' />
@@ -540,19 +1509,72 @@ const CourseHomePage = () => {
                     <div className='course-module-week__group'>
                       <p className='course-module-week__group-title'>Lectures</p>
                       <ul className='course-module-week__list course-module-week__list--lectures'>
-                        {week.lectures.map((lecture, lectureIdx) => (
-                          <li key={`module-${safeIndex}-week-${weekIdx}-lecture-${lectureIdx}`}>
-                            <div>
-                              <span className='course-module-week__lecture-title'>{lecture.title}</span>
-                              {lecture.type ? (
-                                <span className='course-module-week__lecture-type'>{lecture.type}</span>
-                              ) : null}
-                            </div>
-                            {lecture.duration ? (
-                              <span className='course-module-week__badge'>{lecture.duration}</span>
-                            ) : null}
-                          </li>
-                        ))}
+                        {week.lectures.map((lecture, lectureIdx) => {
+                          const lectureKey = `module-${safeIndex}-week-${weekIdx}-lecture-${lectureIdx}`;
+                          const isPlayable = Boolean(lecture.videoUrl);
+                          const lectureMeta = {
+                            moduleTitle: module.title || `Module ${safeIndex + 1}`,
+                            weekTitle: week.title || `Week ${weekIdx + 1}`,
+                            moduleIndex: safeIndex,
+                            weekIndex: weekIdx,
+                            lectureIndex: lectureIdx,
+                            poster: lecture.poster,
+                          };
+                          const isActiveLecture =
+                            activeVideo?.meta &&
+                            activeVideo.meta.moduleIndex === safeIndex &&
+                            activeVideo.meta.weekIndex === weekIdx &&
+                            activeVideo.meta.lectureIndex === lectureIdx;
+                          return (
+                            <li key={lectureKey}>
+                              <button
+                                type='button'
+                                className={`course-module-week__lecture-button ${
+                                  isPlayable ? "is-playable" : ""
+                                } ${isActiveLecture ? "is-active" : ""}`}
+                                onClick={() => handleLecturePlay(lecture, lectureMeta)}
+                                disabled={!isPlayable}
+                                aria-label={
+                                  isPlayable
+                                    ? `Play ${lecture.title}`
+                                    : `${lecture.title} video unavailable`
+                                }
+                              >
+                                <div className='course-module-week__lecture-info'>
+                                  <span className='course-module-week__lecture-title'>
+                                    {lecture.type ? (
+                                      <span className='course-module-week__lecture-type'>
+                                        {lecture.type === "Video" ? (
+                                          <>
+                                            <i className='ph-bold ph-play-circle' aria-hidden='true' />
+                                            <span className='sr-only'>Video</span>
+                                          </>
+                                        ) : (
+                                          <span className='course-module-week__lecture-type-text'>
+                                            {lecture.type}
+                                          </span>
+                                        )}
+                                      </span>
+                                    ) : null}
+                                    {lecture.title}
+                                  </span>
+                                  {isPlayable ? (
+                                    <span className='course-module-week__prompt'>
+                                      {isActiveLecture ? "Now playing" : "Play in player"}
+                                    </span>
+                                  ) : (
+                                    <span className='course-module-week__prompt is-muted'>
+                                      Video unavailable
+                                    </span>
+                                  )}
+                                </div>
+                                {lecture.duration ? (
+                                  <span className='course-module-week__badge'>{lecture.duration}</span>
+                                ) : null}
+                              </button>
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
                   ) : null}
@@ -890,73 +1912,27 @@ const CourseHomePage = () => {
   };
 
   const renderSidebar = () => (
-    <aside className='course-home-sidebar'>
-      <div className='course-home-summary mb-24'>
-        <h3 className='course-home-summary__title mb-0'>{prettyCourseName}</h3>
-      </div>
-      <div className='course-home-material mb-24'>
-        <button
-          type='button'
-          className='course-home-material__toggle'
-          onClick={() => setMaterialExpanded((prev) => !prev)}
-        >
-          <span>Course Material</span>
-          <i
-            className={`ph-bold ph-caret-${materialExpanded ? "up" : "down"} d-inline-flex`}
-          />
-        </button>
-        {materialExpanded ? (
-          <ul className='course-home-modules list-unstyled mb-0'>
-            {modules.length ? (
-              modules.map((module, index) => {
-                const isActiveModule =
-                  sectionFromUrl === MODULE_SECTION_ID &&
-                  Math.min(Math.max(moduleIndexFromUrl ?? -1, -1), modules.length - 1) === index;
-                return (
-                  <li
-                    key={`module-${index}`}
-                    className={`course-home-modules__item ${isActiveModule ? "is-active" : ""}`}
-                    role='button'
-                    tabIndex={0}
-                    onClick={() => handleModuleClick(index)}
-                    onKeyDown={(event) => handleModuleKeyDown(event, index)}
-                  >
-                    <i className='ph-bold ph-check-circle text-success-500 mt-1' />
-                    <div>
-                      <span className='text-neutral-500 text-sm d-block mb-1'>
-                        Module {index + 1}
-                      </span>
-                      <p className='mb-2 fw-semibold'>{module.title}</p>
-                      {module.subtitle ? (
-                        <span className='text-sm text-neutral-600'>{module.subtitle}</span>
-                      ) : null}
-                    </div>
-                  </li>
-                );
-              })
-            ) : (
-              <li className='course-home-modules__item course-home-modules__item--empty'>
-                Module list will appear once your course curriculum is published.
-              </li>
-            )}
-          </ul>
-        ) : null}
-      </div>
+    <div className='course-home-tabs'>
       <nav className='course-home-nav'>
-        {NAV_SECTIONS.map((section) => (
-          <button
-            key={section.id}
-            type='button'
-            className={`course-home-nav__item ${
-              activeSection === section.id ? "is-active" : ""
-            }`}
-            onClick={() => handleSectionChange(section.id)}
-          >
-            {section.label}
-          </button>
-        ))}
+        {NAV_SECTIONS.map((section) => {
+          const isModuleTab = section.id === MODULE_SECTION_ID;
+          return (
+            <button
+              key={section.id}
+              type='button'
+              className={`course-home-nav__item ${
+                activeSection === section.id ? "is-active" : ""
+              }`}
+              onClick={() =>
+                isModuleTab ? handleModuleClick(lastModuleIndex) : handleSectionChange(section.id)
+              }
+            >
+              {section.label}
+            </button>
+          );
+        })}
       </nav>
-    </aside>
+    </div>
   );
 
   return (
@@ -964,22 +1940,45 @@ const CourseHomePage = () => {
       <Preloader />
       <Animation />
       <HeaderOne />
-      <section className='course-home-section py-60'>
+      <section className='course-home-section py-40'>
         <div className='container'>
-          <div className='row align-items-start gy-4 mb-32'>
-            <div className='col-lg-8'>
-              <p className='text-main-600 fw-semibold mb-8'>{programmeTitle}</p>
-              <h1 className='text-neutral-900 mb-0'>{prettyCourseName}</h1>
+          <div className='course-home-hero mb-20'>
+            <div className='course-home-hero__text'>
+              <p className='text-main-600 fw-semibold mb-8 course-home-hero__programme'>{programmeTitle}</p>
+              <div className='course-home-hero__title-row'>
+                <button
+                  type='button'
+                  className='course-home-back'
+                  aria-label='Go back'
+                  onClick={() => navigate(`/${programme}/${course}`)}
+                >
+                  <i className='ph-bold ph-arrow-left' aria-hidden='true' />
+                </button>
+                <h1 className='text-neutral-900 mb-0 course-home-hero__title'>{prettyCourseName}</h1>
+              </div>
             </div>
-            <div className='col-lg-4 text-end'>
-              <button
-                type='button'
-                className='btn btn-main rounded-pill px-40'
-                onClick={() => navigate(`/${programme}/${course}`)}
-              >
-                Back to Course Overview
-              </button>
-            </div>
+          </div>
+          <div className='course-home-video mb-20'>
+            {activeVideo?.src ? (
+              <CourseVideoPlayer
+                src={activeVideo?.src || defaultVideoMeta.src}
+                poster={activeVideo?.poster || defaultVideoMeta.poster}
+                title={activeVideo?.title || defaultVideoMeta.title}
+                subtitle={activeVideo?.subtitle || defaultVideoMeta.subtitle}
+                autoPlayToken={videoAutoPlayToken}
+                onClose={handlePlayerClose}
+                autoPlayEnabled={autoPlayEnabled}
+                onToggleAutoplay={handleAutoplayToggle}
+                qualityOptions={derivedQualityOptions}
+                qualityPreference={qualityPreference}
+                onQualityChange={setQualityPreference}
+                subtitleOptions={subtitleOptions}
+                subtitlePreference={subtitlePreference}
+                onSubtitleChange={setSubtitlePreference}
+              />
+            ) : (
+              <CourseVideoPlaceholder banner={courseBannerUrl} />
+            )}
           </div>
           <div className='course-home-grid'>
             {renderSidebar()}
@@ -993,3 +1992,6 @@ const CourseHomePage = () => {
 };
 
 export default CourseHomePage;
+  const handlePlayerClose = () => {
+    setActiveVideo(null);
+  };

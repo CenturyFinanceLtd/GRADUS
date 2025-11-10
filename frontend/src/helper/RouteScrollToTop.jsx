@@ -5,11 +5,19 @@ const RouteScrollToTop = () => {
   const location = useLocation();
 
   useEffect(() => {
+    const path = location?.pathname || '';
+    if (path.includes('/home/')) {
+      return;
+    }
     window.scrollTo(0, 0);
   }, [location]);
 
   useEffect(() => {
-    const progressPath = document.querySelector(".progress-wrap path");
+    const progressWrap = document.querySelector(".progress-wrap");
+    const progressPath = progressWrap?.querySelector("path");
+    if (!progressWrap || !progressPath) {
+      return undefined;
+    }
     const pathLength = progressPath.getTotalLength();
     progressPath.style.transition = progressPath.style.WebkitTransition =
       "none";
@@ -31,13 +39,9 @@ const RouteScrollToTop = () => {
 
     const handleScroll = () => {
       if (window.scrollY > 50) {
-        document
-          .querySelector(".progress-wrap")
-          .classList.add("active-progress");
+        progressWrap.classList.add("active-progress");
       } else {
-        document
-          .querySelector(".progress-wrap")
-          .classList.remove("active-progress");
+        progressWrap.classList.remove("active-progress");
       }
     };
 
@@ -48,16 +52,12 @@ const RouteScrollToTop = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
-    document
-      .querySelector(".progress-wrap")
-      .addEventListener("click", handleClick);
+    progressWrap.addEventListener("click", handleClick);
 
     return () => {
       window.removeEventListener("scroll", updateProgress);
       window.removeEventListener("scroll", handleScroll);
-      document
-        .querySelector(".progress-wrap")
-        .removeEventListener("click", handleClick);
+      progressWrap.removeEventListener("click", handleClick);
     };
   }, []);
 

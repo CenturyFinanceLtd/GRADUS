@@ -7,6 +7,8 @@ const crypto = require('crypto');
 const Course = require('../models/Course');
 const CoursePage = require('../models/CoursePage');
 const Enrollment = require('../models/Enrollment');
+const CourseDetail = require('../models/CourseDetail');
+const { buildFallbackModules } = require('../utils/courseDetail');
 
 const normalizeString = (value) => {
   if (typeof value !== 'string') {
@@ -641,6 +643,42 @@ const getCourseBySlug = asyncHandler(async (req, res) => {
   });
 });
 
+const getCourseModulesDetail = asyncHandler(async (req, res) => {
+  const { programmeSlug, courseSlug } = req.params;
+  const normalizedSlug = buildCombinedSlug({
+    programmeSlug: programmeSlug ? programmeSlug.trim().toLowerCase() : '',
+    courseSlug: courseSlug ? courseSlug.trim().toLowerCase() : '',
+  });
+
+  if (!normalizedSlug) {
+    res.status(400);
+    throw new Error('A valid course identifier is required.');
+  }
+
+  const course = await Course.findOne({ slug: normalizedSlug }).lean();
+  if (!course) {
+    res.status(404);
+    throw new Error('Course not found.');
+  }
+
+  const detail = await CourseDetail.findOne({ courseSlug: normalizedSlug }).lean();
+  const modules =
+    detail && Array.isArray(detail.modules) && detail.modules.length
+      ? detail.modules
+      : buildFallbackModules(course);
+
+  res.json({
+    course: {
+      slug: normalizedSlug,
+      name: course.name,
+      programme: course.programme,
+      programmeSlug: course.programmeSlug,
+      courseSlug: course.courseSlug,
+    },
+    modules,
+  });
+});
+
 module.exports = {
   getCoursePage,
   listCourses,
@@ -652,6 +690,7 @@ module.exports = {
   enrollInCourse,
   listEnrollments,
   getCourseBySlug,
+  getCourseModulesDetail,
 };
 
 /**
@@ -667,7 +706,7 @@ const validateRawCourse = (input) => {
     'name','programme','programmeSlug','courseSlug','slug',
     'hero','stats','aboutProgram','learn','skills','details','capstone',
     'careerOutcomes','toolsFrameworks','modules','instructors','offeredBy',
-    'image'
+    'image','media'
   ]);
 
   const unexpected = Object.keys(input || {}).filter((k) => !allowRoot.has(k));
@@ -682,6 +721,13 @@ const validateRawCourse = (input) => {
     const out = [];
     for (let i=0;i<v.length;i++) { if (typeof v[i] !== 'string') { const e = new Error(`${path}[${i}] must be a string`); e.status=400; throw e; } const s = v[i].trim(); if (s) out.push(s); }
     return out;
+  };
+  const optionalNumber = (value) => {
+    if (value === undefined || value === null || value === '') {
+      return undefined;
+    }
+    const num = Number(value);
+    return Number.isFinite(num) ? num : undefined;
   };
   const obj = (v, path) => { if (v && typeof v === 'object' && !Array.isArray(v)) return v; const e = new Error(`${path} must be an object`); e.status=400; throw e; };
   const requireKeysOnly = (o, allowed, path) => { const bad = Object.keys(o).filter((k) => !allowed.has(k)); if (bad.length) { const e = new Error(`Unexpected fields in ${path}: ${bad.join(', ')}`); e.status=400; throw e; } };
@@ -861,6 +907,31 @@ const validateRawCourse = (input) => {
     out.image = { url: str(img.url), alt: str(img.alt), publicId: str(img.publicId) };
   }
 
+  if (typeof input.media !== 'undefined') {
+    const mediaAllowed = new Set(['banner']);
+    const media = obj(input.media || {}, 'media');
+    requireKeysOnly(media, mediaAllowed, 'media');
+    const mediaOut = {};
+    if (typeof media.banner !== 'undefined') {
+      const bannerAllowed = new Set(['url','publicId','width','height','format']);
+      const banner = obj(media.banner || {}, 'media.banner');
+      requireKeysOnly(banner, bannerAllowed, 'media.banner');
+      const bannerOut = {
+        url: str(banner.url),
+        publicId: str(banner.publicId),
+        format: str(banner.format),
+      };
+      const width = optionalNumber(banner.width);
+      const height = optionalNumber(banner.height);
+      if (width !== undefined) bannerOut.width = width;
+      if (height !== undefined) bannerOut.height = height;
+      mediaOut.banner = bannerOut;
+    }
+    if (Object.keys(mediaOut).length) {
+      out.media = mediaOut;
+    }
+  }
+
   return out;
 };
 
@@ -904,7 +975,7 @@ const getRawCourseBySlug = asyncHandler(async (req, res) => {
   const allowRoot = new Set([
     'name','programme','programmeSlug','courseSlug','slug',
     'hero','stats','aboutProgram','learn','skills','details','capstone',
-    'careerOutcomes','toolsFrameworks','modules','instructors','offeredBy','image'
+    'careerOutcomes','toolsFrameworks','modules','instructors','offeredBy','image','media'
   ]);
   const sanitized = {};
   for (const key of allowRoot) {

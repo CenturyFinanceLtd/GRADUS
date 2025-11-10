@@ -4,7 +4,13 @@
   - Mounted at /api/courses
 */
 const express = require('express');
-const { getCoursePage, listCourses, enrollInCourse, getCourseBySlug } = require('../controllers/courseController');
+const {
+  getCoursePage,
+  listCourses,
+  enrollInCourse,
+  getCourseBySlug,
+  getCourseModulesDetail,
+} = require('../controllers/courseController');
 const { attachUserIfPresent, protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
@@ -12,6 +18,7 @@ const router = express.Router();
 router.get('/page', attachUserIfPresent, getCoursePage);
 router.get('/', listCourses);
 // support programme/course slugs (e.g., gradus-x/full-stack-development)
+router.get('/:programmeSlug/:courseSlug/modules/detail', attachUserIfPresent, getCourseModulesDetail);
 router.get('/:programmeSlug/:courseSlug', attachUserIfPresent, getCourseBySlug);
 // legacy: single-part slug
 router.get('/:courseSlug', attachUserIfPresent, getCourseBySlug);

@@ -131,7 +131,7 @@ const GradusProgrammes = () => {
           </div>
         </div>
 
-        <div className="row gy-4 mt-40">
+        <div className="row gy-4 mt-1">
           {cards.map((c) => (
             <div className="col-lg-4 col-md-12" key={c.id}>
               <div className={`gp-card bg-white rounded-24 border border-neutral-30 box-shadow-md overflow-hidden position-relative ${c.theme}`}>

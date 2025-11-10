@@ -198,6 +198,15 @@ const courseSchema = new mongoose.Schema(
       publicId: { type: String, trim: true, default: '' },
       alt: { type: String, trim: true, default: '' },
     },
+    media: {
+      banner: {
+        url: { type: String, trim: true, default: '' },
+        publicId: { type: String, trim: true, default: '' },
+        width: { type: Number, default: 0 },
+        height: { type: Number, default: 0 },
+        format: { type: String, trim: true, default: '' },
+      },
+    },
 
     order: { type: Number },
   },
