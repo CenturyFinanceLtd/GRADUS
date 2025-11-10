@@ -249,6 +249,16 @@ const CourseVideoPlayer = ({
   const videoRef = useRef(null);
   const settingsRef = useRef(null);
   const resumeTargetRef = useRef(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(0.9);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [isSettingsOpen, setSettingsOpen] = useState(false);
+  const [settingsView, setSettingsView] = useState("root");
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPiP, setIsPiP] = useState(false);
+  const lastAutoPlayTokenRef = useRef(autoPlayToken);
   const applyResumePosition = useCallback(() => {
     const video = videoRef.current;
     if (!video) {
@@ -258,7 +268,7 @@ const CourseVideoPlayer = ({
     if (!target) {
       return;
     }
-    const durationValue = video.duration || duration || 0;
+    const durationValue = video.duration || 0;
     if (!durationValue) {
       return;
     }
@@ -266,7 +276,7 @@ const CourseVideoPlayer = ({
     if (Math.abs(video.currentTime - safeTarget) > 1) {
       video.currentTime = safeTarget;
     }
-  }, [duration]);
+  }, []);
   const emitProgressEvent = useCallback(
     ({ currentTime: overrideTime, duration: overrideDuration, completed }) => {
       if (!lectureMeta?.lectureId || typeof onProgress !== "function") {
@@ -292,16 +302,6 @@ const CourseVideoPlayer = ({
     },
     [lectureMeta, onProgress, duration, src]
   );
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.9);
-  const [playbackRate, setPlaybackRate] = useState(1);
-  const [isSettingsOpen, setSettingsOpen] = useState(false);
-  const [settingsView, setSettingsView] = useState("root");
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isPiP, setIsPiP] = useState(false);
-  const lastAutoPlayTokenRef = useRef(autoPlayToken);
 
   const handleLoadedMetadata = () => {
     const video = videoRef.current;
@@ -334,6 +334,7 @@ const CourseVideoPlayer = ({
       return;
     }
     setCurrentTime(video.currentTime || 0);
+    emitProgressEvent({});
   };
 
   const handleProgressChange = (event) => {
@@ -372,6 +373,7 @@ const CourseVideoPlayer = ({
     if (video) {
       video.currentTime = 0;
     }
+    emitProgressEvent({ currentTime: duration || video?.duration || 0, completed: true });
   };
 
   const handleSkip = (amount) => {
@@ -381,6 +383,7 @@ const CourseVideoPlayer = ({
     }
     const next = Math.min(Math.max(video.currentTime + amount, 0), video.duration || video.currentTime);
     video.currentTime = next;
+    emitProgressEvent({ currentTime: next, duration: video.duration || duration || 0 });
   };
 
   const handleSettingsToggle = () => {
@@ -432,6 +435,13 @@ const CourseVideoPlayer = ({
     setIsPlaying(false);
     setCurrentTime(0);
   }, [src]);
+
+  useEffect(() => {
+    resumeTargetRef.current = Math.max(0, Number(resumePositionSeconds) || 0);
+    if (resumeTargetRef.current > 0) {
+      applyResumePosition();
+    }
+  }, [resumePositionSeconds, applyResumePosition, src]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -503,6 +513,23 @@ const CourseVideoPlayer = ({
     document.addEventListener("leavepictureinpicture", handleLeavePiP);
     return () => document.removeEventListener("leavepictureinpicture", handleLeavePiP);
   }, []);
+
+  useEffect(() => {
+    if (!isPlaying) {
+      return undefined;
+    }
+    const interval = setInterval(() => {
+      const video = videoRef.current;
+      if (!video) {
+        return;
+      }
+      emitProgressEvent({
+        currentTime: video.currentTime || 0,
+        duration: video.duration || duration || 0,
+      });
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [isPlaying, emitProgressEvent, duration]);
 
   const handleClose = () => {
     if (videoRef.current) {
@@ -1747,6 +1774,14 @@ const CourseHomePage = () => {
                             lectureTitle: lecture.title,
                             videoUrl: lecture.videoUrl,
                           };
+                          const lectureProgress =
+                            lecture.lectureId && progressState.data[lecture.lectureId]
+                              ? progressState.data[lecture.lectureId]
+                              : null;
+                          const completionRatio = lectureProgress?.completionRatio || 0;
+                          const isCompleted =
+                            Boolean(lectureProgress?.completedAt) ||
+                            completionRatio >= VIDEO_COMPLETION_THRESHOLD;
                           const isActiveLecture =
                             activeVideo?.meta &&
                             activeVideo.meta.moduleIndex === safeIndex &&
@@ -1763,10 +1798,20 @@ const CourseHomePage = () => {
                                 disabled={!isPlayable}
                                 aria-label={
                                   isPlayable
-                                    ? `Play ${lecture.title}`
+                                    ? isCompleted
+                                      ? `${lecture.title} completed`
+                                      : `Play ${lecture.title}`
                                     : `${lecture.title} video unavailable`
                                 }
                               >
+                                <span
+                                  className={`course-module-week__completion ${
+                                    isCompleted ? "is-completed" : ""
+                                  }`}
+                                  aria-hidden='true'
+                                >
+                                  {isCompleted ? <i className='ph-bold ph-check' /> : null}
+                                </span>
                                 <div className='course-module-week__lecture-info'>
                                   <span className='course-module-week__lecture-title'>
                                     {lecture.type ? (
@@ -1785,15 +1830,23 @@ const CourseHomePage = () => {
                                     ) : null}
                                     {lecture.title}
                                   </span>
-                                  {isPlayable ? (
-                                    <span className='course-module-week__prompt'>
-                                      {isActiveLecture ? "Now playing" : "Play in player"}
-                                    </span>
-                                  ) : (
-                                    <span className='course-module-week__prompt is-muted'>
-                                      Video unavailable
-                                    </span>
-                                  )}
+                                  <span
+                                    className={`course-module-week__prompt ${
+                                      !isPlayable
+                                        ? "is-muted"
+                                        : isCompleted && !isActiveLecture
+                                        ? "is-completed"
+                                        : ""
+                                    }`}
+                                  >
+                                    {!isPlayable
+                                      ? "Video unavailable"
+                                      : isActiveLecture
+                                      ? "Now playing"
+                                      : isCompleted
+                                      ? "Completed"
+                                      : "Play in player"}
+                                  </span>
                                 </div>
                                 {lecture.duration ? (
                                   <span className='course-module-week__badge'>{lecture.duration}</span>
@@ -2224,4 +2277,6 @@ const CourseHomePage = () => {
 export default CourseHomePage;
   const handlePlayerClose = () => {
     setActiveVideo(null);
+    setCurrentLectureMeta(null);
+    setResumePositionSeconds(0);
   };

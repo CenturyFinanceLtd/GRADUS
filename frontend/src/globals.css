@@ -15410,10 +15410,44 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   cursor: not-allowed;
 }
 
+.course-module-week__lecture-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+}
+
 .course-module-week__lecture-info {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  align-items: flex-start;
+  flex: 1 1 auto;
+}
+
+.course-module-week__completion {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #d0d5dd;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  color: transparent;
+  transition: all 0.2s ease;
+}
+
+.course-module-week__completion.is-completed {
+  border-color: #1d4ed8;
+  background: #1d4ed8;
+  color: #fff;
+}
+
+.course-module-week__completion {
+  flex-shrink: 0;
 }
 
 .course-module-week__lecture-title {
@@ -15441,6 +15475,7 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   font-size: 0.8rem;
   font-weight: 600;
   color: #1d4ed8;
+
 }
 
 .course-module-week__prompt.is-muted {
@@ -15448,6 +15483,9 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   font-weight: 500;
 }
 
+.course-module-week__prompt.is-completed {
+  color: #0f172a;
+}
 .course-module-week__badge {
   font-size: 0.75rem;
   color: #0369a1;
