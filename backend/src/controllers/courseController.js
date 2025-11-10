@@ -774,6 +774,97 @@ const recordCourseProgress = asyncHandler(async (req, res) => {
   res.json({ progress: mapProgressDoc(saved) });
 });
 
+const getCourseProgressAdmin = asyncHandler(async (req, res) => {
+  const courseSlug = resolveCourseSlugFromParams({ courseSlug: req.params.courseSlug });
+  if (!courseSlug) {
+    res.status(400);
+    throw new Error('A valid course identifier is required.');
+  }
+  const filter = { courseSlug };
+  if (req.query.userId) {
+    filter.user = req.query.userId;
+  }
+  const docs = await CourseProgress.find(filter)
+    .populate({ path: 'user', select: 'name email avatar role' })
+    .sort({ updatedAt: -1 })
+    .lean();
+
+  const grouped = {};
+  docs.forEach((doc) => {
+    const key = doc.user?._id?.toString() || 'unknown';
+    if (!grouped[key]) {
+      grouped[key] = {
+        userId: key,
+        userName: doc.user?.name || 'Unknown learner',
+        userEmail: doc.user?.email || '',
+        avatar: doc.user?.avatar || '',
+        role: doc.user?.role || '',
+        totalLectures: 0,
+        completedLectures: 0,
+        lectures: [],
+      };
+    }
+    const ratio = doc.completionRatio || 0;
+    const isCompleted = Boolean(doc.completedAt) || ratio >= PROGRESS_COMPLETION_THRESHOLD;
+    grouped[key].totalLectures += 1;
+    if (isCompleted) {
+      grouped[key].completedLectures += 1;
+    }
+    grouped[key].lectures.push({
+      lectureId: doc.lectureId,
+      lectureTitle: doc.lectureTitle,
+      moduleId: doc.moduleId,
+      sectionId: doc.sectionId,
+      completionRatio: ratio,
+      completedAt: doc.completedAt,
+      lastPositionSeconds: doc.lastPositionSeconds,
+      durationSeconds: doc.durationSeconds,
+      updatedAt: doc.updatedAt,
+    });
+  });
+
+  const progressByUser = Object.values(grouped).sort((a, b) =>
+    (a.userName || '').localeCompare(b.userName || '')
+  );
+
+  const lectureTotals = {};
+  docs.forEach((doc) => {
+    const lectureId = doc.lectureId;
+    if (!lectureId) {
+      return;
+    }
+    if (!lectureTotals[lectureId]) {
+      lectureTotals[lectureId] = {
+        lectureId,
+        lectureTitle: doc.lectureTitle,
+        moduleId: doc.moduleId,
+        sectionId: doc.sectionId,
+        learners: 0,
+        completed: 0,
+        avgCompletion: 0,
+      };
+    }
+    const entry = lectureTotals[lectureId];
+    entry.learners += 1;
+    const ratio = doc.completionRatio || 0;
+    entry.avgCompletion += ratio;
+    if (doc.completedAt || ratio >= PROGRESS_COMPLETION_THRESHOLD) {
+      entry.completed += 1;
+    }
+  });
+
+  const lectureSummary = Object.values(lectureTotals).map((entry) => ({
+    ...entry,
+    avgCompletion: entry.learners ? entry.avgCompletion / entry.learners : 0,
+  }));
+
+  res.json({
+    courseSlug,
+    progress: progressByUser,
+    lectureSummary,
+  });
+});
+
 module.exports = {
   getCoursePage,
   listCourses,
@@ -788,6 +879,7 @@ module.exports = {
   getCourseModulesDetail,
   getCourseProgress,
   recordCourseProgress,
+  getCourseProgressAdmin,
 };
 
 /**

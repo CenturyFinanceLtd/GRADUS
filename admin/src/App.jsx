@@ -14,6 +14,7 @@ const AvatarPage = lazy(() => import("./pages/AvatarPage"));
 const BadgesPage = lazy(() => import("./pages/BadgesPage"));
 const CoursesAdminPage = lazy(() => import("./pages/CoursesAdmin"));
 const CustomizeCoursesPage = lazy(() => import("./pages/CustomizeCourses"));
+const CourseProgressPage = lazy(() => import("./pages/CourseProgressPage"));
 const CourseDetailDataPage = lazy(() => import("./pages/CourseDetailData"));
 const ButtonPage = lazy(() => import("./pages/ButtonPage"));
 const CalendarMainPage = lazy(() => import("./pages/CalendarMainPage"));
@@ -132,6 +133,7 @@ function App() {
         <Route exact path='/courses-admin' element={<CoursesAdminPage />} />
         {/* Customize Courses (raw JSON) */}
         <Route exact path='/customize-courses' element={<CustomizeCoursesPage />} />
+        <Route exact path='/course-progress' element={<CourseProgressPage />} />
         <Route
           path='/customize-courses/:courseKey/detailed-course-data'
           element={<CourseDetailDataPage />}

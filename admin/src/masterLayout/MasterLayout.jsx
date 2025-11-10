@@ -425,6 +425,15 @@ const MasterLayout = ({ children }) => {
             </li>
             <li>
               <NavLink
+                to='/course-progress'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='ph:chart-bar-bold' className='menu-icon' />
+                <span>Course Progress</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
                 to='/blog'
                 className={(navData) => (navData.isActive ? "active-page" : "")}
               >
