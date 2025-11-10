@@ -8,7 +8,10 @@ const Course = require('../models/Course');
 const CoursePage = require('../models/CoursePage');
 const Enrollment = require('../models/Enrollment');
 const CourseDetail = require('../models/CourseDetail');
+const CourseProgress = require('../models/CourseProgress');
 const { buildFallbackModules } = require('../utils/courseDetail');
+
+const PROGRESS_COMPLETION_THRESHOLD = 0.9;
 
 const normalizeString = (value) => {
   if (typeof value !== 'string') {
@@ -110,6 +113,14 @@ const buildCombinedSlug = ({ programmeSlug, courseSlug, slug, name, programme })
   const coursePart = clean(courseSlug || (name ? generateSlug(name) : ''));
   if (prog && coursePart) return `${prog}/${coursePart}`;
   return coursePart || prog || '';
+};
+
+const resolveCourseSlugFromParams = ({ programmeSlug, courseSlug }) => {
+  if (programmeSlug && courseSlug) {
+    return `${String(programmeSlug).trim().toLowerCase()}/${String(courseSlug).trim().toLowerCase()}`;
+  }
+  const fallback = courseSlug || programmeSlug || '';
+  return String(fallback).trim().toLowerCase();
 };
 
 const buildCoursePayload = (body, existingCourse) => {
@@ -679,6 +690,90 @@ const getCourseModulesDetail = asyncHandler(async (req, res) => {
   });
 });
 
+const mapProgressDoc = (doc) => ({
+  lectureId: doc.lectureId,
+  moduleId: doc.moduleId,
+  sectionId: doc.sectionId,
+  lectureTitle: doc.lectureTitle,
+  videoUrl: doc.videoUrl,
+  durationSeconds: doc.durationSeconds,
+  lastPositionSeconds: doc.lastPositionSeconds,
+  watchedSeconds: doc.watchedSeconds,
+  completionRatio: doc.completionRatio,
+  completedAt: doc.completedAt,
+  updatedAt: doc.updatedAt,
+});
+
+const getCourseProgress = asyncHandler(async (req, res) => {
+  const courseSlug = resolveCourseSlugFromParams(req.params);
+  if (!courseSlug) {
+    res.status(400);
+    throw new Error('A valid course identifier is required.');
+  }
+  const docs = await CourseProgress.find({
+    user: req.user._id,
+    courseSlug,
+  })
+    .sort({ updatedAt: -1 })
+    .lean();
+  const progress = docs.reduce((acc, doc) => {
+    acc[doc.lectureId] = mapProgressDoc(doc);
+    return acc;
+  }, {});
+  res.json({ progress });
+});
+
+const recordCourseProgress = asyncHandler(async (req, res) => {
+  const courseSlug = resolveCourseSlugFromParams(req.params);
+  if (!courseSlug) {
+    res.status(400);
+    throw new Error('A valid course identifier is required.');
+  }
+  const { lectureId, moduleId, sectionId, lectureTitle, videoUrl, currentTime, duration } = req.body || {};
+  if (!lectureId) {
+    res.status(400);
+    throw new Error('lectureId is required.');
+  }
+  const parsedDuration = Math.max(0, Number(duration) || 0);
+  const parsedPosition = Math.max(0, Number(currentTime) || 0);
+  const ratioFromPayload = parsedDuration > 0 ? Math.min(parsedPosition / parsedDuration, 1) : 0;
+
+  const existing = await CourseProgress.findOne({
+    user: req.user._id,
+    courseSlug,
+    lectureId,
+  });
+
+  const nextRatio = Math.max(existing?.completionRatio || 0, ratioFromPayload);
+  const update = {
+    user: req.user._id,
+    courseSlug,
+    lectureId,
+    moduleId: moduleId || existing?.moduleId || '',
+    sectionId: sectionId || existing?.sectionId || '',
+    lectureTitle: lectureTitle || existing?.lectureTitle || '',
+    videoUrl: videoUrl || existing?.videoUrl || '',
+    durationSeconds: Math.max(parsedDuration, existing?.durationSeconds || 0),
+    lastPositionSeconds: parsedPosition,
+    watchedSeconds: Math.max(existing?.watchedSeconds || 0, parsedPosition),
+    completionRatio: nextRatio,
+  };
+  if (existing?.completedAt) {
+    update.completedAt = existing.completedAt;
+  }
+  if (!existing?.completedAt && nextRatio >= PROGRESS_COMPLETION_THRESHOLD) {
+    update.completedAt = new Date();
+  }
+
+  const saved = await CourseProgress.findOneAndUpdate(
+    { user: req.user._id, courseSlug, lectureId },
+    { $set: update },
+    { new: true, upsert: true, setDefaultsOnInsert: true }
+  );
+
+  res.json({ progress: mapProgressDoc(saved) });
+});
+
 module.exports = {
   getCoursePage,
   listCourses,
@@ -691,6 +786,8 @@ module.exports = {
   listEnrollments,
   getCourseBySlug,
   getCourseModulesDetail,
+  getCourseProgress,
+  recordCourseProgress,
 };
 
 /**

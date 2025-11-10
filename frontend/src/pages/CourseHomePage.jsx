@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import HeaderOne from "../components/HeaderOne";
 import FooterOne from "../components/FooterOne";
@@ -82,12 +82,13 @@ const normalizeLectureItems = (items) => {
     .map((entry) => {
       if (typeof entry === "string") {
         const title = entry.trim();
-        return title ? { title, duration: "", type: "" } : null;
+        return title ? { title, duration: "", type: "", lectureId: "" } : null;
       }
       if (entry && typeof entry === "object") {
         const title = String(entry.title || entry.name || entry.label || "").trim();
         const duration = String(entry.duration || entry.length || entry.time || "").trim();
         const type = String(entry.type || entry.category || "").trim();
+        const lectureId = String(entry.lectureId || entry.id || entry._id || "").trim();
         const videoUrl =
           entry.videoUrl ||
           entry.videoURL ||
@@ -107,14 +108,14 @@ const normalizeLectureItems = (items) => {
         if (!title) {
           return null;
         }
-        return { title, duration, type, videoUrl, poster };
+        return { title, duration, type, videoUrl, poster, lectureId };
       }
       return null;
     })
     .filter(Boolean);
 };
 
-const normalizeWeeklyStructureBlocks = (module) => {
+const normalizeWeeklyStructureBlocks = (module, moduleIndex = 0) => {
   const source =
     module?.weeklyStructure ??
     module?.structure ??
@@ -122,6 +123,7 @@ const normalizeWeeklyStructureBlocks = (module) => {
     module?.weeksStructure ??
     [];
   const blocks = Array.isArray(source) ? source : source ? [source] : [];
+  const moduleId = String(module?.moduleId || module?.id || `module-${moduleIndex + 1}`).trim();
   return blocks
     .map((entry, idx) => {
       if (!entry) {
@@ -139,6 +141,8 @@ const normalizeWeeklyStructureBlocks = (module) => {
               projects: [],
               quizzes: [],
               notes: [],
+              sectionId: `${moduleId}-section-${idx + 1}`,
+              moduleId,
             }
           : null;
       }
@@ -148,7 +152,21 @@ const normalizeWeeklyStructureBlocks = (module) => {
       const title = String(entry.title || entry.heading || entry.label || "").trim();
       const subtitle = String(entry.subtitle || entry.tagline || entry.summary || "").trim();
       const summary = String(entry.summary || entry.description || "").trim();
-      const lectures = normalizeLectureItems(entry.lectures || entry.items || entry.videos || []);
+      const sectionId =
+        String(entry.sectionId || entry.id || entry.weekId || "").trim() ||
+        `${moduleId}-section-${idx + 1}`;
+      const lectures = normalizeLectureItems(entry.lectures || entry.items || entry.videos || []).map(
+        (lecture, lectureIdx) => {
+          const lectureId =
+            String(lecture.lectureId || "").trim() || `${sectionId}-lecture-${lectureIdx + 1}`;
+          return {
+            ...lecture,
+            lectureId,
+            moduleId,
+            sectionId,
+          };
+        }
+      );
       const assignments = toArray(entry.assignments || entry.tasks || entry.homework);
       const projects = toArray(entry.projects || entry.activities);
       const quizzes = toArray(entry.quizzes || entry.tests);
@@ -174,6 +192,8 @@ const normalizeWeeklyStructureBlocks = (module) => {
         projects,
         quizzes,
         notes,
+        sectionId,
+        moduleId,
       };
     })
     .filter(Boolean);
@@ -195,6 +215,7 @@ const formatVideoTime = (seconds) => {
 
 const DEFAULT_VIDEO_SRC = "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
 const AUTOPLAY_STORAGE_KEY = "gradus-course-autoplay";
+const VIDEO_COMPLETION_THRESHOLD = 0.9;
 
 const CourseVideoPlaceholder = ({ banner }) => (
   <div className='course-video-banner'>
@@ -220,10 +241,57 @@ const CourseVideoPlayer = ({
   subtitleOptions = [],
   subtitlePreference = "off",
   onSubtitleChange,
+  lectureMeta = null,
+  resumePositionSeconds = 0,
+  onProgress,
 }) => {
   const playerRef = useRef(null);
   const videoRef = useRef(null);
   const settingsRef = useRef(null);
+  const resumeTargetRef = useRef(0);
+  const applyResumePosition = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    const target = resumeTargetRef.current;
+    if (!target) {
+      return;
+    }
+    const durationValue = video.duration || duration || 0;
+    if (!durationValue) {
+      return;
+    }
+    const safeTarget = Math.min(target, Math.max(durationValue - 0.35, 0));
+    if (Math.abs(video.currentTime - safeTarget) > 1) {
+      video.currentTime = safeTarget;
+    }
+  }, [duration]);
+  const emitProgressEvent = useCallback(
+    ({ currentTime: overrideTime, duration: overrideDuration, completed }) => {
+      if (!lectureMeta?.lectureId || typeof onProgress !== "function") {
+        return;
+      }
+      const video = videoRef.current;
+      const effectiveDuration =
+        overrideDuration ?? video?.duration ?? duration ?? 0;
+      const effectiveTime =
+        typeof overrideTime === "number" ? overrideTime : video?.currentTime || 0;
+      const ratio = effectiveDuration > 0 ? Math.min(effectiveTime / effectiveDuration, 1) : 0;
+      onProgress({
+        lectureId: lectureMeta.lectureId,
+        moduleId: lectureMeta.moduleId,
+        sectionId: lectureMeta.sectionId,
+        lectureTitle: lectureMeta.lectureTitle,
+        videoUrl: lectureMeta.videoUrl || src,
+        currentTime: effectiveTime,
+        duration: effectiveDuration,
+        completed:
+          typeof completed === "boolean" ? completed : ratio >= VIDEO_COMPLETION_THRESHOLD,
+      });
+    },
+    [lectureMeta, onProgress, duration, src]
+  );
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -243,6 +311,7 @@ const CourseVideoPlayer = ({
     setDuration(video.duration || 0);
     video.volume = volume;
     video.playbackRate = playbackRate;
+    applyResumePosition();
   };
 
   const togglePlay = () => {
@@ -726,12 +795,15 @@ const normalizeModules = (courseData) => {
   if (Array.isArray(courseData.modules) && courseData.modules.length) {
     return courseData.modules.map((module, index) => {
       const topics = module?.topics?.length !== undefined ? module.topics : module?.points;
+      const moduleId = module?.moduleId || module?.id || `module-${index + 1}`;
       return {
+        moduleId,
+        moduleLabel: module?.moduleLabel || `Module ${index + 1}`,
         title: module?.title || `Module ${index + 1}`,
         subtitle: module?.weeksLabel || module?.hours || "",
         topics: toArray(topics),
         outcome: module?.outcome || "",
-        weeklyStructure: normalizeWeeklyStructureBlocks(module),
+        weeklyStructure: normalizeWeeklyStructureBlocks({ ...module, moduleId }, index),
         outcomes: deriveModuleOutcomes(module),
         resources: toArray(module?.resources),
         extras: module?.extras,
@@ -760,40 +832,50 @@ const adaptDetailedModules = (detailModules = []) => {
     return [];
   }
   return detailModules.map((module, index) => {
+    const moduleId = module.moduleId || module.id || `module-${index + 1}`;
     const weeklyStructure = Array.isArray(module.sections)
-      ? module.sections.map((section, sectionIndex) => ({
-          title: section.title || `Week ${sectionIndex + 1}`,
-          subtitle: section.subtitle || "",
-          summary: section.summary || "",
-          lectures: Array.isArray(section.lectures)
-            ? section.lectures.map((lecture) => ({
-                title: lecture.title || "Lecture",
-                duration:
-                  lecture.duration ||
-                  (lecture.video?.duration
-                    ? `${Math.max(1, Math.round(lecture.video.duration))} min`
-                    : ""),
-                type: lecture.video?.url ? "Video" : lecture.type || "",
-                videoUrl:
-                  lecture.video?.url ||
-                  lecture.url ||
-                  lecture.src ||
-                  lecture.link ||
-                  "",
-                poster:
-                  lecture.poster ||
-                  lecture.thumbnail ||
-                  lecture.cover ||
-                  lecture.video?.poster ||
-                  lecture.video?.thumbnail ||
-                  "",
-              }))
-            : [],
-          assignments: Array.isArray(section.assignments) ? section.assignments : toArray(section.assignments),
-          quizzes: Array.isArray(section.quizzes) ? section.quizzes : toArray(section.quizzes),
-          projects: Array.isArray(section.projects) ? section.projects : toArray(section.projects),
-          notes: Array.isArray(section.notes) ? section.notes : toArray(section.notes),
-        }))
+      ? module.sections.map((section, sectionIndex) => {
+          const sectionId = section.sectionId || section.id || `${moduleId}-section-${sectionIndex + 1}`;
+          return {
+            title: section.title || `Week ${sectionIndex + 1}`,
+            subtitle: section.subtitle || "",
+            summary: section.summary || "",
+            sectionId,
+            moduleId,
+            lectures: Array.isArray(section.lectures)
+              ? section.lectures.map((lecture, lectureIdx) => ({
+                  lectureId: lecture.lectureId || lecture.id || `${sectionId}-lecture-${lectureIdx + 1}`,
+                  moduleId,
+                  sectionId,
+                  title: lecture.title || "Lecture",
+                  duration:
+                    lecture.duration ||
+                    (lecture.video?.duration
+                      ? `${Math.max(1, Math.round(lecture.video.duration))} min`
+                      : ""),
+                  type: lecture.video?.url ? "Video" : lecture.type || "",
+                  videoUrl:
+                    lecture.video?.url ||
+                    lecture.url ||
+                    lecture.src ||
+                    lecture.link ||
+                    "",
+                  poster:
+                    lecture.poster ||
+                    lecture.thumbnail ||
+                    lecture.cover ||
+                    lecture.video?.poster ||
+                    lecture.video?.thumbnail ||
+                    "",
+                  subtitles: Array.isArray(lecture.subtitles) ? lecture.subtitles : lecture.captions || [],
+                }))
+              : [],
+            assignments: Array.isArray(section.assignments) ? section.assignments : toArray(section.assignments),
+            quizzes: Array.isArray(section.quizzes) ? section.quizzes : toArray(section.quizzes),
+            projects: Array.isArray(section.projects) ? section.projects : toArray(section.projects),
+            notes: Array.isArray(section.notes) ? section.notes : toArray(section.notes),
+          };
+        })
       : [];
 
     const extras =
@@ -807,6 +889,7 @@ const adaptDetailedModules = (detailModules = []) => {
         : undefined;
 
     return {
+      moduleId,
       title: module.title || module.moduleLabel || `Module ${index + 1}`,
       subtitle: module.weeksLabel || module.subtitle || "",
       topics: Array.isArray(module.topicsCovered) ? module.topicsCovered : toArray(module.topicsCovered),
@@ -941,6 +1024,10 @@ const CourseHomePage = () => {
   const baseModules = useMemo(() => normalizeModules(state.course), [state.course]);
   const modules = detailState.modules.length ? detailState.modules : baseModules;
   const moduleSelectorRef = useRef(null);
+  const [progressState, setProgressState] = useState({ loading: false, data: {} });
+  const [currentLectureMeta, setCurrentLectureMeta] = useState(null);
+  const [resumePositionSeconds, setResumePositionSeconds] = useState(0);
+  const progressUpdateRef = useRef({});
   const moduleIndexFromUrl = useMemo(() => {
     if (sectionFromUrl !== MODULE_SECTION_ID) {
       return null;
@@ -955,6 +1042,43 @@ const CourseHomePage = () => {
   useEffect(() => {
     setActiveSection(sectionFromUrl);
   }, [sectionFromUrl]);
+
+  useEffect(() => {
+    if (!token || !programme || !course) {
+      setProgressState({ loading: false, data: {} });
+      return;
+    }
+    let cancelled = false;
+    const loadProgress = async () => {
+      setProgressState((prev) => ({ ...prev, loading: true }));
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/courses/${encodeURIComponent(programme)}/${encodeURIComponent(course)}/progress`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            credentials: "include",
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Unable to load progress");
+        }
+        const payload = await response.json();
+        if (!cancelled) {
+          setProgressState({ loading: false, data: payload.progress || {} });
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setProgressState((prev) => ({ ...prev, loading: false }));
+        }
+      }
+    };
+    loadProgress();
+    return () => {
+      cancelled = true;
+    };
+  }, [programme, course, token]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -1120,6 +1244,19 @@ const CourseHomePage = () => {
     };
   }, [programme, course, token]);
 
+  useEffect(() => {
+    if (!currentLectureMeta?.lectureId) {
+      setResumePositionSeconds(0);
+      return;
+    }
+    const latest = progressState.data[currentLectureMeta.lectureId];
+    if (latest) {
+      setResumePositionSeconds(latest.lastPositionSeconds || 0);
+    } else {
+      setResumePositionSeconds(0);
+    }
+  }, [progressState, currentLectureMeta]);
+
 
 
 
@@ -1277,6 +1414,75 @@ const CourseHomePage = () => {
       handleModuleClick(moduleIndex);
     }
   };
+  const syncProgressWithServer = useCallback(
+    async ({ lectureId, moduleId, sectionId, lectureTitle, videoUrl, currentTime, duration }) => {
+      if (!token || !programme || !course || !lectureId) {
+        return;
+      }
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/courses/${encodeURIComponent(programme)}/${encodeURIComponent(course)}/progress`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              lectureId,
+              moduleId,
+              sectionId,
+              lectureTitle,
+              videoUrl,
+              currentTime,
+              duration,
+            }),
+          }
+        );
+        if (!response.ok) {
+          return;
+        }
+        const payload = await response.json();
+        if (payload?.progress?.lectureId) {
+          setProgressState((prev) => ({
+            loading: prev.loading,
+            data: { ...prev.data, [payload.progress.lectureId]: payload.progress },
+          }));
+        }
+      } catch (error) {
+        // Silently ignore network errors for progress syncing
+      }
+    },
+    [programme, course, token]
+  );
+
+  const handlePlayerProgress = useCallback(
+    ({ currentTime, duration, completed }) => {
+      if (!token || !currentLectureMeta?.lectureId) {
+        return;
+      }
+      const lectureId = currentLectureMeta.lectureId;
+      const tracker = progressUpdateRef.current[lectureId] || { time: 0, position: 0 };
+      const now = Date.now();
+      const shouldSend =
+        completed || now - tracker.time > 5000 || Math.abs(currentTime - tracker.position) >= 5;
+      if (!shouldSend) {
+        return;
+      }
+      progressUpdateRef.current[lectureId] = { time: now, position: currentTime };
+      syncProgressWithServer({
+        lectureId,
+        moduleId: currentLectureMeta.moduleId,
+        sectionId: currentLectureMeta.sectionId,
+        lectureTitle: currentLectureMeta.lectureTitle,
+        videoUrl: currentLectureMeta.videoUrl || activeVideo?.src || "",
+        currentTime,
+        duration,
+      });
+    },
+    [token, currentLectureMeta, syncProgressWithServer, activeVideo?.src]
+  );
   const handleAutoplayToggle = (nextValue) => {
     setAutoPlayEnabled((prev) =>
       typeof nextValue === "boolean" ? nextValue : !prev
@@ -1287,6 +1493,10 @@ const CourseHomePage = () => {
     if (!lecture?.videoUrl) {
       return;
     }
+    const lectureId =
+      lecture.lectureId ||
+      meta.lectureId ||
+      `${meta.moduleId || "module"}-${meta.sectionId || meta.weekIndex || 0}-${meta.lectureIndex || 0}`;
     const subtitleParts = [];
     if (meta.moduleTitle) {
       subtitleParts.push(meta.moduleTitle);
@@ -1300,12 +1510,24 @@ const CourseHomePage = () => {
       poster: lecture.poster || meta.poster || introVideoPoster || defaultVideoMeta.poster,
       title: lecture.title || "Lecture",
       subtitle,
-      meta: { ...meta, subtitles: lecture.subtitles || lecture.captions || [] },
+      meta: { ...meta, lectureId, subtitles: lecture.subtitles || lecture.captions || [] },
     });
+    setCurrentLectureMeta({
+      lectureId,
+      moduleId: meta.moduleId,
+      sectionId: meta.sectionId,
+      lectureTitle: lecture.title || "Lecture",
+      moduleTitle: meta.moduleTitle,
+      weekTitle: meta.weekTitle,
+      videoUrl: lecture.videoUrl,
+    });
+    const resumeSeconds =
+      lectureId && progressState.data[lectureId]
+        ? progressState.data[lectureId].lastPositionSeconds || 0
+        : 0;
+    setResumePositionSeconds(resumeSeconds);
     if (autoPlayEnabled) {
       setVideoAutoPlayToken((token) => token + 1);
-    } else {
-      setVideoAutoPlayToken((token) => token);
     }
   };
   const toggleModuleDropdown = () => {
@@ -1519,6 +1741,11 @@ const CourseHomePage = () => {
                             weekIndex: weekIdx,
                             lectureIndex: lectureIdx,
                             poster: lecture.poster,
+                            moduleId: module.moduleId,
+                            sectionId: week.sectionId,
+                            lectureId: lecture.lectureId,
+                            lectureTitle: lecture.title,
+                            videoUrl: lecture.videoUrl,
                           };
                           const isActiveLecture =
                             activeVideo?.meta &&
@@ -1975,6 +2202,9 @@ const CourseHomePage = () => {
                 subtitleOptions={subtitleOptions}
                 subtitlePreference={subtitlePreference}
                 onSubtitleChange={setSubtitlePreference}
+                lectureMeta={currentLectureMeta}
+                resumePositionSeconds={resumePositionSeconds}
+                onProgress={handlePlayerProgress}
               />
             ) : (
               <CourseVideoPlaceholder banner={courseBannerUrl} />

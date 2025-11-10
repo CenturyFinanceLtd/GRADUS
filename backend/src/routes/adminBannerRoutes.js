@@ -26,9 +26,15 @@ const upload = multer({
   },
 });
 
+const uploadBannerFields = upload.fields([
+  { name: 'desktopImage', maxCount: 1 },
+  { name: 'mobileImage', maxCount: 1 },
+  { name: 'image', maxCount: 1 }, // backward compatibility
+]);
+
 const maybeUpload = (req, res, next) => {
   if (req.is('multipart/form-data')) {
-    return upload.single('image')(req, res, next);
+    return uploadBannerFields(req, res, next);
   }
   return next();
 };
@@ -36,7 +42,7 @@ const maybeUpload = (req, res, next) => {
 router
   .route('/')
   .get(protectAdmin, listAdminBanners)
-  .post(protectAdmin, upload.single('image'), createBanner);
+  .post(protectAdmin, uploadBannerFields, createBanner);
 
 router
   .route('/:id')
@@ -44,4 +50,3 @@ router
   .delete(protectAdmin, deleteBanner);
 
 module.exports = router;
-

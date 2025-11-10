@@ -7,7 +7,8 @@ export const listAdminBanners = async ({ token } = {}) => {
 
 export const createAdminBanner = async ({
   token,
-  file,
+  desktopFile,
+  mobileFile,
   title,
   subtitle,
   description,
@@ -16,9 +17,12 @@ export const createAdminBanner = async ({
   order = 0,
   active = true,
 }) => {
-  if (!file) throw new Error('Banner image file is required');
+  if (!desktopFile) throw new Error('Desktop banner image file is required');
   const form = new FormData();
-  form.append('image', file);
+  form.append('desktopImage', desktopFile);
+  if (mobileFile) {
+    form.append('mobileImage', mobileFile);
+  }
   if (title) form.append('title', title);
   if (subtitle) form.append('subtitle', subtitle);
   if (description) form.append('description', description);
@@ -31,13 +35,18 @@ export const createAdminBanner = async ({
   return data?.item;
 };
 
-export const updateAdminBanner = async ({ token, id, patch = {}, file }) => {
+export const updateAdminBanner = async ({ token, id, patch = {}, desktopFile, mobileFile }) => {
   if (!id) throw new Error('id is required');
 
   let payload = patch;
-  if (file) {
+  if (desktopFile || mobileFile) {
     const form = new FormData();
-    form.append('image', file);
+    if (desktopFile) {
+      form.append('desktopImage', desktopFile);
+    }
+    if (mobileFile) {
+      form.append('mobileImage', mobileFile);
+    }
     Object.entries(patch || {}).forEach(([key, value]) => {
       if (typeof value === 'undefined' || value === null) return;
       form.append(key, typeof value === 'boolean' ? String(value) : String(value));
@@ -60,4 +69,3 @@ export default {
   updateAdminBanner,
   deleteAdminBanner,
 };
-

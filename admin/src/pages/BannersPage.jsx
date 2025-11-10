@@ -16,7 +16,8 @@ const initialFormState = {
   ctaUrl: '',
   order: 0,
   active: true,
-  file: null,
+  desktopFile: null,
+  mobileFile: null,
 };
 
 const BannersPage = () => {
@@ -34,9 +35,10 @@ const BannersPage = () => {
     ctaUrl: '',
     order: 0,
   });
-  const [isDragging, setIsDragging] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState('');
-  const fileInputRef = useRef(null);
+  const [dragging, setDragging] = useState({ desktop: false, mobile: false });
+  const [previewUrl, setPreviewUrl] = useState({ desktop: '', mobile: '' });
+  const desktopFileInputRef = useRef(null);
+  const mobileFileInputRef = useRef(null);
 
   const load = async () => {
     try {
@@ -54,20 +56,23 @@ const BannersPage = () => {
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
+      Object.values(previewUrl || {}).forEach((url) => {
+        if (url) {
+          URL.revokeObjectURL(url);
+        }
+      });
     };
   }, [previewUrl]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!form.file) return;
+    if (!form.desktopFile) return;
     try {
       setSaving(true);
       await createAdminBanner({
         token,
-        file: form.file,
+        desktopFile: form.desktopFile,
+        mobileFile: form.mobileFile,
         title: form.title,
         subtitle: form.subtitle,
         ctaLabel: form.ctaLabel,
@@ -77,11 +82,17 @@ const BannersPage = () => {
       });
       setForm(initialFormState);
       setPreviewUrl((current) => {
-        if (current) {
-          URL.revokeObjectURL(current);
-        }
-        return '';
+        Object.values(current || {}).forEach((url) => {
+          if (url) URL.revokeObjectURL(url);
+        });
+        return { desktop: '', mobile: '' };
       });
+      if (desktopFileInputRef.current) {
+        desktopFileInputRef.current.value = '';
+      }
+      if (mobileFileInputRef.current) {
+        mobileFileInputRef.current.value = '';
+      }
       await load();
     } catch (e) {
       setError(e?.message || 'Failed to create banner');
@@ -148,11 +159,16 @@ const BannersPage = () => {
     }
   };
 
-  const replaceImage = async (id, file) => {
+  const replaceImage = async (id, variant, file) => {
     if (!file) return;
     try {
       setSaving(true);
-      await updateAdminBanner({ token, id, file });
+      await updateAdminBanner({
+        token,
+        id,
+        desktopFile: variant === 'desktop' ? file : undefined,
+        mobileFile: variant === 'mobile' ? file : undefined,
+      });
       await load();
     } catch (e) {
       setError(e?.message || 'Failed to replace image');
@@ -161,25 +177,27 @@ const BannersPage = () => {
     }
   };
 
-  const handleFileSelection = (file) => {
-    setForm((s) => ({ ...s, file }));
+  const handleFileSelection = (file, variant) => {
+    setForm((s) => ({ ...s, [`${variant}File`]: file }));
     setPreviewUrl((current) => {
-      if (current) {
-        URL.revokeObjectURL(current);
+      const next = { ...current };
+      if (current?.[variant]) {
+        URL.revokeObjectURL(current[variant]);
       }
-      return file ? URL.createObjectURL(file) : '';
+      next[variant] = file ? URL.createObjectURL(file) : '';
+      return next;
     });
   };
 
-  const onFileChange = (e) => {
+  const onFileChange = (e, variant) => {
     const nextFile = e.target.files?.[0] || null;
-    handleFileSelection(nextFile);
+    handleFileSelection(nextFile, variant);
   };
 
-  const onDropFile = (event) => {
+  const onDropFile = (event, variant) => {
     event.preventDefault();
     event.stopPropagation();
-    setIsDragging(false);
+    setDragging((prev) => ({ ...prev, [variant]: false }));
     let file = event.dataTransfer?.files?.[0];
     if (!file && event.dataTransfer?.items?.length) {
       const item = Array.from(event.dataTransfer.items).find((it) => it.kind === 'file');
@@ -188,23 +206,23 @@ const BannersPage = () => {
       }
     }
     if (file) {
-      handleFileSelection(file);
+      handleFileSelection(file, variant);
     }
   };
 
-  const onDragOver = (event) => {
+  const onDragOver = (event, variant) => {
     event.preventDefault();
     event.stopPropagation();
-    if (!isDragging) setIsDragging(true);
+    setDragging((prev) => (prev[variant] ? prev : { ...prev, [variant]: true }));
   };
 
-  const onDragLeave = (event) => {
+  const onDragLeave = (event, variant) => {
     event.preventDefault();
     event.stopPropagation();
     if (event.relatedTarget && event.currentTarget.contains(event.relatedTarget)) {
       return;
     }
-    setIsDragging(false);
+    setDragging((prev) => ({ ...prev, [variant]: false }));
   };
 
   return (
@@ -253,7 +271,7 @@ const BannersPage = () => {
                       placeholder='https://...'
                     />
                   </div>
-                  <div className='col-6'>
+                  <div className='col-md-6 col-12'>
                     <label className='form-label'>Active</label>
                     <select
                       className='form-select'
@@ -264,7 +282,7 @@ const BannersPage = () => {
                       <option value='false'>No</option>
                     </select>
                   </div>
-                  <div className='col-6'>
+                  <div className='col-md-6 col-12'>
                     <label className='form-label'>Order</label>
                     <input
                       type='number'
@@ -274,58 +292,108 @@ const BannersPage = () => {
                     />
                   </div>
                   <div className='col-12'>
-                    <label className='form-label'>Banner Image (JPG/PNG/WebP)</label>
+                    <label className='form-label'>Desktop Banner Image (JPG/PNG/WebP)</label>
                     <div
                       className='border rounded-3 p-4 text-center'
                       style={{
                         cursor: 'pointer',
                         borderStyle: 'dashed',
                         borderWidth: 2,
-                        borderColor: isDragging ? 'var(--bs-primary, #0d6efd)' : 'rgba(15,23,42,0.2)',
-                        backgroundColor: isDragging ? 'rgba(13,110,253,0.08)' : '#fff',
+                        borderColor: dragging.desktop ? 'var(--bs-primary, #0d6efd)' : 'rgba(15,23,42,0.2)',
+                        backgroundColor: dragging.desktop ? 'rgba(13,110,253,0.08)' : '#fff',
                         transition: 'background-color 0.2s ease, border-color 0.2s ease',
                       }}
-                      onDragOver={onDragOver}
-                      onDragEnter={onDragOver}
-                      onDragLeave={onDragLeave}
-                      onDrop={onDropFile}
-                      onClick={() => fileInputRef.current?.click()}
+                      onDragOver={(event) => onDragOver(event, 'desktop')}
+                      onDragEnter={(event) => onDragOver(event, 'desktop')}
+                      onDragLeave={(event) => onDragLeave(event, 'desktop')}
+                      onDrop={(event) => onDropFile(event, 'desktop')}
+                      onClick={() => desktopFileInputRef.current?.click()}
                     >
                       <p className='fw-semibold mb-2'>Drag & drop your banner here</p>
                       <p className='text-sm text-neutral-600 mb-3'>or click to browse</p>
-                      {form.file ? (
+                      {form.desktopFile ? (
                         <>
-                          {previewUrl ? (
+                          {previewUrl.desktop ? (
                             <div className='mb-3'>
                               <img
-                                src={previewUrl}
-                                alt='Selected banner preview'
+                                src={previewUrl.desktop}
+                                alt='Desktop banner preview'
                                 style={{ maxWidth: '100%', borderRadius: 8, boxShadow: '0 4px 20px rgba(15,23,42,0.08)' }}
                               />
                             </div>
                           ) : null}
                           <div className='text-sm text-neutral-900'>
-                            Selected: <span className='fw-medium'>{form.file.name}</span>
+                            Selected: <span className='fw-medium'>{form.desktopFile.name}</span>
                           </div>
                         </>
                       ) : (
-                        <div className='text-sm text-neutral-500'>Recommended size: 1920×720px</div>
+                        <div className='text-sm text-neutral-500'>Recommended size: 1920x720px</div>
                       )}
                     </div>
                     <input
                       type='file'
                       accept='image/*'
                       className='d-none'
-                      ref={fileInputRef}
-                      onChange={onFileChange}
+                      ref={desktopFileInputRef}
+                      onChange={(e) => onFileChange(e, 'desktop')}
                     />
+                  </div>
+                  <div className='col-12'>
+                    <label className='form-label'>Mobile Banner Image (Optional)</label>
+                    <div
+                      className='border rounded-3 p-4 text-center'
+                      style={{
+                        cursor: 'pointer',
+                        borderStyle: 'dashed',
+                        borderWidth: 2,
+                        borderColor: dragging.mobile ? 'var(--bs-primary, #0d6efd)' : 'rgba(15,23,42,0.2)',
+                        backgroundColor: dragging.mobile ? 'rgba(13,110,253,0.08)' : '#fff',
+                        transition: 'background-color 0.2s ease, border-color 0.2s ease',
+                      }}
+                      onDragOver={(event) => onDragOver(event, 'mobile')}
+                      onDragEnter={(event) => onDragOver(event, 'mobile')}
+                      onDragLeave={(event) => onDragLeave(event, 'mobile')}
+                      onDrop={(event) => onDropFile(event, 'mobile')}
+                      onClick={() => mobileFileInputRef.current?.click()}
+                    >
+                      <p className='fw-semibold mb-2'>Drag & drop your mobile banner</p>
+                      <p className='text-sm text-neutral-600 mb-3'>or tap to browse</p>
+                      {form.mobileFile ? (
+                        <>
+                          {previewUrl.mobile ? (
+                            <div className='mb-3'>
+                              <img
+                                src={previewUrl.mobile}
+                                alt='Mobile banner preview'
+                                style={{ maxWidth: '100%', borderRadius: 8, boxShadow: '0 4px 20px rgba(15,23,42,0.08)' }}
+                              />
+                            </div>
+                          ) : null}
+                          <div className='text-sm text-neutral-900'>
+                            Selected: <span className='fw-medium'>{form.mobileFile.name}</span>
+                          </div>
+                        </>
+                      ) : (
+                        <div className='text-sm text-neutral-500'>Recommended size: 1080x1350px</div>
+                      )}
+                    </div>
+                    <input
+                      type='file'
+                      accept='image/*'
+                      className='d-none'
+                      ref={mobileFileInputRef}
+                      onChange={(e) => onFileChange(e, 'mobile')}
+                    />
+                    <div className='form-text text-neutral-500 mt-2'>
+                      Leave empty to reuse the desktop hero on mobile screens.
+                    </div>
                   </div>
                 </div>
                 <div className='mt-16 d-flex gap-3 align-items-center'>
-                  <button type='submit' className='btn btn-primary-600' disabled={saving || !form.file}>
+                  <button type='submit' className='btn btn-primary-600' disabled={saving || !form.desktopFile}>
                     Upload Banner
                   </button>
-                  {saving ? <span className='text-sm text-neutral-500'>Saving…</span> : null}
+                  {saving ? <span className='text-sm text-neutral-500'>Saving...</span> : null}
                 </div>
                 <p className='text-sm text-neutral-500 mt-12 mb-0'>
                   Images upload straight to Cloudinary and are served on gradusindia.in automatically.
@@ -348,27 +416,44 @@ const BannersPage = () => {
                 <table className='table table-striped mb-0'>
                   <thead>
                     <tr>
-                      <th style={{ width: 120 }}>Preview</th>
+                      <th style={{ width: 220 }}>Images</th>
                       <th>Title</th>
                       <th>CTA</th>
-                      <th>Order</th>
+                      <th style={{ width: 80 }}>Order</th>
                       <th>Active</th>
-                      <th style={{ width: 220 }}>Actions</th>
+                      <th style={{ width: 260 }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {(items || []).map((item) => (
                       <tr key={item._id}>
                         <td>
-                          {item.imageUrl ? (
-                            <img
-                              src={item.imageUrl}
-                              alt={item.title || 'banner'}
-                              style={{ width: 96, height: 56, objectFit: 'cover', borderRadius: 8 }}
-                            />
-                          ) : (
-                            <div className='text-neutral-500'>No image</div>
-                          )}
+                          <div className='d-flex flex-column gap-2'>
+                            <div className='d-flex align-items-center gap-2'>
+                              <span className='badge bg-base text-neutral-700'>Desktop</span>
+                              {item.imageUrl ? (
+                                <img
+                                  src={item.imageUrl}
+                                  alt={`${item.title || 'banner'} desktop`}
+                                  style={{ width: 110, height: 60, objectFit: 'cover', borderRadius: 8 }}
+                                />
+                              ) : (
+                                <span className='text-neutral-500 text-sm'>No image</span>
+                              )}
+                            </div>
+                            <div className='d-flex align-items-center gap-2'>
+                              <span className='badge bg-base text-neutral-700'>Mobile</span>
+                              {item.mobileImageUrl ? (
+                                <img
+                                  src={item.mobileImageUrl}
+                                  alt={`${item.title || 'banner'} mobile`}
+                                  style={{ width: 70, height: 70, objectFit: 'cover', borderRadius: 8 }}
+                                />
+                              ) : (
+                                <span className='text-neutral-500 text-sm'>Using desktop fallback</span>
+                              )}
+                            </div>
+                          </div>
                         </td>
                         <td>
                           {editingId === item._id ? (
@@ -411,7 +496,7 @@ const BannersPage = () => {
                             </>
                           ) : (
                             <>
-                              <div>{item.ctaLabel || <span className='text-neutral-500'>—</span>}</div>
+                              <div>{item.ctaLabel || <span className='text-neutral-500'>--</span>}</div>
                               <div className='text-xs text-neutral-500 text-break' style={{ maxWidth: 160 }}>
                                 {item.ctaUrl}
                               </div>
@@ -455,18 +540,32 @@ const BannersPage = () => {
                                 Edit
                               </button>
                             )}
-                            <label className='btn btn-sm btn-outline-info mb-0'>
-                              Replace Image
-                              <input
-                                type='file'
-                                accept='image/*'
-                                hidden
-                                onChange={(e) => {
-                                  replaceImage(item._id, e.target.files?.[0]);
-                                  e.target.value = '';
-                                }}
-                              />
-                            </label>
+                            <div className='d-flex flex-wrap gap-2'>
+                              <label className='btn btn-sm btn-outline-info mb-0'>
+                                Replace Desktop
+                                <input
+                                  type='file'
+                                  accept='image/*'
+                                  hidden
+                                  onChange={(e) => {
+                                    replaceImage(item._id, 'desktop', e.target.files?.[0]);
+                                    e.target.value = '';
+                                  }}
+                                />
+                              </label>
+                              <label className='btn btn-sm btn-outline-info mb-0'>
+                                Replace Mobile
+                                <input
+                                  type='file'
+                                  accept='image/*'
+                                  hidden
+                                  onChange={(e) => {
+                                    replaceImage(item._id, 'mobile', e.target.files?.[0]);
+                                    e.target.value = '';
+                                  }}
+                                />
+                              </label>
+                            </div>
                             <div className='d-flex gap-2 flex-wrap'>
                               <button className='btn btn-sm btn-outline-secondary' onClick={() => onToggle(item)}>
                                 Toggle
@@ -482,7 +581,7 @@ const BannersPage = () => {
                     {!items?.length ? (
                       <tr>
                         <td colSpan={6} className='text-center py-24 text-neutral-500'>
-                          {loading ? 'Loading…' : 'No banners uploaded yet'}
+                          {loading ? 'Loading...' : 'No banners uploaded yet'}
                         </td>
                       </tr>
                     ) : null}

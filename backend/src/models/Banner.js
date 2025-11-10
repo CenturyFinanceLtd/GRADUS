@@ -15,6 +15,17 @@ const bannerSchema = new mongoose.Schema(
     order: { type: Number, default: 0 },
     imageUrl: { type: String, required: true },
     publicId: { type: String, required: true, unique: true },
+    deviceType: {
+      type: String,
+      enum: ['desktop', 'mobile'],
+      default: 'desktop',
+    },
+    mobileImageUrl: { type: String },
+    mobilePublicId: { type: String },
+    mobileFormat: { type: String },
+    mobileWidth: { type: Number },
+    mobileHeight: { type: Number },
+    mobileBytes: { type: Number },
     folder: { type: String },
     format: { type: String },
     width: { type: Number },
@@ -25,4 +36,3 @@ const bannerSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('Banner', bannerSchema);
-

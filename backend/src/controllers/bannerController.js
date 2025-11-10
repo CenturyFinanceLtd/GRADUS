@@ -29,7 +29,25 @@ const serializeBanner = (doc) => ({
   active: Boolean(doc.active),
   order: doc.order || 0,
   imageUrl: doc.imageUrl,
-});
+  desktopImageUrl: doc.imageUrl,
+  mobileImageUrl: doc.mobileImageUrl || '',
+  });
+
+const getUploadedFile = (req, fieldName) => {
+  if (req.files && Array.isArray(req.files[fieldName]) && req.files[fieldName][0]) {
+    return req.files[fieldName][0];
+  }
+  return null;
+};
+
+const destroyImageIfExists = async (publicId) => {
+  if (!publicId) return;
+  try {
+    await cloudinary.uploader.destroy(publicId, { resource_type: 'image' });
+  } catch (e) {
+    // Ignore cleanup issues
+  }
+};
 
 // Public: GET /api/banners
 const listPublicBanners = asyncHandler(async (req, res) => {
@@ -51,12 +69,22 @@ const listAdminBanners = asyncHandler(async (req, res) => {
 // Admin: POST /api/admin/banners (multipart/form-data)
 const createBanner = asyncHandler(async (req, res) => {
   const { title, subtitle, description, ctaLabel, ctaUrl, order, active } = req.body || {};
-  if (!req.file || !req.file.buffer) {
+  const desktopFile =
+    getUploadedFile(req, 'desktopImage') ||
+    getUploadedFile(req, 'image') ||
+    req.file;
+  const mobileFile = getUploadedFile(req, 'mobileImage');
+
+  if (!desktopFile || !desktopFile.buffer) {
     res.status(400);
-    throw new Error('Banner image (field: image) is required');
+    throw new Error('Desktop banner image (field: desktopImage) is required');
   }
 
-  const uploadResult = await uploadImageBuffer(req.file.buffer, { folder: bannerImagesFolder });
+  const desktopUpload = await uploadImageBuffer(desktopFile.buffer, { folder: bannerImagesFolder });
+  let mobileUpload = null;
+  if (mobileFile && mobileFile.buffer) {
+    mobileUpload = await uploadImageBuffer(mobileFile.buffer, { folder: bannerImagesFolder });
+  }
 
   const doc = await Banner.create({
     title: title ? String(title).trim() : undefined,
@@ -66,13 +94,19 @@ const createBanner = asyncHandler(async (req, res) => {
     ctaUrl: ctaUrl ? String(ctaUrl).trim() : undefined,
     order: typeof order !== 'undefined' ? Number(order) : 0,
     active: typeof active !== 'undefined' ? active === 'true' || active === true : true,
-    imageUrl: uploadResult.secure_url,
-    publicId: uploadResult.public_id,
-    folder: uploadResult.folder,
-    format: uploadResult.format,
-    width: uploadResult.width,
-    height: uploadResult.height,
-    bytes: uploadResult.bytes,
+    imageUrl: desktopUpload.secure_url,
+    publicId: desktopUpload.public_id,
+    folder: desktopUpload.folder,
+    format: desktopUpload.format,
+    width: desktopUpload.width,
+    height: desktopUpload.height,
+    bytes: desktopUpload.bytes,
+    mobileImageUrl: mobileUpload?.secure_url,
+    mobilePublicId: mobileUpload?.public_id,
+    mobileFormat: mobileUpload?.format,
+    mobileWidth: mobileUpload?.width,
+    mobileHeight: mobileUpload?.height,
+    mobileBytes: mobileUpload?.bytes,
   });
 
   res.status(201).json({ item: doc });
@@ -99,9 +133,14 @@ const updateBanner = asyncHandler(async (req, res) => {
   if (typeof req.body?.order !== 'undefined') {
     patch.order = Number(req.body.order) || 0;
   }
+  const desktopFile =
+    getUploadedFile(req, 'desktopImage') ||
+    getUploadedFile(req, 'image') ||
+    req.file;
+  const mobileFile = getUploadedFile(req, 'mobileImage');
 
-  if (req.file && req.file.buffer) {
-    const uploadResult = await uploadImageBuffer(req.file.buffer, { folder: bannerImagesFolder });
+  if (desktopFile && desktopFile.buffer) {
+    const uploadResult = await uploadImageBuffer(desktopFile.buffer, { folder: bannerImagesFolder });
     patch.imageUrl = uploadResult.secure_url;
     patch.publicId = uploadResult.public_id;
     patch.folder = uploadResult.folder;
@@ -110,13 +149,19 @@ const updateBanner = asyncHandler(async (req, res) => {
     patch.height = uploadResult.height;
     patch.bytes = uploadResult.bytes;
 
-    if (doc.publicId) {
-      try {
-        await cloudinary.uploader.destroy(doc.publicId, { resource_type: 'image' });
-      } catch (e) {
-        // ignore cleanup failure
-      }
-    }
+    await destroyImageIfExists(doc.publicId);
+  }
+
+  if (mobileFile && mobileFile.buffer) {
+    const uploadResult = await uploadImageBuffer(mobileFile.buffer, { folder: bannerImagesFolder });
+    patch.mobileImageUrl = uploadResult.secure_url;
+    patch.mobilePublicId = uploadResult.public_id;
+    patch.mobileFormat = uploadResult.format;
+    patch.mobileWidth = uploadResult.width;
+    patch.mobileHeight = uploadResult.height;
+    patch.mobileBytes = uploadResult.bytes;
+
+    await destroyImageIfExists(doc.mobilePublicId);
   }
 
   Object.assign(doc, patch);
@@ -134,13 +179,8 @@ const deleteBanner = asyncHandler(async (req, res) => {
     throw new Error('Banner not found');
   }
 
-  if (doc.publicId) {
-    try {
-      await cloudinary.uploader.destroy(doc.publicId, { resource_type: 'image' });
-    } catch (e) {
-      // Ignore deletion failure; asset may already be gone
-    }
-  }
+  await destroyImageIfExists(doc.publicId);
+  await destroyImageIfExists(doc.mobilePublicId);
 
   await doc.deleteOne();
   res.json({ message: 'Deleted' });
