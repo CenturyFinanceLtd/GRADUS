@@ -87,6 +87,29 @@ const moduleExtrasSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const moduleLectureSchema = new mongoose.Schema(
+  {
+    title: { type: String, trim: true },
+    duration: { type: String, trim: true },
+    type: { type: String, trim: true },
+  },
+  { _id: false }
+);
+
+const moduleWeekSchema = new mongoose.Schema(
+  {
+    title: { type: String, trim: true },
+    subtitle: { type: String, trim: true },
+    summary: { type: String, trim: true },
+    lectures: { type: [moduleLectureSchema], default: [] },
+    assignments: { type: [String], default: [] },
+    projects: { type: [String], default: [] },
+    quizzes: { type: [String], default: [] },
+    notes: { type: [String], default: [] },
+  },
+  { _id: false }
+);
+
 const moduleSchema = new mongoose.Schema(
   {
     title: { type: String, trim: true },
@@ -94,6 +117,9 @@ const moduleSchema = new mongoose.Schema(
     topics: { type: [String], default: [] },
     outcome: { type: String, trim: true },
     extras: { type: moduleExtrasSchema, default: undefined },
+    weeklyStructure: { type: [moduleWeekSchema], default: [] },
+    outcomes: { type: [String], default: [] },
+    resources: { type: [String], default: [] },
   },
   { _id: false }
 );
@@ -171,6 +197,15 @@ const courseSchema = new mongoose.Schema(
       url: { type: String, trim: true, default: '' },
       publicId: { type: String, trim: true, default: '' },
       alt: { type: String, trim: true, default: '' },
+    },
+    media: {
+      banner: {
+        url: { type: String, trim: true, default: '' },
+        publicId: { type: String, trim: true, default: '' },
+        width: { type: Number, default: 0 },
+        height: { type: Number, default: 0 },
+        format: { type: String, trim: true, default: '' },
+      },
     },
 
     order: { type: Number },

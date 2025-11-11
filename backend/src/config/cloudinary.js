@@ -37,6 +37,8 @@ const {
   CLOUDINARY_TESTIMONIALS_FOLDER,
   CLOUDINARY_COURSE_IMAGES_FOLDER,
   CLOUDINARY_BLOG_IMAGES_FOLDER,
+  CLOUDINARY_BANNER_IMAGES_FOLDER,
+  CLOUDINARY_LECTURE_VIDEOS_FOLDER,
 } = process.env;
 
 // Configure from env; do not proceed if missing in production
@@ -50,10 +52,14 @@ cloudinary.config({
 const defaultTestimonialsFolder = CLOUDINARY_TESTIMONIALS_FOLDER || 'testimonials';
 const defaultCourseImagesFolder = CLOUDINARY_COURSE_IMAGES_FOLDER || 'courses';
 const defaultBlogImagesFolder = CLOUDINARY_BLOG_IMAGES_FOLDER || 'blogs';
+const defaultBannerImagesFolder = CLOUDINARY_BANNER_IMAGES_FOLDER || 'banners';
+const defaultLectureVideosFolder = CLOUDINARY_LECTURE_VIDEOS_FOLDER || 'gradus/lectures';
 
 module.exports = {
   cloudinary,
   testimonialsFolder: defaultTestimonialsFolder,
   courseImagesFolder: defaultCourseImagesFolder,
   blogImagesFolder: defaultBlogImagesFolder,
+  bannerImagesFolder: defaultBannerImagesFolder,
+  lectureVideosFolder: defaultLectureVideosFolder,
 };

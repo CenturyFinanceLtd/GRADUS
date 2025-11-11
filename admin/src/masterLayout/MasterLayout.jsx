@@ -425,6 +425,15 @@ const MasterLayout = ({ children }) => {
             </li>
             <li>
               <NavLink
+                to='/course-progress'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='ph:chart-bar-bold' className='menu-icon' />
+                <span>Course Progress</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
                 to='/blog'
                 className={(navData) => (navData.isActive ? "active-page" : "")}
               >
@@ -439,6 +448,15 @@ const MasterLayout = ({ children }) => {
               >
                 <Icon icon='mdi:account-voice' className='menu-icon' />
                 <span>Testimonials</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to='/banners'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='mdi:image-multiple-outline' className='menu-icon' />
+                <span>Banners</span>
               </NavLink>
             </li>
             

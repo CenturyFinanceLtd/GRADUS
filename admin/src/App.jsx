@@ -14,6 +14,8 @@ const AvatarPage = lazy(() => import("./pages/AvatarPage"));
 const BadgesPage = lazy(() => import("./pages/BadgesPage"));
 const CoursesAdminPage = lazy(() => import("./pages/CoursesAdmin"));
 const CustomizeCoursesPage = lazy(() => import("./pages/CustomizeCourses"));
+const CourseProgressPage = lazy(() => import("./pages/CourseProgressPage"));
+const CourseDetailDataPage = lazy(() => import("./pages/CourseDetailData"));
 const ButtonPage = lazy(() => import("./pages/ButtonPage"));
 const CalendarMainPage = lazy(() => import("./pages/CalendarMainPage"));
 const CardPage = lazy(() => import("./pages/CardPage"));
@@ -95,6 +97,7 @@ const BlogDetailsPage = lazy(() => import("./pages/BlogDetailsPage"));
 const AddBlogPage = lazy(() => import("./pages/AddBlogPage"));
 const EditBlogPage = lazy(() => import("./pages/EditBlogPage"));
 const TestimonialsPage = lazy(() => import("./pages/TestimonialsPage"));
+const BannersPage = lazy(() => import("./pages/BannersPage"));
 const ComingSoonPage = lazy(() => import("./pages/ComingSoonPage"));
 const AccessDeniedPage = lazy(() => import("./pages/AccessDeniedPage"));
 const TicketsPage = lazy(() => import("./pages/TicketsPage.jsx"));
@@ -130,6 +133,11 @@ function App() {
         <Route exact path='/courses-admin' element={<CoursesAdminPage />} />
         {/* Customize Courses (raw JSON) */}
         <Route exact path='/customize-courses' element={<CustomizeCoursesPage />} />
+        <Route exact path='/course-progress' element={<CourseProgressPage />} />
+        <Route
+          path='/customize-courses/:courseKey/detailed-course-data'
+          element={<CourseDetailDataPage />}
+        />
         {/* SL */}
         <Route exact path='/add-user' element={<AddUserPage />} />
         <Route exact path='/alert' element={<AlertPage />} />
@@ -179,6 +187,7 @@ function App() {
         { /* Courses management and enrollments pages removed */ }
 
         <Route exact path='/testimonials' element={<TestimonialsPage />} />
+        <Route exact path='/banners' element={<BannersPage />} />
         <Route exact path='/coming-soon' element={<ComingSoonPage />} />
         <Route exact path='/access-denied' element={<AccessDeniedPage />} />
         <Route exact path='/maintenance' element={<MaintenancePage />} />

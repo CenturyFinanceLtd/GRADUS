@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import MasterLayout from '../masterLayout/MasterLayout';
 import { useAuthContext } from '../context/AuthContext';
 import {
@@ -110,6 +111,7 @@ const pretty = (obj) => JSON.stringify(obj, null, 2);
 
 const CustomizeCourses = () => {
   const { token } = useAuthContext();
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -117,23 +119,133 @@ const CustomizeCourses = () => {
   const [saving, setSaving] = useState(false);
   const [selectedSlug, setSelectedSlug] = useState('');
   const [imageUploading, setImageUploading] = useState(false);
+  const [imageUploadTarget, setImageUploadTarget] = useState('image');
+  const [search, setSearch] = useState('');
+  const [lastSync, setLastSync] = useState(null);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editorMode, setEditorMode] = useState('create');
+  const imageInputRef = useRef(null);
+  const uploadingCoverImage = imageUploading && imageUploadTarget === 'image';
+  const uploadingBannerImage = imageUploading && imageUploadTarget === 'banner';
 
-  const load = async () => {
+  useEffect(() => {
+    document.body.style.overflow = editorOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [editorOpen]);
+
+  const filteredItems = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return items;
+    return items.filter((it) => {
+      const fields = [it?.name, it?.slug, it?.programme, it?.programmeSlug, it?.courseSlug];
+      return fields.some((field) => field?.toLowerCase().includes(term));
+    });
+  }, [items, search]);
+
+  const jsonState = useMemo(() => {
+    try {
+      return { valid: true, parsed: JSON.parse(jsonText || '{}') };
+    } catch (err) {
+      return { valid: false, error: err?.message || 'Unable to parse JSON' };
+    }
+  }, [jsonText]);
+
+  const selectedCourse = useMemo(
+    () => items.find((it) => (selectedSlug ? it.slug === selectedSlug : false)),
+    [items, selectedSlug],
+  );
+
+  const currentCourseMeta = useMemo(() => {
+    const base =
+      (editorOpen ? (jsonState.valid ? jsonState.parsed : null) : null) || selectedCourse || SAMPLE;
+    const modulesFromStats = base?.stats?.modules;
+    const modulesFromArray = Array.isArray(base?.modules) ? base.modules.length : undefined;
+    return {
+      name: base?.name || (selectedSlug ? selectedSlug.split('/').pop() : 'New Course'),
+      programme: base?.programme || base?.programmeSlug || 'Programme TBD',
+      duration: base?.stats?.duration || base?.duration || '',
+      modules: modulesFromStats || modulesFromArray || 0,
+    };
+  }, [editorOpen, jsonState, selectedCourse, selectedSlug]);
+
+  const heroDescription = useMemo(() => {
+    if (editorOpen) {
+      return 'JSON editor is open. Save your changes or cancel to return to the dashboard.';
+    }
+    if (selectedCourse) {
+      const focusName = selectedCourse.name || selectedCourse.slug || 'this course';
+      return `Currently focused on ${focusName}. Click Edit to open the JSON modal or Add Course to start a new draft.`;
+    }
+    return 'Start with the curated template, tailor the content, and publish a polished course in minutes.';
+  }, [editorOpen, selectedCourse]);
+
+  const heroStats = [
+    { label: 'Total Courses', value: items.length || 0 },
+    { label: 'Visible Now', value: filteredItems.length || 0 },
+    { label: 'Active Modules', value: currentCourseMeta.modules || 0 },
+    {
+      label: 'Last Sync',
+      value: lastSync ? lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--',
+    },
+  ];
+
+  const jsonStatusStyles = jsonState.valid
+    ? { backgroundColor: 'rgba(25,135,84,.12)', color: '#198754' }
+    : { backgroundColor: 'rgba(220,53,69,.15)', color: '#dc3545' };
+
+  const jsonStatusLabel = jsonState.valid ? 'JSON valid' : 'JSON invalid';
+
+  const isFiltering = Boolean(search.trim());
+  const coursesLabel = isFiltering
+    ? `Showing ${filteredItems.length} of ${items.length}`
+    : `${items.length} total courses`;
+
+  const modalTitle = editorMode === 'edit' ? 'Edit Course' : 'Add Course';
+  const modalPrimaryLabel =
+    editorMode === 'edit' ? (saving ? 'Saving...' : 'Save Changes') : (saving ? 'Adding...' : 'Add Course');
+  const canDismissEditor = !saving;
+  const closeEditor = () => {
+    if (!canDismissEditor) return;
+    setEditorOpen(false);
+  };
+
+  const goToDetailedData = (course) => {
+    const slugValue = typeof course === 'string' ? course : course?.slug;
+    if (!slugValue) return;
+    const friendlySegment = (course?.name || course?.courseSlug || slugValue)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '') || 'course';
+    const search = `?slug=${encodeURIComponent(slugValue)}`;
+    navigate(`/customize-courses/${friendlySegment}/detailed-course-data${search}`, {
+      state: { courseName: course?.name || '', slug: slugValue },
+    });
+  };
+
+  const load = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
       const data = await listRawCourses({ token });
-      setItems(Array.isArray(data) ? data : []);
+      const normalized = Array.isArray(data) ? data : [];
+      setItems(normalized);
+      setSelectedSlug((prev) => {
+        if (prev && normalized.some((course) => course.slug === prev)) return prev;
+        return normalized[0]?.slug || '';
+      });
+      setLastSync(new Date());
     } catch (e) {
       setError(e?.message || 'Failed to load');
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
 
   const onSelectForEdit = async (slug) => {
     try {
@@ -141,6 +253,8 @@ const CustomizeCourses = () => {
       setSelectedSlug(slug);
       const c = await getRawCourseBySlug({ slug, token });
       setJsonText(pretty(c));
+      setEditorMode('edit');
+      setEditorOpen(true);
     } catch (e) {
       setError(e?.message || 'Failed to load course');
     }
@@ -165,8 +279,10 @@ const CustomizeCourses = () => {
   };
 
   const onNew = () => {
-    setSelectedSlug('');
     setJsonText(pretty(SAMPLE));
+    setEditorMode('create');
+    setEditorOpen(true);
+    setError('');
   };
 
   const onSave = async () => {
@@ -189,7 +305,8 @@ const CustomizeCourses = () => {
       const saved = await upsertRawCourse({ data: parsed, token });
       setSelectedSlug(saved?.slug || '');
       await load();
-      toast.success('Saved');
+      toast.success(editorMode === 'edit' ? 'Course updated' : 'Course added');
+      setEditorOpen(false);
     } catch (e) {
       const msg = e?.message || 'Failed to save';
       setError(msg);
@@ -197,6 +314,22 @@ const CustomizeCourses = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const prettifyJson = () => {
+    try {
+      setJsonText(pretty(JSON.parse(jsonText || '{}')));
+      toast.success('JSON formatted');
+    } catch (err) {
+      const msg = err?.message || 'Invalid JSON';
+      toast.error(`Fix JSON before prettifying: ${msg}`);
+    }
+  };
+
+  const triggerImageUpload = (target = 'image') => {
+    if (imageUploading) return;
+    setImageUploadTarget(target);
+    imageInputRef.current?.click();
   };
 
   const insertImageIntoJson = (uploaded) => {
@@ -208,8 +341,30 @@ const CustomizeCourses = () => {
         publicId: uploaded?.publicId || '',
       };
       setJsonText(pretty(obj));
-    } catch (e) {
-      alert('Invalid JSON. Please fix JSON before inserting image.');
+    } catch (err) {
+      console.error('Failed to merge uploaded image into JSON', err);
+      toast.error('Invalid JSON. Please fix JSON before inserting image.');
+    }
+  };
+
+  const insertBannerIntoJson = (uploaded) => {
+    try {
+      const obj = JSON.parse(jsonText || '{}');
+      obj.media = {
+        ...(obj.media || {}),
+        banner: {
+          ...(obj.media?.banner || {}),
+          url: uploaded?.url || '',
+          publicId: uploaded?.publicId || '',
+          width: uploaded?.width,
+          height: uploaded?.height,
+          format: uploaded?.format,
+        },
+      };
+      setJsonText(pretty(obj));
+    } catch (err) {
+      console.error('Failed to merge uploaded banner into JSON', err);
+      toast.error('Invalid JSON. Please fix JSON before inserting banner.');
     }
   };
 
@@ -219,13 +374,18 @@ const CustomizeCourses = () => {
     try {
       setImageUploading(true);
       const uploaded = await uploadImage({ file, token });
-      insertImageIntoJson(uploaded);
+      if (imageUploadTarget === 'banner') {
+        insertBannerIntoJson(uploaded);
+      } else {
+        insertImageIntoJson(uploaded);
+      }
       toast.success('Image uploaded');
     } catch (err) {
       const msg = err?.message || 'Upload failed';
       toast.error(msg);
     } finally {
       setImageUploading(false);
+      setImageUploadTarget('image');
       // reset input so same file can be reselected
       e.target.value = '';
     }
@@ -236,77 +396,256 @@ const CustomizeCourses = () => {
       <div className='container-xxl'>
         <div className='row g-4'>
           <div className='col-12'>
-            <div className='card card-body'>
-              <div className='d-flex align-items-center justify-content-between'>
-                <h5 className='mb-0'>Customize Courses</h5>
-                <div className='d-flex gap-2'>
-                  <button type='button' className='btn btn-sm btn-primary' onClick={onNew}>New from Template</button>
-                  <button type='button' className='btn btn-sm btn-success' onClick={onSave} disabled={saving}>{saving ? 'Saving...' : 'Save / Upsert'}</button>
+            <div className='card border-0 shadow-sm overflow-hidden'>
+              <div className='row g-0 align-items-center'>
+                <div
+                  className='col-lg-8 p-4 p-lg-5 text-white'
+                  style={{ background: 'linear-gradient(135deg, #101936, #243b55)' }}
+                >
+                  <p className='text-uppercase small fw-semibold mb-2 text-white-50'>Course builder</p>
+                  <h4 className='mb-3 text-white'>Customize Courses</h4>
+                  {selectedCourse ? (
+                    <div className='text-white-50 small mb-2'>
+                      {selectedCourse.programme || selectedCourse.programmeSlug || 'Programme'}
+                      {selectedCourse.stats?.duration ? ` • ${selectedCourse.stats.duration}` : ''}
+                      {selectedCourse.slug ? ` • ${selectedCourse.slug}` : ''}
+                    </div>
+                  ) : null}
+                  <p className='mb-0' style={{ opacity: 0.85 }}>
+                    {heroDescription}
+                  </p>
                 </div>
-              </div>
-              {error ? <div className='alert alert-danger mt-12'>{error}</div> : null}
-            </div>
-          </div>
-
-          {/* Left: list */}
-          <div className='col-12 col-lg-5'>
-            <div className='card card-body h-100'>
-              <div className='d-flex align-items-center justify-content-between mb-12'>
-                <h6 className='mb-0'>Saved Courses</h6>
-                <span className='text-sm text-secondary'>{loading ? 'Loading…' : `${items.length} items`}</span>
-              </div>
-              <div className='table-responsive'>
-                <table className='table'>
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Slug</th>
-                      <th className='text-end'>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((it) => (
-                      <tr key={it._id || it.id || it.slug}>
-                        <td className='text-truncate' style={{maxWidth: 180}}>{it.name}</td>
-                        <td className='text-truncate' style={{maxWidth: 200}}>{it.slug}</td>
-                        <td className='text-end'>
-                          <button className='btn btn-xs btn-outline-primary me-2' onClick={() => onSelectForEdit(it.slug)}>Edit</button>
-                          <button className='btn btn-xs btn-outline-danger' onClick={() => onDelete(it.slug)}>Delete</button>
-                        </td>
-                      </tr>
+                <div className='col-lg-4 p-4 bg-light'>
+                  <div className='row g-3'>
+                    {heroStats.map((stat) => (
+                      <div className='col-6' key={stat.label}>
+                        <div className='border rounded-3 bg-white p-3 text-center h-100 shadow-sm'>
+                          <div className='text-uppercase small text-muted mb-1'>{stat.label}</div>
+                          <div className='fs-5 fw-semibold text-dark'>{stat.value}</div>
+                        </div>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                </div>
+              </div>
+              <div className='border-top px-4 py-3 bg-white d-flex flex-wrap align-items-center gap-2'>
+                <div className='text-muted small me-auto'>
+                  {selectedCourse
+                    ? `Focused on ${selectedCourse.slug}`
+                    : 'Select a course or add a new one to start editing'}
+                </div>
+                <button type='button' className='btn btn-sm btn-primary' onClick={onNew}>
+                  Add Course
+                </button>
               </div>
             </div>
           </div>
+          {error ? (
+            <div className='col-12'>
+              <div className='alert alert-danger mb-0'>{error}</div>
+            </div>
+          ) : null}
 
-          {/* Right: JSON editor */}
-          <div className='col-12 col-lg-7'>
-            <div className='card card-body h-100'>
-              <div className='d-flex align-items-center justify-content-between mb-8'>
-                <h6 className='mb-0'>{selectedSlug ? `Editing: ${selectedSlug}` : 'New Course'}</h6>
-                <div className='d-flex gap-2'>
-                  <input id='json-course-image-input' type='file' accept='image/*' className='d-none' onChange={onUploadImage} />
-                  <button type='button' className='btn btn-xs btn-outline-primary' onClick={() => document.getElementById('json-course-image-input').click()} disabled={imageUploading}>
-                    {imageUploading ? 'Uploading…' : 'Upload Image'}
+          <div className='col-12'>
+            <div className='card border-0 shadow-sm h-100'>
+              <div className='card-body d-flex flex-column'>
+                <div className='d-flex flex-wrap align-items-start gap-3'>
+                  <div>
+                    <p className='text-uppercase small text-muted mb-1'>Saved courses</p>
+                    <h5 className='mb-0'>{coursesLabel}</h5>
+                    {lastSync ? (
+                      <span className='small text-muted'>Synced {lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    ) : null}
+                  </div>
+                  <button
+                    type='button'
+                    className='btn btn-sm btn-outline-secondary ms-auto'
+                    onClick={load}
+                    disabled={loading}
+                  >
+                    {loading ? 'Refreshing...' : 'Refresh'}
                   </button>
-                  <button type='button' className='btn btn-xs btn-secondary' onClick={() => setJsonText(pretty(JSON.parse(jsonText)))}>Prettify</button>
                 </div>
-              </div>
-              <textarea
-                className='form-control'
-                style={{ fontFamily: 'monospace', minHeight: 520 }}
-                value={jsonText}
-                onChange={(e) => setJsonText(e.target.value)}
-              />
-              <div className='mt-10 text-sm text-secondary'>
-                Tip: Slug should be in the form <code>programme-slug/course-slug</code>. If omitted, it will be generated from <code>programmeSlug</code> and <code>courseSlug</code>.
+                <div className='mt-3'>
+                  <div className='input-group input-group-sm shadow-sm'>
+                    <span className='input-group-text bg-white border-0 text-muted'>Search</span>
+                    <input
+                      type='text'
+                      className='form-control border-0'
+                      placeholder='Search by name or slug'
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                    />
+                    {search ? (
+                      <button className='btn btn-light border-0' type='button' onClick={() => setSearch('')}>
+                        Clear
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+                <div className='table-responsive mt-4'>
+                  <table className='table align-middle mb-0'>
+                    <thead className='text-muted text-uppercase small'>
+                      <tr>
+                        <th style={{ width: '35%' }}>Name</th>
+                        <th style={{ width: '35%' }}>Slug</th>
+                        <th className='text-end' style={{ width: '30%' }}>
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {loading ? (
+                        <tr>
+                          <td colSpan={3} className='text-center text-muted py-5'>
+                            Loading courses...
+                          </td>
+                        </tr>
+                      ) : filteredItems.length ? (
+                        filteredItems.map((it) => (
+                      <tr
+                        key={it._id || it.id || it.slug}
+                        className={`saved-course-row ${selectedSlug === it.slug ? 'table-active' : ''}`}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => setSelectedSlug(it.slug)}
+                      >
+                        <td className='text-truncate' style={{ maxWidth: 160 }}>
+                          <div className='fw-semibold'>{it.name}</div>
+                          <div className='text-muted small'>{it.programme || it.programmeSlug}</div>
+                        </td>
+                        <td className='text-truncate text-muted small' style={{ maxWidth: 200 }}>
+                          {it.slug}
+                            </td>
+                        <td className='text-end'>
+                              <div className='btn-group btn-group-sm'>
+                                <button
+                                  type='button'
+                                  className='btn btn-outline-info'
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    goToDetailedData(it);
+                                  }}
+                                >
+                                  Detailed
+                                </button>
+                                <button
+                                  type='button'
+                                  className='btn btn-outline-primary'
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                onSelectForEdit(it.slug);
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type='button'
+                              className='btn btn-outline-danger'
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                onDelete(it.slug);
+                              }}
+                            >
+                              Delete
+                            </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={3} className='text-center text-muted py-5'>
+                            {isFiltering ? 'No courses match your search.' : 'No courses available yet.'}
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                <div className='mt-3 small text-muted border-top pt-3'>
+                  Tip: Use <strong>Edit</strong> for the JSON modal, or <strong>Detailed</strong> to open the full module designer in a new view. All edits now happen through those dedicated surfaces.
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      {editorOpen ? (
+        <div
+          className='position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center'
+          style={{ background: 'rgba(5,10,24,0.75)', zIndex: 1050 }}
+          role='dialog'
+          aria-modal='true'
+        >
+          <div className='bg-white rounded-4 shadow-lg w-100' style={{ maxWidth: 960, maxHeight: '92vh' }}>
+            <div className='d-flex align-items-start justify-content-between border-bottom px-4 py-3'>
+              <div>
+                <p className='text-uppercase small text-muted mb-1'>{modalTitle}</p>
+                <h5 className='mb-1'>{currentCourseMeta.name}</h5>
+                <div className='text-muted small'>
+                  {editorMode === 'edit' && selectedSlug ? selectedSlug : 'New course draft'}
+                </div>
+              </div>
+              <span className='badge fw-semibold text-uppercase' style={jsonStatusStyles}>
+                {jsonStatusLabel}
+              </span>
+            </div>
+            <div className='px-4 py-3 border-bottom d-flex flex-wrap gap-2 align-items-center'>
+              <button type='button' className='btn btn-sm btn-outline-secondary' onClick={() => setJsonText(pretty(SAMPLE))}>
+                New from Template
+              </button>
+              <button
+                type='button'
+                className='btn btn-sm btn-outline-primary'
+                onClick={() => triggerImageUpload('image')}
+                disabled={imageUploading}
+              >
+                {uploadingCoverImage ? 'Uploading cover...' : 'Upload Image'}
+              </button>
+              <button
+                type='button'
+                className='btn btn-sm btn-outline-primary'
+                onClick={() => triggerImageUpload('banner')}
+                disabled={imageUploading}
+              >
+                {uploadingBannerImage ? 'Uploading banner...' : 'Upload Banner'}
+              </button>
+              <button type='button' className='btn btn-sm btn-outline-dark' onClick={prettifyJson}>
+                Prettify JSON
+              </button>
+              <span className='small text-muted ms-auto'>
+                {editorMode === 'edit' ? 'Editing existing record' : 'Adding a brand new course'}
+              </span>
+            </div>
+            {!jsonState.valid && jsonState.error ? (
+              <div className='alert alert-warning mb-0 rounded-0 px-4 py-2 small'>{jsonState.error}</div>
+            ) : null}
+            <div className='px-4 py-3' style={{ maxHeight: '55vh', overflow: 'auto' }}>
+              <textarea
+                className='form-control border rounded-3 shadow-sm'
+                style={{ fontFamily: 'monospace', minHeight: 420 }}
+                value={jsonText}
+                onChange={(e) => setJsonText(e.target.value)}
+                aria-label='Course JSON editor'
+              />
+            </div>
+            <div className='border-top px-4 py-3 d-flex justify-content-between align-items-center'>
+              <button
+                type='button'
+                className='btn btn-outline-secondary'
+                onClick={closeEditor}
+                disabled={!canDismissEditor}
+              >
+                Cancel
+              </button>
+              <button type='button' className='btn btn-success' onClick={onSave} disabled={saving}>
+                {modalPrimaryLabel}
+              </button>
+            </div>
+            <input ref={imageInputRef} type='file' accept='image/*' className='d-none' onChange={onUploadImage} />
+          </div>
+        </div>
+      ) : null}
     </MasterLayout>
   );
 };

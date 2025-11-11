@@ -7,6 +7,11 @@ const crypto = require('crypto');
 const Course = require('../models/Course');
 const CoursePage = require('../models/CoursePage');
 const Enrollment = require('../models/Enrollment');
+const CourseDetail = require('../models/CourseDetail');
+const CourseProgress = require('../models/CourseProgress');
+const { buildFallbackModules } = require('../utils/courseDetail');
+
+const PROGRESS_COMPLETION_THRESHOLD = 0.9;
 
 const normalizeString = (value) => {
   if (typeof value !== 'string') {
@@ -108,6 +113,14 @@ const buildCombinedSlug = ({ programmeSlug, courseSlug, slug, name, programme })
   const coursePart = clean(courseSlug || (name ? generateSlug(name) : ''));
   if (prog && coursePart) return `${prog}/${coursePart}`;
   return coursePart || prog || '';
+};
+
+const resolveCourseSlugFromParams = ({ programmeSlug, courseSlug }) => {
+  if (programmeSlug && courseSlug) {
+    return `${String(programmeSlug).trim().toLowerCase()}/${String(courseSlug).trim().toLowerCase()}`;
+  }
+  const fallback = courseSlug || programmeSlug || '';
+  return String(fallback).trim().toLowerCase();
 };
 
 const buildCoursePayload = (body, existingCourse) => {
@@ -641,6 +654,217 @@ const getCourseBySlug = asyncHandler(async (req, res) => {
   });
 });
 
+const getCourseModulesDetail = asyncHandler(async (req, res) => {
+  const { programmeSlug, courseSlug } = req.params;
+  const normalizedSlug = buildCombinedSlug({
+    programmeSlug: programmeSlug ? programmeSlug.trim().toLowerCase() : '',
+    courseSlug: courseSlug ? courseSlug.trim().toLowerCase() : '',
+  });
+
+  if (!normalizedSlug) {
+    res.status(400);
+    throw new Error('A valid course identifier is required.');
+  }
+
+  const course = await Course.findOne({ slug: normalizedSlug }).lean();
+  if (!course) {
+    res.status(404);
+    throw new Error('Course not found.');
+  }
+
+  const detail = await CourseDetail.findOne({ courseSlug: normalizedSlug }).lean();
+  const modules =
+    detail && Array.isArray(detail.modules) && detail.modules.length
+      ? detail.modules
+      : buildFallbackModules(course);
+
+  res.json({
+    course: {
+      slug: normalizedSlug,
+      name: course.name,
+      programme: course.programme,
+      programmeSlug: course.programmeSlug,
+      courseSlug: course.courseSlug,
+    },
+    modules,
+  });
+});
+
+const mapProgressDoc = (doc) => ({
+  lectureId: doc.lectureId,
+  moduleId: doc.moduleId,
+  sectionId: doc.sectionId,
+  lectureTitle: doc.lectureTitle,
+  videoUrl: doc.videoUrl,
+  durationSeconds: doc.durationSeconds,
+  lastPositionSeconds: doc.lastPositionSeconds,
+  watchedSeconds: doc.watchedSeconds,
+  completionRatio: doc.completionRatio,
+  completedAt: doc.completedAt,
+  updatedAt: doc.updatedAt,
+});
+
+const getCourseProgress = asyncHandler(async (req, res) => {
+  const courseSlug = resolveCourseSlugFromParams(req.params);
+  if (!courseSlug) {
+    res.status(400);
+    throw new Error('A valid course identifier is required.');
+  }
+  const docs = await CourseProgress.find({
+    user: req.user._id,
+    courseSlug,
+  })
+    .sort({ updatedAt: -1 })
+    .lean();
+  const progress = docs.reduce((acc, doc) => {
+    acc[doc.lectureId] = mapProgressDoc(doc);
+    return acc;
+  }, {});
+  res.json({ progress });
+});
+
+const recordCourseProgress = asyncHandler(async (req, res) => {
+  const courseSlug = resolveCourseSlugFromParams(req.params);
+  if (!courseSlug) {
+    res.status(400);
+    throw new Error('A valid course identifier is required.');
+  }
+  const { lectureId, moduleId, sectionId, lectureTitle, videoUrl, currentTime, duration } = req.body || {};
+  if (!lectureId) {
+    res.status(400);
+    throw new Error('lectureId is required.');
+  }
+  const parsedDuration = Math.max(0, Number(duration) || 0);
+  const parsedPosition = Math.max(0, Number(currentTime) || 0);
+  const ratioFromPayload = parsedDuration > 0 ? Math.min(parsedPosition / parsedDuration, 1) : 0;
+
+  const existing = await CourseProgress.findOne({
+    user: req.user._id,
+    courseSlug,
+    lectureId,
+  });
+
+  const nextRatio = Math.max(existing?.completionRatio || 0, ratioFromPayload);
+  const update = {
+    user: req.user._id,
+    courseSlug,
+    lectureId,
+    moduleId: moduleId || existing?.moduleId || '',
+    sectionId: sectionId || existing?.sectionId || '',
+    lectureTitle: lectureTitle || existing?.lectureTitle || '',
+    videoUrl: videoUrl || existing?.videoUrl || '',
+    durationSeconds: Math.max(parsedDuration, existing?.durationSeconds || 0),
+    lastPositionSeconds: parsedPosition,
+    watchedSeconds: Math.max(existing?.watchedSeconds || 0, parsedPosition),
+    completionRatio: nextRatio,
+  };
+  if (existing?.completedAt) {
+    update.completedAt = existing.completedAt;
+  }
+  if (!existing?.completedAt && nextRatio >= PROGRESS_COMPLETION_THRESHOLD) {
+    update.completedAt = new Date();
+  }
+
+  const saved = await CourseProgress.findOneAndUpdate(
+    { user: req.user._id, courseSlug, lectureId },
+    { $set: update },
+    { new: true, upsert: true, setDefaultsOnInsert: true }
+  );
+
+  res.json({ progress: mapProgressDoc(saved) });
+});
+
+const getCourseProgressAdmin = asyncHandler(async (req, res) => {
+  const courseSlug = resolveCourseSlugFromParams({ courseSlug: req.params.courseSlug });
+  if (!courseSlug) {
+    res.status(400);
+    throw new Error('A valid course identifier is required.');
+  }
+  const filter = { courseSlug };
+  if (req.query.userId) {
+    filter.user = req.query.userId;
+  }
+  const docs = await CourseProgress.find(filter)
+    .populate({ path: 'user', select: 'name email avatar role' })
+    .sort({ updatedAt: -1 })
+    .lean();
+
+  const grouped = {};
+  docs.forEach((doc) => {
+    const key = doc.user?._id?.toString() || 'unknown';
+    if (!grouped[key]) {
+      grouped[key] = {
+        userId: key,
+        userName: doc.user?.name || 'Unknown learner',
+        userEmail: doc.user?.email || '',
+        avatar: doc.user?.avatar || '',
+        role: doc.user?.role || '',
+        totalLectures: 0,
+        completedLectures: 0,
+        lectures: [],
+      };
+    }
+    const ratio = doc.completionRatio || 0;
+    const isCompleted = Boolean(doc.completedAt) || ratio >= PROGRESS_COMPLETION_THRESHOLD;
+    grouped[key].totalLectures += 1;
+    if (isCompleted) {
+      grouped[key].completedLectures += 1;
+    }
+    grouped[key].lectures.push({
+      lectureId: doc.lectureId,
+      lectureTitle: doc.lectureTitle,
+      moduleId: doc.moduleId,
+      sectionId: doc.sectionId,
+      completionRatio: ratio,
+      completedAt: doc.completedAt,
+      lastPositionSeconds: doc.lastPositionSeconds,
+      durationSeconds: doc.durationSeconds,
+      updatedAt: doc.updatedAt,
+    });
+  });
+
+  const progressByUser = Object.values(grouped).sort((a, b) =>
+    (a.userName || '').localeCompare(b.userName || '')
+  );
+
+  const lectureTotals = {};
+  docs.forEach((doc) => {
+    const lectureId = doc.lectureId;
+    if (!lectureId) {
+      return;
+    }
+    if (!lectureTotals[lectureId]) {
+      lectureTotals[lectureId] = {
+        lectureId,
+        lectureTitle: doc.lectureTitle,
+        moduleId: doc.moduleId,
+        sectionId: doc.sectionId,
+        learners: 0,
+        completed: 0,
+        avgCompletion: 0,
+      };
+    }
+    const entry = lectureTotals[lectureId];
+    entry.learners += 1;
+    const ratio = doc.completionRatio || 0;
+    entry.avgCompletion += ratio;
+    if (doc.completedAt || ratio >= PROGRESS_COMPLETION_THRESHOLD) {
+      entry.completed += 1;
+    }
+  });
+
+  const lectureSummary = Object.values(lectureTotals).map((entry) => ({
+    ...entry,
+    avgCompletion: entry.learners ? entry.avgCompletion / entry.learners : 0,
+  }));
+
+  res.json({
+    courseSlug,
+    progress: progressByUser,
+    lectureSummary,
+  });
+});
+
 module.exports = {
   getCoursePage,
   listCourses,
@@ -652,6 +876,10 @@ module.exports = {
   enrollInCourse,
   listEnrollments,
   getCourseBySlug,
+  getCourseModulesDetail,
+  getCourseProgress,
+  recordCourseProgress,
+  getCourseProgressAdmin,
 };
 
 /**
@@ -667,7 +895,7 @@ const validateRawCourse = (input) => {
     'name','programme','programmeSlug','courseSlug','slug',
     'hero','stats','aboutProgram','learn','skills','details','capstone',
     'careerOutcomes','toolsFrameworks','modules','instructors','offeredBy',
-    'image'
+    'image','media'
   ]);
 
   const unexpected = Object.keys(input || {}).filter((k) => !allowRoot.has(k));
@@ -683,8 +911,88 @@ const validateRawCourse = (input) => {
     for (let i=0;i<v.length;i++) { if (typeof v[i] !== 'string') { const e = new Error(`${path}[${i}] must be a string`); e.status=400; throw e; } const s = v[i].trim(); if (s) out.push(s); }
     return out;
   };
+  const optionalNumber = (value) => {
+    if (value === undefined || value === null || value === '') {
+      return undefined;
+    }
+    const num = Number(value);
+    return Number.isFinite(num) ? num : undefined;
+  };
   const obj = (v, path) => { if (v && typeof v === 'object' && !Array.isArray(v)) return v; const e = new Error(`${path} must be an object`); e.status=400; throw e; };
   const requireKeysOnly = (o, allowed, path) => { const bad = Object.keys(o).filter((k) => !allowed.has(k)); if (bad.length) { const e = new Error(`Unexpected fields in ${path}: ${bad.join(', ')}`); e.status=400; throw e; } };
+  const normalizeLectureItems = (value, path) => {
+    if (value === undefined) {
+      return [];
+    }
+    if (!Array.isArray(value)) {
+      const e = new Error(`${path} must be an array`);
+      e.status = 400;
+      throw e;
+    }
+    const lectureAllowed = new Set(['title', 'duration', 'type']);
+    return value
+      .map((item, idx) => {
+        if (typeof item === 'string') {
+          const title = str(item);
+          return title ? { title, duration: '', type: '' } : null;
+        }
+        const lecture = obj(item, `${path}[${idx}]`);
+        requireKeysOnly(lecture, lectureAllowed, `${path}[${idx}]`);
+        const title = str(lecture.title);
+        const duration = str(lecture.duration);
+        const type = str(lecture.type);
+        if (!title) {
+          const e = new Error(`${path}[${idx}].title is required`);
+          e.status = 400;
+          throw e;
+        }
+        return { title, duration, type };
+      })
+      .filter(Boolean);
+  };
+  const normalizeWeeklyStructureInput = (value, path) => {
+    if (value === undefined) {
+      return [];
+    }
+    const blocks = Array.isArray(value) ? value : [value];
+    const weekAllowed = new Set(['title', 'subtitle', 'summary', 'lectures', 'assignments', 'projects', 'quizzes', 'notes']);
+    return blocks
+      .map((entry, idx) => {
+        if (entry == null || entry === '') {
+          return null;
+        }
+        if (typeof entry === 'string') {
+          const title = str(entry);
+          return title
+            ? {
+                title,
+                subtitle: '',
+                summary: '',
+                lectures: [],
+                assignments: [],
+                projects: [],
+                quizzes: [],
+                notes: [],
+              }
+            : null;
+        }
+        const block = obj(entry, `${path}[${idx}]`);
+        requireKeysOnly(block, weekAllowed, `${path}[${idx}]`);
+        const title = str(block.title);
+        const subtitle = str(block.subtitle);
+        const summary = str(block.summary);
+        const lectures = normalizeLectureItems(block.lectures, `${path}[${idx}].lectures`);
+        const assignments = strArr(block.assignments || [], `${path}[${idx}].assignments`);
+        const projects = strArr(block.projects || [], `${path}[${idx}].projects`);
+        const quizzes = strArr(block.quizzes || [], `${path}[${idx}].quizzes`);
+        const notes = strArr(block.notes || [], `${path}[${idx}].notes`);
+        if (!title && !subtitle && !summary && !lectures.length && !assignments.length && !projects.length && !quizzes.length && !notes.length) {
+          return null;
+        }
+        return { title, subtitle, summary, lectures, assignments, projects, quizzes, notes };
+      })
+      .filter(Boolean);
+  };
 
   const out = {};
   out.name = str(input.name); if (!out.name) { const e = new Error('name is required'); e.status=400; throw e; }
@@ -735,7 +1043,7 @@ const validateRawCourse = (input) => {
   if (!Array.isArray(input.modules)) { const e = new Error('modules must be an array'); e.status=400; throw e; }
   out.modules = input.modules.map((m, i) => {
     const mod = obj(m, `modules[${i}]`);
-    const modAllowed = new Set(['title','weeksLabel','topics','outcome','extras']);
+    const modAllowed = new Set(['title','weeksLabel','topics','outcome','extras','weeklyStructure','structure','outcomes','resources']);
     requireKeysOnly(mod, modAllowed, `modules[${i}]`);
     const extras = mod.extras === undefined ? undefined : obj(mod.extras, `modules[${i}].extras`);
     let extrasOut;
@@ -749,11 +1057,18 @@ const validateRawCourse = (input) => {
         deliverables: strArr(extras.deliverables || [], `modules[${i}].extras.deliverables`),
       };
     }
+    const weeklyStructureRaw = mod.weeklyStructure !== undefined ? mod.weeklyStructure : mod.structure;
+    const weeklyStructure = normalizeWeeklyStructureInput(weeklyStructureRaw, `modules[${i}].weeklyStructure`);
+    const outcomesArr = strArr(mod.outcomes || [], `modules[${i}].outcomes`);
+    const resourcesArr = strArr(mod.resources || [], `modules[${i}].resources`);
     return {
       title: str(mod.title),
       weeksLabel: str(mod.weeksLabel),
       topics: strArr(mod.topics || [], `modules[${i}].topics`),
       outcome: str(mod.outcome),
+      weeklyStructure,
+      outcomes: outcomesArr,
+      resources: resourcesArr,
       ...(extrasOut ? { extras: extrasOut } : {}),
     };
   });
@@ -779,6 +1094,31 @@ const validateRawCourse = (input) => {
     const img = obj(input.image || {}, 'image');
     requireKeysOnly(img, imgAllowed, 'image');
     out.image = { url: str(img.url), alt: str(img.alt), publicId: str(img.publicId) };
+  }
+
+  if (typeof input.media !== 'undefined') {
+    const mediaAllowed = new Set(['banner']);
+    const media = obj(input.media || {}, 'media');
+    requireKeysOnly(media, mediaAllowed, 'media');
+    const mediaOut = {};
+    if (typeof media.banner !== 'undefined') {
+      const bannerAllowed = new Set(['url','publicId','width','height','format']);
+      const banner = obj(media.banner || {}, 'media.banner');
+      requireKeysOnly(banner, bannerAllowed, 'media.banner');
+      const bannerOut = {
+        url: str(banner.url),
+        publicId: str(banner.publicId),
+        format: str(banner.format),
+      };
+      const width = optionalNumber(banner.width);
+      const height = optionalNumber(banner.height);
+      if (width !== undefined) bannerOut.width = width;
+      if (height !== undefined) bannerOut.height = height;
+      mediaOut.banner = bannerOut;
+    }
+    if (Object.keys(mediaOut).length) {
+      out.media = mediaOut;
+    }
   }
 
   return out;
@@ -824,7 +1164,7 @@ const getRawCourseBySlug = asyncHandler(async (req, res) => {
   const allowRoot = new Set([
     'name','programme','programmeSlug','courseSlug','slug',
     'hero','stats','aboutProgram','learn','skills','details','capstone',
-    'careerOutcomes','toolsFrameworks','modules','instructors','offeredBy','image'
+    'careerOutcomes','toolsFrameworks','modules','instructors','offeredBy','image','media'
   ]);
   const sanitized = {};
   for (const key of allowRoot) {

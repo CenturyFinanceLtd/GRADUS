@@ -54,6 +54,7 @@ import SupportPage from "./pages/SupportPage.jsx";
 import SupportTicketDetailsPage from "./pages/SupportTicketDetailsPage.jsx";
 import SocialPortfolioPage from "./pages/SocialPortfolioPage.jsx";
 import ProgrammeCoursePage from "./pages/ProgrammeCoursePage.jsx";
+import CourseHomePage from "./pages/CourseHomePage.jsx";
 
 const GradusXRedirect = () => {
   const { course } = useParams();
@@ -187,6 +188,14 @@ function App() {
         <Route exact path='/social' element={<SocialPortfolioPage />} />
         {/* Canonicalize old programme slug to hyphenated version */}
         <Route path='/gradusx/:course' element={<GradusXRedirect />} />
+        <Route
+          path='/:programme/:course/home/:section?/:subSection?'
+          element={
+            <RequireAuth>
+              <CourseHomePage />
+            </RequireAuth>
+          }
+        />
         <Route path='/:programme/:course' element={<ProgrammeCoursePage />} />
       </Routes>
     </BrowserRouter>

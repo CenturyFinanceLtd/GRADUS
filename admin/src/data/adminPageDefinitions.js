@@ -23,11 +23,13 @@
   // Courses management
   { key: 'courses_admin', label: 'Courses', path: '/courses-admin', category: 'Application' },
   { key: 'customize_courses', label: 'Customize Courses', path: '/customize-courses', category: 'Application' },
+  { key: 'course_progress', label: 'Course Progress', path: '/course-progress', category: 'Application' },
   { key: 'blog_list', label: 'Blogs', path: '/blog', category: 'Content & Media' },
   { key: 'blog_details', label: 'Blog Details', path: '/blog/:blogId', category: 'Content & Media' },
   { key: 'blog_details_alt', label: 'Blog Details (Alt)', path: '/blog-details/:blogId', category: 'Content & Media' },
   { key: 'blog_add', label: 'Add Blog', path: '/add-blog', category: 'Content & Media' },
   { key: 'testimonials', label: 'Testimonials', path: '/testimonials', category: 'Application' },
+  { key: 'banners', label: 'Banners', path: '/banners', category: 'Application' },
   { key: 'video_generator', label: 'Video Generator', path: '/video-generator', category: 'Content & Media' },
   { key: 'videos', label: 'Videos', path: '/videos', category: 'Content & Media' },
   { key: 'voice_generator', label: 'Voice Generator', path: '/voice-generator', category: 'Content & Media' },

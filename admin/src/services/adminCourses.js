@@ -54,6 +54,18 @@ export const deleteCourseBySlug = async ({ slug, token }) => {
   return data?.message === 'Course deleted';
 };
 
+export const fetchCourseProgressAdmin = async ({ slug, token, userId } = {}) => {
+  if (!slug) {
+    return { progress: [], lectureSummary: [] };
+  }
+  const query = userId ? `?userId=${encodeURIComponent(userId)}` : '';
+  const data = await apiClient(`/admin/courses/progress/${encodeURIComponent(slug)}${query}`, { token });
+  return {
+    progress: data?.progress || [],
+    lectureSummary: data?.lectureSummary || [],
+  };
+};
+
 export default {
   listAdminCourses,
   createAdminCourse,
@@ -64,4 +76,5 @@ export default {
   getRawCourseBySlug,
   upsertRawCourse,
   deleteCourseBySlug,
+  fetchCourseProgressAdmin,
 };

@@ -11,7 +11,10 @@ function ProgrammeCoursePage() {
   const { programme, course } = useParams();
   const navigate = useNavigate();
   const { token, loading: authLoading } = useAuth();
-  const combinedSlug = `${(programme || '').trim().toLowerCase()}/${(course || '').trim().toLowerCase()}`;
+  const programmeSlug = (programme || '').trim().toLowerCase();
+  const courseSlug = (course || '').trim().toLowerCase();
+  const combinedSlug = `${programmeSlug}/${courseSlug}`;
+  const courseHomePath = programmeSlug && courseSlug ? `/${programmeSlug}/${courseSlug}/home/course-info` : '/my-courses';
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -201,7 +204,7 @@ function ProgrammeCoursePage() {
                 )}
               </div>
               {data?.isEnrolled ? (
-                <Link to='/my-courses' className='btn btn-main w-100'>Go to Course</Link>
+                <Link to={courseHomePath} className='btn btn-main w-100'>Go to Course</Link>
               ) : (
                 <Link
                   to={`/payment?course=${encodeURIComponent(combinedSlug)}`}
