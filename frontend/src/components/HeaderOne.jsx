@@ -108,22 +108,36 @@ const HeaderOne = () => {
   }, []);
 
   const handleSubmenuClick = (index) => {
-    if (windowWidth < 992) {
-      setActiveSubmenu((prevIndex) => {
-        const next = prevIndex === index ? null : index;
-        // When switching/opening a top-level section, collapse any open programme groups under it
-        if (next !== null) {
-          setOpenMegaGroups((prev) => {
-            const updated = { ...prev };
-            Object.keys(updated).forEach((k) => {
-              if (k.startsWith(`${next}-`)) delete updated[k];
-            });
-            return updated;
-          });
+    if (windowWidth >= 992) return;
+
+    setActiveSubmenu((prevIndex) => {
+      const isClosing = prevIndex === index;
+      const nextIndex = isClosing ? null : index;
+
+      setOpenMegaGroups((prev) => {
+        if (!Object.keys(prev).length && isClosing) {
+          return prev;
         }
-        return next;
+        const updated = { ...prev };
+        const parentsToReset = new Set([index]);
+        if (prevIndex !== null && prevIndex !== index) {
+          parentsToReset.add(prevIndex);
+        }
+        const prevKeys = Object.keys(prev);
+        let changed = false;
+        parentsToReset.forEach((parent) => {
+          prevKeys.forEach((key) => {
+            if (key.startsWith(`${parent}-`) && key in updated) {
+              delete updated[key];
+              changed = true;
+            }
+          });
+        });
+        return changed ? updated : prev;
       });
-    }
+
+      return nextIndex;
+    });
   };
 
   const toggleMegaGroup = (parentIndex, key) => {
@@ -179,6 +193,28 @@ const HeaderOne = () => {
     }
     return normalized;
   };
+
+  const buildCourseLink = (programme, course) => {
+    const programmeSlug = programme?.slug || slugify(programme?.title || '');
+    const courseSlug =
+      typeof course === 'string'
+        ? slugify(course)
+        : course?.slug || slugify(course?.name || course?.title || '');
+
+    if (programmeSlug && courseSlug) {
+      return `/${programmeSlug}/${courseSlug}`;
+    }
+
+    return programme?.anchor || '/our-courses';
+  };
+
+  const getCollapseStyle = (isOpen) => ({
+    maxHeight: isOpen ? "2000px" : 0,
+    opacity: isOpen ? 1 : 0,
+    paddingTop: isOpen ? "10px" : 0,
+    paddingBottom: isOpen ? "10px" : 0,
+    visibility: isOpen ? "visible" : "hidden",
+  });
 
   // Build initial static mega groups from local data
   const buildMegaFromProgrammes = () =>
@@ -497,7 +533,13 @@ const HeaderOne = () => {
                       onClick={() => handleSubmenuClick(index)}
                     >
                       <span className='nav-menu__link'>{item.label}</span>
-                      <ul className='nav-submenu scroll-sm'>
+                      <ul
+                        className={`nav-submenu scroll-sm nav-submenu--collapsible ${
+                          isActive ? "is-open" : ""
+                        }`}
+                        aria-hidden={!isActive}
+                        style={getCollapseStyle(isActive)}
+                      >
                         {item.mega && item.mega.map((group, gIdx) => {
                           const gKey = `${index}-${gIdx}`;
                           const gActive = !!openMegaGroups[gKey];
@@ -511,6 +553,7 @@ const HeaderOne = () => {
                                 className='nav-submenu__link hover-bg-neutral-30 d-flex align-items-center justify-content-between'
                                 aria-expanded={gActive}
                                 aria-controls={`mega-group-${gKey}`}
+                                tabIndex={isActive ? 0 : -1}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   toggleMegaGroup(index, gKey);
@@ -519,6 +562,7 @@ const HeaderOne = () => {
                                 <span>{group.title}</span>
                                 <i className='ph ph-caret-down submenu-caret' aria-hidden='true' />
                               </button>
+<<<<<<< Updated upstream
                               {/* Render items only when expanded */}
                               {gActive && (
                                 <ul id={`mega-group-${gKey}`} className='nav-submenu'>
@@ -542,13 +586,48 @@ const HeaderOne = () => {
                                     })}
                                 </ul>
                               )}
+=======
+                              <ul
+                                id={`mega-group-${gKey}`}
+                                className={`nav-submenu nav-submenu--collapsible ${
+                                  gActive ? "is-open" : ""
+                                }`}
+                                aria-hidden={!gActive}
+                                style={getCollapseStyle(gActive)}
+                              >
+                                {Array.isArray(group.items) &&
+                                  group.items.map((course, cIdx) => (
+                                    <li
+                                      key={`m-${index}-g-${gIdx}-c-${cIdx}`}
+                                      className='nav-submenu__item'
+                                    >
+                                      <Link
+                                        to={buildCourseLink(group, course)}
+                                        className='nav-submenu__link hover-bg-neutral-30'
+                                        onClick={closeMenu}
+                                        tabIndex={gActive ? 0 : -1}
+                                      >
+                                        {formatCourseLabel(
+                                          typeof course === 'string'
+                                            ? course
+                                            : course?.name || course?.title || ''
+                                        )}
+                                      </Link>
+                                    </li>
+                                  ))}
+                              </ul>
+>>>>>>> Stashed changes
                             </li>
                           )
                         })}
                         {/* On mobile, only show fallback links if no mega groups are defined */}
                         {!item.mega && item.links && item.links.map((link, linkIndex) => (
                           <li key={`m-${index}-l-${linkIndex}`} className='nav-submenu__item'>
-                            <Link to={link.to} className='nav-submenu__link hover-bg-neutral-30'>
+                            <Link
+                              to={link.to}
+                              className='nav-submenu__link hover-bg-neutral-30'
+                              tabIndex={isActive ? 0 : -1}
+                            >
                               {link.label}
                             </Link>
                           </li>

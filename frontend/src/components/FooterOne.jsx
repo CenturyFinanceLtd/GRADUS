@@ -1,7 +1,49 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import privacyLinks from "../data/privacyLinks";
 
+const MOBILE_BREAKPOINT = 768;
+
 const FooterOne = () => {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth < MOBILE_BREAKPOINT : false
+  );
+  const [accordionState, setAccordionState] = useState({
+    navigation: false,
+    privacy: false,
+  });
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    setAccordionState({
+      navigation: !isMobile,
+      privacy: !isMobile,
+    });
+  }, [isMobile]);
+
+  const toggleSection = (key) => {
+    if (!isMobile) return;
+    setAccordionState((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const accordionContentStyle = (isOpen) =>
+    isMobile
+      ? {
+          maxHeight: isOpen ? "1000px" : 0,
+          opacity: isOpen ? 1 : 0,
+          visibility: isOpen ? "visible" : "hidden",
+          paddingTop: isOpen ? "12px" : 0,
+        }
+      : {};
+
+  const isNavOpen = accordionState.navigation;
+  const isPrivacyOpen = accordionState.privacy;
+
   return (
     <footer className='footer bg-main-25 position-relative z-1'>
       <img
@@ -58,65 +100,95 @@ const FooterOne = () => {
               </div>
             </div>
             <div className='col' data-aos='fade-up' data-aos-duration={400}>
-              <div className='footer-item'>
-                <h4 className='footer-item__title mb-32'>Navigation</h4>
-                <ul className='footer-menu'>
-                  <li className='mb-16'>
-                    <Link
-                      to='/about-us'
-                      className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
-                    >
-                      About us
-                    </Link>
-                  </li>
-                  <li className='mb-16'>
-                    <Link
-                      to='/our-courses'
-                      className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
-                    >
-                      Courses
-                    </Link>
-                  </li>
-                  {/* Show Instructor label but keep it non-clickable */}
-                  <li className='mb-16'>
-                    <span
-                      className='text-neutral-500'
-                      aria-disabled='true'
-                    >
-                      Instructor
-                    </span>
-                  </li>
-                  <li className='mb-0'>
-                    <Link
-                      to='/blogs'
-                      className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
-                    >
-                      Blogs
-                    </Link>
-                  </li>
-                </ul>
+              <div className={`footer-item footer-accordion ${isNavOpen ? "is-open" : ""}`}>
+                <button
+                  type='button'
+                  className='footer-item__title footer-accordion__trigger'
+                  onClick={() => toggleSection("navigation")}
+                  aria-expanded={isNavOpen}
+                  aria-controls='footer-navigation-links'
+                >
+                  <span>Navigation</span>
+                  <i className='ph ph-caret-down' aria-hidden='true' />
+                </button>
+                <div
+                  id='footer-navigation-links'
+                  className='footer-accordion__content'
+                  style={accordionContentStyle(isNavOpen)}
+                >
+                  <ul className='footer-menu'>
+                    <li className='mb-16'>
+                      <Link
+                        to='/about-us'
+                        className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
+                      >
+                        About us
+                      </Link>
+                    </li>
+                    <li className='mb-16'>
+                      <Link
+                        to='/our-courses'
+                        className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
+                      >
+                        Courses
+                      </Link>
+                    </li>
+                    {/* Show Instructor label but keep it non-clickable */}
+                    <li className='mb-16'>
+                      <span
+                        className='text-neutral-500'
+                        aria-disabled='true'
+                      >
+                        Instructor
+                      </span>
+                    </li>
+                    <li className='mb-0'>
+                      <Link
+                        to='/blogs'
+                        className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
+                      >
+                        Blogs
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
             <div className='col' data-aos='fade-up' data-aos-duration={600}>
-              <div className='footer-item'>
-                <h4 className='footer-item__title mb-32'>Privacy Statements</h4>
-                <ul className='footer-menu'>
-                  {privacyLinks.map(({ to, label }, index) => (
-                    <li
-                      key={to}
-                      className={`mb-${
-                        index === privacyLinks.length - 1 ? "0" : "16"
-                      }`}
-                    >
-                      <Link
-                        to={to}
-                        className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
+              <div className={`footer-item footer-accordion ${isPrivacyOpen ? "is-open" : ""}`}>
+                <button
+                  type='button'
+                  className='footer-item__title footer-accordion__trigger'
+                  onClick={() => toggleSection("privacy")}
+                  aria-expanded={isPrivacyOpen}
+                  aria-controls='footer-privacy-links'
+                >
+                  <span>Privacy Statements</span>
+                  <i className='ph ph-caret-down' aria-hidden='true' />
+                </button>
+                <div
+                  id='footer-privacy-links'
+                  className='footer-accordion__content'
+                  style={accordionContentStyle(isPrivacyOpen)}
+                >
+                  <ul className='footer-menu'>
+                    {privacyLinks.map(({ to, label }, index) => (
+                      <li
+                        key={to}
+                        className={`mb-${
+                          index === privacyLinks.length - 1 ? "0" : "16"
+                        }`}
                       >
-                        {label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                        <Link
+                          to={to}
+                          className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
+                        >
+                          {label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
             <div className='col' data-aos='fade-up' data-aos-duration={800}>
