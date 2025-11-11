@@ -215,8 +215,10 @@ const HeaderOne = () => {
     const main = meta?.label
       ? meta.label.replace(/\s*\([^)]*\)\s*/g, " ").trim() || meta.label
       : "";
+    const fallback = meta.slug ? meta.slug.replace(/-/g, " ") : "";
+    const main = cleaned || fallback || meta.label || "";
     return (
-      <span className={`nav-mega__text ${meta?.flagship ? "is-flagship" : ""}`}>
+      <span className={`nav-mega__text ${meta.flagship ? "is-flagship" : ""}`}>
         {main}
       </span>
     );
@@ -671,25 +673,32 @@ const HeaderOne = () => {
                                 style={getCollapseStyle(gActive)}
                               >
                                 {Array.isArray(group.items) &&
-                                  group.items.map((course, cIdx) => (
-                                    <li
-                                      key={`m-${index}-g-${gIdx}-c-${cIdx}`}
-                                      className='nav-submenu__item'
-                                    >
-                                      <Link
-                                        to={buildCourseLink(group, course)}
-                                        className='nav-submenu__link hover-bg-neutral-30'
-                                        onClick={closeMenu}
-                                        tabIndex={gActive ? 0 : -1}
+                                  group.items.map((course, cIdx) => {
+                                    const courseMeta = getCourseMeta(course);
+                                    const toneAttr = courseMeta.flagship
+                                      ? courseMeta.tone ||
+                                        (group.slug === "gradus-finlit" ? "finlit" : "tech")
+                                      : undefined;
+
+                                    return (
+                                      <li
+                                        key={`m-${index}-g-${gIdx}-c-${cIdx}`}
+                                        className='nav-submenu__item'
                                       >
-                                        {formatCourseLabel(
-                                          typeof course === 'string'
-                                            ? course
-                                            : course?.name || course?.title || ''
-                                        )}
-                                      </Link>
-                                    </li>
-                                  ))}
+                                        <Link
+                                          to={buildCourseLink(group, courseMeta)}
+                                          className={`nav-submenu__link hover-bg-neutral-30 ${
+                                            courseMeta.flagship ? "is-flagship" : ""
+                                          }`}
+                                          data-flagship-tone={toneAttr}
+                                          onClick={closeMenu}
+                                          tabIndex={gActive ? 0 : -1}
+                                        >
+                                          {formatCourseLabel(courseMeta)}
+                                        </Link>
+                                      </li>
+                                    );
+                                  })}
                               </ul>
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
