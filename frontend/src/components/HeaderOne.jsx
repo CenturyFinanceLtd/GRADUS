@@ -432,7 +432,7 @@ const HeaderOne = () => {
         </div>
       </header>
 
-      <div className={`mobile-menu scroll-sm d-lg-none d-block ${isMenuActive ? "active" : ""}`}>
+      <div className={`mobile-menu scroll-sm d-xl-none d-block ${isMenuActive ? "active" : ""}`}>
         <div className='mobile-menu__inner'>
           <div className='mobile-menu__header'>
             <Link to='/' className='mobile-menu__logo'>
