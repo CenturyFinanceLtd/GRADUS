@@ -14,6 +14,7 @@ const {
   getRawCourseBySlug,
   deleteCourseBySlug,
   getCourseProgressAdmin,
+  getCourseEnrollmentsAdmin,
 } = require('../controllers/courseController');
 
 const Course = require('../models/Course');
@@ -46,6 +47,8 @@ router.patch('/:courseId', protectAdmin, updateCourse);
 router.delete('/:courseId', protectAdmin, deleteCourse);
 
 router.get('/progress/:courseSlug', protectAdmin, getCourseProgressAdmin);
+router.get('/enrollments', protectAdmin, getCourseEnrollmentsAdmin);
+router.get('/enrollments/:courseSlug', protectAdmin, getCourseEnrollmentsAdmin);
 
 // RAW JSON admin endpoints (full shape)
 router.get('/raw', protectAdmin, listRawCourses);

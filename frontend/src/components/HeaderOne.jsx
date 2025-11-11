@@ -138,13 +138,46 @@ const HeaderOne = () => {
     });
   };
 
-  const formatCourseLabel = (text) => {
-    try {
-      const main = typeof text === 'string' ? text.replace(/\s*\([^)]*\)\s*/g, ' ').trim() : text;
-      return <span className='nav-mega__text'>{main}</span>;
-    } catch {
-      return <span className='nav-mega__text'>{text}</span>;
+  const getCourseMeta = (course) => {
+    const isObject = course && typeof course === "object";
+    const rawLabel = isObject
+      ? course?.name || course?.title || course?.label || ""
+      : typeof course === "string"
+      ? course
+      : "";
+    const label = String(rawLabel || "").trim();
+    const fallbackSlug = (isObject ? course?.slug : null) || (label ? slugify(label) : "");
+    const slugValue = (fallbackSlug || "course").trim();
+    return {
+      label,
+      slug: slugValue,
+      flagship: Boolean(isObject && course?.flagship),
+      tone: isObject && course?.flagshipTone ? course.flagshipTone : undefined,
+    };
+  };
+
+  const formatCourseLabel = (meta) => {
+    const main = meta?.label
+      ? meta.label.replace(/\s*\([^)]*\)\s*/g, " ").trim() || meta.label
+      : "";
+    return (
+      <span className={`nav-mega__text ${meta?.flagship ? "is-flagship" : ""}`}>
+        {main}
+      </span>
+    );
+  };
+
+  const normalizeIncomingCourse = (course, programmeSlug) => {
+    if (!course) return course;
+    const slug = String(course.slug || "").toLowerCase();
+    const normalized = { ...course };
+    if (programmeSlug === "gradus-x" && slug === "agentic-ai-engineering-program") {
+      normalized.slug = "agentic-ai-engineering-flagship";
+      normalized.title = "Agentic AI Engineering Flagship Program";
+      normalized.flagship = true;
+      normalized.flagshipTone = "tech";
     }
+    return normalized;
   };
 
   // Build initial static mega groups from local data
@@ -173,7 +206,10 @@ const HeaderOne = () => {
           const full = String(it.slug || '').trim();
           const [progSlug, courseSlug] = full.split('/');
           if (!progSlug || !courseSlug) continue;
-          const entry = { slug: courseSlug, title: it.name || courseSlug.replace(/-/g, ' ') };
+          const entry = normalizeIncomingCourse(
+            { slug: courseSlug, title: it.name || courseSlug.replace(/-/g, ' ') },
+            progSlug
+          );
           if (!grouped.has(progSlug)) grouped.set(progSlug, []);
           grouped.get(progSlug).push(entry);
         }
@@ -275,16 +311,21 @@ const HeaderOne = () => {
                                   {group.title}
                                 </Link>
                                 <ul className='nav-mega__list'>
-                                  {group.items.map((course, cIdx) => (
-                                    <li key={`mega-${gIdx}-${cIdx}`} className='nav-mega__item'>
-                                      <Link
-                                        to={`/${group.slug || slugify(group.title)}/${typeof course === 'string' ? slugify(course) : (course?.slug || slugify(course?.name || course?.title || ''))}`}
-                                        className='nav-mega__link'
-                                      >
-                                        {formatCourseLabel(typeof course === 'string' ? course : (course?.name || course?.title || ''))}
-                                      </Link>
-                                    </li>
-                                  ))}
+                                  {group.items.map((course, cIdx) => {
+                                    const courseMeta = getCourseMeta(course);
+                                    const toneAttr = courseMeta.flagship ? (courseMeta.tone || (group.slug === "gradus-finlit" ? "finlit" : "tech")) : undefined;
+                                    return (
+                                      <li key={`mega-${gIdx}-${cIdx}`} className='nav-mega__item'>
+                                        <Link
+                                          to={`/${group.slug || slugify(group.title)}/${courseMeta.slug}`}
+                                          className={`nav-mega__link ${courseMeta.flagship ? "is-flagship" : ""}`}
+                                          data-flagship-tone={toneAttr}
+                                        >
+                                          {formatCourseLabel(courseMeta)}
+                                        </Link>
+                                      </li>
+                                    );
+                                  })}
                                 </ul>
                               </div>
                             ))}
@@ -482,16 +523,23 @@ const HeaderOne = () => {
                               {gActive && (
                                 <ul id={`mega-group-${gKey}`} className='nav-submenu'>
                                   {Array.isArray(group.items) &&
-                                    group.items.map((course, cIdx) => (
-                                      <li
-                                        key={`m-${index}-g-${gIdx}-c-${cIdx}`}
-                                        className='nav-submenu__item'
-                                      >
-                                        <span className='nav-submenu__link'>
-                                          {formatCourseLabel(course)}
-                                        </span>
-                                      </li>
-                                    ))}
+                                    group.items.map((course, cIdx) => {
+                                      const courseMeta = getCourseMeta(course);
+                                      const toneAttr = courseMeta.flagship ? (courseMeta.tone || (group.slug === "gradus-finlit" ? "finlit" : "tech")) : undefined;
+                                      return (
+                                        <li
+                                          key={`m-${index}-g-${gIdx}-c-${cIdx}`}
+                                          className='nav-submenu__item'
+                                        >
+                                          <span
+                                            className={`nav-submenu__link ${courseMeta.flagship ? "is-flagship" : ""}`}
+                                            data-flagship-tone={toneAttr}
+                                          >
+                                            {formatCourseLabel(courseMeta)}
+                                          </span>
+                                        </li>
+                                      );
+                                    })}
                                 </ul>
                               )}
                             </li>

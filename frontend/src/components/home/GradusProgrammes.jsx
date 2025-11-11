@@ -21,10 +21,19 @@ const GradusProgrammes = () => {
           title: "Full Stack Development Mastery (MERN)",
           subtitle: "MERN: MongoDB • Express • React • Node.js",
         },
-        { slug: "mobile-app-development", title: "Mobile App Development", subtitle: "Android / iOS" },
-        { slug: "agentic-ai-engineering-program", title: "Agentic AI Engineering Program" },
-        { slug: "quantum-computing-basics-program", title: "Quantum Computing Basics Program" },
-        { slug: "blockchain-development-fundamentals", title: "Blockchain Development Fundamentals" },
+        { slug: "mobile-app-development-mastery-react-native", title: "Mobile App Development Mastery (React Native)", subtitle: "React Native" },
+        {
+          slug: "agentic-ai-engineering-flagship",
+          title: "Agentic AI Engineering Flagship Program",
+          flagship: true,
+          flagshipTone: "tech",
+        },
+        {
+          slug: "software-development-flagship",
+          title: "Software Development Flagship Program",
+          flagship: true,
+          flagshipTone: "tech",
+        },
       ],
     },
     {
@@ -34,7 +43,12 @@ const GradusProgrammes = () => {
       theme: "gp-theme-violet",
       programmeSlug: "gradus-finlit",
       courses: [
-        { slug: "complete-trading-and-investment-mastery-program", title: "Complete Trading & Investment Mastery Program" },
+        {
+          slug: "complete-trading-and-investment-mastery-program",
+          title: "Complete Trading & Investment Mastery Program",
+          flagship: true,
+          flagshipTone: "finlit",
+        },
         { slug: "technical-analysis", title: "Technical analysis" },
         { slug: "swing-trading-investing", title: "Swing trading & investing" },
         { slug: "scalping-intraday", title: "Scalping & Intraday" },
@@ -56,6 +70,18 @@ const GradusProgrammes = () => {
   ];
 
   const [cards, setCards] = useState(BASE_CARDS);
+  const normalizeIncomingCourse = (course, programmeSlug) => {
+    if (!course) return course;
+    const slug = String(course.slug || "").toLowerCase();
+    const normalized = { ...course };
+    if (programmeSlug === "gradus-x" && slug === "agentic-ai-engineering-program") {
+      normalized.slug = "agentic-ai-engineering-flagship";
+      normalized.title = "Agentic AI Engineering Flagship Program";
+      normalized.flagship = true;
+      normalized.flagshipTone = "tech";
+    }
+    return normalized;
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -73,7 +99,10 @@ const GradusProgrammes = () => {
           if (!full.includes('/')) continue;
           const [progSlug, courseSlug] = full.split('/');
           if (!progSlug || !courseSlug) continue;
-          const entry = { slug: courseSlug, title: it.name || courseSlug.replace(/-/g, ' ') };
+          const entry = normalizeIncomingCourse(
+            { slug: courseSlug, title: it.name || courseSlug.replace(/-/g, ' ') },
+            progSlug
+          );
           if (!grouped.has(progSlug)) grouped.set(progSlug, []);
           grouped.get(progSlug).push(entry);
         }
@@ -107,7 +136,7 @@ const GradusProgrammes = () => {
             return HIDE.has(slug) || HIDE.has(norm) || norm.includes('data-structures') || norm.includes('database');
           };
           const merged = existing.concat(filtered).filter((it) => !shouldHide(it));
-          return { ...c, courses: merged };
+          return { ...c, courses: merged.slice(0, 5) };
         });
 
         if (!cancelled) setCards(updated);
@@ -148,17 +177,22 @@ const GradusProgrammes = () => {
                     <h4 className="text-neutral-900 mb-16">{c.title}</h4>
                     {Array.isArray(c.courses) ? (
                       <div className="gp-course-list mb-20">
-                        {c.courses.map((course) => (
+                        {c.courses.slice(0, 5).map((course) => {
+                          const isFlagship = !!course.flagship;
+                          const tone = course.flagshipTone;
+                          return (
                           <Link
                             key={`${c.id}-${course.slug}`}
                             to={`/${c.programmeSlug || slugify(c.badge)}/${course.slug || slugify(course.title)}`}
-                            className="gp-course-item"
+                            className={`gp-course-item ${isFlagship ? "is-flagship" : ""}`}
+                            data-flagship-tone={isFlagship && tone ? tone : undefined}
                           >
                             <span className="gp-course-text">
                               <span className="gp-course-title">{course.title}</span>
                             </span>
                           </Link>
-                        ))}
+                          );
+                        })}
                       </div>
                     ) : null}
                     <Link to={`/our-courses?programme=${c.programmeSlug || slugify(c.badge || c.title)}`}

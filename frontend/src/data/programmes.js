@@ -5,6 +5,18 @@ export const PROGRAMMES = [
     slug: "gradus-x",
     anchor: "/our-courses?programme=gradus-x",
     courses: [
+      {
+        name: "Agentic AI Engineering Flagship Program",
+        slug: "agentic-ai-engineering-flagship",
+        flagship: true,
+        flagshipTone: "tech",
+      },
+      {
+        name: "Software Development Flagship Program",
+        slug: "software-development-flagship",
+        flagship: true,
+        flagshipTone: "tech",
+      },
       { name: "Full Stack Development Mastery (MERN)", slug: "full-stack-development-mastery-mern" },
       { name: "Python Programming Mastery", slug: "python-programming-mastery" },
       { name: "Front End Development Mastery (HTML, CSS, JavaScript, React)", slug: "front-end-development-mastery-html-css-js-react" },
@@ -23,7 +35,12 @@ export const PROGRAMMES = [
     title: "Gradus Finlit",
     anchor: "/our-courses?programme=gradus-finlit",
     courses: [
-      { name: "Complete Trading & Investment Mastery Program", slug: "complete-trading-and-investment-mastery-program" },
+      {
+        name: "Complete Trading & Investment Mastery Program",
+        slug: "complete-trading-and-investment-mastery-program",
+        flagship: true,
+        flagshipTone: "finlit",
+      },
       "Technical analysis",
       "Swing trading & investing",
       "Scalping & Intraday",

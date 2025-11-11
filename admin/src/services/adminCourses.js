@@ -66,6 +66,12 @@ export const fetchCourseProgressAdmin = async ({ slug, token, userId } = {}) => 
   };
 };
 
+export const fetchCourseEnrollmentsAdmin = async ({ token, slug } = {}) => {
+  const queryPath = slug ? `/admin/courses/enrollments/${encodeURIComponent(slug)}` : '/admin/courses/enrollments';
+  const data = await apiClient(queryPath, { token });
+  return data?.items || [];
+};
+
 export default {
   listAdminCourses,
   createAdminCourse,
@@ -77,4 +83,5 @@ export default {
   upsertRawCourse,
   deleteCourseBySlug,
   fetchCourseProgressAdmin,
+  fetchCourseEnrollmentsAdmin,
 };

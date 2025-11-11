@@ -9,12 +9,12 @@ const POPULAR = [
     to: "/gradus-x/full-stack-development-mastery-mern",
   },
   {
-    title: "AI Engineering Program",
-    to: "/gradus-x/agentic-ai-engineering-program",
+    title: "Agentic AI Engineering Flagship Program",
+    to: "/gradus-x/agentic-ai-engineering-flagship",
   },
   {
     title: "Quantum Computing Basics Program",
-    to: "/gradus-x/quantum-computing-basics-program",
+    to: "/gradus-x/quantum-computing-basics",
   },
   {
     title: "Complete Trading & Investment Mastery Program",
@@ -22,7 +22,7 @@ const POPULAR = [
   },
   {
     title: "Mobile App Development Mastery (React Native)",
-    to: "/gradus-x/mobile-app-development-react-native",
+    to: "/gradus-x/mobile-app-development-mastery-react-native",
   },
 ];
 

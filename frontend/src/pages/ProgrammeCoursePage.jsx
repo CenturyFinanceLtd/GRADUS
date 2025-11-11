@@ -29,6 +29,14 @@ function ProgrammeCoursePage() {
   const programmeSlug = (programme || '').trim().toLowerCase();
   const courseSlug = (course || '').trim().toLowerCase();
   const combinedSlug = `${programmeSlug}/${courseSlug}`;
+  const resolveCourseSlugCandidates = (prog, course) => {
+    const list = [course];
+    if (prog === "gradus-x" && course === "agentic-ai-engineering-flagship") {
+      list.push("agentic-ai-engineering-program");
+    }
+    return Array.from(new Set(list.filter(Boolean)));
+  };
+  const courseSlugCandidates = resolveCourseSlugCandidates(programmeSlug, courseSlug);
   const courseHomePath = programmeSlug && courseSlug ? `/${programmeSlug}/${courseSlug}/home/course-info` : '/my-courses';
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -43,9 +51,26 @@ function ProgrammeCoursePage() {
         setError(null);
         const headers = new Headers();
         if (token) headers.set('Authorization', `Bearer ${token}`);
-        const api = await fetch(`${API_BASE_URL}/courses/${encodeURIComponent(programme || '')}/${encodeURIComponent(course || '')}`, { credentials: 'include', headers });
-        if (api.ok) {
-          const payload = await api.json();
+        let payload = null;
+        let lastStatus = null;
+        for (const slugCandidate of courseSlugCandidates) {
+          const api = await fetch(
+            `${API_BASE_URL}/courses/${encodeURIComponent(programme || '')}/${encodeURIComponent(slugCandidate || '')}`,
+            { credentials: 'include', headers }
+          );
+          if (api.ok) {
+            payload = await api.json();
+            break;
+          }
+          lastStatus = api.status;
+          if (api.status !== 404) {
+            throw new Error(`HTTP ${api.status}`);
+          }
+        }
+        if (!payload) {
+          throw new Error(lastStatus ? `HTTP ${lastStatus}` : "Course not found");
+        }
+        if (payload) {
           const c = payload?.course || {};
           const hero = c.hero || {};
           const stats = c.stats || {};
@@ -151,7 +176,14 @@ function ProgrammeCoursePage() {
           <div className='course-loading__bg-glow course-loading__bg-glow--two' aria-hidden='true' />
           <div className='course-loading__stars' aria-hidden='true'>
             {Array.from({ length: 24 }).map((_, idx) => (
-              <span key={`star-${idx}`} style={{ animationDelay: `${idx * 0.15}s` }} />
+              <span
+                key={`star-${idx}`}
+                style={{
+                  animationDelay: `${idx * 0.15}s`,
+                  "--rand-x": Math.random(),
+                  "--rand-y": Math.random(),
+                }}
+              />
             ))}
           </div>
           <div className='container position-relative'>

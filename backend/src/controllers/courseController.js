@@ -865,6 +865,103 @@ const getCourseProgressAdmin = asyncHandler(async (req, res) => {
   });
 });
 
+const getCourseEnrollmentsAdmin = asyncHandler(async (req, res) => {
+  const slugParam = req.params.courseSlug || req.query.slug;
+  const slugFilter = slugParam ? String(slugParam).trim().toLowerCase() : '';
+
+  const courseQuery = slugFilter ? { slug: slugFilter } : {};
+  const courses = await Course.find(courseQuery)
+    .select('name slug programme price stats image')
+    .sort({ name: 1 })
+    .lean();
+
+  if (!courses.length) {
+    res.json({ items: [] });
+    return;
+  }
+
+  const courseIdLookup = courses.reduce((acc, course) => {
+    acc[course._id.toString()] = course;
+    return acc;
+  }, {});
+
+  const enrollmentFilter = { course: { $in: Object.keys(courseIdLookup) } };
+  if (req.query.status) {
+    enrollmentFilter.status = req.query.status;
+  }
+  if (req.query.paymentStatus) {
+    enrollmentFilter.paymentStatus = req.query.paymentStatus;
+  }
+
+  const enrollments = await Enrollment.find(enrollmentFilter)
+    .populate({
+      path: 'user',
+      select: 'firstName lastName email mobile personalDetails educationDetails',
+    })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const grouped = {};
+  enrollments.forEach((enrollment) => {
+    const courseId = enrollment.course?.toString();
+    const course = courseIdLookup[courseId];
+    if (!course) {
+      return;
+    }
+    if (!grouped[course.slug]) {
+      grouped[course.slug] = {
+        slug: course.slug,
+        name: course.name,
+        programme: course.programme,
+        totalEnrollments: 0,
+        paidEnrollments: 0,
+        learners: [],
+      };
+    }
+    const entry = grouped[course.slug];
+    entry.totalEnrollments += 1;
+    if (enrollment.paymentStatus === 'PAID') {
+      entry.paidEnrollments += 1;
+    }
+    const learner = enrollment.user || {};
+    const learnerName =
+      learner.personalDetails?.studentName ||
+      [learner.firstName, learner.lastName].filter(Boolean).join(' ').trim() ||
+      learner.email ||
+      'Unknown learner';
+    entry.learners.push({
+      enrollmentId: enrollment._id.toString(),
+      userId: learner._id?.toString() || '',
+      name: learnerName,
+      email: learner.email || '',
+      phone: learner.mobile || learner.personalDetails?.phone || '',
+      city: learner.personalDetails?.city || '',
+      state: learner.personalDetails?.state || '',
+      institution: learner.educationDetails?.institutionName || '',
+      status: enrollment.status,
+      paymentStatus: enrollment.paymentStatus,
+      paymentReference: enrollment.paymentReference || '',
+      paidAt: enrollment.paidAt,
+      createdAt: enrollment.createdAt,
+    });
+  });
+
+  const items = courses.map((course) => {
+    const entry = grouped[course.slug] || {
+      slug: course.slug,
+      name: course.name,
+      programme: course.programme,
+      totalEnrollments: 0,
+      paidEnrollments: 0,
+      learners: [],
+    };
+    entry.learners = entry.learners.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    return entry;
+  });
+
+  res.json({ items });
+});
+
 module.exports = {
   getCoursePage,
   listCourses,
@@ -880,6 +977,7 @@ module.exports = {
   getCourseProgress,
   recordCourseProgress,
   getCourseProgressAdmin,
+  getCourseEnrollmentsAdmin,
 };
 
 /**

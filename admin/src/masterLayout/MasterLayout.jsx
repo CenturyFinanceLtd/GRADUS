@@ -434,6 +434,15 @@ const MasterLayout = ({ children }) => {
             </li>
             <li>
               <NavLink
+                to='/course-enrollments'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='material-symbols:group' className='menu-icon' />
+                <span>Course Enrollments</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
                 to='/blog'
                 className={(navData) => (navData.isActive ? "active-page" : "")}
               >

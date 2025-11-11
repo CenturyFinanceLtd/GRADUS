@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import MasterLayout from "../masterLayout/MasterLayout";
 import { useAuthContext } from "../context/AuthContext";
 import {
@@ -10,6 +11,7 @@ const formatPercent = (value) => `${Math.round((value || 0) * 100)}%`;
 
 const CourseProgressPage = () => {
   const { token } = useAuthContext();
+  const location = useLocation();
   const [courses, setCourses] = useState([]);
   const [selectedSlug, setSelectedSlug] = useState("");
   const [progressData, setProgressData] = useState([]);
@@ -17,6 +19,17 @@ const CourseProgressPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [highlightUserId, setHighlightUserId] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const slugParam = params.get("slug");
+    const userParam = params.get("userId");
+    if (slugParam) {
+      setSelectedSlug(slugParam);
+    }
+    setHighlightUserId(userParam || "");
+  }, [location.search]);
 
   useEffect(() => {
     let cancelled = false;
@@ -74,6 +87,9 @@ const CourseProgressPage = () => {
   }, [selectedSlug, token]);
 
   const filteredProgress = useMemo(() => {
+    if (highlightUserId) {
+      return progressData.filter((entry) => entry.userId === highlightUserId);
+    }
     if (!searchTerm) {
       return progressData;
     }
@@ -83,7 +99,7 @@ const CourseProgressPage = () => {
         entry.userName?.toLowerCase().includes(term) ||
         entry.userEmail?.toLowerCase().includes(term)
     );
-  }, [progressData, searchTerm]);
+  }, [progressData, searchTerm, highlightUserId]);
 
   const selectedCourse = useMemo(
     () => courses.find((course) => course.slug === selectedSlug),
@@ -118,6 +134,7 @@ const CourseProgressPage = () => {
                 placeholder='Filter by learner name or email'
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
+                disabled={Boolean(highlightUserId)}
               />
             </div>
           </div>
@@ -141,6 +158,24 @@ const CourseProgressPage = () => {
           ) : null}
 
           {error ? <div className='alert alert-danger'>{error}</div> : null}
+          {highlightUserId ? (
+            <div className='alert alert-info d-flex justify-content-between align-items-center'>
+              <span>
+                Showing progress for learner ID <strong>{highlightUserId}</strong>. Clear the
+                parameter to view all learners.
+              </span>
+              <button
+                type='button'
+                className='btn btn-sm btn-outline-secondary'
+                onClick={() => {
+                  setHighlightUserId("");
+                }}
+              >
+                Clear filter
+              </button>
+            </div>
+          ) : null}
+
           {loading ? (
             <div className='text-center py-5'>
               <div className='spinner-border text-primary' role='status'>

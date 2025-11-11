@@ -24,6 +24,7 @@
   { key: 'courses_admin', label: 'Courses', path: '/courses-admin', category: 'Application' },
   { key: 'customize_courses', label: 'Customize Courses', path: '/customize-courses', category: 'Application' },
   { key: 'course_progress', label: 'Course Progress', path: '/course-progress', category: 'Application' },
+  { key: 'course_enrollments', label: 'Course Enrollments', path: '/course-enrollments', category: 'Application' },
   { key: 'blog_list', label: 'Blogs', path: '/blog', category: 'Content & Media' },
   { key: 'blog_details', label: 'Blog Details', path: '/blog/:blogId', category: 'Content & Media' },
   { key: 'blog_details_alt', label: 'Blog Details (Alt)', path: '/blog-details/:blogId', category: 'Content & Media' },
