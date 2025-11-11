@@ -131,6 +131,7 @@ const HeaderOne = () => {
               delete updated[key];
               changed = true;
             }
+<<<<<<< Updated upstream
     if (windowWidth >= 992) return;
 
     setActiveSubmenu((prevIndex) => {
@@ -159,13 +160,21 @@ const HeaderOne = () => {
         return changed ? updated : prev;
         });
         return changed ? updated : prev;
+=======
+          });
+        });
+        return changed ? updated : prev;
+>>>>>>> Stashed changes
       });
 
       return nextIndex;
     });
+<<<<<<< Updated upstream
 
       return nextIndex;
     });
+=======
+>>>>>>> Stashed changes
   };
 
   const toggleMegaGroup = (parentIndex, key) => {
@@ -201,6 +210,7 @@ const HeaderOne = () => {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   const formatCourseLabel = (meta) => {
     const main = meta?.label
       ? meta.label.replace(/\s*\([^)]*\)\s*/g, " ").trim() || meta.label
@@ -225,6 +235,8 @@ const HeaderOne = () => {
     return normalized;
   };
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -577,6 +589,7 @@ const HeaderOne = () => {
                         aria-hidden={!isActive}
                         style={getCollapseStyle(isActive)}
                       >
+<<<<<<< Updated upstream
                       <ul
                         className={`nav-submenu scroll-sm nav-submenu--collapsible ${
                           isActive ? "is-open" : ""
@@ -584,6 +597,8 @@ const HeaderOne = () => {
                         aria-hidden={!isActive}
                         style={getCollapseStyle(isActive)}
                       >
+=======
+>>>>>>> Stashed changes
                         {item.mega && item.mega.map((group, gIdx) => {
                           const gKey = `${index}-${gIdx}`;
                           const gActive = !!openMegaGroups[gKey];
@@ -598,7 +613,10 @@ const HeaderOne = () => {
                                 aria-expanded={gActive}
                                 aria-controls={`mega-group-${gKey}`}
                                 tabIndex={isActive ? 0 : -1}
+<<<<<<< Updated upstream
                                 tabIndex={isActive ? 0 : -1}
+=======
+>>>>>>> Stashed changes
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   toggleMegaGroup(index, gKey);
@@ -607,6 +625,7 @@ const HeaderOne = () => {
                                 <span>{group.title}</span>
                                 <i className='ph ph-caret-down submenu-caret' aria-hidden='true' />
                               </button>
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
@@ -635,6 +654,8 @@ const HeaderOne = () => {
                                 </ul>
                               )}
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -673,6 +694,9 @@ const HeaderOne = () => {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -691,11 +715,14 @@ const HeaderOne = () => {
                               className='nav-submenu__link hover-bg-neutral-30'
                               tabIndex={isActive ? 0 : -1}
                             >
+<<<<<<< Updated upstream
                             <Link
                               to={link.to}
                               className='nav-submenu__link hover-bg-neutral-30'
                               tabIndex={isActive ? 0 : -1}
                             >
+=======
+>>>>>>> Stashed changes
                               {link.label}
                             </Link>
                           </li>
