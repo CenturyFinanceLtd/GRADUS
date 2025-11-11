@@ -792,7 +792,8 @@ img {
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
 .gradus-programmes .gp-course-item::before {
-  content: none;
+  content: none !important;
+  display: none !important;
 }
 .gradus-programmes .gp-course-item:hover {
   border-color: var(--gp-accent);
@@ -12453,7 +12454,13 @@ a.footer-item__logo img {
   .nav-mega__col:nth-child(3) .nav-mega__link::before {
     background: var(--primary-500);
     opacity: 0.75;
-  } /* Hover bridge to prevent flicker while moving cursor     from the trigger to the mega panel */
+  }
+  .nav-mega__link::before,
+  .nav-submenu__link::before {
+    content: none !important;
+    display: none !important;
+  }
+  /* Hover bridge to prevent flicker while moving cursor     from the trigger to the mega panel */
   .nav-mega::before {
     content: "";
     position: absolute;
