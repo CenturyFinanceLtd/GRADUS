@@ -131,10 +131,38 @@ const HeaderOne = () => {
               delete updated[key];
               changed = true;
             }
+    if (windowWidth >= 992) return;
+
+    setActiveSubmenu((prevIndex) => {
+      const isClosing = prevIndex === index;
+      const nextIndex = isClosing ? null : index;
+
+      setOpenMegaGroups((prev) => {
+        if (!Object.keys(prev).length && isClosing) {
+          return prev;
+        }
+        const updated = { ...prev };
+        const parentsToReset = new Set([index]);
+        if (prevIndex !== null && prevIndex !== index) {
+          parentsToReset.add(prevIndex);
+        }
+        const prevKeys = Object.keys(prev);
+        let changed = false;
+        parentsToReset.forEach((parent) => {
+          prevKeys.forEach((key) => {
+            if (key.startsWith(`${parent}-`) && key in updated) {
+              delete updated[key];
+              changed = true;
+            }
           });
         });
         return changed ? updated : prev;
+        });
+        return changed ? updated : prev;
       });
+
+      return nextIndex;
+    });
 
       return nextIndex;
     });
@@ -549,6 +577,13 @@ const HeaderOne = () => {
                         aria-hidden={!isActive}
                         style={getCollapseStyle(isActive)}
                       >
+                      <ul
+                        className={`nav-submenu scroll-sm nav-submenu--collapsible ${
+                          isActive ? "is-open" : ""
+                        }`}
+                        aria-hidden={!isActive}
+                        style={getCollapseStyle(isActive)}
+                      >
                         {item.mega && item.mega.map((group, gIdx) => {
                           const gKey = `${index}-${gIdx}`;
                           const gActive = !!openMegaGroups[gKey];
@@ -562,6 +597,7 @@ const HeaderOne = () => {
                                 className='nav-submenu__link hover-bg-neutral-30 d-flex align-items-center justify-content-between'
                                 aria-expanded={gActive}
                                 aria-controls={`mega-group-${gKey}`}
+                                tabIndex={isActive ? 0 : -1}
                                 tabIndex={isActive ? 0 : -1}
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -650,6 +686,11 @@ const HeaderOne = () => {
                         {/* On mobile, only show fallback links if no mega groups are defined */}
                         {!item.mega && item.links && item.links.map((link, linkIndex) => (
                           <li key={`m-${index}-l-${linkIndex}`} className='nav-submenu__item'>
+                            <Link
+                              to={link.to}
+                              className='nav-submenu__link hover-bg-neutral-30'
+                              tabIndex={isActive ? 0 : -1}
+                            >
                             <Link
                               to={link.to}
                               className='nav-submenu__link hover-bg-neutral-30'
