@@ -170,6 +170,7 @@ const HeaderOne = () => {
     };
   };
 
+<<<<<<< Updated upstream
   const formatCourseLabel = (meta) => {
     const main = meta?.label
       ? meta.label.replace(/\s*\([^)]*\)\s*/g, " ").trim() || meta.label
@@ -194,6 +195,8 @@ const HeaderOne = () => {
     return normalized;
   };
 
+=======
+>>>>>>> Stashed changes
   const buildCourseLink = (programme, course) => {
     const programmeSlug = programme?.slug || slugify(programme?.title || '');
     const courseSlug =
@@ -563,6 +566,7 @@ const HeaderOne = () => {
                                 <i className='ph ph-caret-down submenu-caret' aria-hidden='true' />
                               </button>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                               {/* Render items only when expanded */}
                               {gActive && (
                                 <ul id={`mega-group-${gKey}`} className='nav-submenu'>
@@ -587,6 +591,8 @@ const HeaderOne = () => {
                                 </ul>
                               )}
 =======
+=======
+>>>>>>> Stashed changes
                               <ul
                                 id={`mega-group-${gKey}`}
                                 className={`nav-submenu nav-submenu--collapsible ${
@@ -616,6 +622,9 @@ const HeaderOne = () => {
                                     </li>
                                   ))}
                               </ul>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                             </li>
                           )
