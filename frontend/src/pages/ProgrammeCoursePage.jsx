@@ -7,6 +7,21 @@ import HeaderOne from "../components/HeaderOne";
 import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
 
+const COURSE_LOADING_CARDS = [
+  {
+    title: "Outcome Blueprint",
+    description: "Mapping skills, tools and placement pathways tailored to this track.",
+  },
+  {
+    title: "Curriculum Blocks",
+    description: "Sequencing modules, capstone milestones and mentor touchpoints.",
+  },
+  {
+    title: "Mentor Desk",
+    description: "Confirming expert faculty, feedback loops and live sessions.",
+  },
+];
+
 function ProgrammeCoursePage() {
   const { programme, course } = useParams();
   const navigate = useNavigate();
@@ -131,7 +146,48 @@ function ProgrammeCoursePage() {
         <Preloader />
         <Animation />
         <HeaderOne />
-        <section className='py-120'><div className='container'><p className='text-center text-neutral-600'>Loading course…</p></div></section>
+        <section className='course-loading position-relative overflow-hidden'>
+          <div className='course-loading__bg-glow course-loading__bg-glow--one' aria-hidden='true' />
+          <div className='course-loading__bg-glow course-loading__bg-glow--two' aria-hidden='true' />
+          <div className='course-loading__stars' aria-hidden='true'>
+            {Array.from({ length: 24 }).map((_, idx) => (
+              <span key={`star-${idx}`} style={{ animationDelay: `${idx * 0.15}s` }} />
+            ))}
+          </div>
+          <div className='container position-relative'>
+            <div className='course-loading__hero'>
+              <span className='course-loading__badge'>Preparing programme</span>
+              <h1>Curating your learning journey</h1>
+              <p className='mb-24 text-neutral-200'>
+                We are lining up modules, mentors, and capstone briefs so you start with momentum.
+              </p>
+              <div className='course-loading__progress'>
+                <div className='course-loading__progress-bar' role='progressbar' aria-label='Fetching course content'>
+                  <span className='course-loading__progress-fill' />
+                </div>
+                <div className='course-loading__progress-text'>
+                  <span className='pulse-dot' aria-hidden='true' />
+                  Loading course details…
+                </div>
+              </div>
+            </div>
+            <div className='course-loading__grid'>
+              {COURSE_LOADING_CARDS.map((card) => (
+                <div key={card.title} className='course-loading-card'>
+                  <div className='course-loading-card__icon'>
+                    <i className='ph ph-compass' />
+                  </div>
+                  <div className='course-loading-card__body'>
+                    <p className='course-loading-card__title'>{card.title}</p>
+                    <p className='course-loading-card__description'>{card.description}</p>
+                    <div className='course-loading-skeleton course-loading-skeleton--short' />
+                    <div className='course-loading-skeleton course-loading-skeleton--long' />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </>
     );
   }
