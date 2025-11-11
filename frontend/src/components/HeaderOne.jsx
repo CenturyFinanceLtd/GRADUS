@@ -229,8 +229,8 @@ const HeaderOne = () => {
       ],
     },
     // Redirect to Our Courses with pre-applied filters
-    { to: "/our-courses?programme=gradus-finlit", label: "Stock Market Courses" },
     { to: "/our-courses?programme=gradus-x", label: "Tech Courses" },
+    { to: "/our-courses?programme=gradus-finlit", label: "Stock Market Courses" },
     { to: "/blogs", label: "Blogs" },
     { to: "/contact", label: "Contact us" },
   ];
@@ -527,7 +527,6 @@ const HeaderOne = () => {
 };
 
 export default HeaderOne;
-
 
 
 
