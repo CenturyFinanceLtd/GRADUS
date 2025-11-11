@@ -170,15 +170,20 @@ const HeaderOne = () => {
     };
   };
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  const formatCourseLabel = (meta) => {
-    const main = meta?.label
+  const formatCourseLabel = (input) => {
+    const meta =
+      typeof input === "string"
+        ? { label: input, slug: slugify(input) }
+        : input && typeof input === "object"
+        ? input
+        : { label: "" };
+    const cleaned = meta.label
       ? meta.label.replace(/\s*\([^)]*\)\s*/g, " ").trim() || meta.label
       : "";
+    const fallback = meta.slug ? meta.slug.replace(/-/g, " ") : "";
+    const main = cleaned || fallback || meta.label || "";
     return (
-      <span className={`nav-mega__text ${meta?.flagship ? "is-flagship" : ""}`}>
+      <span className={`nav-mega__text ${meta.flagship ? "is-flagship" : ""}`}>
         {main}
       </span>
     );
@@ -197,12 +202,6 @@ const HeaderOne = () => {
     return normalized;
   };
 
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   const buildCourseLink = (programme, course) => {
     const programmeSlug = programme?.slug || slugify(programme?.title || '');
     const courseSlug =
@@ -571,40 +570,6 @@ const HeaderOne = () => {
                                 <span>{group.title}</span>
                                 <i className='ph ph-caret-down submenu-caret' aria-hidden='true' />
                               </button>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-                              {/* Render items only when expanded */}
-                              {gActive && (
-                                <ul id={`mega-group-${gKey}`} className='nav-submenu'>
-                                  {Array.isArray(group.items) &&
-                                    group.items.map((course, cIdx) => {
-                                      const courseMeta = getCourseMeta(course);
-                                      const toneAttr = courseMeta.flagship ? (courseMeta.tone || (group.slug === "gradus-finlit" ? "finlit" : "tech")) : undefined;
-                                      return (
-                                        <li
-                                          key={`m-${index}-g-${gIdx}-c-${cIdx}`}
-                                          className='nav-submenu__item'
-                                        >
-                                          <span
-                                            className={`nav-submenu__link ${courseMeta.flagship ? "is-flagship" : ""}`}
-                                            data-flagship-tone={toneAttr}
-                                          >
-                                            {formatCourseLabel(courseMeta)}
-                                          </span>
-                                        </li>
-                                      );
-                                    })}
-                                </ul>
-                              )}
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
                               <ul
                                 id={`mega-group-${gKey}`}
                                 className={`nav-submenu nav-submenu--collapsible ${
@@ -614,36 +579,33 @@ const HeaderOne = () => {
                                 style={getCollapseStyle(gActive)}
                               >
                                 {Array.isArray(group.items) &&
-                                  group.items.map((course, cIdx) => (
-                                    <li
-                                      key={`m-${index}-g-${gIdx}-c-${cIdx}`}
-                                      className='nav-submenu__item'
-                                    >
-                                      <Link
-                                        to={buildCourseLink(group, course)}
-                                        className='nav-submenu__link hover-bg-neutral-30'
-                                        onClick={closeMenu}
-                                        tabIndex={gActive ? 0 : -1}
+                                  group.items.map((course, cIdx) => {
+                                    const courseMeta = getCourseMeta(course);
+                                    const toneAttr = courseMeta.flagship
+                                      ? courseMeta.tone ||
+                                        (group.slug === "gradus-finlit" ? "finlit" : "tech")
+                                      : undefined;
+
+                                    return (
+                                      <li
+                                        key={`m-${index}-g-${gIdx}-c-${cIdx}`}
+                                        className='nav-submenu__item'
                                       >
-                                        {formatCourseLabel(
-                                          typeof course === 'string'
-                                            ? course
-                                            : course?.name || course?.title || ''
-                                        )}
-                                      </Link>
-                                    </li>
-                                  ))}
+                                        <Link
+                                          to={buildCourseLink(group, courseMeta)}
+                                          className={`nav-submenu__link hover-bg-neutral-30 ${
+                                            courseMeta.flagship ? "is-flagship" : ""
+                                          }`}
+                                          data-flagship-tone={toneAttr}
+                                          onClick={closeMenu}
+                                          tabIndex={gActive ? 0 : -1}
+                                        >
+                                          {formatCourseLabel(courseMeta)}
+                                        </Link>
+                                      </li>
+                                    );
+                                  })}
                               </ul>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
                             </li>
                           )
                         })}
