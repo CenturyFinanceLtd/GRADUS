@@ -90,8 +90,9 @@ function App() {
         <Route exact path='/course-list-view' element={<Navigate to='/our-courses' replace />} />
         <Route exact path='/course-details' element={<CourseDetailsPage />} />
         
-        <Route exact path='/event-details' element={<EventDetailsPage />} />
         <Route exact path='/events' element={<EventsPage />} />
+        <Route exact path='/events/:slug' element={<EventDetailsPage />} />
+        <Route exact path='/event-details/:slug?' element={<EventDetailsPage />} />
         { /* FAQ page removed */ }
         <Route
           exact

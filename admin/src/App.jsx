@@ -53,6 +53,7 @@ const NotificationAlertPage = lazy(() => import("./pages/NotificationAlertPage")
 const NotificationPage = lazy(() => import("./pages/NotificationPage"));
 const PaginationPage = lazy(() => import("./pages/PaginationPage"));
 const PieChartPage = lazy(() => import("./pages/PieChartPage"));
+const EventRegistrationsPage = lazy(() => import("./pages/EventRegistrationsPage"));
 const PaymentGatewayPage = lazy(() => import("./pages/PaymentGatewayPage"));
 const PortfolioPage = lazy(() => import("./pages/PortfolioPage"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
@@ -99,6 +100,7 @@ const AddBlogPage = lazy(() => import("./pages/AddBlogPage"));
 const EditBlogPage = lazy(() => import("./pages/EditBlogPage"));
 const TestimonialsPage = lazy(() => import("./pages/TestimonialsPage"));
 const BannersPage = lazy(() => import("./pages/BannersPage"));
+const EventsAdminPage = lazy(() => import("./pages/EventsAdminPage"));
 const ComingSoonPage = lazy(() => import("./pages/ComingSoonPage"));
 const AccessDeniedPage = lazy(() => import("./pages/AccessDeniedPage"));
 const TicketsPage = lazy(() => import("./pages/TicketsPage.jsx"));
@@ -184,12 +186,14 @@ function App() {
         <Route exact path='/add-blog' element={<AddBlogPage />} />
         <Route exact path='/edit-blog/:blogId' element={<EditBlogPage />} />
         <Route exact path='/inquiries' element={<InquiryPage />} />
+        <Route exact path='/event-registrations' element={<EventRegistrationsPage />} />
         <Route exact path='/tickets' element={<TicketsPage />} />
         <Route exact path='/ticket/:id' element={<TicketDetailsPage />} />
         { /* Courses management and enrollments pages removed */ }
 
         <Route exact path='/testimonials' element={<TestimonialsPage />} />
         <Route exact path='/banners' element={<BannersPage />} />
+        <Route exact path='/events-admin' element={<EventsAdminPage />} />
         <Route exact path='/coming-soon' element={<ComingSoonPage />} />
         <Route exact path='/access-denied' element={<AccessDeniedPage />} />
         <Route exact path='/maintenance' element={<MaintenancePage />} />

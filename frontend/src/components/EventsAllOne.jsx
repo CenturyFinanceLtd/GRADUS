@@ -1,374 +1,251 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { fetchEvents } from "../services/eventService";
+
+const EVENT_LIMIT = 24;
+
+const formatSchedule = (schedule) => {
+  if (!schedule?.start) {
+    return {
+      dateLabel: "TBA",
+      timeLabel: "",
+    };
+  }
+
+  const date = new Date(schedule.start);
+  const dateFormatter = new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  const timeFormatter = new Intl.DateTimeFormat("en-IN", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+  return {
+    dateLabel: dateFormatter.format(date),
+    timeLabel: `${timeFormatter.format(date)} ${schedule.timezone || ""}`.trim(),
+  };
+};
+
+const EventsFilterChips = ({ categories, active, onSelect }) => (
+  <div className='events-chips d-flex flex-wrap gap-12 justify-content-lg-end'>
+    {categories.map((cat) => (
+      <button
+        key={cat}
+        type='button'
+        className={`filter-chip ${active === cat ? "is-active" : ""}`}
+        onClick={() => onSelect(cat)}
+      >
+        {cat}
+      </button>
+    ))}
+  </div>
+);
+
+const MasterclassCard = ({ event }) => {
+  const { dateLabel, timeLabel } = formatSchedule(event?.schedule);
+  const priceLabel =
+    event?.price?.label ||
+    (event?.price?.isFree ? "Free" : event?.price?.amount ? `Rs ${event.price.amount}` : "Paid");
+
+  return (
+    <article className='masterclass-card h-100'>
+      <Link
+        to={event?.slug ? `/events/${event.slug}` : "#"}
+        className='masterclass-card__thumb'
+        aria-label={event?.title || "View masterclass"}
+      >
+        <img
+          src={event?.heroImage?.url || "/assets/images/thumbs/event-img1.png"}
+          alt={event?.heroImage?.alt || event?.title || "Event thumbnail"}
+          loading='lazy'
+        />
+        {event?.badge ? <span className='masterclass-card__badge'>{event.badge}</span> : null}
+      </Link>
+      <div className='masterclass-card__body'>
+        <div className='masterclass-card__head flex-between gap-8'>
+          <span className='masterclass-card__category'>{event?.category || "Masterclass"}</span>
+          <span className={`masterclass-card__price-tag ${event?.price?.isFree ? "is-free" : ""}`}>
+            {priceLabel}
+          </span>
+        </div>
+        <h3 className='masterclass-card__title text-line-2'>
+          <Link to={event?.slug ? `/events/${event.slug}` : "#"} className='link'>
+            {event?.title || "Untitled session"}
+          </Link>
+        </h3>
+        <p className='masterclass-card__instructor mb-2'>
+          {event?.host?.name || "Gradus Mentor"}
+          {event?.host?.title ? ` | ${event.host.title}` : ""}
+        </p>
+        <p className='masterclass-card__summary text-line-2'>
+          {event?.summary || event?.subtitle || "Join us live for an actionable masterclass."}
+        </p>
+        <p className='masterclass-card__time text-sm text-neutral-500 mb-0'>
+          {dateLabel}
+          {timeLabel ? ` | ${timeLabel}` : ""}
+        </p>
+      </div>
+    </article>
+  );
+};
+
+const LoadingState = () => (
+  <div className='row g-4'>
+    {Array.from({ length: 6 }).map((_, index) => (
+      <div className='col-xl-4 col-md-6' key={`events-skel-${index}`}>
+        <div className='masterclass-card skeleton animate-pulse'>
+          <div className='skeleton-thumb rounded-24 mb-16' />
+          <div className='skeleton-line w-75 mb-8' />
+          <div className='skeleton-line w-50 mb-12' />
+          <div className='skeleton-line w-100 mb-6' />
+          <div className='skeleton-line w-60' />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const EmptyState = () => (
+  <div className='empty-state text-center py-80'>
+    <div className='empty-state__illustration mb-24'>
+      <i className='ph ph-calendar-x text-3xl text-main-600' />
+    </div>
+    <h4 className='mb-8'>Nothing scheduled yet</h4>
+    <p className='text-neutral-600 mb-0'>
+      We’re curating the next wave of masterclasses. Check back shortly or subscribe to updates.
+    </p>
+  </div>
+);
 
 const EventsAllOne = () => {
+  const [category, setCategory] = useState("All");
+  const [events, setEvents] = useState([]);
+  const [filters, setFilters] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const categories = useMemo(() => {
+    const unique = new Set(["All", ...filters]);
+    return Array.from(unique);
+  }, [filters]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetchEvents({
+          limit: EVENT_LIMIT,
+          timeframe: "upcoming",
+          category: category === "All" ? undefined : category,
+          signal: controller.signal,
+        });
+        if (!isMounted) return;
+        setEvents(response?.items || []);
+        setFilters(response?.filters?.categories || []);
+      } catch (err) {
+        if (!isMounted || err?.name === "AbortError") return;
+        setError(err?.message || "Failed to fetch events");
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    load();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [category]);
+
+  const showSpotlight = events.length > 2;
+  const featuredEvent = showSpotlight ? events[0] : null;
+  const gridEvents = showSpotlight ? events.slice(1) : events;
+
   return (
-    <section className='course-list-view py-120 bg-white'>
-      <div className='container'>
-        <div className='flex-between gap-16 flex-wrap mb-40'>
-          <span className='text-neutral-500'>Showing 5 of 600 Results</span>
-          <div className='flex-align gap-16'>
-            <div className='flex-align gap-8'>
-              <span className='text-neutral-500 flex-shrink-0'>Sort By :</span>
-              <select className='form-select ps-20 pe-28 py-8 fw-medium rounded-pill bg-main-25 border border-neutral-30 text-neutral-700'>
-                <option value={1}>Newest</option>
-                <option value={1}>Trending</option>
-                <option value={1}>Popular</option>
-              </select>
-            </div>
+    <section className='events-list py-50 bg-white'>
+      <div className='container container--xl'>
+        <header className='events-list__header flex-between flex-wrap gap-20 mb-32'>
+          <div>
+            <p className='text-neutral-500 text-sm mb-4'>Free masterclasses</p>
+            <h1 className='display-5 fw-semibold mb-8'>Masterclasses</h1>
+            <p className='text-neutral-600 mb-0'>
+              Explore live sessions and bootcamps powered by Gradus mentors. Filter by track to find
+              what matters to you most.
+            </p>
           </div>
-        </div>
-        <div className='row gy-4'>
-          <div className='col-xl-4 col-sm-6'>
-            <div className='scale-hover-item bg-main-25 rounded-16 p-12 h-100 border border-neutral-30'>
-              <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
-                <Link to='/event-details' className='w-100 h-100' tabIndex={0}>
-                  <img
-                    src='/assets/images/thumbs/event-img1.png'
-                    alt='Course'
-                    className='scale-hover-item__img rounded-12 cover-img transition-2'
-                  />
-                </Link>
-                <div className='position-absolute inset-inline-end-0 inset-block-end-0 me-16 mb-16 py-12 px-24 rounded-8 bg-main-two-600 text-white fw-medium'>
-                  <h3 className='mb-0 text-white fw-medium'>21</h3>
-                  DEC
-                </div>
-                <div className='bg-success-600 rounded-8 px-24 py-12 text-white position-absolute inset-block-start-0 inset-inline-start-0 mt-20 ms-20 z-1'>
-                  10:15 AM
-                </div>
-              </div>
-              <div className='pt-32 pb-24 px-16 position-relative'>
-                <h4 className='mb-28'>
-                  <Link
-                    to='/event-details'
-                    className='link text-line-2'
-                    tabIndex={0}
-                  >
-                    Career Guidance Workshops for Students
-                  </Link>
-                </h4>
-                <div className='flex-align gap-8'>
-                  <span className='text-neutral-500 text-2xl d-flex'>
-                    <i className='ph-bold ph-map-pin-line' />
-                  </span>
-                  <p className='text-neutral-500 text-lg'>
-                    1901 Thornridge Cir. Shiloh
+          <EventsFilterChips categories={categories} active={category} onSelect={setCategory} />
+        </header>
+
+        {error ? (
+          <div className='alert alert-danger rounded-16'>{error}</div>
+        ) : loading ? (
+          <LoadingState />
+        ) : events.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <>
+            {showSpotlight && featuredEvent ? (
+              <section className='events-hero spotlight-card mb-48'>
+                <div className='spotlight-card__content'>
+                  <p className='text-neutral-200 text-sm fw-semibold mb-4'>Featured</p>
+                  <h2 className='spotlight-card__title text-line-2'>
+                    {featuredEvent.title || "Masterclass highlight"}
+                  </h2>
+                  <p className='text-neutral-100 mb-16 text-line-3'>
+                    {featuredEvent.summary ||
+                      featuredEvent.subtitle ||
+                      "Join our flagship live cohort to experience Gradus masterclasses."}
                   </p>
-                </div>
-                <div className='flex-between gap-8 pt-24 border-top border-neutral-50 mt-28 border-dashed border-0'>
-                  <h4 className='text-main-two-600 mb-0'>$99</h4>
+                  <div className='d-flex flex-wrap gap-12 align-items-center mb-20'>
+                    <span className='spotlight-chip'>
+                      {formatSchedule(featuredEvent.schedule).dateLabel}
+                    </span>
+                    <span className='spotlight-chip'>
+                      {formatSchedule(featuredEvent.schedule).timeLabel || "TBA"}
+                    </span>
+                    <span className='spotlight-chip text-uppercase'>
+                      {featuredEvent.category || "Masterclass"}
+                    </span>
+                  </div>
                   <Link
-                    to='/event-details'
-                    className='flex-align gap-8 text-main-600 hover-text-decoration-underline transition-1 fw-semibold'
-                    tabIndex={0}
+                    to={`/events/${featuredEvent.slug || ""}`}
+                    className='btn btn-white rounded-pill px-32'
                   >
-                    Join Now
-                    <i className='ph ph-arrow-right' />
+                    Join this session
                   </Link>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div className='col-xl-4 col-sm-6'>
-            <div className='scale-hover-item bg-main-25 rounded-16 p-12 h-100 border border-neutral-30'>
-              <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
-                <Link to='/event-details' className='w-100 h-100' tabIndex={0}>
+                <div className='spotlight-card__media'>
                   <img
-                    src='/assets/images/thumbs/event-img2.png'
-                    alt='Course'
-                    className='scale-hover-item__img rounded-12 cover-img transition-2'
+                    src={featuredEvent.heroImage?.url || "/assets/images/thumbs/event-img1.png"}
+                    alt={featuredEvent.heroImage?.alt || featuredEvent.title || "Featured masterclass"}
                   />
-                </Link>
-                <div className='position-absolute inset-inline-end-0 inset-block-end-0 me-16 mb-16 py-12 px-24 rounded-8 bg-main-two-600 text-white fw-medium'>
-                  <h3 className='mb-0 text-white fw-medium'>16</h3>
-                  DEC
                 </div>
-                <div className='bg-success-600 rounded-8 px-24 py-12 text-white position-absolute inset-block-start-0 inset-inline-start-0 mt-20 ms-20 z-1'>
-                  11:00 AM
-                </div>
+              </section>
+            ) : null}
+
+            {gridEvents.length ? (
+              <div className='events-grid'>
+                {gridEvents.map((event) => (
+                  <MasterclassCard key={event.id} event={event} />
+                ))}
               </div>
-              <div className='pt-32 pb-24 px-16 position-relative'>
-                <h4 className='mb-28'>
-                  <Link
-                    to='/event-details'
-                    className='link text-line-2'
-                    tabIndex={0}
-                  >
-                    Intensive Coding Bootcamps for Beginners
-                  </Link>
-                </h4>
-                <div className='flex-align gap-8'>
-                  <span className='text-neutral-500 text-2xl d-flex'>
-                    <i className='ph-bold ph-map-pin-line' />
-                  </span>
-                  <p className='text-neutral-500 text-lg'>
-                    1901 Thornridge Cir. Shiloh
-                  </p>
-                </div>
-                <div className='flex-between gap-8 pt-24 border-top border-neutral-50 mt-28 border-dashed border-0'>
-                  <h4 className='text-main-two-600 mb-0'>$199</h4>
-                  <Link
-                    to='/event-details'
-                    className='flex-align gap-8 text-main-600 hover-text-decoration-underline transition-1 fw-semibold'
-                    tabIndex={0}
-                  >
-                    Join Now
-                    <i className='ph ph-arrow-right' />
-                  </Link>
-                </div>
+            ) : (
+              <div className='text-center py-40 text-neutral-500 fw-semibold'>
+                More masterclasses are being scheduled. Stay tuned!
               </div>
-            </div>
-          </div>
-          <div className='col-xl-4 col-sm-6'>
-            <div className='scale-hover-item bg-main-25 rounded-16 p-12 h-100 border border-neutral-30'>
-              <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
-                <Link to='/event-details' className='w-100 h-100' tabIndex={0}>
-                  <img
-                    src='/assets/images/thumbs/event-img3.png'
-                    alt='Course'
-                    className='scale-hover-item__img rounded-12 cover-img transition-2'
-                  />
-                </Link>
-                <div className='position-absolute inset-inline-end-0 inset-block-end-0 me-16 mb-16 py-12 px-24 rounded-8 bg-main-two-600 text-white fw-medium'>
-                  <h3 className='mb-0 text-white fw-medium'>26</h3>
-                  DEC
-                </div>
-                <div className='bg-success-600 rounded-8 px-24 py-12 text-white position-absolute inset-block-start-0 inset-inline-start-0 mt-20 ms-20 z-1'>
-                  12:15 PM
-                </div>
-              </div>
-              <div className='pt-32 pb-24 px-16 position-relative'>
-                <h4 className='mb-28'>
-                  <Link
-                    to='/event-details'
-                    className='link text-line-2'
-                    tabIndex={0}
-                  >
-                    Interactive Science Fair and Competition
-                  </Link>
-                </h4>
-                <div className='flex-align gap-8'>
-                  <span className='text-neutral-500 text-2xl d-flex'>
-                    <i className='ph-bold ph-map-pin-line' />
-                  </span>
-                  <p className='text-neutral-500 text-lg'>
-                    1901 Thornridge Cir. Shiloh
-                  </p>
-                </div>
-                <div className='flex-between gap-8 pt-24 border-top border-neutral-50 mt-28 border-dashed border-0'>
-                  <h4 className='text-main-two-600 mb-0'>$68</h4>
-                  <Link
-                    to='/event-details'
-                    className='flex-align gap-8 text-main-600 hover-text-decoration-underline transition-1 fw-semibold'
-                    tabIndex={0}
-                  >
-                    Join Now
-                    <i className='ph ph-arrow-right' />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className='col-xl-4 col-sm-6'>
-            <div className='scale-hover-item bg-main-25 rounded-16 p-12 h-100 border border-neutral-30'>
-              <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
-                <Link to='/event-details' className='w-100 h-100' tabIndex={0}>
-                  <img
-                    src='/assets/images/thumbs/event-img4.png'
-                    alt='Course'
-                    className='scale-hover-item__img rounded-12 cover-img transition-2'
-                  />
-                </Link>
-                <div className='position-absolute inset-inline-end-0 inset-block-end-0 me-16 mb-16 py-12 px-24 rounded-8 bg-main-two-600 text-white fw-medium'>
-                  <h3 className='mb-0 text-white fw-medium'>08</h3>
-                  DEC
-                </div>
-                <div className='bg-success-600 rounded-8 px-24 py-12 text-white position-absolute inset-block-start-0 inset-inline-start-0 mt-20 ms-20 z-1'>
-                  02:30 PM
-                </div>
-              </div>
-              <div className='pt-32 pb-24 px-16 position-relative'>
-                <h4 className='mb-28'>
-                  <Link
-                    to='/event-details'
-                    className='link text-line-2'
-                    tabIndex={0}
-                  >
-                    Mathematics Olympiad for Young Mathematicians
-                  </Link>
-                </h4>
-                <div className='flex-align gap-8'>
-                  <span className='text-neutral-500 text-2xl d-flex'>
-                    <i className='ph-bold ph-map-pin-line' />
-                  </span>
-                  <p className='text-neutral-500 text-lg'>
-                    1901 Thornridge Cir. Shiloh
-                  </p>
-                </div>
-                <div className='flex-between gap-8 pt-24 border-top border-neutral-50 mt-28 border-dashed border-0'>
-                  <h4 className='text-main-two-600 mb-0'>$60</h4>
-                  <Link
-                    to='/event-details'
-                    className='flex-align gap-8 text-main-600 hover-text-decoration-underline transition-1 fw-semibold'
-                    tabIndex={0}
-                  >
-                    Join Now
-                    <i className='ph ph-arrow-right' />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className='col-xl-4 col-sm-6'>
-            <div className='scale-hover-item bg-main-25 rounded-16 p-12 h-100 border border-neutral-30'>
-              <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
-                <Link to='/event-details' className='w-100 h-100' tabIndex={0}>
-                  <img
-                    src='/assets/images/thumbs/event-img5.png'
-                    alt='Course'
-                    className='scale-hover-item__img rounded-12 cover-img transition-2'
-                  />
-                </Link>
-                <div className='position-absolute inset-inline-end-0 inset-block-end-0 me-16 mb-16 py-12 px-24 rounded-8 bg-main-two-600 text-white fw-medium'>
-                  <h3 className='mb-0 text-white fw-medium'>01</h3>
-                  DEC
-                </div>
-                <div className='bg-success-600 rounded-8 px-24 py-12 text-white position-absolute inset-block-start-0 inset-inline-start-0 mt-20 ms-20 z-1'>
-                  09:00 AM
-                </div>
-              </div>
-              <div className='pt-32 pb-24 px-16 position-relative'>
-                <h4 className='mb-28'>
-                  <Link
-                    to='/event-details'
-                    className='link text-line-2'
-                    tabIndex={0}
-                  >
-                    The Importance of Diversity in Higher Education
-                  </Link>
-                </h4>
-                <div className='flex-align gap-8'>
-                  <span className='text-neutral-500 text-2xl d-flex'>
-                    <i className='ph-bold ph-map-pin-line' />
-                  </span>
-                  <p className='text-neutral-500 text-lg'>
-                    1901 Thornridge Cir. Shiloh
-                  </p>
-                </div>
-                <div className='flex-between gap-8 pt-24 border-top border-neutral-50 mt-28 border-dashed border-0'>
-                  <h4 className='text-main-two-600 mb-0'>$45</h4>
-                  <Link
-                    to='/event-details'
-                    className='flex-align gap-8 text-main-600 hover-text-decoration-underline transition-1 fw-semibold'
-                    tabIndex={0}
-                  >
-                    Join Now
-                    <i className='ph ph-arrow-right' />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className='col-xl-4 col-sm-6'>
-            <div className='scale-hover-item bg-main-25 rounded-16 p-12 h-100 border border-neutral-30'>
-              <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
-                <Link to='/event-details' className='w-100 h-100' tabIndex={0}>
-                  <img
-                    src='/assets/images/thumbs/event-img6.png'
-                    alt='Course'
-                    className='scale-hover-item__img rounded-12 cover-img transition-2'
-                  />
-                </Link>
-                <div className='position-absolute inset-inline-end-0 inset-block-end-0 me-16 mb-16 py-12 px-24 rounded-8 bg-main-two-600 text-white fw-medium'>
-                  <h3 className='mb-0 text-white fw-medium'>13</h3>
-                  DEC
-                </div>
-                <div className='bg-success-600 rounded-8 px-24 py-12 text-white position-absolute inset-block-start-0 inset-inline-start-0 mt-20 ms-20 z-1'>
-                  05:45 PM
-                </div>
-              </div>
-              <div className='pt-32 pb-24 px-16 position-relative'>
-                <h4 className='mb-28'>
-                  <Link
-                    to='/event-details'
-                    className='link text-line-2'
-                    tabIndex={0}
-                  >
-                    Virtual Open House for New Students
-                  </Link>
-                </h4>
-                <div className='flex-align gap-8'>
-                  <span className='text-neutral-500 text-2xl d-flex'>
-                    <i className='ph-bold ph-map-pin-line' />
-                  </span>
-                  <p className='text-neutral-500 text-lg'>
-                    1901 Thornridge Cir. Shiloh
-                  </p>
-                </div>
-                <div className='flex-between gap-8 pt-24 border-top border-neutral-50 mt-28 border-dashed border-0'>
-                  <h4 className='text-main-two-600 mb-0'>$77</h4>
-                  <Link
-                    to='/event-details'
-                    className='flex-align gap-8 text-main-600 hover-text-decoration-underline transition-1 fw-semibold'
-                    tabIndex={0}
-                  >
-                    Join Now
-                    <i className='ph ph-arrow-right' />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <ul className='pagination mt-40 flex-align gap-12 flex-wrap justify-content-center'>
-          <li className='page-item'>
-            <Link
-              className='page-link text-neutral-700 fw-semibold w-40 h-40 bg-main-25 rounded-circle hover-bg-main-600 border-neutral-30 hover-border-main-600 hover-text-white flex-center p-0'
-              to='#'
-            >
-              <i className='ph-bold ph-caret-left' />
-            </Link>
-          </li>
-          <li className='page-item'>
-            <Link
-              className='page-link text-neutral-700 fw-semibold w-40 h-40 bg-main-25 rounded-circle hover-bg-main-600 border-neutral-30 hover-border-main-600 hover-text-white flex-center p-0'
-              to='#'
-            >
-              1
-            </Link>
-          </li>
-          <li className='page-item'>
-            <Link
-              className='page-link text-neutral-700 fw-semibold w-40 h-40 bg-main-25 rounded-circle hover-bg-main-600 border-neutral-30 hover-border-main-600 hover-text-white flex-center p-0'
-              to='#'
-            >
-              2
-            </Link>
-          </li>
-          <li className='page-item'>
-            <Link
-              className='page-link text-neutral-700 fw-semibold w-40 h-40 bg-main-25 rounded-circle hover-bg-main-600 border-neutral-30 hover-border-main-600 hover-text-white flex-center p-0'
-              to='#'
-            >
-              3
-            </Link>
-          </li>
-          <li className='page-item'>
-            <Link
-              className='page-link text-neutral-700 fw-semibold w-40 h-40 bg-main-25 rounded-circle hover-bg-main-600 border-neutral-30 hover-border-main-600 hover-text-white flex-center p-0'
-              to='#'
-            >
-              ...
-            </Link>
-          </li>
-          <li className='page-item'>
-            <Link
-              className='page-link text-neutral-700 fw-semibold w-40 h-40 bg-main-25 rounded-circle hover-bg-main-600 border-neutral-30 hover-border-main-600 hover-text-white flex-center p-0'
-              to='#'
-            >
-              <i className='ph-bold ph-caret-right' />
-            </Link>
-          </li>
-        </ul>
+            )}
+          </>
+        )}
       </div>
     </section>
   );

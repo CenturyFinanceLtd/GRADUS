@@ -47,8 +47,35 @@ const createContactInquiry = asyncHandler(async (req, res) => {
   });
 });
 
+const buildRegionFilter = (regionValue) => {
+  if (!regionValue) {
+    return null;
+  }
+
+  const tokens = String(regionValue)
+    .split(',')
+    .map((token) => token.trim())
+    .filter(Boolean);
+
+  if (!tokens.length) {
+    return null;
+  }
+
+  if (tokens.length === 1) {
+    const escaped = tokens[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`^${escaped}$`, 'i');
+  }
+
+  return {
+    $in: tokens.map((token) => {
+      const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return new RegExp(`^${escaped}$`, 'i');
+    }),
+  };
+};
+
 const listContactInquiries = asyncHandler(async (req, res) => {
-  const { search } = req.query || {};
+  const { search, region } = req.query || {};
 
   const filter = {};
 
@@ -64,6 +91,12 @@ const listContactInquiries = asyncHandler(async (req, res) => {
       { course: regex },
       { message: regex },
     ];
+  }
+
+  const regionFilter = buildRegionFilter(region);
+
+  if (regionFilter) {
+    filter.region = regionFilter;
   }
 
   const inquiries = await ContactInquiry.find(filter)

@@ -1,357 +1,299 @@
-import { useState } from "react";
-import ModalVideo from "react-modal-video";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-const EventDetailsOne = () => {
-  let [isOpen, setIsOpen] = useState(false);
-  let [count, setCount] = useState(1);
+import { submitContactInquiry } from "../services/contactService";
+
+const TABS = [
+  { id: "overview", icon: "ph-squares-four", label: "Overview" },
+  { id: "instructor", icon: "ph-user-circle", label: "Instructor" },
+  { id: "help", icon: "ph-headset", label: "Help" },
+];
+
+const formatDate = (iso) => {
+  if (!iso) return "TBA";
+  try {
+    return new Intl.DateTimeFormat("en-IN", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }).format(new Date(iso));
+  } catch {
+    return "TBA";
+  }
+};
+
+const formatTime = (iso, timezone) => {
+  if (!iso) return "TBA";
+  try {
+    return `${new Intl.DateTimeFormat("en-IN", {
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(new Date(iso))} ${timezone || ""}`.trim();
+  } catch {
+    return "TBA";
+  }
+};
+
+const EventTabs = ({ active, onChange }) => (
+  <div className='event-tabs'>
+    {TABS.map((tab) => (
+      <button
+        key={tab.id}
+        type='button'
+        className={`event-tab ${active === tab.id ? "is-active" : ""}`}
+        onClick={() => onChange(tab.id)}
+      >
+        <i className={`ph ${tab.icon}`} aria-hidden />
+        {tab.label}
+      </button>
+    ))}
+  </div>
+);
+
+const OverviewTab = ({ event }) => {
+  const paragraphs = (event?.description || "")
+    .split(/\n+/)
+    .map((text) => text.trim())
+    .filter(Boolean);
+
   return (
-    <section className='course-list-view py-120 bg-white'>
-      <div className='container container--lg'>
+    <div className='event-overview'>
+      <h2 className='event-section-title'>What you will learn in this masterclass</h2>
+      {event?.meta?.highlights?.length ? (
+        <ul className='event-highlight-list'>
+          {event.meta.highlights.map((item, index) => (
+            <li key={`highlight-${index}`}>{item}</li>
+          ))}
+        </ul>
+      ) : null}
+      {paragraphs.length ? (
+        paragraphs.map((text, index) => (
+          <p key={`paragraph-${index}`} className='text-neutral-700 mb-16'>
+            {text}
+          </p>
+        ))
+      ) : (
+        <p className='text-neutral-500'>No description provided.</p>
+      )}
+      {event?.meta?.agenda?.length ? (
+        <div className='event-agenda mt-40'>
+          <h4 className='mb-16'>Agenda</h4>
+          <ol className='event-agenda__list'>
+            {event.meta.agenda.map((item, index) => (
+              <li key={`agenda-${index}`}>{item}</li>
+            ))}
+          </ol>
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
+const InstructorTab = ({ event }) => (
+  <div className='event-overview'>
+    <h2 className='event-section-title'>Instructor</h2>
+    <div className='event-instructor-card'>
+      <div className='event-host-avatar rounded-circle bg-main-25 text-main-600 fw-semibold'>
+        {(event?.host?.name || "G")[0]}
+      </div>
+      <div>
+        <p className='fw-semibold mb-2'>{event?.host?.name || "Gradus Mentor"}</p>
+        <p className='text-neutral-500 mb-0'>{event?.host?.title || "Lead Instructor"}</p>
+      </div>
+    </div>
+    <p className='text-neutral-600 mt-16'>
+      {event?.host?.bio ||
+        "Our mentors bring real-world expertise from top institutions and make every session interactive and actionable."}
+    </p>
+  </div>
+);
+
+const HelpTab = () => (
+  <div className='event-overview'>
+    <h2 className='event-section-title'>Need assistance?</h2>
+    <p className='text-neutral-600 mb-16'>
+      Reach our learner success team if you have questions about enrolment, prerequisites, or need a
+      custom corporate cohort.
+    </p>
+    <ul className='event-highlight-list'>
+      <li>Email: <a href='mailto:hello@gradusindia.in'>hello@gradusindia.in</a></li>
+      <li>Phone / WhatsApp: <a href='tel:+919999999999'>+91 99999 99999</a></li>
+      <li>
+        Support Center:{" "}
+        <Link to='/support' className='text-main-600'>
+          Open a ticket
+        </Link>
+      </li>
+    </ul>
+  </div>
+);
+
+const RegistrationCard = ({ event }) => {
+  const [form, setForm] = useState({ name: "", email: "", phone: "" });
+  const [status, setStatus] = useState({ submitting: false, success: false, error: null });
+
+  const { dateLabel, timeLabel } = useMemo(
+    () => ({
+      dateLabel: formatDate(event?.schedule?.start),
+      timeLabel: formatTime(event?.schedule?.start, event?.schedule?.timezone),
+    }),
+    [event?.schedule?.start, event?.schedule?.timezone]
+  );
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name || !form.email || !form.phone) return;
+
+    try {
+      setStatus({ submitting: true, success: false, error: null });
+      await submitContactInquiry({
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        region: "events",
+        institution: event?.host?.name || "Gradus",
+        course: event?.title || "Event",
+        message: `Interested in ${event?.title || "event"} masterclass`,
+      });
+      setStatus({ submitting: false, success: true, error: null });
+      setForm({ name: "", email: "", phone: "" });
+    } catch (err) {
+      setStatus({
+        submitting: false,
+        success: false,
+        error: err?.message || "Failed to register interest",
+      });
+    }
+  };
+
+  return (
+    <aside className='event-register-card'>
+      <div className='event-register-card__thumb'>
         <img
-          src='/assets/images/thumbs/event-details-img.png'
-          alt=''
-          className='rounded-12'
+          src={event?.heroImage?.url || "/assets/images/thumbs/event-img1.png"}
+          alt={event?.heroImage?.alt || event?.title || "Event"}
+          loading='lazy'
         />
-        <div className='container'>
-          <div className='mt-60'>
-            <div className='row gy-4'>
-              <div className='col-lg-8'>
-                <h1 className='display-4 mb-24 fw-semibold'>
-                  Career Guidance Workshops for Students
-                </h1>
-                <p className='text-neutral-700'>
-                  Navigating the path to a successful career can be challenging,
-                  but our Career Guidance Workshops are here to help. Designed
-                  for high school and college students, these workshops provide
-                  invaluable insights into various career paths, equip students
-                  with essential skills, and connect them with industry
-                  professionals.
-                </p>
-                <span className='d-block border-bottom border-top-0 border-dashed border-main-100 my-32' />
-                <h2 className='mb-16'>Introduction to Career Planning</h2>
-                <ul className='list-dotted d-flex flex-column gap-8'>
-                  <li>Understanding the importance of career planning</li>
-                  <li>Assessing personal strengths, interests, and values</li>
-                  <li>Setting short-term and long-term career goals</li>
-                </ul>
-                <span className='d-block border-bottom border-top-0 border-dashed border-main-100 my-32' />
-                <h3 className='mb-16'>Exploring Career Options</h3>
-                <ul className='list-dotted d-flex flex-column gap-8'>
-                  <li>
-                    Overview of different career fields (e.g., STEM, arts,
-                    business, healthcare)
-                  </li>
-                  <li>Detailed sessions on specific professions</li>
-                  <li>Guest speakers from various industries</li>
-                </ul>
-                <p className='mt-16 text-neutral-700'>
-                  These courses are commonly offered in both in-person and
-                  online formats. Online courses often include video lectures,
-                  interactive coding exercises, and discussion forums.
-                </p>
-                <div className='my-32'>
-                  <div className='row gy-4'>
-                    <div className='col-6'>
-                      <img
-                        src='/assets/images/thumbs/event-detail-img1.png'
-                        alt=''
-                        className='rounded-16'
-                      />
-                    </div>
-                    <div className='col-6'>
-                      <img
-                        src='/assets/images/thumbs/event-detail-img2.png'
-                        alt=''
-                        className='rounded-16'
-                      />
-                    </div>
-                  </div>
+      </div>
+      <div className='event-register-card__slot'>
+        <i className='ph ph-info' />
+        <span>
+          Upcoming slot is {dateLabel} at {timeLabel}
+        </span>
+      </div>
+      <form className='event-register-card__form' onSubmit={handleSubmit}>
+        <label className='form-label text-sm fw-semibold'>Name *</label>
+        <input
+          className='form-control'
+          name='name'
+          value={form.name}
+          onChange={handleChange}
+          placeholder='Enter your full name'
+          required
+        />
+        <label className='form-label text-sm fw-semibold mt-16'>Email *</label>
+        <input
+          className='form-control'
+          type='email'
+          name='email'
+          value={form.email}
+          onChange={handleChange}
+          placeholder='you@email.com'
+          required
+        />
+        <label className='form-label text-sm fw-semibold mt-16'>Phone *</label>
+        <input
+          className='form-control'
+          name='phone'
+          value={form.phone}
+          onChange={handleChange}
+          placeholder='WhatsApp number'
+          required
+        />
+        <button
+          type='submit'
+          className='btn btn-main w-100 rounded-pill mt-20'
+          disabled={status.submitting}
+        >
+          {status.submitting ? "Registering..." : "Register for free"}
+        </button>
+        {status.success ? (
+          <p className='text-success-600 text-sm mt-12 mb-0'>
+            You’re in! Our team will reach out with joining details.
+          </p>
+        ) : null}
+        {status.error ? (
+          <p className='text-danger text-sm mt-12 mb-0'>{status.error}</p>
+        ) : null}
+      </form>
+      <p className='event-register-card__foot text-sm text-neutral-500'>
+        200+ students have already registered!
+      </p>
+    </aside>
+  );
+};
+
+const EventDetailsOne = ({ event, loading, error }) => {
+  const [activeTab, setActiveTab] = useState("overview");
+
+  useEffect(() => {
+    setActiveTab("overview");
+  }, [event?.id]);
+
+  const renderTab = () => {
+    if (activeTab === "instructor") return <InstructorTab event={event} />;
+    if (activeTab === "help") return <HelpTab />;
+    return <OverviewTab event={event} />;
+  };
+
+  return (
+    <section className='event-details py-120 bg-white'>
+      <div className='container container--lg'>
+        {loading ? (
+          <div className='event-details__skeleton animate-pulse'>
+            <div className='skeleton-thumb rounded-24 mb-32' />
+            <div className='skeleton-line w-75 mb-3' />
+            <div className='skeleton-line w-50 mb-2' />
+            <div className='skeleton-line w-100 mb-2' />
+            <div className='skeleton-line w-60' />
+          </div>
+        ) : error ? (
+          <div className='alert alert-danger rounded-16'>{error}</div>
+        ) : !event ? (
+          <div className='empty-state text-center py-80'>
+            <div className='empty-state__illustration mb-24'>
+              <i className='ph ph-calendar-x text-3xl text-main-600' />
+            </div>
+            <h4 className='mb-8'>Event unavailable</h4>
+            <p className='text-neutral-600 mb-0'>
+              The link might be broken or the event has been archived.
+            </p>
+          </div>
+        ) : (
+          <div className='row gy-5'>
+            <div className='col-lg-8'>
+              <div className='event-hero-card'>
+                <div>
+                  <span className='badge badge--category'>{event?.category || "Masterclass"}</span>
+                  {event?.badge ? <span className='badge badge--accent ms-2'>{event.badge}</span> : null}
                 </div>
-                <h4 className='mb-16'>Skills Development</h4>
-                <ul className='list-dotted d-flex flex-column gap-8'>
-                  <li>Resume writing and cover letter preparation</li>
-                  <li>Interview techniques and practice sessions</li>
-                  <li>Networking skills and using LinkedIn effectively</li>
-                </ul>
-                <p className='mt-16 text-neutral-700'>
-                  Most Web Development Fundamentals courses do not have strict
-                  prerequisites. They are often open to beginners, but having
-                  some basic computer literacy and familiarity with web browsing
-                  is beneficial
-                </p>
-                <span className='d-block border-bottom border-top-0 border-dashed border-main-100 my-32' />
-                <h5 className='mb-16'>Educational Pathways</h5>
-                <ul className='list-dotted d-flex flex-column gap-8'>
-                  <li>Choosing the right college or university</li>
-                  <li>
-                    Understanding different degree programs and certifications
-                  </li>
-                  <li>
-                    Exploring scholarships, internships, and apprenticeship
-                    opportunities
-                  </li>
-                </ul>
-                <p className='mt-16 text-neutral-700'>
-                  Web Development Fundamentals courses can vary in length,
-                  ranging from a few weeks to a few months. It depends on the
-                  depth of content covered and the pace of the course.
-                </p>
-                <div className='position-relative my-32'>
-                  <img
-                    src='/assets/images/thumbs/event-detail-img3.png'
-                    className='rounded-12 cover-img'
-                    alt=''
-                  />
-                  <span
-                    onClick={() => setIsOpen(true)}
-                    className='play-button position-absolute start-50 top-50 translate-middle z-1 w-72 h-72 flex-center bg-main-two-600 text-white rounded-circle text-2xl'
-                  >
-                    <i className='ph-fill ph-play' />
-                  </span>
-                </div>
-                <h6 className='mb-16'>Benefits</h6>
-                <ul className='list-dotted d-flex flex-column gap-8'>
-                  <li>
-                    Personalized Guidance: Tailored advice based on individual
-                    interests and strengths
-                  </li>
-                  <li>
-                    Industry Connections: Direct interaction with professionals
-                    and potential mentors
-                  </li>
-                  <li>
-                    Skill Enhancement: Development of critical career skills
-                    such as resume writing and interviewing
-                  </li>
-                  <li>
-                    Informed Decisions: Better understanding of various career
-                    paths and educational requirements
-                  </li>
-                  <li>
-                    Confidence Building: Increased confidence in career planning
-                    and decision-making
-                  </li>
-                </ul>
-                <p className='mt-16 text-neutral-700'>
-                  Students can register for the workshops through the Gradus
-                  platform. Limited seats are available, so early registration
-                  is recommended.
-                </p>
-              </div>
-              <div className='col-lg-4'>
-                <div className='bg-white box-shadow-md rounded-12 p-12 d-flex flex-column gap-12 border border-neutral-30 mt--200px'>
-                  <div className='rounded-12 overflow-hidden'>
-                    <div className='position-relative'>
-                      <img
-                        src='/assets/images/thumbs/event-detail-img4.png'
-                        className='rounded-12 cover-img'
-                        alt=''
-                      />
-                      <span
-                        onClick={() => setIsOpen(true)}
-                        className='play-button position-absolute start-50 top-50 translate-middle z-1 w-72 h-72 flex-center bg-main-600 text-white rounded-circle text-2xl'
-                      >
-                        <i className='ph-fill ph-play' />
-                      </span>
-                      <h3 className='text-white bg-main-two-600 mb-0 px-32 py-16 rounded-top-start-8px position-absolute inset-inline-end-0 inset-block-end-0 fw-medium'>
-                        $199
-                      </h3>
-                    </div>
-                  </div>
-                  <div className='rounded-12 bg-main-25 p-24 '>
-                    <div className=' flex-between flex-wrap gap-16 border-bottom border-dashed border-top-0 border-end-0 border-start-0 border-neutral-40 pb-16 mb-16'>
-                      <div className='flex-align gap-12'>
-                        <span className='text-neutral-700 text-2xl d-flex'>
-                          <i className='ph-bold ph-calendar-dot' />
-                        </span>
-                        <span className='text-neutral-700 text-lg fw-normal'>
-                          Start Date
-                        </span>
-                      </div>
-                      <span className='text-lg fw-medium text-neutral-700'>
-                        12/05/24
-                      </span>
-                    </div>
-                    <div className=' flex-between flex-wrap gap-16 border-bottom border-dashed border-top-0 border-end-0 border-start-0 border-neutral-40 pb-16 mb-16'>
-                      <div className='flex-align gap-12'>
-                        <span className='text-neutral-700 text-2xl d-flex'>
-                          {" "}
-                          <i className='ph-bold ph-clock' />
-                        </span>
-                        <span className='text-neutral-700 text-lg fw-normal'>
-                          Start Time
-                        </span>
-                      </div>
-                      <span className='text-lg fw-medium text-neutral-700'>
-                        05:00 PM
-                      </span>
-                    </div>
-                    <div className=' flex-between flex-wrap gap-16 border-bottom border-dashed border-top-0 border-end-0 border-start-0 border-neutral-40 pb-16 mb-16'>
-                      <div className='flex-align gap-12'>
-                        <span className='text-neutral-700 text-2xl d-flex'>
-                          <i className='ph-bold ph-calendar-dot' />
-                        </span>
-                        <span className='text-neutral-700 text-lg fw-normal'>
-                          End Time
-                        </span>
-                      </div>
-                      <span className='text-lg fw-medium text-neutral-700'>
-                        08:00 PM
-                      </span>
-                    </div>
-                    <div className=' flex-between flex-wrap gap-16 border-bottom border-dashed border-top-0 border-end-0 border-start-0 border-neutral-40 pb-16 mb-16'>
-                      <div className='flex-align gap-12'>
-                        <span className='text-neutral-700 text-2xl d-flex'>
-                          {" "}
-                          <i className='ph-bold ph-clock' />
-                        </span>
-                        <span className='text-neutral-700 text-lg fw-normal'>
-                          End Date
-                        </span>
-                      </div>
-                      <span className='text-lg fw-medium text-neutral-700'>
-                        20/05/24
-                      </span>
-                    </div>
-                    <div className=' flex-between flex-wrap gap-16 border-bottom border-dashed border-top-0 border-end-0 border-start-0 border-neutral-40 pb-16 mb-16'>
-                      <div className='flex-align gap-12'>
-                        <span className='text-neutral-700 text-2xl d-flex'>
-                          <i className='ph-bold ph-users-three' />
-                        </span>
-                        <span className='text-neutral-700 text-lg fw-normal'>
-                          Ongoing
-                        </span>
-                      </div>
-                      <span className='text-lg fw-medium text-neutral-700'>
-                        5.5k
-                      </span>
-                    </div>
-                    <div className=' flex-between flex-wrap gap-16'>
-                      <div className='flex-align gap-12'>
-                        <span className='text-neutral-700 text-2xl d-flex'>
-                          {" "}
-                          <i className='ph-bold ph-map-pin-line' />{" "}
-                        </span>
-                        <span className='text-neutral-700 text-lg fw-normal'>
-                          Location
-                        </span>
-                      </div>
-                      <span className='text-lg fw-medium text-neutral-700'>
-                        Coppell, Virginia
-                      </span>
-                    </div>
-                  </div>
-                  <div className='rounded-12 bg-main-25 p-24 '>
-                    <div className=' flex-between flex-wrap gap-16 border-bottom border-dashed border-top-0 border-end-0 border-start-0 border-neutral-40 pb-16 mb-16'>
-                      <h2 className='mb-0'>$199</h2>
-                      <div className='border border-neutral-30 rounded-pill p-4 bg-white max-w-176 w-100 d-flex justify-content-between'>
-                        <button
-                          onClick={() => setCount(count - 1)}
-                          disabled={count === 1}
-                          type='button'
-                          className='quantity__minus item-active-effect transition-1 flex-shrink-0 text-main-600 text-xl hover-text-white w-44 h-44 rounded-circle bg-main-50 hover-bg-main-600 hover-border-main-600 hover-text-white flex-center'
-                        >
-                          <i className='ph-bold ph-minus' />
-                        </button>
-                        <input
-                          type='text'
-                          className='quantity__input flex-grow-1 common-input border-0 text-center text-32 fw-semibold text-neutral-700 p-0'
-                          value={count}
-                          onChange={(e) => setCount(e.target.value)}
-                        />
-                        <button
-                          onClick={() => setCount(count + 1)}
-                          type='button'
-                          className='quantity__plus item-active-effect transition-1 flex-shrink-0 text-main-600 text-xl hover-text-white w-44 h-44 rounded-circle bg-main-50 hover-bg-main-600 hover-border-main-600 hover-text-white flex-center'
-                        >
-                          <i className='ph-bold ph-plus' />
-                        </button>
-                      </div>
-                    </div>
-                    <div className=' flex-between flex-wrap gap-16 border-bottom border-dashed border-top-0 border-end-0 border-start-0 border-neutral-40 pb-16 mb-16'>
-                      <div className='flex-align gap-12'>
-                        <span className='text-neutral-700 text-2xl d-flex'>
-                          <i className='ph-bold ph-file-text' />
-                        </span>
-                        <span className='text-neutral-700 text-lg fw-normal'>
-                          Total Quantity
-                        </span>
-                      </div>
-                      <span className='text-lg fw-medium text-neutral-700'>
-                        01
-                      </span>
-                    </div>
-                    <div className=' flex-between flex-wrap gap-16'>
-                      <div className='flex-align gap-12'>
-                        <span className='text-neutral-700 text-2xl d-flex'>
-                          {" "}
-                          <i className='ph-bold ph-tag' />
-                        </span>
-                        <span className='text-neutral-700 text-lg fw-normal'>
-                          Total Price
-                        </span>
-                      </div>
-                      <span className='text-lg fw-medium text-neutral-700'>
-                        $199
-                      </span>
-                    </div>
-                  </div>
-                  <span className='d-block border-bottom border-top-0 border-dashed border-main-100 my-32' />
-                  <Link
-                    to='/contact'
-                    className='btn btn-main rounded-pill flex-center gap-8'
-                  >
-                    Join Now
-                    <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
-                  </Link>
-                  <ul className='social-list flex-center gap-8 mt-24'>
-                    <li className='social-list__item'>
-                      <a
-                        href='https://www.facebook.com'
-                        className='text-main-600 text-xl hover-text-white w-44 h-44 rounded-circle bg-main-50 hover-bg-main-600 hover-border-main-600 hover-text-white flex-center'
-                      >
-                        <i className='ph-bold ph-facebook-logo' />
-                      </a>
-                    </li>
-                    <li className='social-list__item'>
-                      <a
-                        href='https://www.twitter.com'
-                        className='text-main-600 text-xl hover-text-white w-44 h-44 rounded-circle bg-main-50 hover-bg-main-600 hover-border-main-600 hover-text-white flex-center'
-                      >
-                        <i className='ph-bold ph-twitter-logo' />
-                      </a>
-                    </li>
-                    <li className='social-list__item'>
-                      <a
-                        href='https://www.linkedin.com'
-                        className='text-main-600 text-xl hover-text-white w-44 h-44 rounded-circle bg-main-50 hover-bg-main-600 hover-border-main-600 hover-text-white flex-center'
-                      >
-                        <i className='ph-bold ph-instagram-logo' />
-                      </a>
-                    </li>
-                    <li className='social-list__item'>
-                      <a
-                        href='https://www.pinterest.com'
-                        className='text-main-600 text-xl hover-text-white w-44 h-44 rounded-circle bg-main-50 hover-bg-main-600 hover-border-main-600 hover-text-white flex-center'
-                      >
-                        <i className='ph-bold ph-pinterest-logo' />
-                      </a>
-                    </li>
-                  </ul>
-                </div>
+                <h1 className='display-5 mb-8 mt-16'>{event?.title}</h1>
+                <p className='text-neutral-600 mb-24'>{event?.summary || event?.subtitle}</p>
+                <EventTabs active={activeTab} onChange={setActiveTab} />
+                <div className='event-tab-content'>{renderTab()}</div>
               </div>
             </div>
+            <div className='col-lg-4'>
+              <RegistrationCard event={event} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
-      <ModalVideo
-        channel='youtube'
-        autoplay
-        isOpen={isOpen}
-        videoId='XxVg_s8xAms'
-        onClose={() => setIsOpen(false)}
-        allowFullScreen
-      />
     </section>
   );
 };

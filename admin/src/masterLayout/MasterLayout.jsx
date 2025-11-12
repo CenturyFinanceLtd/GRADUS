@@ -468,6 +468,24 @@ const MasterLayout = ({ children }) => {
                 <span>Banners</span>
               </NavLink>
             </li>
+            <li>
+              <NavLink
+                to='/events-admin'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='solar:calendar-bold-duotone' className='menu-icon' />
+                <span>Events</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to='/event-registrations'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='material-symbols:contact-mail-outline' className='menu-icon' />
+                <span>Event Registrations</span>
+              </NavLink>
+            </li>
             
 
             { /* Courses management and enrollments links removed */ }
