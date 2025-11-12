@@ -5,15 +5,15 @@ import { useAuthContext } from "../context/AuthContext";
 import { fetchCourseEnrollmentsAdmin, listAdminCourses } from "../services/adminCourses";
 
 const statusBadgeClass = {
-  ACTIVE: "text-bg-success-subtle",
-  CANCELLED: "text-bg-danger-subtle",
+  ACTIVE: "bg-success-subtle text-success-emphasis",
+  CANCELLED: "bg-danger-subtle text-danger-emphasis",
 };
 
 const paymentBadgeClass = {
-  PAID: "text-bg-success-subtle",
-  PENDING: "text-bg-warning-subtle",
-  FAILED: "text-bg-danger-subtle",
-  REFUNDED: "text-bg-info-subtle",
+  PAID: "bg-success-subtle text-success-emphasis",
+  PENDING: "bg-warning-subtle text-warning-emphasis",
+  FAILED: "bg-danger-subtle text-danger-emphasis",
+  REFUNDED: "bg-info-subtle text-info-emphasis",
 };
 
 const CourseEnrollmentsPage = () => {
@@ -21,30 +21,54 @@ const CourseEnrollmentsPage = () => {
   const [courses, setCourses] = useState([]);
   const [courseOptions, setCourseOptions] = useState([]);
   const [selectedSlug, setSelectedSlug] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [paymentFilter, setPaymentFilter] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
     let cancelled = false;
-    const loadData = async () => {
+    const loadCourseList = async () => {
+      try {
+        const courseList = await listAdminCourses({ token });
+        if (!cancelled) {
+          setCourseOptions(courseList);
+          setSelectedSlug((current) => current || courseList[0]?.slug || "");
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err?.message || "Unable to load enrollments.");
+        }
+      }
+    };
+    if (token) {
+      loadCourseList();
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadEnrollments = async () => {
       try {
         setLoading(true);
-        const [courseList, data] = await Promise.all([
-          listAdminCourses({ token }),
-          fetchCourseEnrollmentsAdmin({ token }),
-        ]);
+        const data = await fetchCourseEnrollmentsAdmin({
+          token,
+          slug: selectedSlug || undefined,
+          status: statusFilter || undefined,
+          paymentStatus: paymentFilter || undefined,
+        });
         const normalized = Array.isArray(data)
           ? data
           : Array.isArray(data?.items)
           ? data.items
           : [];
         if (!cancelled) {
-          setCourseOptions(courseList);
           setCourses(normalized);
-          if (!selectedSlug && courseList.length) {
-            setSelectedSlug(courseList[0].slug);
-          }
+          setError("");
         }
       } catch (err) {
         if (!cancelled) {
@@ -56,11 +80,13 @@ const CourseEnrollmentsPage = () => {
         }
       }
     };
-    loadData();
+    if (token) {
+      loadEnrollments();
+    }
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, selectedSlug, statusFilter, paymentFilter]);
 
   const filteredCourses = useMemo(() => {
     const source = selectedSlug
@@ -98,6 +124,26 @@ const CourseEnrollmentsPage = () => {
                     {course.name}
                   </option>
                 ))}
+              </select>
+              <select
+                className='form-select'
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+              >
+                <option value=''>All statuses</option>
+                <option value='ACTIVE'>Active</option>
+                <option value='CANCELLED'>Cancelled</option>
+              </select>
+              <select
+                className='form-select'
+                value={paymentFilter}
+                onChange={(event) => setPaymentFilter(event.target.value)}
+              >
+                <option value=''>All payment states</option>
+                <option value='PAID'>Paid</option>
+                <option value='PENDING'>Pending</option>
+                <option value='FAILED'>Failed</option>
+                <option value='REFUNDED'>Refunded</option>
               </select>
               <input
                 type='search'
@@ -178,20 +224,20 @@ const CourseEnrollmentsPage = () => {
                                 <span
                                   className={`badge ${
                                     statusBadgeClass[learner.status] ||
-                                    "text-bg-secondary-subtle"
+                                    "bg-secondary-subtle text-secondary-emphasis"
                                   }`}
                                 >
-                                  {learner.status}
+                                  {learner.status || "—"}
                                 </span>
                               </td>
                               <td>
                                 <span
                                   className={`badge ${
                                     paymentBadgeClass[learner.paymentStatus] ||
-                                    "text-bg-secondary-subtle"
+                                    "bg-secondary-subtle text-secondary-emphasis"
                                   }`}
                                 >
-                                  {learner.paymentStatus}
+                                  {learner.paymentStatus || "—"}
                                 </span>
                               </td>
                               <td>

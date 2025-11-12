@@ -12,6 +12,19 @@ const CourseProgress = require('../models/CourseProgress');
 const { buildFallbackModules } = require('../utils/courseDetail');
 
 const PROGRESS_COMPLETION_THRESHOLD = 0.9;
+const resolveUserDisplayName = (user) => {
+  if (!user || typeof user !== 'object') {
+    return 'Unknown learner';
+  }
+  const combinedName = [user.firstName, user.lastName].filter(Boolean).join(' ').trim();
+  return (
+    normalizeString(user.personalDetails?.studentName) ||
+    normalizeString(user.name) ||
+    normalizeString(combinedName) ||
+    normalizeString(user.email) ||
+    'Unknown learner'
+  );
+};
 
 const normalizeString = (value) => {
   if (typeof value !== 'string') {
@@ -785,17 +798,18 @@ const getCourseProgressAdmin = asyncHandler(async (req, res) => {
     filter.user = req.query.userId;
   }
   const docs = await CourseProgress.find(filter)
-    .populate({ path: 'user', select: 'name email avatar role' })
+    .populate({ path: 'user', select: 'name firstName lastName email avatar role personalDetails' })
     .sort({ updatedAt: -1 })
     .lean();
 
   const grouped = {};
   docs.forEach((doc) => {
     const key = doc.user?._id?.toString() || 'unknown';
+    const userDisplayName = resolveUserDisplayName(doc.user);
     if (!grouped[key]) {
       grouped[key] = {
         userId: key,
-        userName: doc.user?.name || 'Unknown learner',
+        userName: userDisplayName,
         userEmail: doc.user?.email || '',
         avatar: doc.user?.avatar || '',
         role: doc.user?.role || '',
@@ -891,6 +905,9 @@ const getCourseEnrollmentsAdmin = asyncHandler(async (req, res) => {
   }
   if (req.query.paymentStatus) {
     enrollmentFilter.paymentStatus = req.query.paymentStatus;
+  }
+  if (req.query.userId) {
+    enrollmentFilter.user = req.query.userId;
   }
 
   const enrollments = await Enrollment.find(enrollmentFilter)

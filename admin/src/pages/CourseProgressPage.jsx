@@ -5,6 +5,7 @@ import { useAuthContext } from "../context/AuthContext";
 import {
   listAdminCourses,
   fetchCourseProgressAdmin,
+  fetchCourseEnrollmentsAdmin,
 } from "../services/adminCourses";
 
 const formatPercent = (value) => `${Math.round((value || 0) * 100)}%`;
@@ -20,6 +21,8 @@ const CourseProgressPage = () => {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [highlightUserId, setHighlightUserId] = useState("");
+  const [restrictedCourseSlugs, setRestrictedCourseSlugs] = useState(null);
+  const [userCourseError, setUserCourseError] = useState("");
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -30,6 +33,52 @@ const CourseProgressPage = () => {
     }
     setHighlightUserId(userParam || "");
   }, [location.search]);
+
+  useEffect(() => {
+    if (!highlightUserId) {
+      setRestrictedCourseSlugs(null);
+      setUserCourseError("");
+      return;
+    }
+    let cancelled = false;
+    const loadUserCourses = async () => {
+      try {
+        setUserCourseError("");
+        const result = await fetchCourseEnrollmentsAdmin({
+          token,
+          userId: highlightUserId,
+          status: "ACTIVE",
+        });
+        const items = Array.isArray(result) ? result : Array.isArray(result?.items) ? result.items : [];
+        const allowed = items
+          .filter((course) =>
+            Array.isArray(course.learners) &&
+            course.learners.some((learner) => learner.userId === highlightUserId)
+          )
+          .map((course) => course.slug)
+          .filter(Boolean);
+        if (!cancelled) {
+          setRestrictedCourseSlugs(allowed);
+          if (allowed.length) {
+            if (!allowed.includes(selectedSlug)) {
+              setSelectedSlug(allowed[0]);
+            }
+          } else {
+            setSelectedSlug("");
+          }
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setRestrictedCourseSlugs([]);
+          setUserCourseError(err?.message || "Unable to load learner enrollments.");
+        }
+      }
+    };
+    loadUserCourses();
+    return () => {
+      cancelled = true;
+    };
+  }, [highlightUserId, token]);
 
   useEffect(() => {
     let cancelled = false;
@@ -86,6 +135,22 @@ const CourseProgressPage = () => {
     };
   }, [selectedSlug, token]);
 
+  const highlightLearner = useMemo(() => {
+    if (!highlightUserId) return null;
+    return progressData.find((entry) => entry.userId === highlightUserId) || null;
+  }, [highlightUserId, progressData]);
+
+  const dropdownCourses = useMemo(() => {
+    if (!highlightUserId || !Array.isArray(restrictedCourseSlugs)) {
+      return courses;
+    }
+    if (!restrictedCourseSlugs.length) {
+      return [];
+    }
+    const allowed = new Set(restrictedCourseSlugs);
+    return courses.filter((course) => allowed.has(course.slug));
+  }, [courses, highlightUserId, restrictedCourseSlugs]);
+
   const filteredProgress = useMemo(() => {
     if (highlightUserId) {
       return progressData.filter((entry) => entry.userId === highlightUserId);
@@ -122,7 +187,7 @@ const CourseProgressPage = () => {
                 onChange={(event) => setSelectedSlug(event.target.value)}
               >
                 <option value=''>Select a course</option>
-                {courses.map((course) => (
+                {dropdownCourses.map((course) => (
                   <option key={course.slug} value={course.slug}>
                     {course.name}
                   </option>
@@ -138,6 +203,17 @@ const CourseProgressPage = () => {
               />
             </div>
           </div>
+
+          {highlightUserId &&
+          Array.isArray(restrictedCourseSlugs) &&
+          !restrictedCourseSlugs.length ? (
+            <div className='alert alert-warning'>
+              This learner does not have any active course enrollments yet.
+            </div>
+          ) : null}
+          {userCourseError ? (
+            <div className='alert alert-warning'>{userCourseError}</div>
+          ) : null}
 
           {selectedCourse ? (
             <div className='card mb-4'>
@@ -161,8 +237,32 @@ const CourseProgressPage = () => {
           {highlightUserId ? (
             <div className='alert alert-info d-flex justify-content-between align-items-center'>
               <span>
-                Showing progress for learner ID <strong>{highlightUserId}</strong>. Clear the
-                parameter to view all learners.
+                {highlightLearner ? (
+                  <>
+                    {(() => {
+                      const primaryName =
+                        highlightLearner.userName || highlightLearner.userEmail || "Unknown learner";
+                      const email = highlightLearner.userEmail;
+                      const showEmail =
+                        email &&
+                        email.toLowerCase() !== (highlightLearner.userName || "").toLowerCase();
+                      return (
+                        <>
+                          Showing progress for <strong>{primaryName}</strong>
+                          {showEmail ? (
+                            <span className='text-muted ms-1'>({email})</span>
+                          ) : null}
+                          . Use the button to clear the parameter and view every learner.
+                        </>
+                      );
+                    })()}
+                  </>
+                ) : (
+                  <>
+                    Showing progress for learner ID <strong>{highlightUserId}</strong>. Clear the
+                    parameter to view all learners.
+                  </>
+                )}
               </span>
               <button
                 type='button'

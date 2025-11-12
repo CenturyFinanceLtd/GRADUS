@@ -66,9 +66,29 @@ export const fetchCourseProgressAdmin = async ({ slug, token, userId } = {}) => 
   };
 };
 
-export const fetchCourseEnrollmentsAdmin = async ({ token, slug } = {}) => {
-  const queryPath = slug ? `/admin/courses/enrollments/${encodeURIComponent(slug)}` : '/admin/courses/enrollments';
-  const data = await apiClient(queryPath, { token });
+export const fetchCourseEnrollmentsAdmin = async ({
+  token,
+  slug,
+  status,
+  paymentStatus,
+  userId,
+} = {}) => {
+  const params = new URLSearchParams();
+  if (slug) {
+    params.append('slug', slug);
+  }
+  if (status) {
+    params.append('status', status);
+  }
+  if (paymentStatus) {
+    params.append('paymentStatus', paymentStatus);
+  }
+  if (userId) {
+    params.append('userId', userId);
+  }
+  const query = params.toString();
+  const endpoint = `/admin/courses/enrollments${query ? `?${query}` : ''}`;
+  const data = await apiClient(endpoint, { token });
   return data?.items || [];
 };
 
