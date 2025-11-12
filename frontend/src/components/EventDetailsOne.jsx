@@ -252,7 +252,7 @@ const EventDetailsOne = ({ event, loading, error }) => {
   };
 
   return (
-    <section className='event-details py-120 bg-white'>
+    <section className='event-details py-60 bg-white'>
       <div className='container container--lg'>
         {loading ? (
           <div className='event-details__skeleton animate-pulse'>
