@@ -118,14 +118,22 @@ const VideoTestimonials = () => {
     prevArrow: <ArrowBtn />,
     nextArrow: <ArrowBtn />,
     dots: false,
-    autoplay: false,
+    autoplay: true,
     infinite: true,
     speed: 500,
     responsive: [
       { breakpoint: 1399, settings: { slidesToShow: 4 } },
       { breakpoint: 1200, settings: { slidesToShow: 3 } },
       { breakpoint: 992, settings: { slidesToShow: 2 } },
-      { breakpoint: 575, settings: { slidesToShow: 1 } },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 1.5,
+          centerMode: true,
+          centerPadding: "16px",
+          swipeToSlide: true,
+        },
+      },
     ],
   };
 
