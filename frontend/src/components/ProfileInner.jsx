@@ -14,17 +14,7 @@ const mapUserToProfileState = (user) => ({
     studentName: safeString(user?.personalDetails?.studentName),
     gender: safeString(user?.personalDetails?.gender),
     dateOfBirth: safeString(user?.personalDetails?.dateOfBirth),
-    city: safeString(user?.personalDetails?.city),
     state: safeString(user?.personalDetails?.state),
-    country: safeString(user?.personalDetails?.country),
-    zipCode: safeString(user?.personalDetails?.zipCode),
-    address: safeString(user?.personalDetails?.address),
-  },
-  educationDetails: {
-    institutionName: safeString(user?.educationDetails?.institutionName),
-    passingYear: safeString(user?.educationDetails?.passingYear),
-    fieldOfStudy: safeString(user?.educationDetails?.fieldOfStudy),
-    address: safeString(user?.educationDetails?.address),
   },
 });
 
@@ -92,7 +82,7 @@ const ProfileInner = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/sign-in", { replace: true });
+    navigate("/", { replace: true });
   };
 
   const handleProfileChange = (event) => {
@@ -126,17 +116,7 @@ const ProfileInner = () => {
           studentName: profileData.personalDetails.studentName.trim(),
           gender: profileData.personalDetails.gender.trim(),
           dateOfBirth: profileData.personalDetails.dateOfBirth.trim(),
-          city: profileData.personalDetails.city.trim(),
           state: profileData.personalDetails.state.trim(),
-          country: profileData.personalDetails.country.trim(),
-          zipCode: profileData.personalDetails.zipCode.trim(),
-          address: profileData.personalDetails.address.trim(),
-        },
-        educationDetails: {
-          institutionName: profileData.educationDetails.institutionName.trim(),
-          passingYear: profileData.educationDetails.passingYear.trim(),
-          fieldOfStudy: profileData.educationDetails.fieldOfStudy.trim(),
-          address: profileData.educationDetails.address.trim(),
         },
       };
 
@@ -474,20 +454,6 @@ const ProfileInner = () => {
                   />
                 </div>
                 <div className='col-sm-6'>
-                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='pdCity'>
-                    City
-                  </label>
-                  <input
-                    type='text'
-                    className='common-input rounded-pill'
-                    id='pdCity'
-                    name='personalDetails.city'
-                    value={profileData.personalDetails.city}
-                    onChange={handleProfileChange}
-                    required
-                  />
-                </div>
-                <div className='col-sm-6'>
                   <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='pdState'>
                     State
                   </label>
@@ -499,105 +465,6 @@ const ProfileInner = () => {
                     value={profileData.personalDetails.state}
                     onChange={handleProfileChange}
                     required
-                  />
-                </div>
-                <div className='col-sm-6'>
-                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='pdCountry'>
-                    Country
-                  </label>
-                  <input
-                    type='text'
-                    className='common-input rounded-pill'
-                    id='pdCountry'
-                    name='personalDetails.country'
-                    value={profileData.personalDetails.country}
-                    onChange={handleProfileChange}
-                    required
-                  />
-                </div>
-                <div className='col-sm-6'>
-                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='pdZip'>
-                    Zip Code
-                  </label>
-                  <input
-                    type='text'
-                    className='common-input rounded-pill'
-                    id='pdZip'
-                    name='personalDetails.zipCode'
-                    value={profileData.personalDetails.zipCode}
-                    onChange={handleProfileChange}
-                    required
-                  />
-                </div>
-                <div className='col-12'>
-                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='pdAddress'>
-                    Address
-                  </label>
-                  <textarea
-                    className='common-input rounded-16'
-                    id='pdAddress'
-                    name='personalDetails.address'
-                    value={profileData.personalDetails.address}
-                    onChange={handleProfileChange}
-                    rows={3}
-                  />
-                </div>
-
-                <div className='col-12 pt-4'>
-                  <h4 className='text-neutral-500 mb-0'>Education Details</h4>
-                </div>
-                <div className='col-sm-6'>
-                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='edInstitution'>
-                    Institution Name
-                  </label>
-                  <input
-                    type='text'
-                    className='common-input rounded-pill'
-                    id='edInstitution'
-                    name='educationDetails.institutionName'
-                    value={profileData.educationDetails.institutionName}
-                    onChange={handleProfileChange}
-                    required
-                  />
-                </div>
-                <div className='col-sm-6'>
-                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='edPassingYear'>
-                    Passing Year
-                  </label>
-                  <input
-                    type='text'
-                    className='common-input rounded-pill'
-                    id='edPassingYear'
-                    name='educationDetails.passingYear'
-                    value={profileData.educationDetails.passingYear}
-                    onChange={handleProfileChange}
-                    required
-                  />
-                </div>
-                <div className='col-sm-6'>
-                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='edFieldOfStudy'>
-                    Field of Study
-                  </label>
-                  <input
-                    type='text'
-                    className='common-input rounded-pill'
-                    id='edFieldOfStudy'
-                    name='educationDetails.fieldOfStudy'
-                    value={profileData.educationDetails.fieldOfStudy}
-                    onChange={handleProfileChange}
-                  />
-                </div>
-                <div className='col-12'>
-                  <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='edAddress'>
-                    Institution Address
-                  </label>
-                  <textarea
-                    className='common-input rounded-16'
-                    id='edAddress'
-                    name='educationDetails.address'
-                    value={profileData.educationDetails.address}
-                    onChange={handleProfileChange}
-                    rows={3}
                   />
                 </div>
                 <div className='col-sm-12'>

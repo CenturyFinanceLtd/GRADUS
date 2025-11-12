@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { PROGRAMMES } from "../data/programmes.js";
 import { API_BASE_URL } from "../services/apiClient";
 import { slugify } from "../utils/slugify.js";
+import isProtectedPath from "../utils/isProtectedPath.js";
 const HeaderOne = () => {
   let { pathname } = useLocation();
   const [scroll, setScroll] = useState(false);
@@ -91,7 +92,12 @@ const HeaderOne = () => {
 
   const handleLogout = () => {
     closeUserMenu();
+    const currentPath = pathname || "/";
+    const shouldRedirect = isProtectedPath(currentPath);
     logout();
+    if (shouldRedirect) {
+      navigate("/", { replace: true });
+    }
   };
 
   const [activeSubmenu, setActiveSubmenu] = useState(null);

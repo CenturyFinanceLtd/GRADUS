@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    whatsappNumber: {
+      type: String,
+      trim: true,
+    },
     personalDetails: {
       studentName: {
         type: String,

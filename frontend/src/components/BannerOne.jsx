@@ -17,6 +17,12 @@ const sliderSettings = {
 const BannerOne = () => {
   const [banners, setBanners] = useState([]);
   const [error, setError] = useState(null);
+  const [isMobileViewport, setIsMobileViewport] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+    return window.matchMedia("(max-width: 991.98px)").matches;
+  });
 
   useEffect(() => {
     let isMounted = true;
@@ -56,6 +62,20 @@ const BannerOne = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) {
+      return undefined;
+    }
+    const mediaQuery = window.matchMedia("(max-width: 991.98px)");
+    const handleChange = (event) => setIsMobileViewport(event.matches);
+    // Ensure initial sync in case default state was stale
+    handleChange(mediaQuery);
+    mediaQuery.addEventListener("change", handleChange);
+    return () => {
+      mediaQuery.removeEventListener("change", handleChange);
+    };
+  }, []);
+
   const baseSectionClass =
     "banner banner--rounded banner--gutters position-relative overflow-hidden";
 
@@ -66,9 +86,7 @@ const BannerOne = () => {
     const resolvedSlides = slides
       .map((item) => {
         const src =
-          variant === "mobile"
-            ? item.mobileImageUrl || item.desktopImageUrl
-            : item.desktopImageUrl || item.mobileImageUrl;
+          variant === "mobile" ? item.mobileImageUrl : item.desktopImageUrl;
         if (!src) {
           return null;
         }
@@ -108,10 +126,13 @@ const BannerOne = () => {
     );
   }
 
+  const desktopSlides = banners.filter((item) => Boolean(item.desktopImageUrl));
+  const mobileSlides = banners.filter((item) => Boolean(item.mobileImageUrl));
+
   return (
     <>
-      {renderSlider(banners, "desktop")}
-      {renderSlider(banners, "mobile")}
+      {!isMobileViewport && renderSlider(desktopSlides, "desktop")}
+      {isMobileViewport && renderSlider(mobileSlides, "mobile")}
     </>
   );
 };

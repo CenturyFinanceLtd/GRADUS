@@ -42,6 +42,11 @@ router.put(
       .trim()
       .isLength({ min: 6 })
       .withMessage('Please provide a valid mobile number.'),
+    body('whatsappNumber')
+      .optional()
+      .trim()
+      .isLength({ min: 6 })
+      .withMessage('Please provide a valid WhatsApp number.'),
     body('personalDetails')
       .optional()
       .isObject()

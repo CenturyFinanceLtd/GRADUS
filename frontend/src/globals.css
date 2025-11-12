@@ -2624,6 +2624,39 @@ img {
 select {
   cursor: pointer;
 }
+.checkout-select {
+  border-radius: 999px;
+  border: 1.5px solid var(--neutral-40);
+  background-color: var(--white);
+  padding: 0.85rem 3rem 0.85rem 1.25rem;
+  font-weight: 500;
+  color: var(--neutral-600);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%230066FF' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 20px) 50%;
+  background-size: 16px;
+  min-height: 52px;
+}
+.checkout-select:hover {
+  border-color: var(--neutral-60);
+}
+.checkout-select:focus {
+  border-color: hsl(var(--main));
+  background-color: var(--main-05);
+  box-shadow: 0 0 0 3px hsla(var(--main-h), var(--main-s), var(--main-l), 0.15);
+}
+.checkout-select:disabled {
+  background-color: var(--neutral-20);
+  color: var(--neutral-80);
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+.checkout-select.is-invalid {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
 ul,
 ol {
   padding: 0;

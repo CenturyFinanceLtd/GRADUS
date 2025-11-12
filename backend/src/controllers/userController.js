@@ -16,7 +16,7 @@ const getProfile = asyncHandler(async (req, res) => {
 });
 
 const updateProfile = asyncHandler(async (req, res) => {
-  const { firstName, lastName, mobile, personalDetails, educationDetails } = req.body;
+  const { firstName, lastName, mobile, whatsappNumber, personalDetails, educationDetails } = req.body;
 
   const user = await User.findById(req.user._id);
 
@@ -34,7 +34,15 @@ const updateProfile = asyncHandler(async (req, res) => {
   }
 
   if (typeof mobile === 'string') {
-    user.mobile = mobile;
+    user.mobile = mobile.trim();
+  }
+
+  if (typeof whatsappNumber === 'string') {
+    const trimmedWhatsApp = whatsappNumber.trim();
+    if (trimmedWhatsApp) {
+      user.whatsappNumber = trimmedWhatsApp;
+      user.mobile = trimmedWhatsApp;
+    }
   }
 
   const assignNestedString = (target, source, field, { allowEmpty = false } = {}) => {
