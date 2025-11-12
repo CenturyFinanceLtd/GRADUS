@@ -14,6 +14,17 @@ const formatDateTime = (value) => {
   }
 };
 
+const extractStateFromMessage = (message) => {
+  if (!message) return "";
+  const match = message.match(/state:\s*([^|]+)/i);
+  return match ? match[1].trim() : "";
+};
+
+const stripStateFromMessage = (message) => {
+  if (!message) return "";
+  return message.replace(/\|\s*state:\s*[^|]+/gi, "").trim();
+};
+
 const EventRegistrationsTable = () => {
   const { token } = useAuth();
   const [items, setItems] = useState([]);
@@ -73,6 +84,8 @@ const EventRegistrationsTable = () => {
         item.name,
         item.email,
         item.phone,
+        item.state,
+        item.institution,
         item.course,
         item.message,
       ];
@@ -126,32 +139,41 @@ const EventRegistrationsTable = () => {
                   <th>Name</th>
                   <th>Email</th>
                   <th>Phone</th>
+                  <th>State</th>
+                  <th>Institute</th>
                   <th>Event</th>
                   <th>Message</th>
                   <th>Submitted</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredItems.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.name}</td>
-                    <td>
-                      <a href={`mailto:${item.email}`} className='text-decoration-none'>
-                        {item.email}
-                      </a>
-                    </td>
-                    <td>
-                      <a href={`tel:${item.phone}`} className='text-decoration-none'>
-                        {item.phone}
-                      </a>
-                    </td>
-                    <td>{item.course}</td>
-                    <td style={{ maxWidth: 260 }}>
-                      <div className='text-break'>{item.message}</div>
-                    </td>
-                    <td>{formatDateTime(item.createdAt)}</td>
-                  </tr>
-                ))}
+                {filteredItems.map((item) => {
+                  const derivedState = item.state || extractStateFromMessage(item.message);
+                  const cleanedMessage = stripStateFromMessage(item.message);
+
+                  return (
+                    <tr key={item.id}>
+                      <td>{item.name}</td>
+                      <td>
+                        <a href={`mailto:${item.email}`} className='text-decoration-none'>
+                          {item.email}
+                        </a>
+                      </td>
+                      <td>
+                        <a href={`tel:${item.phone}`} className='text-decoration-none'>
+                          {item.phone}
+                        </a>
+                      </td>
+                      <td>{derivedState || "—"}</td>
+                      <td>{item.institution || "—"}</td>
+                      <td>{item.course}</td>
+                      <td style={{ maxWidth: 260 }}>
+                        <div className='text-break'>{cleanedMessage}</div>
+                      </td>
+                      <td>{formatDateTime(item.createdAt)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -162,4 +184,3 @@ const EventRegistrationsTable = () => {
 };
 
 export default EventRegistrationsTable;
-

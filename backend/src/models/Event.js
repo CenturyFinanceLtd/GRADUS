@@ -60,6 +60,7 @@ const EventSchema = new mongoose.Schema(
     description: { type: String, trim: true, default: '' },
     category: { type: String, trim: true, default: 'General' },
     badge: { type: String, trim: true, default: '' },
+    eventType: { type: String, trim: true, default: 'Webinar' },
     tags: { type: [String], default: [] },
     level: { type: String, trim: true, default: '' },
     trackLabel: { type: String, trim: true, default: '' },

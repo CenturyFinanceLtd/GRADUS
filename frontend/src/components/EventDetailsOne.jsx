@@ -2,6 +2,71 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { submitContactInquiry } from "../services/contactService";
 
+const STATE_OPTIONS = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Delhi",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal"
+];
+
+const STATE_INSTITUTE_MAP = {
+  "Andhra Pradesh": ["Andhra University", "SRM University AP", "VIT-AP", "JNTU Kakinada", "Other"],
+  "Arunachal Pradesh": ["Rajiv Gandhi University", "National Institute of Technology Arunachal Pradesh", "Other"],
+  "Assam": ["IIT Guwahati", "Gauhati University", "Tezpur University", "Other"],
+  "Bihar": ["IIT Patna", "NIT Patna", "Patna University", "Other"],
+  "Chhattisgarh": ["National Institute of Technology Raipur", "IGKV Raipur", "Government Engineering College Raipur", "Other"],
+  "Delhi": ["IIT Delhi", "Delhi University", "Jamia Millia Islamia", "Amity University Delhi", "Other"],
+  "Goa": ["Goa University", "National Institute of Technology Goa", "Other"],
+  "Gujarat": ["IIM Ahmedabad", "Gujarat University", "DA-IICT Gandhinagar", "Nirma University", "Other"],
+  "Haryana": ["IIT Delhi (nearby)", "Kurukshetra University", "National Institute of Technology Kurukshetra", "Other"],
+  "Himachal Pradesh": ["IIT Mandi", "Jaypee University of Information Technology", "Himachal Pradesh University", "Other"],
+  "Jharkhand": ["IIT Dhanbad", "NIT Jamshedpur", "Ranchi University", "Other"],
+  "Karnataka": ["IISc Bengaluru", "IIM Bangalore", "RV College of Engineering", "Bangalore University", "Other"],
+  "Kerala": ["IIT Palakkad", "Cochin University of Science and Technology", "National Institute of Technology Calicut", "Other"],
+  "Madhya Pradesh": ["IIT Indore", "MANIT Bhopal", "Pt. Ravishankar Shukla University", "Other"],
+  "Maharashtra": ["IIT Bombay", "University of Mumbai", "College of Engineering Pune", "Savitribai Phule Pune University", "Other"],
+  "Manipur": ["National Institute of Technology Manipur", "Manipur University", "Other"],
+  "Meghalaya": ["North Eastern Hill University", "National Institute of Technology Meghalaya", "Other"],
+  "Mizoram": ["Mizoram University", "National Institute of Technology Mizoram", "Other"],
+  "Nagaland": ["Nagaland University", "National Institute of Technology Nagaland", "Other"],
+  "Odisha": ["IIT Bhubaneswar", "Utkal University", "KIIT University", "National Institute of Technology Rourkela", "Other"],
+  "Punjab": ["IIT Ropar", "Punjab University", "Thapar Institute of Engineering and Technology", "Other"],
+  "Rajasthan": ["BITS Pilani", "MNIT Jaipur", "IIM Udaipur", "University of Rajasthan", "Other"],
+  "Sikkim": ["Sikkim University", "National Institute of Technology Sikkim", "Other"],
+  "Tamil Nadu": ["IIT Madras", "Anna University", "NIT Trichy", "SRM Institute of Science and Technology", "Other"],
+  "Telangana": ["IIT Hyderabad", "IIIT Hyderabad", "Osmania University", "International Institute of Information Technology Hyderabad", "Other"],
+  "Tripura": ["Tripura University", "National Institute of Technology Agartala", "Other"],
+  "Uttar Pradesh": ["IIT Kanpur", "IIM Lucknow", "Banaras Hindu University", "Aligarh Muslim University", "Other"],
+  "Uttarakhand": ["IIT Roorkee", "G.B. Pant University of Agriculture and Technology", "Other"],
+  "West Bengal": ["IIT Kharagpur", "IIM Calcutta", "Jadavpur University", "University of Calcutta", "Other"]
+};
+
+
 const TABS = [
   { id: "overview", icon: "ph-squares-four", label: "Overview" },
   { id: "instructor", icon: "ph-user-circle", label: "Instructor" },
@@ -51,6 +116,7 @@ const EventTabs = ({ active, onChange }) => (
 );
 
 const OverviewTab = ({ event }) => {
+  const eventTypeLabel = event?.eventType || "Live session";
   const paragraphs = (event?.description || "")
     .split(/\n+/)
     .map((text) => text.trim())
@@ -58,6 +124,10 @@ const OverviewTab = ({ event }) => {
 
   return (
     <div className='event-overview'>
+      <div className='event-meta-pill mb-16'>
+        <span className='event-meta-pill__label'>Event Type</span>
+        <span className='event-meta-pill__value'>{eventTypeLabel}</span>
+      </div>
       <h2 className='event-section-title'>What you will learn in this masterclass</h2>
       {event?.meta?.highlights?.length ? (
         <ul className='event-highlight-list'>
@@ -129,7 +199,14 @@ const HelpTab = () => (
 );
 
 const RegistrationCard = ({ event }) => {
-  const [form, setForm] = useState({ name: "", email: "", phone: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    state: "",
+    institution: "",
+    customInstitution: "",
+  });
   const [status, setStatus] = useState({ submitting: false, success: false, error: null });
 
   const { dateLabel, timeLabel } = useMemo(
@@ -140,14 +217,45 @@ const RegistrationCard = ({ event }) => {
     [event?.schedule?.start, event?.schedule?.timezone]
   );
 
+  const instituteOptions = useMemo(() => {
+    if (!form.state) {
+      return [];
+    }
+    const options = STATE_INSTITUTE_MAP[form.state] || ["Other"];
+    return options.includes("Other") ? options : [...options, "Other"];
+  }, [form.state]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => {
+      if (name === "state") {
+        return { ...prev, state: value, institution: "", customInstitution: "" };
+      }
+      if (name === "institution") {
+        return {
+          ...prev,
+          institution: value,
+          customInstitution: value === "Other" ? prev.customInstitution : "",
+        };
+      }
+      return { ...prev, [name]: value };
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.phone) return;
+    if (!form.name || !form.email || !form.phone || !form.state || !form.institution) {
+      setStatus((prev) => ({ ...prev, error: "Please complete all required fields." }));
+      return;
+    }
+
+    if (form.institution === "Other" && !form.customInstitution.trim()) {
+      setStatus((prev) => ({ ...prev, error: "Please specify your college/university." }));
+      return;
+    }
+
+    const institutionValue =
+      form.institution === "Other" ? form.customInstitution.trim() : form.institution;
 
     try {
       setStatus({ submitting: true, success: false, error: null });
@@ -155,13 +263,21 @@ const RegistrationCard = ({ event }) => {
         name: form.name,
         email: form.email,
         phone: form.phone,
+        state: form.state,
         region: "events",
-        institution: event?.host?.name || "Gradus",
+        institution: institutionValue,
         course: event?.title || "Event",
         message: `Interested in ${event?.title || "event"} masterclass`,
       });
       setStatus({ submitting: false, success: true, error: null });
-      setForm({ name: "", email: "", phone: "" });
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        state: "",
+        institution: "",
+        customInstitution: "",
+      });
     } catch (err) {
       setStatus({
         submitting: false,
@@ -215,6 +331,57 @@ const RegistrationCard = ({ event }) => {
           placeholder='WhatsApp number'
           required
         />
+        <label className='form-label text-sm fw-semibold mt-16'>State *</label>
+        <select
+          className='form-select'
+          name='state'
+          value={form.state}
+          onChange={handleChange}
+          required
+        >
+          <option value=''>Select state</option>
+          {STATE_OPTIONS.map((stateName) => (
+            <option key={stateName} value={stateName}>
+              {stateName}
+            </option>
+          ))}
+        </select>
+        <label className='form-label text-sm fw-semibold mt-16'>College / Institute *</label>
+        <select
+          className='form-select'
+          name='institution'
+          value={form.institution}
+          onChange={handleChange}
+          disabled={!form.state}
+          required
+        >
+          <option value=''>{form.state ? "Select an institute" : "Select a state first"}</option>
+          {instituteOptions.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        {!form.state ? (
+          <p className='text-sm text-neutral-500 mt-8 mb-0'>Choose your state to see nearby institutes.</p>
+        ) : form.institution !== "Other" && instituteOptions.length === 1 ? (
+          <p className='text-sm text-neutral-500 mt-8 mb-0'>
+            We’ll keep adding more institutes for {form.state}. Use “Other” if yours is missing.
+          </p>
+        ) : null}
+        {form.institution === "Other" ? (
+          <>
+            <label className='form-label text-sm fw-semibold mt-16'>College / University name *</label>
+            <input
+              className='form-control'
+              name='customInstitution'
+              value={form.customInstitution}
+              onChange={handleChange}
+              placeholder='Enter your college or university'
+              required
+            />
+          </>
+        ) : null}
         <button
           type='submit'
           className='btn btn-main w-100 rounded-pill mt-20'
@@ -278,9 +445,12 @@ const EventDetailsOne = ({ event, loading, error }) => {
           <div className='row gy-5'>
             <div className='col-lg-8'>
               <div className='event-hero-card'>
-                <div>
+                <div className='d-flex gap-8 flex-wrap align-items-center mb-12'>
                   <span className='badge badge--category'>{event?.category || "Masterclass"}</span>
                   {event?.badge ? <span className='badge badge--accent ms-2'>{event.badge}</span> : null}
+                  {event?.eventType ? (
+                    <span className='event-type-chip'>{event.eventType}</span>
+                  ) : null}
                 </div>
                 <h1 className='display-5 mb-8 mt-16'>{event?.title}</h1>
                 <p className='text-neutral-600 mb-24'>{event?.summary || event?.subtitle}</p>

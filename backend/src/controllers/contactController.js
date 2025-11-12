@@ -12,6 +12,7 @@ const serializeInquiry = (inquiry) => ({
   name: inquiry.name,
   email: inquiry.email,
   phone: inquiry.phone,
+  state: inquiry.state || '',
   region: inquiry.region,
   institution: inquiry.institution,
   course: inquiry.course,
@@ -24,7 +25,7 @@ const serializeInquiry = (inquiry) => ({
 });
 
 const createContactInquiry = asyncHandler(async (req, res) => {
-  const { name, email, phone, region, institution, course, message } = req.body || {};
+  const { name, email, phone, state, region, institution, course, message } = req.body || {};
 
   if (!name || !email || !phone || !region || !institution || !course || !message) {
     res.status(400);
@@ -35,6 +36,7 @@ const createContactInquiry = asyncHandler(async (req, res) => {
     name,
     email,
     phone,
+    state: state || '',
     region,
     institution,
     course,

@@ -22,6 +22,11 @@ const contactInquirySchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    state: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     region: {
       type: String,
       required: true,

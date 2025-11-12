@@ -7,6 +7,7 @@ const ContactInner = () => {
     name: "",
     email: "",
     phone: "",
+    state: "",
     region: "",
     institution: "",
     course: "",
@@ -132,6 +133,7 @@ const ContactInner = () => {
     try {
       await submitContactInquiry({
         ...formData,
+        state: formData.state || "",
         name: trimmedName,
         email: trimmedEmail,
         phone: trimmedPhone,

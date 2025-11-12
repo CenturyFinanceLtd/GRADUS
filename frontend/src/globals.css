@@ -17082,6 +17082,38 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   margin-bottom: 16px;
 }
 
+.event-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  background: rgba(47, 111, 237, 0.12);
+  padding: 6px 18px;
+  font-size: 0.95rem;
+}
+
+.event-meta-pill__label {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  color: hsl(var(--main));
+}
+
+.event-meta-pill__value {
+  font-weight: 600;
+  color: var(--neutral-900, #101828);
+}
+
+.event-type-chip {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 4px 12px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  background: hsla(var(--main-two-h), var(--main-two-s), var(--main-two-l), 0.3);
+}
+
 .event-highlight-list {
   padding-left: 1.25rem;
   display: flex;

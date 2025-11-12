@@ -9,11 +9,14 @@ import {
   deleteAdminEvent,
 } from "../services/adminEvents";
 
+const EVENT_TYPE_OPTIONS = ["Webinar", "Workshop", "Bootcamp", "Info Session", "Live Q&A"];
+
 const defaultForm = {
   title: "",
   summary: "",
   category: "General",
   badge: "",
+  eventType: EVENT_TYPE_OPTIONS[0],
   hostName: "",
   hostTitle: "",
   heroImageUrl: "",
@@ -98,6 +101,7 @@ const EventsAdminPage = () => {
     summary: event?.summary || "",
     category: event?.category || "General",
     badge: event?.badge || "",
+    eventType: event?.eventType || EVENT_TYPE_OPTIONS[0],
     hostName: event?.host?.name || "",
     hostTitle: event?.host?.title || "",
     heroImageUrl: event?.heroImage?.url || "",
@@ -146,6 +150,7 @@ const EventsAdminPage = () => {
       summary: form.summary.trim(),
       category: form.category.trim() || "General",
       badge: form.badge.trim(),
+      eventType: form.eventType || EVENT_TYPE_OPTIONS[0],
       hostName: form.hostName.trim(),
       hostTitle: form.hostTitle.trim(),
       heroImageUrl: form.heroImageUrl.trim(),
@@ -272,6 +277,16 @@ const EventsAdminPage = () => {
                 <div className='col-6'>
                   <label className='form-label'>Category</label>
                   <input className='form-control' name='category' value={form.category} onChange={handleInputChange} />
+                </div>
+                <div className='col-6'>
+                  <label className='form-label'>Event Type</label>
+                  <select className='form-select' name='eventType' value={form.eventType} onChange={handleInputChange}>
+                    {EVENT_TYPE_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className='col-6'>
                   <label className='form-label'>Badge</label>

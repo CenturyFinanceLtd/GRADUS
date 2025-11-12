@@ -196,6 +196,7 @@ const serializeEvent = (event) => {
     description: event.description || '',
     category: event.category || 'General',
     badge: event.badge || '',
+    eventType: event.eventType || '',
     tags: Array.isArray(event.tags) ? event.tags : [],
     level: event.level || '',
     trackLabel: event.trackLabel || '',
@@ -290,6 +291,10 @@ const buildEventPayload = (input = {}, { isCreate = false } = {}) => {
 
   if (input.badge !== undefined) {
     payload.badge = String(input.badge || '').trim();
+  }
+
+  if (input.eventType !== undefined) {
+    payload.eventType = String(input.eventType || '').trim();
   }
 
   if (input.tags !== undefined) {
