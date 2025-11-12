@@ -92,7 +92,6 @@ const HeaderOne = () => {
   const handleLogout = () => {
     closeUserMenu();
     logout();
-    navigate("/sign-in", { replace: true });
   };
 
   const [activeSubmenu, setActiveSubmenu] = useState(null);

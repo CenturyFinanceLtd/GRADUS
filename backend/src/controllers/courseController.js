@@ -793,6 +793,75 @@ const getCourseProgressAdmin = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('A valid course identifier is required.');
   }
+
+  const [courseDoc, courseDetailDoc] = await Promise.all([
+    Course.findOne({ slug: courseSlug }).select('modules').lean(),
+    CourseDetail.findOne({ courseSlug }).select('modules.moduleId modules.moduleLabel modules.title').lean(),
+  ]);
+
+  const moduleLabelLookup = {};
+  const registerModuleMeta = (rawId, label, fallback) => {
+    const id = rawId ? String(rawId).trim() : '';
+    if (!id) {
+      return;
+    }
+    const display = label || fallback || id;
+    moduleLabelLookup[id] = display;
+    moduleLabelLookup[id.toLowerCase()] = display;
+  };
+
+  const sectionLabelLookup = {};
+  const registerSectionMeta = (rawId, label, fallback) => {
+    const id = rawId ? String(rawId).trim() : '';
+    if (!id) {
+      return;
+    }
+    const display = label || fallback || id;
+    sectionLabelLookup[id] = display;
+    sectionLabelLookup[id.toLowerCase()] = display;
+  };
+
+  if (Array.isArray(courseDetailDoc?.modules)) {
+    courseDetailDoc.modules.forEach((module, index) => {
+      registerModuleMeta(
+        module?.moduleId,
+        module?.moduleLabel || module?.title,
+        `Module ${index + 1}`
+      );
+      if (Array.isArray(module?.sections)) {
+        module.sections.forEach((section, sectionIndex) => {
+          registerSectionMeta(
+            section?.sectionId,
+            section?.title || section?.subtitle,
+            `Week ${sectionIndex + 1}`
+          );
+        });
+      }
+    });
+  }
+
+  if (Array.isArray(courseDoc?.modules)) {
+    courseDoc.modules.forEach((module, index) => {
+      registerModuleMeta(module?._id, module?.title, `Module ${index + 1}`);
+    });
+  }
+
+  const resolveModuleLabel = (value) => {
+    if (!value) {
+      return '';
+    }
+    const raw = String(value).trim();
+    return moduleLabelLookup[raw] || moduleLabelLookup[raw.toLowerCase()] || '';
+  };
+
+  const resolveSectionLabel = (value) => {
+    if (!value) {
+      return '';
+    }
+    const raw = String(value).trim();
+    return sectionLabelLookup[raw] || sectionLabelLookup[raw.toLowerCase()] || '';
+  };
+
   const filter = { courseSlug };
   if (req.query.userId) {
     filter.user = req.query.userId;
@@ -824,11 +893,16 @@ const getCourseProgressAdmin = asyncHandler(async (req, res) => {
     if (isCompleted) {
       grouped[key].completedLectures += 1;
     }
+    const resolvedModuleLabel = resolveModuleLabel(doc.moduleId);
+    const resolvedSectionLabel = resolveSectionLabel(doc.sectionId);
     grouped[key].lectures.push({
       lectureId: doc.lectureId,
       lectureTitle: doc.lectureTitle,
       moduleId: doc.moduleId,
+      moduleTitle: resolvedModuleLabel,
+      moduleLabel: resolvedModuleLabel,
       sectionId: doc.sectionId,
+      sectionLabel: resolvedSectionLabel,
       completionRatio: ratio,
       completedAt: doc.completedAt,
       lastPositionSeconds: doc.lastPositionSeconds,
@@ -843,6 +917,8 @@ const getCourseProgressAdmin = asyncHandler(async (req, res) => {
 
   const lectureTotals = {};
   docs.forEach((doc) => {
+    const resolvedModuleLabel = resolveModuleLabel(doc.moduleId);
+    const resolvedSectionLabel = resolveSectionLabel(doc.sectionId);
     const lectureId = doc.lectureId;
     if (!lectureId) {
       return;
@@ -852,7 +928,10 @@ const getCourseProgressAdmin = asyncHandler(async (req, res) => {
         lectureId,
         lectureTitle: doc.lectureTitle,
         moduleId: doc.moduleId,
+        moduleTitle: resolvedModuleLabel,
+        moduleLabel: resolvedModuleLabel,
         sectionId: doc.sectionId,
+        sectionLabel: resolvedSectionLabel,
         learners: 0,
         completed: 0,
         avgCompletion: 0,

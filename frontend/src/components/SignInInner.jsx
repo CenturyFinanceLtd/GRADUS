@@ -1,21 +1,70 @@
-import '../styles/auth.css';
-import { useState } from "react";
+import "../styles/auth.css";
+import { useCallback, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import apiClient from "../services/apiClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import resolveGoogleRedirectUri from "../utils/googleRedirect.js";
+import buildGoogleAuthUrl from "../utils/googleAuthUrl.js";
+import resolvePostAuthRedirect from "../utils/resolvePostAuthRedirect.js";
+
+const stepKeys = {
+  EMAIL: "EMAIL",
+  PASSWORD: "PASSWORD",
+};
 
 const SignInInner = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
+  const [currentStep, setCurrentStep] = useState(stepKeys.EMAIL);
   const navigate = useNavigate();
   const location = useLocation();
   const { setAuth } = useAuth();
+  const googleRedirectUri = useMemo(resolveGoogleRedirectUri, []);
+  const googleAvailable = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
+
+  const persistGoogleIntent = useCallback((payload) => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      sessionStorage.setItem("gradus_google_redirect", JSON.stringify(payload));
+    } catch (err) {
+      console.warn("Failed to persist Google intent", err);
+    }
+  }, []);
+
+  const handleGoogleSignIn = useCallback(() => {
+    if (!googleAvailable) {
+      setError("Google sign-in is not available right now.");
+      return;
+    }
+
+    setError("");
+    setGoogleBusy(true);
+
+    persistGoogleIntent({
+      source: "signin",
+      redirectOverride: location.state?.redirectTo || null,
+      fromPath: location.state?.from?.pathname || null,
+      pendingEnrollment: location.state?.pendingEnrollment || null,
+    });
+
+    try {
+      const authUrl = buildGoogleAuthUrl({ redirectUri: googleRedirectUri });
+      window.location.assign(authUrl);
+    } catch (err) {
+      setGoogleBusy(false);
+      setError(err.message || "Unable to start Google sign-in. Please refresh and try again.");
+    }
+  }, [googleAvailable, googleRedirectUri, location.state, persistGoogleIntent]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -25,26 +74,30 @@ const SignInInner = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
+
+    if (currentStep === stepKeys.EMAIL) {
+      if (!formData.email.trim()) {
+        setError("Please enter your email address to continue.");
+        return;
+      }
+
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(formData.email.trim())) {
+        setError("That doesn't look like a valid email.");
+        return;
+      }
+
+      setCurrentStep(stepKeys.PASSWORD);
+      return;
+    }
+
     setLoading(true);
 
     try {
       const response = await apiClient.post("/auth/login", formData);
       setAuth({ token: response.token, user: response.user });
-      const redirectOverride = location.state?.redirectTo;
       const pendingEnrollment = location.state?.pendingEnrollment;
-      const fromPath = location.state?.from?.pathname;
-      let redirectTo = redirectOverride;
-
-      if (!redirectTo) {
-        if (fromPath === "/profile") {
-          redirectTo = "/";
-        } else if (fromPath && !["/sign-in", "/sign-up"].includes(fromPath)) {
-          redirectTo = fromPath;
-        } else {
-          redirectTo = "/profile";
-        }
-      }
-
+      const redirectTo = resolvePostAuthRedirect({ locationState: location.state });
       const nextState =
         pendingEnrollment && redirectTo.includes("/our-courses")
           ? { pendingEnrollment }
@@ -58,111 +111,132 @@ const SignInInner = () => {
     }
   };
 
-  return (
-    <div className='account py-120 position-relative'>
-      <div className='container'>
-        <div className='row gy-4 align-items-center'>
-          <div className='col-lg-6'>
-            <div className='bg-white border border-neutral-30 rounded-12 auth-card box-shadow-lg'>
-              <div className='mb-32'>
-                <h3 className='mb-8 text-neutral-500 auth-title'>Welcome Back!</h3>
-                <p className='mb-0 text-neutral-500'>Sign in to your account and join us</p>
-              </div>
-              <form onSubmit={handleSubmit}>
-                {error ? (
-                  <div className='alert alert-danger text-sm mb-24 rounded-8' role='alert' aria-live='polite'>
-                    {error}
-                  </div>
-                ) : null}
-                <div className='mb-24'>
-                  <label
-                    htmlFor='email'
-                    className='fw-medium text-lg text-neutral-500 mb-12'
-                  >
-                    Enter Your Email ID
-                  </label>
-                  <input
-                    type='email'
-                    className='common-input rounded-pill'
-                    id='email'
-                    name='email'
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder='Enter Your Email...'
-                    autoComplete='email'
-                    required
-                  />
-                </div>
-                <div className='mb-8'>
-                  <label
-                    htmlFor='password'
-                    className='fw-medium text-lg text-neutral-500 mb-12'
-                  >
-                    Enter Your Password
-                  </label>
-                  <div className='position-relative'>
-                    <input
-                      type={passwordVisible ? "text" : "password"}
-                      className='common-input rounded-pill pe-44'
-                      id='password'
-                      name='password'
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder='Enter Your Password...'
-                      autoComplete='current-password'
-                      required
-                    />
-                    <span
-                      className={`toggle-password position-absolute top-50 inset-inline-end-0 me-16 translate-middle-y ph-bold ${
-                        passwordVisible ? "ph-eye" : "ph-eye-closed"
-                      }`}
-                      onClick={togglePasswordVisibility}
-                      role='button'
-                      aria-label={passwordVisible ? 'Hide password' : 'Show password'}
-                    ></span>
-                  </div>
-                </div>
-                <div className='mb-16 text-end'>
-                  <Link
-                    to='/forgot-password'
-                    className='text-warning-600 hover-text-decoration-underline'
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-                <div className='mb-16'>
-                  <p className='text-neutral-500'>
-                    Don't have an account?{" "}
-                    <Link
-                      to='/sign-up'
-                      state={location.state}
-                      className='fw-semibold text-main-600 hover-text-decoration-underline'
-                    >
-                      Sign Up
-                    </Link>
-                  </p>
-                </div>
-                <div className='mt-40'>
-                  <button
-                    type='submit'
-                    className='btn btn-main rounded-pill flex-center gap-8 mt-40 btn-block-sm btn-block-md'
-                    disabled={loading}
-                  >
-                    {loading ? "Signing In..." : "Sign In"}
-                    <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-          <div className='col-lg-6 d-lg-block d-none'>
-            <div className='account-img'>
-              <img src='/assets/images/thumbs/account-img.png' alt='' />
-            </div>
-          </div>
+  const handleBackToEmail = () => {
+    setCurrentStep(stepKeys.EMAIL);
+    setPasswordVisible(false);
+    setError("");
+    setLoading(false);
+    setFormData((prev) => ({ ...prev, password: "" }));
+  };
+
+  const renderEmailStep = () => (
+    <>
+      <label htmlFor='email' className='signin-modern__label'>
+        Email address
+      </label>
+      <input
+        id='email'
+        name='email'
+        type='email'
+        className='signin-modern__input'
+        placeholder='name@domain.com'
+        value={formData.email}
+        onChange={handleChange}
+        autoComplete='email'
+      />
+      <button type='submit' className='signin-modern__cta' disabled={!formData.email.trim()}>
+        Continue
+      </button>
+      <div className='signin-modern__divider'>
+        <span>or</span>
+      </div>
+      <button
+        type='button'
+        className='signin-modern__social-btn google'
+        onClick={handleGoogleSignIn}
+        disabled={!googleAvailable || googleBusy}
+        aria-busy={googleBusy}
+      >
+        <span aria-hidden='true'>G</span> {googleBusy ? "Redirecting..." : "Continue with Google"}
+      </button>
+      <p className='signin-modern__footer'>
+        Don't have an account?{" "}
+        <Link to='/sign-up' state={location.state}>
+          Sign up
+        </Link>
+      </p>
+    </>
+  );
+
+  const renderPasswordStep = () => (
+    <>
+      <p className='signin-modern__eyebrow'>Signed in as</p>
+      <div className='signin-modern__email-pill'>
+        <span>{formData.email}</span>
+        <button type='button' onClick={handleBackToEmail} aria-label='Edit email'>
+          Change
+        </button>
+      </div>
+      <div className='signin-modern__field-group'>
+        <label htmlFor='password' className='signin-modern__label'>
+          Password
+        </label>
+        <div className='signin-modern__password'>
+          <input
+            id='password'
+            name='password'
+            type={passwordVisible ? "text" : "password"}
+            className='signin-modern__input'
+            placeholder='Enter your password'
+            value={formData.password}
+            onChange={handleChange}
+            autoComplete='current-password'
+          />
+          <button
+            type='button'
+            className='signin-modern__password-toggle'
+            onClick={togglePasswordVisibility}
+            aria-label={passwordVisible ? "Hide password" : "Show password"}
+          >
+            <i className={`ph-bold ${passwordVisible ? "ph-eye" : "ph-eye-closed"}`} />
+          </button>
         </div>
       </div>
-    </div>
+      <button type='submit' className='signin-modern__cta' disabled={loading || !formData.password.trim()}>
+        {loading ? "Signing in..." : "Sign in"}
+      </button>
+      <button
+        type='button'
+        className='signin-modern__social-btn google signin-modern__social-btn--ghost'
+        onClick={handleGoogleSignIn}
+        disabled={!googleAvailable || googleBusy}
+        aria-busy={googleBusy}
+      >
+        <span aria-hidden='true'>G</span> Continue with Google
+      </button>
+      <div className='signin-modern__links'>
+        <Link to='/forgot-password'>Forgot password?</Link>
+        <span />
+        <Link to='/sign-up' state={location.state}>
+          Create account
+        </Link>
+      </div>
+    </>
+  );
+
+  return (
+    <section className='signin-modern'>
+      <div className='signin-modern__shell'>
+        <div className='signin-modern__card'>
+          <div className='signin-modern__logo'>
+            <img src='/assets/images/logo/logo.png' alt='Gradus logo' loading='lazy' />
+          </div>
+          <div className='signin-modern__header'>
+            <h1 className='signin-modern__title'>Welcome back</h1>
+          </div>
+          <form onSubmit={handleSubmit}>
+            {error ? (
+              <div className='signin-modern__alert signin-modern__alert--error' role='alert' aria-live='assertive'>
+                {error}
+              </div>
+            ) : null}
+            <div className='signin-modern__body'>
+              {currentStep === stepKeys.EMAIL ? renderEmailStep() : renderPasswordStep()}
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
   );
 };
 

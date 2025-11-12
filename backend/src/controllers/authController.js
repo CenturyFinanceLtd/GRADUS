@@ -13,6 +13,7 @@ const UserAuthLog = require('../models/UserAuthLog');
 const generateOtp = require('../utils/generateOtp');
 const { sendOtpEmail, deliveryMode } = require('../utils/email');
 const generateAuthToken = require('../utils/token');
+const { exchangeGoogleCode } = require('../services/googleAuth');
 
 const sanitizeString = (value) => (typeof value === 'string' ? value.trim() : '');
 
@@ -49,6 +50,39 @@ const recordAuthEvent = async ({ userId, type, req }) => {
     console.error(`[auth] Failed to record ${type.toLowerCase()} event`, error);
   }
 };
+
+const buildDefaultPersonalDetails = ({ firstName, lastName, locale }) => {
+  const fallback = 'Not provided';
+  const inferredCountry = (() => {
+    if (!locale) return fallback;
+    const parts = String(locale).split('-');
+    if (parts.length === 2) {
+      return parts[1].toUpperCase();
+    }
+    return fallback;
+  })();
+
+  const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Google User';
+
+  return {
+    studentName: fullName,
+    gender: 'Not specified',
+    dateOfBirth: fallback,
+    city: fallback,
+    state: fallback,
+    country: inferredCountry,
+    zipCode: '000000',
+    address: fallback,
+  };
+};
+
+const buildDefaultEducationDetails = () => ({
+  institutionName: 'Not provided',
+  passingYear: 'Not provided',
+  fieldOfStudy: 'Not provided',
+  classGrade: '',
+  address: '',
+});
 
 const mergeSignupPayload = (base = {}, overrides = {}) => ({
   ...base,
@@ -533,6 +567,70 @@ const completePasswordReset = asyncHandler(async (req, res) => {
   res.status(200).json({ message: 'Password reset successfully.' });
 });
 
+const loginWithGoogle = asyncHandler(async (req, res) => {
+  const { code, redirectUri } = req.body;
+
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    res.status(503);
+    throw new Error('Google login is not enabled right now.');
+  }
+
+  if (!code || !redirectUri) {
+    res.status(400);
+    throw new Error('Missing Google authorization data.');
+  }
+
+  let profile;
+  try {
+    const result = await exchangeGoogleCode({ code, redirectUri });
+    profile = result.profile;
+  } catch (error) {
+    console.error('[auth] Google code exchange failed:', error.message);
+    res.status(401);
+    throw new Error('Unable to verify your Google account. Please try again.');
+  }
+
+  const normalizedEmail = profile?.email?.toLowerCase();
+  if (!normalizedEmail) {
+    res.status(400);
+    throw new Error('Google did not provide an email address for this account.');
+  }
+
+  let user = await User.findOne({ email: normalizedEmail });
+  let status = 200;
+
+  if (!user) {
+    const firstName = sanitizeString(profile?.given_name || profile?.name || 'Google');
+    const lastName = sanitizeString(profile?.family_name || firstName || 'User');
+    const placeholderMobile = profile?.phone_number || `GGL-${profile?.sub || Date.now()}`;
+    const hashedPassword = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 12);
+
+    user = await User.create({
+      firstName: firstName || 'Google',
+      lastName: lastName || 'User',
+      email: normalizedEmail,
+      mobile: placeholderMobile,
+      personalDetails: buildDefaultPersonalDetails({
+        firstName: firstName || 'Google',
+        lastName: lastName || 'User',
+        locale: profile?.locale,
+      }),
+      educationDetails: buildDefaultEducationDetails(),
+      password: hashedPassword,
+      emailVerified: true,
+      authProvider: 'GOOGLE',
+    });
+
+    status = 201;
+    recordAuthEvent({ userId: user._id, type: 'GOOGLE_SIGNUP', req });
+  } else {
+    recordAuthEvent({ userId: user._id, type: 'GOOGLE_LOGIN', req });
+  }
+
+  const authResponse = buildAuthResponse(user);
+  res.status(status).json(authResponse);
+});
+
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const normalizedEmail = email.toLowerCase().trim();
@@ -578,6 +676,7 @@ module.exports = {
   startPasswordReset,
   verifyPasswordResetOtp,
   completePasswordReset,
+  loginWithGoogle,
   login,
   logout,
 };

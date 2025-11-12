@@ -5,11 +5,28 @@ const RouteScrollToTop = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const path = location?.pathname || '';
-    if (path.includes('/home/')) {
+    const path = location?.pathname || "";
+    if (path.includes("/home/")) {
       return;
     }
     window.scrollTo(0, 0);
+  }, [location]);
+
+  useEffect(() => {
+    const excluded = new Set(["/sign-in", "/sign-up", "/forgot-password", "/auth/google/callback"]);
+    const path = location?.pathname || "/";
+    if (excluded.has(path)) {
+      return;
+    }
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      sessionStorage.setItem("gradus_last_path", path);
+    } catch (err) {
+      console.warn("Failed to store last path", err);
+    }
   }, [location]);
 
   useEffect(() => {

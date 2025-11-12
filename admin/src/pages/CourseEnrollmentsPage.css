@@ -1,0 +1,187 @@
+.course-enrollments {
+  background-color: #f7f8fb;
+}
+
+.enrollment-hero {
+  background: radial-gradient(circle at top right, #f8f9ff, #eef2ff);
+  border-radius: 18px;
+  padding: 24px 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  border: 1px solid #e0e7ff;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.enrollment-hero .hero-eyebrow {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  color: #6366f1;
+}
+
+.enrollment-hero .hero-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.enrollment-hero .hero-subtitle {
+  color: #475467;
+  max-width: 520px;
+}
+
+.hero-stats {
+  margin-left: auto;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-stat {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 12px 18px;
+  min-width: 120px;
+  border: 1px solid rgba(99, 102, 241, 0.16);
+  text-align: center;
+}
+
+.hero-stat .label {
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.hero-stat strong {
+  display: block;
+  font-size: 1.4rem;
+  color: #0f172a;
+}
+
+.hero-stat small {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.filter-toolbar {
+  border-radius: 16px;
+  padding: 20px 24px;
+}
+
+.filter-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.filter-input {
+  min-height: 48px;
+  border-radius: 12px;
+  border-color: #e5e7eb;
+}
+
+.toolbar-hint {
+  margin-top: 14px;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.enrollment-card {
+  border-radius: 18px;
+  border: 1px solid #edf0f5;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.06);
+}
+
+.course-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.course-programme {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  color: #818cf8;
+  font-weight: 600;
+}
+
+.course-meta {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.course-stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stat-chip {
+  background: #f1f5f9;
+  padding: 10px 16px;
+  border-radius: 14px;
+  min-width: 110px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+}
+
+.stat-chip span {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.stat-chip strong {
+  display: block;
+  font-size: 1.2rem;
+  color: #0f172a;
+}
+
+.stat-chip--success {
+  background: #ecfdf3;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.enrollment-table th {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.enrollment-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.enrollment-table td {
+  vertical-align: middle;
+}
+
+.enrollment-table .btn-link {
+  font-weight: 600;
+  color: #4f46e5;
+}
+
+@media (max-width: 992px) {
+  .hero-stats {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 576px) {
+  .enrollment-hero {
+    padding: 20px;
+  }
+
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+}

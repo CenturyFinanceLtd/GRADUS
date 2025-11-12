@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import MasterLayout from "../masterLayout/MasterLayout";
 import { useAuthContext } from "../context/AuthContext";
 import { fetchCourseEnrollmentsAdmin, listAdminCourses } from "../services/adminCourses";
+import "./CourseEnrollmentsPage.css";
 
 const statusBadgeClass = {
   ACTIVE: "bg-success-subtle text-success-emphasis",
@@ -34,7 +35,6 @@ const CourseEnrollmentsPage = () => {
         const courseList = await listAdminCourses({ token });
         if (!cancelled) {
           setCourseOptions(courseList);
-          setSelectedSlug((current) => current || courseList[0]?.slug || "");
         }
       } catch (err) {
         if (!cancelled) {
@@ -103,18 +103,56 @@ const CourseEnrollmentsPage = () => {
     );
   }, [courses, search, selectedSlug]);
 
+  const summaryStats = useMemo(() => {
+    const totalCourses = filteredCourses.length;
+    const totalEnrollments = filteredCourses.reduce(
+      (acc, course) => acc + (course.totalEnrollments || 0),
+      0
+    );
+    const totalPaid = filteredCourses.reduce(
+      (acc, course) => acc + (course.paidEnrollments || 0),
+      0
+    );
+    const paidPercent = totalEnrollments
+      ? Math.round((totalPaid / totalEnrollments) * 100)
+      : 0;
+    return { totalCourses, totalEnrollments, totalPaid, paidPercent };
+  }, [filteredCourses]);
+
   return (
     <MasterLayout>
-      <section className='section py-4'>
+      <section className='section py-4 course-enrollments'>
         <div className='container-fluid'>
-          <div className='d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4'>
+          <div className='enrollment-hero mb-4'>
             <div>
-              <p className='text-uppercase text-muted small mb-1'>Analytics</p>
-              <h4 className='mb-0'>Course Enrollments</h4>
+              <span className='hero-eyebrow'>Analytics</span>
+              <div className='hero-title'>Course Enrollments</div>
+              <p className='hero-subtitle mb-0'>
+                Track how learners are joining programmes, monitor payment status, and jump
+                into detailed progress.
+              </p>
             </div>
-            <div className='d-flex flex-wrap gap-2'>
+            <div className='hero-stats'>
+              <div className='hero-stat'>
+                <span className='label'>Courses</span>
+                <strong>{summaryStats.totalCourses}</strong>
+              </div>
+              <div className='hero-stat'>
+                <span className='label'>Enrollments</span>
+                <strong>{summaryStats.totalEnrollments}</strong>
+              </div>
+              <div className='hero-stat'>
+                <span className='label'>Paid</span>
+                <strong>{summaryStats.totalPaid}</strong>
+                <small>{summaryStats.paidPercent}% paid</small>
+              </div>
+            </div>
+          </div>
+
+          <div className='filter-toolbar card border-0 shadow-sm mb-4'>
+            <div className='filter-grid'>
               <select
-                className='form-select'
+                className='form-select filter-input'
                 value={selectedSlug}
                 onChange={(event) => setSelectedSlug(event.target.value)}
               >
@@ -126,7 +164,7 @@ const CourseEnrollmentsPage = () => {
                 ))}
               </select>
               <select
-                className='form-select'
+                className='form-select filter-input'
                 value={statusFilter}
                 onChange={(event) => setStatusFilter(event.target.value)}
               >
@@ -135,7 +173,7 @@ const CourseEnrollmentsPage = () => {
                 <option value='CANCELLED'>Cancelled</option>
               </select>
               <select
-                className='form-select'
+                className='form-select filter-input'
                 value={paymentFilter}
                 onChange={(event) => setPaymentFilter(event.target.value)}
               >
@@ -147,12 +185,15 @@ const CourseEnrollmentsPage = () => {
               </select>
               <input
                 type='search'
-                className='form-control'
+                className='form-control filter-input'
                 style={{ maxWidth: 280 }}
                 placeholder='Search by course or programme'
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />
+            </div>
+            <div className='toolbar-hint'>
+              Use filters to zero in on a specific cohort, then open their progress directly.
             </div>
           </div>
 
@@ -165,33 +206,36 @@ const CourseEnrollmentsPage = () => {
             </div>
           ) : filteredCourses.length ? (
             filteredCourses.map((course) => (
-              <div className='card mb-4' key={course.slug}>
-                <div className='card-header d-flex flex-wrap align-items-center gap-3'>
-                  <div>
-                    <p className='text-uppercase text-muted small mb-1'>
-                      {course.programme}
-                    </p>
-                    <h5 className='mb-0'>{course.name}</h5>
-                  </div>
-                  <div className='ms-auto d-flex flex-wrap gap-3'>
+              <div className='card enrollment-card mb-4' key={course.slug}>
+                <div className='card-header border-0'>
+                  <div className='course-card-header'>
                     <div>
-                      <small className='text-muted d-block text-uppercase'>Total</small>
-                      <span className='badge bg-primary-subtle text-primary'>
-                        {course.totalEnrollments}
-                      </span>
+                      <p className='course-programme mb-2'>{course.programme}</p>
+                      <h5 className='mb-1'>{course.name}</h5>
+                      <p className='course-meta mb-0'>
+                        {course.learners.length} learners · Updated{" "}
+                        {new Date().toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "2-digit",
+                        })}
+                      </p>
                     </div>
-                    <div>
-                      <small className='text-muted d-block text-uppercase'>Paid</small>
-                      <span className='badge bg-success-subtle text-success'>
-                        {course.paidEnrollments}
-                      </span>
+                    <div className='course-stats'>
+                      <div className='stat-chip'>
+                        <span>Total</span>
+                        <strong>{course.totalEnrollments}</strong>
+                      </div>
+                      <div className='stat-chip stat-chip--success'>
+                        <span>Paid</span>
+                        <strong>{course.paidEnrollments}</strong>
+                      </div>
                     </div>
                   </div>
                 </div>
                 <div className='card-body p-0'>
                   {course.learners.length ? (
                     <div className='table-responsive'>
-                      <table className='table align-middle mb-0'>
+                      <table className='table align-middle mb-0 enrollment-table'>
                         <thead className='table-light'>
                           <tr>
                             <th>Learner</th>

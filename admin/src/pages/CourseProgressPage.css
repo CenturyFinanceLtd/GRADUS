@@ -1,0 +1,270 @@
+.course-progress-page {
+  background-color: #f8fafc;
+}
+
+.progress-hero {
+  background: linear-gradient(135deg, #eef2ff, #f8fbff);
+  border-radius: 18px;
+  padding: 28px 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  border: 1px solid rgba(99, 102, 241, 0.18);
+  box-shadow: 0 18px 30px rgba(15, 23, 42, 0.08);
+}
+
+.progress-hero .hero-eyebrow {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.progress-hero .hero-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.progress-hero .hero-subtitle {
+  color: #475467;
+  max-width: 520px;
+}
+
+.progress-hero .hero-stats {
+  margin-left: auto;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.progress-hero .hero-stat {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 14px;
+  padding: 12px 18px;
+  min-width: 140px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  text-align: center;
+}
+
+.progress-hero .hero-stat .label {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.progress-hero .hero-stat strong {
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.progress-toolbar {
+  border-radius: 16px;
+  padding: 20px 24px;
+}
+
+.progress-toolbar .filter-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.progress-toolbar .filter-input {
+  min-height: 50px;
+  border-radius: 14px;
+  border-color: #e5e7eb;
+}
+
+.progress-toolbar .toolbar-hint {
+  margin-top: 14px;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.course-spotlight {
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.course-spotlight__content {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 24px;
+}
+
+.course-pill {
+  display: inline-flex;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.course-spotlight__meta {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.info-banner {
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 16px;
+  box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.4);
+}
+
+.info-banner--accent {
+  background: #e0f2ff;
+  border-color: #bae6fd;
+  color: #0f172a;
+}
+
+.learner-card {
+  border-radius: 18px;
+  border: 1px solid #edf2f7;
+  box-shadow: 0 20px 35px rgba(15, 23, 42, 0.07);
+}
+
+.learner-card__header {
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid #eef2f7;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.learner-card__chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.progress-pill {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.progress-pill--accent {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.learner-card__body {
+  padding: 0 24px 24px;
+}
+
+.learner-table thead th,
+.overview-table thead th {
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  border-bottom: none;
+  background: #f8fafc;
+}
+
+.learner-table tbody tr:hover,
+.overview-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.progress-track {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-track__bar {
+  position: relative;
+  flex: 1;
+  height: 10px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-track__value {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+  min-width: 48px;
+}
+
+.progress-track__fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+}
+
+.progress-track--thin .progress-track__bar {
+  height: 8px;
+}
+
+.progress-track__fill--success {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.overview-table td {
+  vertical-align: middle;
+}
+
+.lecture-overview-card {
+  border-radius: 16px;
+  margin-top: 24px;
+}
+
+.module-cell .module-title {
+  display: block;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.module-cell small {
+  color: #94a3b8;
+}
+
+.module-cell .module-week {
+  display: block;
+  font-size: 0.78rem;
+  color: #6366f1;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+@media (max-width: 992px) {
+  .progress-hero .hero-stats {
+    width: 100%;
+  }
+  .course-spotlight__meta {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 576px) {
+  .progress-hero,
+  .progress-toolbar {
+    padding: 20px;
+  }
+  .learner-card__body {
+    padding: 0 16px 16px;
+  }
+}

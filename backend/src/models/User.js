@@ -133,6 +133,11 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    authProvider: {
+      type: String,
+      enum: ['LOCAL', 'GOOGLE'],
+      default: 'LOCAL',
+    },
   },
   { timestamps: true }
 );

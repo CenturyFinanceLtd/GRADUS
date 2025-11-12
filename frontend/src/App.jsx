@@ -55,6 +55,7 @@ import SupportTicketDetailsPage from "./pages/SupportTicketDetailsPage.jsx";
 import SocialPortfolioPage from "./pages/SocialPortfolioPage.jsx";
 import ProgrammeCoursePage from "./pages/ProgrammeCoursePage.jsx";
 import CourseHomePage from "./pages/CourseHomePage.jsx";
+import GoogleAuthCallback from "./pages/GoogleAuthCallback.jsx";
 
 const GradusXRedirect = () => {
   const { course } = useParams();
@@ -165,6 +166,7 @@ function App() {
         <Route exact path='/sign-in' element={<SignInPage />} />
         <Route exact path='/forgot-password' element={<ForgotPasswordPage />} />
         <Route exact path='/sign-up' element={<SignUpPage />} />
+        <Route exact path='/auth/google/callback' element={<GoogleAuthCallback />} />
         <Route
           exact
           path='/profile'

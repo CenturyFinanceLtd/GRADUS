@@ -1,17 +1,16 @@
-import Breadcrumb from "../components/Breadcrumb";
-import FooterOne from "../components/FooterOne";
-import HeaderOne from "../components/HeaderOne";
 import SignUpInner from "../components/SignUpInner";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
+import resolvePostAuthRedirect from "../utils/resolvePostAuthRedirect.js";
 
 const SignUpPage = () => {
   const { isAuthenticated, loading } = useAuth();
 
   if (!loading && isAuthenticated) {
-    return <Navigate to="/profile" replace />;
+    const redirectTo = resolvePostAuthRedirect({ fallback: "/" });
+    return <Navigate to={redirectTo} replace />;
   }
 
   if (loading) {
@@ -19,25 +18,11 @@ const SignUpPage = () => {
   }
 
   return (
-    <>
-      {/* Preloader */}
+    <div className="signup-minimal-page position-relative">
       <Preloader />
-
-      {/* Animation */}
       <Animation />
-
-      {/* HeaderOne */}
-      <HeaderOne />
-
-      {/* Breadcrumb */}
-      <Breadcrumb title={"Sign Up"} />
-
-      {/* SignUpInner */}
       <SignUpInner />
-
-      {/* FooterOne */}
-      <FooterOne />
-    </>
+    </div>
   );
 };
 

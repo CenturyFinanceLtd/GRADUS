@@ -7,6 +7,7 @@ import {
   fetchCourseProgressAdmin,
   fetchCourseEnrollmentsAdmin,
 } from "../services/adminCourses";
+import "./CourseProgressPage.css";
 
 const formatPercent = (value) => `${Math.round((value || 0) * 100)}%`;
 
@@ -171,18 +172,59 @@ const CourseProgressPage = () => {
     [courses, selectedSlug]
   );
 
+  const aggregateStats = useMemo(() => {
+    const learners = progressData.length;
+    const totalLectures = progressData.reduce(
+      (acc, entry) => acc + (entry.totalLectures || 0),
+      0
+    );
+    const totalCompleted = progressData.reduce(
+      (acc, entry) => acc + (entry.completedLectures || 0),
+      0
+    );
+    const avgCompletion =
+      totalLectures > 0 ? Math.round((totalCompleted / totalLectures) * 100) : 0;
+    return {
+      learners,
+      totalLectures,
+      avgCompletion,
+      lectureOverview: lectureSummary.length,
+    };
+  }, [progressData, lectureSummary]);
+
   return (
     <MasterLayout>
-      <section className='section py-4'>
+      <section className='section py-4 course-progress-page'>
         <div className='container-fluid'>
-          <div className='d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4'>
+          <div className='progress-hero mb-4'>
             <div>
-              <p className='text-uppercase text-muted small mb-1'>Analytics</p>
-              <h4 className='mb-0'>Course Progress</h4>
+              <span className='hero-eyebrow'>Analytics</span>
+              <div className='hero-title'>Course Progress</div>
+              <p className='hero-subtitle mb-0'>
+                Visualize how learners advance through every lecture, spot drop-offs instantly,
+                and jump straight into individual timelines.
+              </p>
             </div>
-            <div className='d-flex flex-wrap gap-2'>
+            <div className='hero-stats'>
+              <div className='hero-stat'>
+                <span className='label'>Learners tracked</span>
+                <strong>{aggregateStats.learners}</strong>
+              </div>
+              <div className='hero-stat'>
+                <span className='label'>Avg completion</span>
+                <strong>{aggregateStats.avgCompletion}%</strong>
+              </div>
+              <div className='hero-stat'>
+                <span className='label'>Lectures monitored</span>
+                <strong>{aggregateStats.lectureOverview}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div className='progress-toolbar card border-0 shadow-sm mb-4'>
+            <div className='filter-grid'>
               <select
-                className='form-select'
+                className='form-select filter-input'
                 value={selectedSlug}
                 onChange={(event) => setSelectedSlug(event.target.value)}
               >
@@ -195,12 +237,17 @@ const CourseProgressPage = () => {
               </select>
               <input
                 type='search'
-                className='form-control'
+                className='form-control filter-input'
                 placeholder='Filter by learner name or email'
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 disabled={Boolean(highlightUserId)}
               />
+            </div>
+            <div className='toolbar-hint'>
+              {highlightUserId
+                ? "Search is disabled when a learner filter is active. Clear the URL parameter to browse all learners."
+                : "Drill into a course, then refine by learner to compare completion velocity."}
             </div>
           </div>
 
@@ -216,18 +263,24 @@ const CourseProgressPage = () => {
           ) : null}
 
           {selectedCourse ? (
-            <div className='card mb-4'>
-              <div className='card-body d-flex flex-wrap align-items-center gap-4'>
+            <div className='course-spotlight card border-0 shadow-sm mb-4'>
+              <div className='course-spotlight__content'>
                 <div>
-                  <p className='text-uppercase text-muted small mb-1'>Course</p>
-                  <h5 className='mb-0'>{selectedCourse.name}</h5>
-                  <span className='text-muted'>
-                    {selectedCourse.programme || "Gradus Programme"}
-                  </span>
+                  <span className='course-pill'>{selectedCourse.programme || "Gradus Programme"}</span>
+                  <h4 className='mb-1'>{selectedCourse.name}</h4>
+                  <p className='mb-0 text-muted'>
+                    {aggregateStats.learners} learners | {aggregateStats.totalLectures} lecture touch points
+                  </p>
                 </div>
-                <div className='ms-auto text-end'>
-                  <p className='text-uppercase text-muted small mb-1'>Learners tracked</p>
-                  <h4 className='mb-0'>{progressData.length}</h4>
+                <div className='course-spotlight__meta'>
+                  <div>
+                    <span className='text-uppercase text-muted small'>Avg completion</span>
+                    <h3 className='mb-0 text-primary'>{aggregateStats.avgCompletion}%</h3>
+                  </div>
+                  <div>
+                    <span className='text-uppercase text-muted small'>Filter</span>
+                    <p className='mb-0 fw-semibold'>{highlightLearner ? "Single learner" : "All learners"}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -235,8 +288,8 @@ const CourseProgressPage = () => {
 
           {error ? <div className='alert alert-danger'>{error}</div> : null}
           {highlightUserId ? (
-            <div className='alert alert-info d-flex justify-content-between align-items-center'>
-              <span>
+            <div className='info-banner info-banner--accent d-flex justify-content-between align-items-center'>
+              <span className='me-3'>
                 {highlightLearner ? (
                   <>
                     {(() => {
@@ -266,7 +319,7 @@ const CourseProgressPage = () => {
               </span>
               <button
                 type='button'
-                className='btn btn-sm btn-outline-secondary'
+                className='btn btn-sm btn-outline-secondary rounded-pill px-3'
                 onClick={() => {
                   setHighlightUserId("");
                 }}
@@ -284,27 +337,35 @@ const CourseProgressPage = () => {
             </div>
           ) : filteredProgress.length ? (
             filteredProgress.map((entry) => (
-              <div className='card mb-4' key={entry.userId || entry.userEmail}>
-                <div className='card-header d-flex flex-wrap align-items-center gap-3'>
+              <div className='card learner-card mb-4' key={entry.userId || entry.userEmail}>
+                <div className='learner-card__header'>
                   <div>
-                    <h6 className='mb-0'>{entry.userName}</h6>
+                    <h6 className='mb-0'>{entry.userName || "Unknown learner"}</h6>
                     <small className='text-muted'>{entry.userEmail}</small>
                   </div>
-                  <div className='ms-auto text-end'>
-                    <span className='badge bg-primary-subtle text-primary'>
-                      {entry.completedLectures}/{entry.totalLectures} lectures completed
+                  <div className='learner-card__chips'>
+                    <span className='progress-pill'>
+                      {entry.completedLectures}/{entry.totalLectures} lectures
+                    </span>
+                    <span className='progress-pill progress-pill--accent'>
+                      {formatPercent(
+                        entry.totalLectures
+                          ? entry.completedLectures / entry.totalLectures
+                          : 0
+                      )}{" "}
+                      complete
                     </span>
                   </div>
                 </div>
-                <div className='card-body p-0'>
+                <div className='learner-card__body'>
                   <div className='table-responsive'>
-                    <table className='table table-sm align-middle mb-0'>
-                      <thead className='table-light'>
+                    <table className='table align-middle mb-0 learner-table'>
+                      <thead>
                         <tr>
                           <th>Lecture</th>
                           <th>Module</th>
                           <th>Progress</th>
-                          <th className='text-center'>Completed</th>
+                          <th className='text-center'>Complete</th>
                           <th className='text-end'>Last update</th>
                         </tr>
                       </thead>
@@ -319,34 +380,46 @@ const CourseProgressPage = () => {
                                 <strong>{lecture.lectureTitle || "Lecture"}</strong>
                               </td>
                               <td>
-                                <small className='text-muted'>{lecture.moduleId}</small>
+                                <div className='module-cell'>
+                                  <span className='module-title'>
+                                    {lecture.moduleLabel ||
+                                      lecture.moduleTitle ||
+                                      lecture.moduleId ||
+                                      "—"}
+                                  </span>
+                                  {lecture.sectionLabel ? (
+                                    <span className='module-week'>{lecture.sectionLabel}</span>
+                                  ) : null}
+                                </div>
                               </td>
-                              <td style={{ minWidth: 160 }}>
-                                <div className='d-flex align-items-center gap-2'>
-                                  <div className='flex-grow-1 progress progress-thin'>
+                              <td style={{ minWidth: 180 }}>
+                                <div className='progress-track'>
+                                  <div className='progress-track__bar'>
                                     <div
-                                      className='progress-bar bg-primary'
+                                      className='progress-track__fill'
                                       style={{ width: formatPercent(lecture.completionRatio) }}
                                     />
                                   </div>
-                                  <span className='text-muted small'>
+                                  <span className='progress-track__value'>
                                     {formatPercent(lecture.completionRatio)}
                                   </span>
                                 </div>
                               </td>
                               <td className='text-center'>
                                 {lecture.completedAt ? (
-                                  <span className='badge text-bg-success-subtle'>Yes</span>
+                                  <span className='badge bg-success-subtle text-success-emphasis'>
+                                    Done
+                                  </span>
                                 ) : (
-                                  <span className='badge text-bg-secondary-subtle'>No</span>
+                                  <span className='badge bg-secondary-subtle text-secondary-emphasis'>
+                                    Pending
+                                  </span>
                                 )}
                               </td>
-                              <td className='text-end'>
-                                <small className='text-muted'>
-                                  {lecture.updatedAt
-                                    ? new Date(lecture.updatedAt).toLocaleString()
-                                    : "—"}
-                                </small>
+                              <td className='text-end text-muted small'>
+                                {lecture.updatedAt
+                                  ? new Date(lecture.updatedAt).toLocaleString()
+                                  : "—"}
                               </td>
                             </tr>
                           ))}
@@ -365,14 +438,17 @@ const CourseProgressPage = () => {
           )}
 
           {lectureSummary.length ? (
-            <div className='card mb-4'>
-              <div className='card-header'>
+            <div className='card lecture-overview-card border-0 shadow-sm'>
+              <div className='card-header border-0 bg-transparent'>
                 <h6 className='mb-0'>Lecture overview</h6>
+                <p className='text-muted mb-0'>
+                  Aggregate view of every lecture, how many learners saw it, and completion ratios.
+                </p>
               </div>
               <div className='card-body p-0'>
                 <div className='table-responsive'>
-                  <table className='table align-middle mb-0'>
-                    <thead className='table-light'>
+                  <table className='table align-middle mb-0 overview-table'>
+                    <thead>
                       <tr>
                         <th>Lecture</th>
                         <th>Module</th>
@@ -390,19 +466,29 @@ const CourseProgressPage = () => {
                           <tr key={lecture.lectureId}>
                             <td>{lecture.lectureTitle || lecture.lectureId}</td>
                             <td>
-                              <small className='text-muted'>{lecture.moduleId}</small>
+                              <div className='module-cell'>
+                                <span className='module-title'>
+                                  {lecture.moduleLabel ||
+                                    lecture.moduleTitle ||
+                                    lecture.moduleId ||
+                                    "—"}
+                                </span>
+                                {lecture.sectionLabel ? (
+                                  <span className='module-week'>{lecture.sectionLabel}</span>
+                                ) : null}
+                              </div>
                             </td>
                             <td className='text-center'>{lecture.learners}</td>
                             <td className='text-center'>{lecture.completed}</td>
-                            <td style={{ minWidth: 180 }}>
-                              <div className='d-flex align-items-center gap-2'>
-                                <div className='flex-grow-1 progress progress-thin'>
+                            <td style={{ minWidth: 200 }}>
+                              <div className='progress-track progress-track--thin'>
+                                <div className='progress-track__bar'>
                                   <div
-                                    className='progress-bar bg-success'
+                                    className='progress-track__fill progress-track__fill--success'
                                     style={{ width: formatPercent(lecture.avgCompletion) }}
                                   />
                                 </div>
-                                <span className='text-muted small'>
+                                <span className='progress-track__value'>
                                   {formatPercent(lecture.avgCompletion)}
                                 </span>
                               </div>

@@ -60,6 +60,7 @@ const ProfileInner = () => {
   });
   const navigate = useNavigate();
   const emailVerified = authUser?.emailVerified;
+  const isGoogleAccount = authUser?.authProvider === "GOOGLE";
 
   useEffect(() => {
     setProfileData(mapUserToProfileState(authUser));
@@ -608,90 +609,107 @@ const ProfileInner = () => {
               </form>
             </div>
 
-            <div className='bg-main-25 border border-neutral-30 rounded-8 p-32'>
-              <h3 className='mb-24 text-neutral-500'>Update Password</h3>
-              {passwordForm.message ? (
-                <div className='alert alert-success text-sm mb-24' role='alert'>
-                  {passwordForm.message}
-                </div>
-              ) : null}
-              {passwordForm.error ? (
-                <div className='alert alert-danger text-sm mb-24' role='alert'>
-                  {passwordForm.error}
-                </div>
-              ) : null}
-              <form onSubmit={submitPasswordUpdate} className='row gy-4'>
-                <div className='col-sm-12'>
-                  <label
-                    className='fw-medium text-lg text-neutral-500 mb-16'
-                    htmlFor='currentPassword'
-                  >
-                    Current Password
-                  </label>
-                  <input
-                    type='password'
-                    className='common-input rounded-pill'
-                    id='currentPassword'
-                    name='currentPassword'
-                    value={passwordForm.currentPassword}
-                    onChange={handlePasswordChange}
-                    autoComplete='current-password'
-                    required
-                  />
-                </div>
-                <div className='col-sm-6'>
-                  <label
-                    className='fw-medium text-lg text-neutral-500 mb-16'
-                    htmlFor='newPassword'
-                  >
-                    New Password
-                  </label>
-                  <input
-                    type='password'
-                    className='common-input rounded-pill'
-                    id='newPassword'
-                    name='newPassword'
-                    value={passwordForm.newPassword}
-                    onChange={handlePasswordChange}
-                    autoComplete='new-password'
-                    required
-                  />
-                </div>
-                <div className='col-sm-6'>
-                  <label
-                    className='fw-medium text-lg text-neutral-500 mb-16'
-                    htmlFor='confirmNewPassword'
-                  >
-                    Confirm Password
-                  </label>
-                  <input
-                    type='password'
-                    className='common-input rounded-pill'
-                    id='confirmNewPassword'
-                    name='confirmNewPassword'
-                    value={passwordForm.confirmNewPassword}
-                    onChange={handlePasswordChange}
-                    autoComplete='new-password'
-                    required
-                  />
-                </div>
-                <div className='col-sm-12'>
-                  <button
-                    type='submit'
-                    className='btn btn-main rounded-pill flex-center gap-8'
-                    disabled={passwordForm.loading}
-                  >
-                    {passwordForm.loading ? "Updating..." : "Update Password"}
-                    <i className='ph-bold ph-lock-key d-flex text-lg' />
-                  </button>
-                </div>
-              </form>
-            </div>
+            {isGoogleAccount ? (
+              <div className='bg-main-25 border border-neutral-30 rounded-8 p-32'>
+                <h3 className='mb-16 text-neutral-500'>Password managed by Google</h3>
+                <p className='mb-0 text-neutral-500'>
+                  This account was created with Google Sign-In. To change your password, please visit
+                  your Google Account security settings.
+                </p>
+              </div>
+            ) : (
+              <div className='bg-main-25 border border-neutral-30 rounded-8 p-32'>
+                <h3 className='mb-24 text-neutral-500'>Update Password</h3>
+                {passwordForm.message ? (
+                  <div className='alert alert-success text-sm mb-24' role='alert'>
+                    {passwordForm.message}
+                  </div>
+                ) : null}
+                {passwordForm.error ? (
+                  <div className='alert alert-danger text-sm mb-24' role='alert'>
+                    {passwordForm.error}
+                  </div>
+                ) : null}
+                <form onSubmit={submitPasswordUpdate} className='row gy-4'>
+                  <div className='col-sm-12'>
+                    <label
+                      className='fw-medium text-lg text-neutral-500 mb-16'
+                      htmlFor='currentPassword'
+                    >
+                      Current Password
+                    </label>
+                    <input
+                      type='password'
+                      className='common-input rounded-pill'
+                      id='currentPassword'
+                      name='currentPassword'
+                      value={passwordForm.currentPassword}
+                      onChange={handlePasswordChange}
+                      autoComplete='current-password'
+                      required
+                    />
+                  </div>
+                  <div className='col-sm-6'>
+                    <label
+                      className='fw-medium text-lg text-neutral-500 mb-16'
+                      htmlFor='newPassword'
+                    >
+                      New Password
+                    </label>
+                    <input
+                      type='password'
+                      className='common-input rounded-pill'
+                      id='newPassword'
+                      name='newPassword'
+                      value={passwordForm.newPassword}
+                      onChange={handlePasswordChange}
+                      autoComplete='new-password'
+                      required
+                    />
+                  </div>
+                  <div className='col-sm-6'>
+                    <label
+                      className='fw-medium text-lg text-neutral-500 mb-16'
+                      htmlFor='confirmNewPassword'
+                    >
+                      Confirm Password
+                    </label>
+                    <input
+                      type='password'
+                      className='common-input rounded-pill'
+                      id='confirmNewPassword'
+                      name='confirmNewPassword'
+                      value={passwordForm.confirmNewPassword}
+                      onChange={handlePasswordChange}
+                      autoComplete='new-password'
+                      required
+                    />
+                  </div>
+                  <div className='col-sm-12'>
+                    <button
+                      type='submit'
+                      className='btn btn-main rounded-pill flex-center gap-8'
+                      disabled={passwordForm.loading}
+                    >
+                      {passwordForm.loading ? "Updating..." : "Update Password"}
+                      <i className='ph-bold ph-lock-key d-flex text-lg' />
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
           </div>
 
           <div className='col-lg-4'>
             <div className='bg-main-25 border border-neutral-30 rounded-8 p-32'>
               <h4 className='mb-24 text-neutral-500'>Change Email</h4>
+              {isGoogleAccount ? (
+                <p className='text-neutral-500 mb-0'>
+                  This email address is linked to your Google account. To update it, change the email
+                  in your Google Account settings.
+                </p>
+              ) : (
+<>
               {emailChange.message ? (
                 <div className='alert alert-success text-sm mb-20' role='alert'>
                   {emailChange.message}
@@ -775,6 +793,8 @@ const ProfileInner = () => {
                     </button>
                   </div>
                 </form>
+              )}
+              </>
               )}
             </div>
             <div className='bg-main-25 border border-neutral-30 rounded-8 p-32 mt-32'>

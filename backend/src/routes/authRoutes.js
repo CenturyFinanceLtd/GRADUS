@@ -10,6 +10,7 @@ const {
   verifySignupOtp,
   completeSignup,
   login,
+  loginWithGoogle,
   logout,
   startPasswordReset,
   verifyPasswordResetOtp,
@@ -121,6 +122,8 @@ router.post(
   validateRequest,
   completePasswordReset
 );
+
+router.post('/social/google', loginWithGoogle);
 
 router.post('/logout', protect, logout);
 
