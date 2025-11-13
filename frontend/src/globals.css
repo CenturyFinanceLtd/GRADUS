@@ -11204,6 +11204,9 @@ button:focus {
   max-width: 190px;
   max-height: 64px;
 } /* Footer List Item */
+ul.footer-menu {
+  margin-top: 1rem;
+}
 .footer-menu__link:hover {
   color: hsl(var(--main));
 } /* Footer Contact */
