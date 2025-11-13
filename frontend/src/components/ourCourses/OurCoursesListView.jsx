@@ -5,6 +5,13 @@ import { PROGRAMMES } from "../../data/programmes.js";
 import { API_BASE_URL } from "../../services/apiClient";
 import { slugify, stripBrackets } from "../../utils/slugify.js";
 
+const FLAGSHIP_PRICE_INR = 46000;
+const INR_CURRENCY_FORMATTER = new Intl.NumberFormat("en-IN", {
+  style: "currency",
+  currency: "INR",
+  maximumFractionDigits: 0,
+});
+
 const OurCoursesListView = () => {
   // Loaded courses from backend (fallback to PROGRAMMES if API fails)
   const [items, setItems] = useState([]);
@@ -276,9 +283,15 @@ const OurCoursesListView = () => {
               </div>
 
               <div className='row gy-4'>
-                {filteredCourses.map((course, idx) => (
-                  <div className='col-12' key={`${course.programme}-${course.name}-${idx}`}>
-                    <div className='course-item bg-main-25 rounded-16 p-12 h-100 border border-neutral-30 list-view'>
+                {filteredCourses.map((course, idx) => {
+                  const priceValue = Number(course.priceINR) || 0;
+                  const isFlagship = priceValue === FLAGSHIP_PRICE_INR;
+                  const priceLabel = priceValue > 0 ? INR_CURRENCY_FORMATTER.format(priceValue) : "Free";
+
+                  return (
+                    <div className='col-12' key={`${course.programme}-${course.name}-${idx}`}>
+                      <div className={`course-item bg-main-25 rounded-16 p-12 h-100 border border-neutral-30 list-view ${isFlagship ? "course-item--flagship" : ""}`}>
+                        {isFlagship && <span className='course-item__flagship-badge'>Flagship</span>}
                       <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                         <Link to={course.url} className='w-100 h-100'>
                           <img src={course.imageUrl || '/assets/images/thumbs/course-img1.png'} alt={course.name} className='course-item__img rounded-12 cover-img transition-2' />
@@ -311,7 +324,7 @@ const OurCoursesListView = () => {
                         </div>
                         <div className='flex-between gap-8 pt-24 border-top border-neutral-50 mt-28 border-dashed border-0'>
                           <h4 className='mb-0 text-main-two-600'>
-                            {course.priceINR > 0 ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(course.priceINR) : 'Free'}
+                            {priceLabel}
                           </h4>
                           <Link to={course.url} className='flex-align gap-8 text-main-600 hover-text-decoration-underline transition-1 fw-semibold' tabIndex={0}>
                             Explore
@@ -321,7 +334,8 @@ const OurCoursesListView = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+                );
+                })}
               </div>
             </div>
           </div>
