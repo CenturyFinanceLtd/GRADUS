@@ -28,6 +28,10 @@ const buildId = (existing, fallbackPrefix) => {
 
 const normalizeLecture = (lecture, fallbackTitle = '') => {
   const lectureId = buildId(lecture?.lectureId || lecture?.id, 'lecture');
+  const uploadedAtRaw = lecture?.notes?.uploadedAt
+    ? new Date(lecture.notes.uploadedAt)
+    : null;
+  const uploadedAt = uploadedAtRaw && !Number.isNaN(uploadedAtRaw.getTime()) ? uploadedAtRaw : undefined;
   return {
     lectureId,
     title: safeString(lecture?.title || fallbackTitle) || 'Lecture',
@@ -42,6 +46,16 @@ const normalizeLecture = (lecture, fallbackTitle = '') => {
       duration: Number.isFinite(lecture?.video?.duration) ? lecture.video.duration : 0,
       bytes: Number.isFinite(lecture?.video?.bytes) ? lecture.video.bytes : 0,
       format: safeString(lecture?.video?.format),
+    },
+    notes: {
+      publicId: safeString(lecture?.notes?.publicId),
+      fileName: safeString(lecture?.notes?.fileName),
+      folder: safeString(lecture?.notes?.folder),
+      bytes: Number.isFinite(lecture?.notes?.bytes) ? lecture.notes.bytes : 0,
+      format: safeString(lecture?.notes?.format),
+      pages: Number.isFinite(lecture?.notes?.pages) ? lecture.notes.pages : 0,
+      accessMode: safeString(lecture?.notes?.accessMode) || 'authenticated',
+      uploadedAt,
     },
   };
 };

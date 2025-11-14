@@ -458,7 +458,7 @@ const CoursesAdmin = () => {
                   </div>
                 </div>
               </div>
-            ))}}
+            ))}
             <div className='col-12'>
               <button type='button' className='btn btn-sm btn-outline-primary' onClick={() => setModules((mods) => [...mods, { title: '', hours: '', pointsText: '' }])}>+ Add Module</button>
             </div>

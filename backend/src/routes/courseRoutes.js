@@ -12,6 +12,7 @@ const {
   getCourseModulesDetail,
   getCourseProgress,
   recordCourseProgress,
+  streamLectureNotes,
 } = require('../controllers/courseController');
 const { attachUserIfPresent, protect } = require('../middleware/authMiddleware');
 
@@ -21,12 +22,14 @@ router.get('/page', attachUserIfPresent, getCoursePage);
 router.get('/', listCourses);
 router.get('/:programmeSlug/:courseSlug/progress', protect, getCourseProgress);
 router.post('/:programmeSlug/:courseSlug/progress', protect, recordCourseProgress);
+router.get('/:programmeSlug/:courseSlug/lectures/:lectureId/notes', protect, streamLectureNotes);
 // support programme/course slugs (e.g., gradus-x/full-stack-development)
 router.get('/:programmeSlug/:courseSlug/modules/detail', attachUserIfPresent, getCourseModulesDetail);
 router.get('/:programmeSlug/:courseSlug', attachUserIfPresent, getCourseBySlug);
 // legacy: single-part slug
 router.get('/:courseSlug/progress', protect, getCourseProgress);
 router.post('/:courseSlug/progress', protect, recordCourseProgress);
+router.get('/:courseSlug/lectures/:lectureId/notes', protect, streamLectureNotes);
 router.get('/:courseSlug', attachUserIfPresent, getCourseBySlug);
 router.post('/:courseSlug/enroll', protect, enrollInCourse);
 

@@ -19,6 +19,16 @@ const lectureSchema = new mongoose.Schema(
       bytes: { type: Number, default: 0 },
       format: { type: String, trim: true, default: '' },
     },
+    notes: {
+      publicId: { type: String, trim: true, default: '' },
+      fileName: { type: String, trim: true, default: '' },
+      folder: { type: String, trim: true, default: '' },
+      bytes: { type: Number, default: 0 },
+      format: { type: String, trim: true, default: '' },
+      pages: { type: Number, default: 0 },
+      accessMode: { type: String, trim: true, default: 'authenticated' },
+      uploadedAt: { type: Date },
+    },
   },
   { _id: false }
 );

@@ -3,10 +3,21 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import MasterLayout from '../masterLayout/MasterLayout';
 import { useAuthContext } from '../context/AuthContext';
-import { fetchCourseDetail, saveCourseDetail, uploadLectureVideo } from '../services/adminCourseDetails';
+import { fetchCourseDetail, saveCourseDetail, uploadLectureVideo, uploadLectureNotes } from '../services/adminCourseDetails';
 import { toast } from 'react-toastify';
 
 const createId = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 8)}-${Date.now()}`;
+
+const buildEmptyNotes = () => ({
+  publicId: '',
+  fileName: '',
+  folder: '',
+  bytes: 0,
+  format: '',
+  pages: 0,
+  accessMode: 'authenticated',
+  uploadedAt: '',
+});
 
 const buildEmptyLecture = () => ({
   lectureId: createId('lecture'),
@@ -22,6 +33,7 @@ const buildEmptyLecture = () => ({
     bytes: 0,
     format: '',
   },
+  notes: buildEmptyNotes(),
 });
 
 const buildEmptySection = () => ({
@@ -58,6 +70,21 @@ const linesToArray = (value) =>
     .filter(Boolean);
 
 const arrayToLines = (arr) => (Array.isArray(arr) ? arr.join('\n') : '');
+const buildUploadKey = (type, moduleIndex, sectionIndex, lectureIndex) =>
+  `${moduleIndex}-${sectionIndex}-${lectureIndex}-${type}`;
+const formatFileSize = (bytes) => {
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    return '';
+  }
+  const units = ['B', 'KB', 'MB', 'GB'];
+  let size = bytes;
+  let unitIndex = 0;
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex += 1;
+  }
+  return `${size.toFixed(size >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+};
 
 const CourseDetailData = () => {
   const { courseKey = '' } = useParams();
@@ -89,13 +116,30 @@ const CourseDetailData = () => {
   const activeModule = modules[activeModuleIndex] || null;
 
   const assignOrders = (items) =>
-    items.map((module, index) => ({
-      ...module,
-      order: index,
-      moduleLabel: module.moduleLabel || `Module ${index + 1}`,
-      sections: Array.isArray(module.sections) && module.sections.length ? module.sections : [buildEmptySection()],
-      capstone: module.capstone || { summary: '', deliverables: [], rubric: [] },
-    }));
+    items.map((module, index) => {
+      const sectionsSource =
+        Array.isArray(module.sections) && module.sections.length ? module.sections : [buildEmptySection()];
+      const sections = sectionsSource.map((section) => {
+        const lecturesSource =
+          Array.isArray(section.lectures) && section.lectures.length ? section.lectures : [buildEmptyLecture()];
+        const lectures = lecturesSource.map((lecture) => ({
+          ...lecture,
+          lectureId: lecture?.lectureId || createId('lecture'),
+          notes: lecture?.notes ? { ...buildEmptyNotes(), ...lecture.notes } : buildEmptyNotes(),
+        }));
+        return {
+          ...section,
+          lectures,
+        };
+      });
+      return {
+        ...module,
+        order: index,
+        moduleLabel: module.moduleLabel || `Module ${index + 1}`,
+        sections,
+        capstone: module.capstone || { summary: '', deliverables: [], rubric: [] },
+      };
+    });
 
   const loadDetail = async () => {
     if (!slug) {
@@ -234,7 +278,7 @@ const CourseDetailData = () => {
   const handleLectureVideoUpload = async (moduleIndex, sectionIndex, lectureIndex, fileInputEvent) => {
     const file = fileInputEvent?.target?.files?.[0];
     if (!file || !slug) return;
-    const key = `${moduleIndex}-${sectionIndex}-${lectureIndex}`;
+    const key = buildUploadKey('video', moduleIndex, sectionIndex, lectureIndex);
     try {
       setUploadingMap((prev) => ({ ...prev, [key]: true }));
       const asset = await uploadLectureVideo({
@@ -264,6 +308,49 @@ const CourseDetailData = () => {
         fileInputEvent.target.value = '';
       }
     }
+  };
+
+  const handleLectureNotesUpload = async (moduleIndex, sectionIndex, lectureIndex, fileInputEvent) => {
+    const file = fileInputEvent?.target?.files?.[0];
+    if (!file || !slug) return;
+    const key = buildUploadKey('notes', moduleIndex, sectionIndex, lectureIndex);
+    try {
+      setUploadingMap((prev) => ({ ...prev, [key]: true }));
+      const asset = await uploadLectureNotes({
+        slug,
+        file,
+        programme: courseMeta?.programme,
+        token,
+      });
+      updateLectureAt(moduleIndex, sectionIndex, lectureIndex, (lecture) => ({
+        ...lecture,
+        notes: {
+          publicId: asset?.publicId || '',
+          fileName: asset?.fileName || file.name || 'lecture-notes',
+          folder: asset?.folder || '',
+          bytes: asset?.bytes || 0,
+          format: asset?.format || file.type || 'pdf',
+          pages: asset?.pages || 0,
+          accessMode: asset?.accessMode || 'authenticated',
+          uploadedAt: asset?.createdAt || new Date().toISOString(),
+        },
+      }));
+      toast.success('Lecture notes uploaded');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to upload notes');
+    } finally {
+      setUploadingMap((prev) => ({ ...prev, [key]: false }));
+      if (fileInputEvent?.target) {
+        fileInputEvent.target.value = '';
+      }
+    }
+  };
+
+  const removeLectureNotes = (moduleIndex, sectionIndex, lectureIndex) => {
+    updateLectureAt(moduleIndex, sectionIndex, lectureIndex, (lecture) => ({
+      ...lecture,
+      notes: buildEmptyNotes(),
+    }));
   };
 
   const heroSubtitle = courseMeta
@@ -570,8 +657,14 @@ const CourseDetailData = () => {
                             </button>
                           </div>
                           {section.lectures?.map((lecture, lectureIndex) => {
-                            const key = `${activeModuleIndex}-${sectionIndex}-${lectureIndex}`;
-                            const isUploading = uploadingMap[key];
+                            const videoUploadKey = buildUploadKey('video', activeModuleIndex, sectionIndex, lectureIndex);
+                            const notesUploadKey = buildUploadKey('notes', activeModuleIndex, sectionIndex, lectureIndex);
+                            const isVideoUploading = Boolean(uploadingMap[videoUploadKey]);
+                            const isNotesUploading = Boolean(uploadingMap[notesUploadKey]);
+                            const uploadedDate =
+                              lecture.notes?.uploadedAt && !Number.isNaN(Date.parse(lecture.notes.uploadedAt))
+                                ? new Date(lecture.notes.uploadedAt)
+                                : null;
                             return (
                               <div className='border rounded-3 p-3 mb-3' key={lecture.lectureId}>
                                 <div className='d-flex justify-content-between align-items-center mb-3'>
@@ -645,14 +738,70 @@ const CourseDetailData = () => {
                                       <div className='alert alert-secondary mb-2'>No video uploaded</div>
                                     )}
                                     <label className='btn btn-sm btn-outline-primary'>
-                                      {isUploading ? 'Uploading...' : 'Upload video'}
+                                      {isVideoUploading ? 'Uploading...' : 'Upload video'}
                                       <input
                                         type='file'
                                         accept='video/*'
                                         className='d-none'
-                                        disabled={isUploading}
+                                        disabled={isVideoUploading}
                                         onChange={(event) =>
                                           handleLectureVideoUpload(
+                                            activeModuleIndex,
+                                            sectionIndex,
+                                            lectureIndex,
+                                            event
+                                          )
+                                        }
+                                      />
+                                    </label>
+                                  </div>
+                                  <div className='col-12'>
+                                    <label className='form-label d-flex justify-content-between align-items-center'>
+                                      Lecture notes (PDF)
+                                      {uploadedDate ? (
+                                        <span className='text-muted small'>
+                                          Updated{' '}
+                                          {uploadedDate.toLocaleDateString(undefined, {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric',
+                                          })}
+                                        </span>
+                                      ) : null}
+                                    </label>
+                                    {lecture.notes?.publicId ? (
+                                      <div className='alert alert-success d-flex justify-content-between align-items-center'>
+                                        <div>
+                                          <strong>{lecture.notes.fileName || 'Lecture notes'}</strong>
+                                          <div className='small text-muted'>
+                                            {[
+                                              lecture.notes.pages ? `${lecture.notes.pages} pages` : null,
+                                              formatFileSize(lecture.notes.bytes),
+                                            ]
+                                              .filter(Boolean)
+                                              .join(' • ')}
+                                          </div>
+                                        </div>
+                                        <button
+                                          type='button'
+                                          className='btn btn-sm btn-outline-danger'
+                                          onClick={() => removeLectureNotes(activeModuleIndex, sectionIndex, lectureIndex)}
+                                        >
+                                          Remove
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <div className='alert alert-secondary mb-2'>No notes uploaded</div>
+                                    )}
+                                    <label className='btn btn-sm btn-outline-primary mb-0'>
+                                      {isNotesUploading ? 'Uploading...' : 'Upload notes'}
+                                      <input
+                                        type='file'
+                                        accept='application/pdf'
+                                        className='d-none'
+                                        disabled={isNotesUploading}
+                                        onChange={(event) =>
+                                          handleLectureNotesUpload(
                                             activeModuleIndex,
                                             sectionIndex,
                                             lectureIndex,

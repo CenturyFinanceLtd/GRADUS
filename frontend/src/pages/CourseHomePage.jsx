@@ -6,6 +6,10 @@ import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
 import { useAuth } from "../context/AuthContext";
 import { API_BASE_URL } from "../services/apiClient";
+import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
+import pdfWorker from "pdfjs-dist/build/pdf.worker?url";
+
+GlobalWorkerOptions.workerSrc = pdfWorker;
 
 const NAV_SECTIONS = [
   { id: "info", label: "Course Info", slug: "course-info" },
@@ -48,6 +52,29 @@ const formatSlugText = (value = "") =>
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 
+const buildEmptyLectureNotes = () => ({
+  hasFile: false,
+  pages: 0,
+  bytes: 0,
+  format: "",
+  fileName: "",
+  updatedAt: "",
+});
+
+const formatFileSize = (bytes) => {
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    return "";
+  }
+  const units = ["B", "KB", "MB", "GB"];
+  let value = bytes;
+  let unitIndex = 0;
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+  }
+  return `${value.toFixed(value >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+};
+
 const resolveImageUrl = (input) => {
   if (!input) {
     return "";
@@ -74,6 +101,39 @@ const toArray = (value) => {
   return [];
 };
 
+const normalizeAssignmentUploads = (items = [], fallbackPrefix = "Assignment") => {
+  const source = Array.isArray(items) ? items : toArray(items);
+  return source
+    .map((raw, idx) => {
+      if (!raw) {
+        return null;
+      }
+      if (typeof raw === "string") {
+        const trimmed = raw.trim();
+        if (!trimmed) {
+          return null;
+        }
+        const urlMatch = trimmed.match(/https?:\/\/\S+/i);
+        if (!urlMatch) {
+          return null;
+        }
+        const url = urlMatch[0];
+        const label = trimmed.replace(url, "").trim() || `${fallbackPrefix} ${idx + 1}`;
+        return { label, url };
+      }
+      if (typeof raw === "object") {
+        const label = String(raw.label || raw.title || raw.name || raw.text || "").trim();
+        const url = String(raw.url || raw.href || raw.link || raw.file || raw.src || "").trim();
+        if (!url) {
+          return null;
+        }
+        return { label: label || `${fallbackPrefix} ${idx + 1}`, url };
+      }
+      return null;
+    })
+    .filter(Boolean);
+};
+
 const normalizeLectureItems = (items) => {
   if (!Array.isArray(items)) {
     return [];
@@ -82,11 +142,16 @@ const normalizeLectureItems = (items) => {
     .map((entry) => {
       if (typeof entry === "string") {
         const title = entry.trim();
-        return title ? { title, duration: "", type: "", lectureId: "" } : null;
+        return title ? { title, duration: "", durationSeconds: 0, type: "", lectureId: "" } : null;
       }
       if (entry && typeof entry === "object") {
         const title = String(entry.title || entry.name || entry.label || "").trim();
         const duration = String(entry.duration || entry.length || entry.time || "").trim();
+        const durationSeconds =
+          toPositiveNumber(entry.durationSeconds) ||
+          toPositiveNumber(entry.lengthSeconds) ||
+          toPositiveNumber(entry.timeSeconds) ||
+          toPositiveNumber(entry.video?.duration);
         const type = String(entry.type || entry.category || "").trim();
         const lectureId = String(entry.lectureId || entry.id || entry._id || "").trim();
         const videoUrl =
@@ -105,10 +170,20 @@ const normalizeLectureItems = (items) => {
           entry.image ||
           entry.video?.poster ||
           "";
+        const notesMeta =
+          entry.notes && typeof entry.notes === "object"
+            ? {
+                hasFile: Boolean(entry.notes.hasFile || entry.notes.publicId || entry.notes.url),
+                pages: Number(entry.notes.pages) || 0,
+                bytes: Number(entry.notes.bytes) || 0,
+                format: String(entry.notes.format || entry.notes.type || ""),
+                updatedAt: entry.notes.updatedAt || entry.notes.uploadedAt || "",
+              }
+            : buildEmptyLectureNotes();
         if (!title) {
           return null;
         }
-        return { title, duration, type, videoUrl, poster, lectureId };
+        return { title, duration, durationSeconds, type, videoUrl, poster, lectureId, notes: notesMeta };
       }
       return null;
     })
@@ -167,7 +242,9 @@ const normalizeWeeklyStructureBlocks = (module, moduleIndex = 0) => {
           };
         }
       );
-      const assignments = toArray(entry.assignments || entry.tasks || entry.homework);
+      const assignmentsSource = entry.assignments || entry.tasks || entry.homework;
+      const assignmentsRaw = toArray(assignmentsSource);
+      const assignments = normalizeAssignmentUploads(assignmentsSource, `Assignment ${idx + 1}`);
       const projects = toArray(entry.projects || entry.activities);
       const quizzes = toArray(entry.quizzes || entry.tests);
       const notes = toArray(entry.notes || entry.resources);
@@ -176,7 +253,7 @@ const normalizeWeeklyStructureBlocks = (module, moduleIndex = 0) => {
         !subtitle &&
         !summary &&
         !lectures.length &&
-        !assignments.length &&
+        !assignmentsRaw.length &&
         !projects.length &&
         !quizzes.length &&
         !notes.length
@@ -211,6 +288,46 @@ const formatVideoTime = (seconds) => {
     .toString()
     .padStart(2, "0");
   return `${minutes}:${secs}`;
+};
+
+const toPositiveNumber = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+};
+
+const formatLectureDurationLabel = (seconds) => {
+  const safeSeconds = toPositiveNumber(seconds);
+  if (!safeSeconds) {
+    return "";
+  }
+  if (safeSeconds < 60) {
+    const secs = Math.max(1, Math.round(safeSeconds));
+    return `${secs} sec`;
+  }
+  if (safeSeconds >= 3600) {
+    let hours = Math.floor(safeSeconds / 3600);
+    let minutes = Math.round((safeSeconds % 3600) / 60);
+    if (minutes === 60) {
+      hours += 1;
+      minutes = 0;
+    }
+    const hourUnit = hours === 1 ? "hr" : "hrs";
+    return minutes ? `${hours} ${hourUnit} ${minutes} min` : `${hours} ${hourUnit}`;
+  }
+  const minutes = Math.max(1, Math.round(safeSeconds / 60));
+  return `${minutes} min`;
+};
+
+const getLectureDurationLabel = (lecture, lectureProgress) => {
+  const lectureSeconds = toPositiveNumber(lecture?.durationSeconds);
+  if (lectureSeconds) {
+    return formatLectureDurationLabel(lectureSeconds);
+  }
+  const progressSeconds = toPositiveNumber(lectureProgress?.durationSeconds);
+  if (progressSeconds) {
+    return formatLectureDurationLabel(progressSeconds);
+  }
+  return typeof lecture?.duration === "string" ? lecture.duration : "";
 };
 
 const DEFAULT_VIDEO_SRC = "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
@@ -870,34 +987,51 @@ const adaptDetailedModules = (detailModules = []) => {
             sectionId,
             moduleId,
             lectures: Array.isArray(section.lectures)
-              ? section.lectures.map((lecture, lectureIdx) => ({
-                  lectureId: lecture.lectureId || lecture.id || `${sectionId}-lecture-${lectureIdx + 1}`,
-                  moduleId,
-                  sectionId,
-                  title: lecture.title || "Lecture",
-                  duration:
-                    lecture.duration ||
-                    (lecture.video?.duration
-                      ? `${Math.max(1, Math.round(lecture.video.duration))} min`
-                      : ""),
-                  type: lecture.video?.url ? "Video" : lecture.type || "",
-                  videoUrl:
-                    lecture.video?.url ||
-                    lecture.url ||
-                    lecture.src ||
-                    lecture.link ||
-                    "",
-                  poster:
-                    lecture.poster ||
-                    lecture.thumbnail ||
-                    lecture.cover ||
-                    lecture.video?.poster ||
-                    lecture.video?.thumbnail ||
-                    "",
-                  subtitles: Array.isArray(lecture.subtitles) ? lecture.subtitles : lecture.captions || [],
-                }))
+              ? section.lectures.map((lecture, lectureIdx) => {
+                  const lectureId = lecture.lectureId || lecture.id || `${sectionId}-lecture-${lectureIdx + 1}`;
+                  const hasNotes = Boolean(
+                    lecture.notes?.hasFile || lecture.notes?.publicId || lecture.notes?.url
+                  );
+                  const notesMeta = hasNotes
+                    ? {
+                        hasFile: true,
+                        pages: Number(lecture.notes.pages) || 0,
+                        bytes: Number(lecture.notes.bytes) || 0,
+                        format: lecture.notes.format || "pdf",
+                        fileName: lecture.notes.fileName || "",
+                        updatedAt: lecture.notes.uploadedAt || lecture.notes.updatedAt || "",
+                      }
+                    : buildEmptyLectureNotes();
+                  const durationSeconds = toPositiveNumber(lecture.video?.duration);
+                  return {
+                    lectureId,
+                    moduleId,
+                    sectionId,
+                    title: lecture.title || "Lecture",
+                    duration:
+                      lecture.duration ||
+                      (durationSeconds ? formatLectureDurationLabel(durationSeconds) : ""),
+                    durationSeconds,
+                    type: lecture.video?.url ? "Video" : lecture.type || "",
+                    videoUrl:
+                      lecture.video?.url ||
+                      lecture.url ||
+                      lecture.src ||
+                      lecture.link ||
+                      "",
+                    poster:
+                      lecture.poster ||
+                      lecture.thumbnail ||
+                      lecture.cover ||
+                      lecture.video?.poster ||
+                      lecture.video?.thumbnail ||
+                      "",
+                    subtitles: Array.isArray(lecture.subtitles) ? lecture.subtitles : lecture.captions || [],
+                    notes: notesMeta,
+                  };
+                })
               : [],
-            assignments: Array.isArray(section.assignments) ? section.assignments : toArray(section.assignments),
+            assignments: normalizeAssignmentUploads(section.assignments, `Assignment ${sectionIndex + 1}`),
             quizzes: Array.isArray(section.quizzes) ? section.quizzes : toArray(section.quizzes),
             projects: Array.isArray(section.projects) ? section.projects : toArray(section.projects),
             notes: Array.isArray(section.notes) ? section.notes : toArray(section.notes),
@@ -1054,6 +1188,10 @@ const CourseHomePage = () => {
   const [progressState, setProgressState] = useState({ loading: false, data: {} });
   const [currentLectureMeta, setCurrentLectureMeta] = useState(null);
   const [resumePositionSeconds, setResumePositionSeconds] = useState(0);
+  const [notesState, setNotesState] = useState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
+  const [notesReloadToken, setNotesReloadToken] = useState(0);
+  const [notesModalOpen, setNotesModalOpen] = useState(false);
+  const notesTarget = currentLectureMeta?.hasNotes ? currentLectureMeta : null;
   const progressUpdateRef = useRef({});
   const moduleIndexFromUrl = useMemo(() => {
     if (sectionFromUrl !== MODULE_SECTION_ID) {
@@ -1283,6 +1421,120 @@ const CourseHomePage = () => {
       setResumePositionSeconds(0);
     }
   }, [progressState, currentLectureMeta]);
+
+  useEffect(() => {
+    if (!notesModalOpen || !notesTarget?.hasNotes || !notesTarget?.lectureId) {
+      setNotesState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
+      return;
+    }
+    if (!programme || !course) {
+      setNotesState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
+      return;
+    }
+    if (!token) {
+      setNotesState({
+        status: "error",
+        lectureId: notesTarget.lectureId,
+        pages: [],
+        pageCount: 0,
+        error: "Sign in to view lecture notes.",
+      });
+      return;
+    }
+    let cancelled = false;
+    const controller = new AbortController();
+    const loadNotes = async () => {
+      setNotesState({
+        status: "loading",
+        lectureId: currentLectureMeta.lectureId,
+        pages: [],
+        pageCount: 0,
+        error: null,
+      });
+      try {
+        const endpoint = `${API_BASE_URL}/courses/${encodeURIComponent(programme)}/${encodeURIComponent(
+          course
+        )}/lectures/${encodeURIComponent(notesTarget.lectureId)}/notes`;
+        const headers = new Headers();
+        headers.set("Authorization", `Bearer ${token}`);
+        const response = await fetch(endpoint, {
+          headers,
+          credentials: "include",
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          throw new Error("Unable to load lecture notes");
+        }
+        const buffer = await response.arrayBuffer();
+        const pdf = await getDocument({ data: new Uint8Array(buffer) }).promise;
+        const renderedPages = [];
+        for (let pageIndex = 1; pageIndex <= pdf.numPages; pageIndex += 1) {
+          const page = await pdf.getPage(pageIndex);
+          const viewport = page.getViewport({ scale: 1.1 });
+          const canvas = document.createElement("canvas");
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const context = canvas.getContext("2d");
+          await page.render({ canvasContext: context, viewport }).promise;
+          renderedPages.push(canvas.toDataURL("image/png"));
+        }
+        if (!cancelled) {
+          setNotesState({
+            status: "ready",
+            lectureId: notesTarget.lectureId,
+            pages: renderedPages,
+            pageCount: pdf.numPages,
+            error: null,
+          });
+        }
+      } catch (error) {
+        if (cancelled || error?.name === "AbortError") {
+          return;
+        }
+        setNotesState({
+          status: "error",
+          lectureId: notesTarget.lectureId,
+          pages: [],
+          pageCount: 0,
+          error: error?.message || "Unable to load lecture notes",
+        });
+      }
+    };
+    loadNotes();
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [
+    programme,
+    course,
+    token,
+    notesTarget?.lectureId,
+    notesTarget?.hasNotes,
+    notesReloadToken,
+    notesModalOpen,
+  ]);
+
+  useEffect(() => {
+    if (notesModalOpen && !notesTarget?.hasNotes) {
+      setNotesModalOpen(false);
+      setNotesState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
+    }
+  }, [notesModalOpen, notesTarget?.hasNotes]);
+
+  useEffect(() => {
+    if (!notesModalOpen) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setNotesModalOpen(false);
+        setNotesState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [notesModalOpen]);
 
 
 
@@ -1520,6 +1772,10 @@ const CourseHomePage = () => {
     if (!lecture?.videoUrl) {
       return;
     }
+    if (notesModalOpen) {
+      setNotesModalOpen(false);
+      setNotesState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
+    }
     const lectureId =
       lecture.lectureId ||
       meta.lectureId ||
@@ -1547,6 +1803,8 @@ const CourseHomePage = () => {
       moduleTitle: meta.moduleTitle,
       weekTitle: meta.weekTitle,
       videoUrl: lecture.videoUrl,
+      hasNotes: Boolean(lecture.notes?.hasFile),
+      notesMeta: lecture.notes || null,
     });
     const resumeSeconds =
       lectureId && progressState.data[lectureId]
@@ -1556,6 +1814,22 @@ const CourseHomePage = () => {
     if (autoPlayEnabled) {
       setVideoAutoPlayToken((token) => token + 1);
     }
+  };
+  const handleNotesRetry = () => setNotesReloadToken((value) => value + 1);
+  const openNotesModal = () => {
+    if (!notesTarget?.hasNotes) return;
+    setNotesModalOpen(true);
+  };
+  const closeNotesModal = () => {
+    setNotesModalOpen(false);
+    setNotesState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
+  };
+  const handlePlayerClose = () => {
+    setActiveVideo(null);
+    setCurrentLectureMeta(null);
+    setResumePositionSeconds(0);
+    setNotesModalOpen(false);
+    setNotesState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
   };
   const toggleModuleDropdown = () => {
     if (!modules.length) {
@@ -1607,22 +1881,95 @@ const CourseHomePage = () => {
     const hasTopics = Array.isArray(module.topics) && module.topics.length;
 
     const renderWeekBulletGroup = (title, items, iconClass = "ph-check-circle") => {
-      if (!items?.length) {
+      const normalizedItems = Array.isArray(items)
+        ? items
+            .map((item, idx) => {
+              if (!item) {
+                return null;
+              }
+              if (typeof item === "string") {
+                const trimmed = item.trim();
+                if (!trimmed) {
+                  return null;
+                }
+                return { key: `${title}-${idx}`, label: trimmed, url: "" };
+              }
+              if (typeof item === "object") {
+                const label = String(
+                  item.label || item.title || item.name || item.text || item.description || ""
+                ).trim();
+                const url = String(item.url || item.href || item.link || item.file || "").trim();
+                if (!label && !url) {
+                  return null;
+                }
+                return { key: item.key || `${title}-${idx}`, label: label || url, url };
+              }
+              return null;
+            })
+            .filter(Boolean)
+        : [];
+      if (!normalizedItems.length) {
         return null;
       }
       return (
         <div className='course-module-week__group'>
           <p className='course-module-week__group-title'>{title}</p>
           <ul className='course-module-week__list course-module-week__list--bullets'>
-            {items.map((item, idx) => (
-              <li key={`${title}-${idx}`}>
+            {normalizedItems.map(({ key, label, url }) => (
+              <li key={key}>
                 <i className={`ph-bold ${iconClass} text-main-500`} />
-                <span>{item}</span>
+                {url ? (
+                  <a
+                    href={url}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='course-module-week__bullet-link'
+                  >
+                    {label}
+                  </a>
+                ) : (
+                  <span>{label}</span>
+                )}
               </li>
             ))}
           </ul>
         </div>
       );
+    };
+    const normalizeWeekNotes = (noteItems = []) => {
+      if (!Array.isArray(noteItems)) {
+        return [];
+      }
+      return noteItems
+        .map((raw, idx) => {
+          if (!raw) {
+            return null;
+          }
+          if (typeof raw === "string") {
+            const trimmed = raw.trim();
+            if (!trimmed) {
+              return null;
+            }
+            const urlMatch = trimmed.match(/https?:\/\/\S+/i);
+            const url = urlMatch ? urlMatch[0] : "";
+            const label = urlMatch
+              ? trimmed.replace(urlMatch[0], "").trim() || `Class notes ${idx + 1}`
+              : trimmed;
+            return { label, url };
+          }
+          if (typeof raw === "object") {
+            const label = String(raw.label || raw.title || raw.name || raw.text || "").trim();
+            const url = String(raw.url || raw.href || raw.link || raw.file || "").trim();
+            const description = String(raw.description || raw.summary || "").trim();
+            return {
+              label: label || description || `Class notes ${idx + 1}`,
+              url,
+              description,
+            };
+          }
+          return null;
+        })
+        .filter(Boolean);
     };
 
     return (
@@ -1743,8 +2090,10 @@ const CourseHomePage = () => {
           <div className='course-info-section'>
             <h3 className='course-info-section__title'>Weekly structure</h3>
             <div className='course-module-weeks'>
-              {weeklyStructure.map((week, weekIdx) => (
-                <div key={`module-${safeIndex}-week-${weekIdx}`} className='course-module-week'>
+              {weeklyStructure.map((week, weekIdx) => {
+                const weekNotes = normalizeWeekNotes(week.notes);
+                return (
+                  <div key={`module-${safeIndex}-week-${weekIdx}`} className='course-module-week'>
                   <div className='course-module-week__header'>
                     <div>
                       <p className='course-module-week__title'>{week.title || `Week ${weekIdx + 1}`}</p>
@@ -1779,6 +2128,7 @@ const CourseHomePage = () => {
                               ? progressState.data[lecture.lectureId]
                               : null;
                           const completionRatio = lectureProgress?.completionRatio || 0;
+                          const durationLabel = getLectureDurationLabel(lecture, lectureProgress);
                           const isCompleted =
                             Boolean(lectureProgress?.completedAt) ||
                             completionRatio >= VIDEO_COMPLETION_THRESHOLD;
@@ -1848,8 +2198,8 @@ const CourseHomePage = () => {
                                       : "Play in player"}
                                   </span>
                                 </div>
-                                {lecture.duration ? (
-                                  <span className='course-module-week__badge'>{lecture.duration}</span>
+                                {durationLabel ? (
+                                  <span className='course-module-week__badge'>{durationLabel}</span>
                                 ) : null}
                               </button>
                             </li>
@@ -1861,9 +2211,49 @@ const CourseHomePage = () => {
                   {renderWeekBulletGroup("Assignments", week.assignments, "ph-pencil-simple")}
                   {renderWeekBulletGroup("Quizzes", week.quizzes, "ph-list-checks")}
                   {renderWeekBulletGroup("Projects & practice", week.projects, "ph-flask")}
-                  {renderWeekBulletGroup("Notes & resources", week.notes, "ph-book-open")} 
+                  {weekNotes.length ? (
+                    <div className='course-module-week__notes'>
+                      <div className='course-module-week__notes-header'>
+                        <div className='course-module-week__notes-icon' aria-hidden='true'>
+                          <i className='ph-bold ph-notebook' />
+                        </div>
+                        <div>
+                          <p className='course-module-week__notes-title'>Class notes</p>
+                          <p className='course-module-week__notes-text'>
+                            Download the notes shared for these classes or keep them handy while you learn.
+                          </p>
+                        </div>
+                      </div>
+                      <div className='course-module-week__notes-links'>
+                        {weekNotes.map((note, noteIdx) => {
+                          const key = `module-${safeIndex}-week-${weekIdx}-note-${noteIdx}`;
+                          if (note.url) {
+                            return (
+                              <a
+                                key={key}
+                                href={note.url}
+                                target='_blank'
+                                rel='noopener noreferrer'
+                                className='course-module-week__note-chip'
+                              >
+                                <i className='ph-bold ph-arrow-square-out' aria-hidden='true' />
+                                <span>{note.label}</span>
+                              </a>
+                            );
+                          }
+                          return (
+                            <span key={key} className='course-module-week__note-chip is-static'>
+                              <i className='ph-bold ph-note' aria-hidden='true' />
+                              <span>{note.label}</span>
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
-              ))}
+              );
+            })}
             </div>
           </div>
         ) : null}
@@ -2215,6 +2605,90 @@ const CourseHomePage = () => {
     </div>
   );
 
+  const renderNotesModal = () => {
+    if (!notesModalOpen || !notesTarget?.hasNotes) {
+      return null;
+    }
+    const noteMeta = notesTarget.notesMeta || buildEmptyLectureNotes();
+    const summaryParts = [];
+    if (noteMeta.fileName) {
+      summaryParts.push(noteMeta.fileName);
+    }
+    if (noteMeta.pages) {
+      summaryParts.push(`${noteMeta.pages} pages`);
+    }
+    if (noteMeta.bytes) {
+      const readable = formatFileSize(noteMeta.bytes);
+      if (readable) {
+        summaryParts.push(readable);
+      }
+    }
+    const summary = summaryParts.join(" • ");
+    let content = null;
+    if (notesState.status === "loading") {
+      content = (
+        <div className='course-notes-viewer course-notes-viewer--loading'>
+          <div className='d-flex align-items-center gap-2'>
+            <span className='spinner-border spinner-border-sm text-main-500' role='status' aria-hidden='true' />
+            <span>Preparing secure preview…</span>
+          </div>
+        </div>
+      );
+    } else if (notesState.status === "error") {
+      content = (
+        <div className='course-notes-viewer'>
+          <p className='text-danger mb-12'>{notesState.error || "Unable to load notes."}</p>
+          <button type='button' className='btn btn-sm btn-outline-primary' onClick={handleNotesRetry}>
+            Try again
+          </button>
+        </div>
+      );
+    } else if (notesState.status === "ready" && notesState.pages.length) {
+      content = (
+        <div className='course-notes-viewer'>
+          {notesState.pages.map((src, index) => (
+            <div className='course-notes-page' key={`${notesState.lectureId}-${index}`}>
+              <img src={src} alt={`Lecture notes page ${index + 1}`} loading='lazy' />
+            </div>
+          ))}
+        </div>
+      );
+    } else {
+      content = (
+        <div className='course-notes-viewer course-notes-viewer--loading'>
+          <div className='d-flex align-items-center gap-2'>
+            <span className='spinner-border spinner-border-sm text-main-500' role='status' aria-hidden='true' />
+            <span>Preparing secure preview…</span>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className='course-notes-modal' role='dialog' aria-modal='true' aria-label='Lecture notes viewer'>
+        <div className='course-notes-modal__backdrop' onClick={closeNotesModal} />
+        <div className='course-notes-modal__body'>
+          <div className='course-notes-modal__header'>
+            <div>
+              <p className='course-home-panel__eyebrow mb-8'>Lecture Notes</p>
+              <h4 className='course-home-panel__title mb-4'>{notesTarget.lectureTitle || "Lecture"}</h4>
+              {summary ? <p className='text-neutral-600 mb-0 small'>{summary}</p> : null}
+            </div>
+            <div className='d-flex align-items-center gap-2'>
+              <span className='course-notes-protection-badge' aria-label='Protected notes'>
+                Protected
+              </span>
+              <button type='button' className='course-notes-modal__close' onClick={closeNotesModal} aria-label='Close notes viewer'>
+                ×
+              </button>
+            </div>
+          </div>
+          <div className='course-notes-modal__content'>{content}</div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <Preloader />
@@ -2263,20 +2737,28 @@ const CourseHomePage = () => {
               <CourseVideoPlaceholder banner={courseBannerUrl} />
             )}
           </div>
+          {notesTarget?.hasNotes ? (
+            <div className='course-notes-action mb-20'>
+              <div className='course-notes-action__text'>
+                <strong>{notesTarget.lectureTitle || "Lecture"} notes ready</strong>
+                <p className='mb-0 text-neutral-600 small'>Preview the PDF notes for this lecture.</p>
+              </div>
+              <button type='button' className='btn btn-outline-primary' onClick={openNotesModal}>
+                View notes
+              </button>
+            </div>
+          ) : null}
           <div className='course-home-grid'>
             {renderSidebar()}
             <div className='course-home-content'>{renderMainContent()}</div>
           </div>
         </div>
       </section>
+      {renderNotesModal()}
       <FooterOne />
     </>
   );
 };
 
 export default CourseHomePage;
-  const handlePlayerClose = () => {
-    setActiveVideo(null);
-    setCurrentLectureMeta(null);
-    setResumePositionSeconds(0);
-  };
+

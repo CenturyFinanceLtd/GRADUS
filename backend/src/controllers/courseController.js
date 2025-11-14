@@ -10,6 +10,12 @@ const Enrollment = require('../models/Enrollment');
 const CourseDetail = require('../models/CourseDetail');
 const CourseProgress = require('../models/CourseProgress');
 const { buildFallbackModules } = require('../utils/courseDetail');
+const fetch = require('node-fetch');
+const stream = require('stream');
+const { promisify } = require('util');
+const { cloudinary } = require('../config/cloudinary');
+
+const pipeline = promisify(stream.pipeline);
 
 const PROGRESS_COMPLETION_THRESHOLD = 0.9;
 const resolveUserDisplayName = (user) => {
@@ -134,6 +140,45 @@ const resolveCourseSlugFromParams = ({ programmeSlug, courseSlug }) => {
   }
   const fallback = courseSlug || programmeSlug || '';
   return String(fallback).trim().toLowerCase();
+};
+
+const findLectureById = (modules = [], lectureId) => {
+  const target = normalizeString(lectureId);
+  if (!target) {
+    return null;
+  }
+  for (const module of modules) {
+    if (!module?.sections?.length) continue;
+    for (const section of module.sections) {
+      if (!section?.lectures?.length) continue;
+      for (const lecture of section.lectures) {
+        if (normalizeString(lecture?.lectureId) === target) {
+          return lecture;
+        }
+      }
+    }
+  }
+  return null;
+};
+
+const sanitizeFileName = (value, fallback = 'lecture-notes.pdf') => {
+  const trimmed = normalizeString(value) || fallback;
+  return trimmed.replace(/[^a-z0-9_\-.]+/gi, '_');
+};
+
+const sanitizeLectureNotes = (notes) => {
+  if (!notes) {
+    return undefined;
+  }
+  const hasPrivateAsset = normalizeString(notes.publicId);
+  return {
+    hasFile: Boolean(hasPrivateAsset),
+    fileName: notes.fileName || '',
+    bytes: Number.isFinite(notes.bytes) ? notes.bytes : 0,
+    format: normalizeString(notes.format) || 'pdf',
+    pages: Number.isFinite(notes.pages) ? notes.pages : 0,
+    uploadedAt: notes.uploadedAt || '',
+  };
 };
 
 const buildCoursePayload = (body, existingCourse) => {
@@ -690,6 +735,20 @@ const getCourseModulesDetail = asyncHandler(async (req, res) => {
     detail && Array.isArray(detail.modules) && detail.modules.length
       ? detail.modules
       : buildFallbackModules(course);
+  const sanitizedModules = modules.map((module) => ({
+    ...module,
+    sections: Array.isArray(module.sections)
+      ? module.sections.map((section) => ({
+          ...section,
+          lectures: Array.isArray(section.lectures)
+            ? section.lectures.map((lecture) => ({
+                ...lecture,
+                notes: sanitizeLectureNotes(lecture.notes),
+              }))
+            : [],
+        }))
+      : [],
+  }));
 
   res.json({
     course: {
@@ -699,7 +758,7 @@ const getCourseModulesDetail = asyncHandler(async (req, res) => {
       programmeSlug: course.programmeSlug,
       courseSlug: course.courseSlug,
     },
-    modules,
+    modules: sanitizedModules,
   });
 });
 
@@ -785,6 +844,67 @@ const recordCourseProgress = asyncHandler(async (req, res) => {
   );
 
   res.json({ progress: mapProgressDoc(saved) });
+});
+
+const streamLectureNotes = asyncHandler(async (req, res) => {
+  const courseSlug = resolveCourseSlugFromParams(req.params);
+  if (!courseSlug) {
+    res.status(400);
+    throw new Error('A valid course identifier is required.');
+  }
+  const lectureId = normalizeString(req.params.lectureId);
+  if (!lectureId) {
+    res.status(400);
+    throw new Error('lectureId is required.');
+  }
+  if (!cloudinary?.utils?.private_download_url) {
+    res.status(503);
+    throw new Error('Secure document delivery is not configured.');
+  }
+  const detail = await CourseDetail.findOne({ courseSlug }).select('modules').lean();
+  if (!detail?.modules?.length) {
+    res.status(404);
+    throw new Error('Lecture notes not found.');
+  }
+  const lecture = findLectureById(detail.modules, lectureId);
+  if (!lecture?.notes?.publicId) {
+    res.status(404);
+    throw new Error('Lecture notes not available for this lecture.');
+  }
+
+  const format = normalizeString(lecture.notes.format) || 'pdf';
+  const privateUrl = cloudinary.utils.private_download_url(lecture.notes.publicId, format, {
+    resource_type: 'raw',
+    type: 'authenticated',
+    expires_at: Math.floor(Date.now() / 1000) + 60,
+  });
+
+  let upstream;
+  try {
+    upstream = await fetch(privateUrl);
+  } catch (error) {
+    res.status(502);
+    throw new Error('Unable to fetch lecture notes.');
+  }
+  if (!upstream?.ok || !upstream.body) {
+    res.status(upstream?.status || 502);
+    throw new Error('Unable to fetch lecture notes.');
+  }
+
+  const baseName = lecture.notes.fileName || lecture.title || lecture.lectureId || 'lecture-notes';
+  const safeBase = sanitizeFileName(baseName, 'lecture-notes');
+  const normalizedFormat = format.startsWith('.') ? format.slice(1) : format;
+  const fileName = safeBase.toLowerCase().endsWith(`.${normalizedFormat}`)
+    ? safeBase
+    : `${safeBase}.${normalizedFormat || 'pdf'}`;
+
+  res.setHeader('Content-Type', upstream.headers.get('content-type') || 'application/pdf');
+  res.setHeader('Cache-Control', 'no-store, private');
+  res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-site');
+
+  await pipeline(upstream.body, res);
 });
 
 const getCourseProgressAdmin = asyncHandler(async (req, res) => {
@@ -1072,6 +1192,7 @@ module.exports = {
   getCourseModulesDetail,
   getCourseProgress,
   recordCourseProgress,
+  streamLectureNotes,
   getCourseProgressAdmin,
   getCourseEnrollmentsAdmin,
 };

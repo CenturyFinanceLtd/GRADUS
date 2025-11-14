@@ -5,7 +5,7 @@
 const asyncHandler = require('express-async-handler');
 const CourseDetail = require('../models/CourseDetail');
 const Course = require('../models/Course');
-const { cloudinary, lectureVideosFolder } = require('../config/cloudinary');
+const { cloudinary, lectureVideosFolder, lectureNotesFolder } = require('../config/cloudinary');
 const {
   safeString,
   safeArray,
@@ -124,8 +124,57 @@ const uploadLectureVideo = asyncHandler(async (req, res) => {
   });
 });
 
+const uploadNotesBuffer = (buffer, { folder }) =>
+  new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: 'raw',
+        folder,
+        overwrite: false,
+        access_mode: 'authenticated',
+        type: 'authenticated',
+        allowed_formats: ['pdf'],
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+    stream.end(buffer);
+  });
+
+const uploadLectureNotes = asyncHandler(async (req, res) => {
+  const slugRaw = safeString(req.query.slug).toLowerCase();
+  if (!slugRaw) {
+    res.status(400);
+    throw new Error('slug query parameter is required');
+  }
+  if (!req.file || !req.file.buffer) {
+    res.status(400);
+    throw new Error('Notes PDF file is required');
+  }
+  const programme = safeString(req.query.programme) || 'Gradus';
+  const programmeFolder = programme.toLowerCase().replace(/\s+/g, '-');
+  const folder = `${lectureNotesFolder}/${programmeFolder}/${slugRaw}`;
+  const result = await uploadNotesBuffer(req.file.buffer, { folder });
+  res.status(201).json({
+    ok: true,
+    asset: {
+      publicId: result.public_id,
+      folder: result.folder,
+      format: result.format,
+      bytes: result.bytes,
+      pages: Number.isFinite(result.pages) ? result.pages : 0,
+      fileName: result.original_filename || req.file.originalname || 'lecture-notes',
+      accessMode: result.access_mode || 'authenticated',
+      createdAt: result.created_at,
+    },
+  });
+});
+
 module.exports = {
   getCourseDetail,
   upsertCourseDetail,
   uploadLectureVideo,
+  uploadLectureNotes,
 };

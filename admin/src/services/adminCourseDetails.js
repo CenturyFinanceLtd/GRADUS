@@ -38,8 +38,25 @@ export const uploadLectureVideo = async ({ slug, file, programme, token }) => {
   return data?.asset || null;
 };
 
+export const uploadLectureNotes = async ({ slug, file, programme, token }) => {
+  if (!file) throw new Error('file is required');
+  const params = new URLSearchParams();
+  if (programme) params.set('programme', programme);
+  if (slug) params.set('slug', slug.trim().toLowerCase());
+  const query = params.toString() ? `?${params.toString()}` : '';
+  const form = new FormData();
+  form.append('file', file);
+  const data = await apiClient(`/admin/course-details/lectures/upload-notes${query}`, {
+    method: 'POST',
+    data: form,
+    token,
+  });
+  return data?.asset || null;
+};
+
 export default {
   fetchCourseDetail,
   saveCourseDetail,
   uploadLectureVideo,
+  uploadLectureNotes,
 };
