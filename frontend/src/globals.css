@@ -567,14 +567,14 @@ img {
   width: auto !important;
 }
 .only-image-slider .slick-dots li {
-  width: 12px;
-  height: 12px;
+  width: 12px !important;
+  height: 12px !important;
   margin: 0;
 }
 .only-image-slider .slick-dots li button {
   padding: 0;
-  width: 100%;
-  height: 100%;
+  width: 100% !important;
+  height: 100% !important;
 }
 .only-image-slider .slick-dots li button:before {
   content: "";
@@ -582,12 +582,12 @@ img {
   height: 100%;
   display: block;
   opacity: 1;
-  background: #0c1325;
+  background: #ffffff;
   border-radius: 50%;
   box-shadow: none;
 }
 .only-image-slider .slick-dots li.slick-active button:before {
-  background: #ffffff;
+  background: #1c5dff;
 }
 .badge-popular-courses {
   display: inline-flex;
@@ -942,7 +942,7 @@ img {
 @media (min-width: 1200px) {
   /* Place dots higher within banner on large screens */
   .only-image-slider .slick-dots {
-    bottom: 22% !important;
+    bottom: 4% !important;
   } /* Pull the next section upward by percentage on large screens */
   .info-two {
     margin-top: -6% !important;
