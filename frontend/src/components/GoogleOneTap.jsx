@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import apiClient from "../services/apiClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { getCurrentOrigin, getGoogleAllowedOrigins } from "../utils/googleOrigins.js";
 
 const EXCLUDED_PATHS = new Set(["/sign-in", "/sign-up", "/forgot-password", "/auth/google/callback"]);
 const SCRIPT_ID = "google-identity-services";
@@ -28,25 +29,24 @@ const loadGoogleScript = () =>
     document.head.appendChild(script);
   });
 
+const supportsFedCM = () => {
+  if (typeof window === "undefined" || typeof navigator === "undefined") {
+    return false;
+  }
+
+  return (
+    "IdentityCredential" in window ||
+    "FederatedCredential" in window ||
+    "fedcm" in navigator ||
+    typeof window.FedCM !== "undefined"
+  );
+};
+
 const GoogleOneTap = () => {
   const location = useLocation();
   const { isAuthenticated, loading, setAuth } = useAuth();
   const clientId = useMemo(() => import.meta.env.VITE_GOOGLE_CLIENT_ID, []);
-  const allowedOrigins = useMemo(() => {
-    const raw = import.meta.env.VITE_GOOGLE_ALLOWED_ORIGINS;
-    if (!raw) {
-      // Default to the current origin if no allowlist is provided (local dev convenience)
-      if (typeof window !== "undefined") {
-        return [window.location.origin.replace(/\/+$/, "")];
-      }
-      return [];
-    }
-
-    return raw
-      .split(",")
-      .map((item) => item.trim().replace(/\/+$/, ""))
-      .filter(Boolean);
-  }, []);
+  const allowedOrigins = useMemo(getGoogleAllowedOrigins, []);
   const initializedRef = useRef(false);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ const GoogleOneTap = () => {
     }
 
     let cancelled = false;
-    const currentOrigin = window.location.origin.replace(/\/+$/, "");
+    const currentOrigin = getCurrentOrigin();
     const hasAllowlist = allowedOrigins.length > 0;
 
     const startPrompt = async () => {
@@ -67,9 +67,18 @@ const GoogleOneTap = () => {
         return;
       }
 
-      if (hasAllowlist && !allowedOrigins.includes(currentOrigin)) {
+      if (hasAllowlist && (!currentOrigin || !allowedOrigins.includes(currentOrigin))) {
+        if (import.meta.env.DEV) {
+          console.info(
+            `[OneTap] Skipping Google prompt on ${
+              currentOrigin || "an unknown origin"
+            } because it is not in VITE_GOOGLE_ALLOWED_ORIGINS.`
+          );
+        }
         return;
       }
+
+      const shouldUseFedCM = !isLocalhost && isSecure && supportsFedCM();
 
       try {
         await loadGoogleScript();
@@ -97,11 +106,15 @@ const GoogleOneTap = () => {
           },
           auto_select: false,
           cancel_on_tap_outside: true,
-          use_fedcm_for_prompt: true,
+          use_fedcm_for_prompt: shouldUseFedCM,
           itp_support: true,
         });
 
-        window.google.accounts.id.prompt();
+        try {
+          window.google.accounts.id.prompt();
+        } catch (promptError) {
+          console.warn("[OneTap] prompt failed", promptError);
+        }
       } catch (error) {
         console.warn("[OneTap] Unable to start Google One Tap", error);
       }
@@ -115,7 +128,7 @@ const GoogleOneTap = () => {
         window.google.accounts.id.cancel();
       }
     };
-  }, [clientId, isAuthenticated, loading, location, setAuth]);
+  }, [allowedOrigins, clientId, isAuthenticated, loading, location, setAuth]);
 
   return null;
 };

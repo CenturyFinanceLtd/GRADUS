@@ -11729,7 +11729,329 @@ ul.footer-menu {
 }
 .subscribe-form .input-icon {
   inset-inline-start: 0;
-} /* ============= Footer End Here ======================= */ /* ============= Bottom Footer End Here ======================= */
+}
+
+/* Gradus footer redesign */
+.gradus-footer {
+  background: radial-gradient(
+      128% 128% at 0% 0%,
+      rgba(101, 126, 255, 0.28) 0%,
+      rgba(9, 8, 27, 0.85) 55%
+    )
+    #040016;
+  color: #f4f6ff;
+  padding-block: clamp(3rem, 4vw, 5.5rem);
+  padding-bottom: 20px;
+
+}
+.gradus-footer__body {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 3vw, 3.5rem);
+}
+.gradus-footer__primary {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 4vw, 3rem);
+}
+.gradus-footer__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 18px 28px;
+  box-shadow: 0 25px 40px rgba(0, 0, 0, 0.3);
+}
+.gradus-footer__logo--inline {
+  margin-bottom: 1.5rem;
+}
+.gradus-footer__logo img {
+  display: block;
+  max-width: 190px;
+  height: auto;
+}
+.gradus-footer__grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr 1fr;
+  gap: clamp(1.5rem, 2vw, 3rem);
+  width: 100%;
+}
+.gradus-footer__column--company {
+  grid-column: span 1;
+  max-width: 320px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: flex-start;
+  text-align: left;
+}
+.gradus-footer__group {
+  width: 100%;
+  margin-bottom: 1.25rem;
+}
+.gradus-footer__group + .gradus-footer__group {
+  margin-top: 1.25rem;
+}
+.gradus-footer__heading {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-block: 0 0.85rem;
+}
+.gradus-footer__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.gradus-footer__list--courses {
+  list-style: none;
+  display: block;
+  padding: 0;
+  margin: 0;
+}
+.gradus-footer__list--courses li {
+  margin-bottom: 0.3rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.gradus-footer__list--courses li::before {
+  content: "\2022";
+  color: #ffffff;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+.gradus-footer__accordion {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 0.25rem 0;
+  cursor: pointer;
+}
+.gradus-footer__accordion i {
+  display: none;
+  transition: transform 0.2s ease;
+}
+.gradus-footer__group.is-open .gradus-footer__accordion i {
+  transform: rotate(180deg);
+}
+.gradus-footer__accordion-panel {
+  padding-top: 0.75rem;
+}
+.gradus-footer__link {
+  color: rgba(255, 255, 255, 0.78);
+  text-decoration: none;
+  font-size: 0.97rem;
+  line-height: 1.5;
+  transition: color 0.2s ease;
+}
+.gradus-footer__link:hover {
+  color: #47f1c5;
+}
+.gradus-footer__link--muted {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.gradus-footer__cta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: clamp(1rem, 2vw, 2rem);
+}
+.gradus-footer__newsletter {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 28px;
+  padding: clamp(1.5rem, 3vw, 2rem);
+  flex: 1;
+  min-width: min(100%, 540px);
+}
+.gradus-footer__social--cta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+.gradus-footer__social--cta .gradus-footer__social-link {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+}
+
+.gradus-footer__newsletter-text {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding-bottom: 10px;
+}
+.gradus-footer__newsletter-form {
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  max-width: 640px;
+}
+.gradus-footer__newsletter-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  padding: 12px 18px;
+  outline: none;
+  color: #111827;
+  min-width: 160px;
+}
+.gradus-footer__newsletter-input::placeholder {
+  color: #9ca3af;
+}
+.gradus-footer__newsletter-button {
+  border: none;
+  background: linear-gradient(90deg, #1fc36c, #24d18f);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 12px 32px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.gradus-footer__newsletter-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 15px 30px rgba(31, 195, 108, 0.35);
+}
+.gradus-footer__meta {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  margin-top: 20px;
+  padding-top: clamp(1.25rem, 1vw, 2.25rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.gradus-footer__copyright {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.75);
+}
+.gradus-footer__bottom {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.gradus-footer__social {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.gradus-footer__social-link {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.25rem;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.gradus-footer__social-link img {
+  width: 22px;
+  height: 22px;
+}
+.gradus-footer__social-link:hover {
+  background: #ffffff;
+  color: #1c0f4a;
+  transform: translateY(-2px);
+}
+.gradus-footer__legal {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.gradus-footer__legal .gradus-footer__link {
+  font-size: 0.95rem;
+}
+@media (max-width: 1199.98px) {
+  .gradus-footer__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 991.98px) {
+  .gradus-footer__primary {
+    gap: clamp(1.5rem, 4vw, 3rem);
+  }
+  .gradus-footer__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .gradus-footer__column--company {
+    max-width: 100%;
+  }
+}
+@media (max-width: 767.98px) {
+  .gradus-footer__grid {
+    grid-template-columns: 1fr;
+  }
+  .gradus-footer__cta-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .gradus-footer__social--cta {
+    justify-content: flex-start;
+  }
+  .gradus-footer__newsletter-form {
+    border-radius: 24px;
+  }
+  .gradus-footer__newsletter-button {
+    width: 100%;
+  }
+  .gradus-footer__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .gradus-footer__accordion {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.6rem;
+    margin-bottom: 0.6rem;
+  }
+  .gradus-footer__accordion i {
+    display: inline-flex;
+  }
+  .gradus-footer__accordion-panel[hidden] {
+    display: none;
+  }
+  .gradus-footer__logo--inline {
+    margin-inline: auto;
+  }
+}
+
+@media (min-width: 768px) {
+  .gradus-footer__accordion {
+    cursor: default;
+  }
+  .gradus-footer__accordion i {
+    display: none !important;
+  }
+}
+
+/* ============= Footer End Here ======================= */ /* ============= Bottom Footer End Here ======================= */
 .footer-links {
   display: -webkit-box;
   display: -ms-flexbox;

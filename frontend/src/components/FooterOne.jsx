@@ -1,188 +1,217 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import privacyLinks from "../data/privacyLinks";
+import { fetchCourseOptions } from "../services/courseService";
 
-const MOBILE_BREAKPOINT = 768;
+const companyLinks = [
+  {
+    label: "About us",
+    to: "/about-us",
+  },
+  {
+    label: "Courses",
+    to: "/our-courses",
+  },
+  {
+    label: "Instructor",
+    to: null,
+  },
+  {
+    label: "Blogs",
+    to: "/blogs",
+  },
+];
+
+const PROGRAMMES = [
+  { title: "Gradus X", slug: "gradus-x" },
+  { title: "Gradus Finlit", slug: "gradus-finlit" },
+  { title: "Gradus Lead", slug: "gradus-lead" },
+];
+
+const socialLinks = [
+  {
+    href: "https://www.quora.com/profile/Marketing-Team-615",
+    label: "Quora",
+    iconType: "image",
+    icon: "/assets/icons/quora.svg",
+  },
+  {
+    href: "https://www.reddit.com/user/GradusIndia/",
+    label: "Reddit",
+    iconType: "icon",
+    icon: "ph-bold ph-reddit-logo",
+  },
+  {
+    href: "https://discord.com/channels/1432018650558238884/1432019463347114035",
+    label: "Discord",
+    iconType: "icon",
+    icon: "ph-bold ph-discord-logo",
+  },
+  {
+    href: "https://www.instagram.com/gradusindiaofficial?igsh=MWdhdjJhZWp6NDI1aA==",
+    label: "Instagram",
+    iconType: "icon",
+    icon: "ph-bold ph-instagram-logo",
+  },
+  {
+    href: "https://www.facebook.com/people/Gradus/61583093960559/?sk=about",
+    label: "Facebook",
+    iconType: "icon",
+    icon: "ph-bold ph-facebook-logo",
+  },
+];
+
+const deriveProgrammeSlug = (course) => {
+  if (!course) return "";
+  const fromSlug = typeof course.slug === "string" ? course.slug.split("/")[0] : "";
+  if (fromSlug) return fromSlug.trim().toLowerCase();
+  if (typeof course.programme === "string") {
+    return course.programme.trim().toLowerCase().replace(/\s+/g, "-");
+  }
+  return "";
+};
+
+const buildSectionState = (isExpanded) => {
+  const initial = {
+    company: isExpanded,
+    privacy: isExpanded,
+  };
+  PROGRAMMES.forEach(({ slug }) => {
+    initial[`programme-${slug}`] = isExpanded;
+  });
+  return initial;
+};
 
 const FooterOne = () => {
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== "undefined" ? window.innerWidth < MOBILE_BREAKPOINT : false
-  );
-  const [accordionState, setAccordionState] = useState({
-    navigation: false,
-    privacy: false,
+  const [programmeCourses, setProgrammeCourses] = useState(() => {
+    const initial = {};
+    PROGRAMMES.forEach(({ slug }) => {
+      initial[slug] = [];
+    });
+    return initial;
   });
+  const initialExpanded = typeof window !== "undefined" ? window.innerWidth > 767 : true;
+  const [expandedSections, setExpandedSections] = useState(() => buildSectionState(initialExpanded));
+  const [isMobile, setIsMobile] = useState(() => (typeof window !== "undefined" ? window.innerWidth <= 767 : false));
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 767;
+      setIsMobile(mobile);
+    };
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
-    setAccordionState({
-      navigation: !isMobile,
-      privacy: !isMobile,
-    });
+    setExpandedSections(buildSectionState(!isMobile));
   }, [isMobile]);
 
-  const toggleSection = (key) => {
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCourses = async () => {
+      try {
+        const response = await fetchCourseOptions();
+        const items = Array.isArray(response?.items) ? response.items : [];
+        const grouped = PROGRAMMES.reduce((acc, { slug }) => {
+          acc[slug] = [];
+          return acc;
+        }, {});
+
+        items.forEach((course) => {
+          const programmeSlug = deriveProgrammeSlug(course);
+          if (!grouped[programmeSlug] || !course?.name) return;
+          grouped[programmeSlug].push({
+            name: course.name,
+            slug: course.slug || "",
+          });
+        });
+
+        Object.keys(grouped).forEach((key) => {
+          grouped[key] = grouped[key].sort((a, b) => a.name.localeCompare(b.name));
+        });
+
+        if (isMounted) {
+          setProgrammeCourses((prev) => ({
+            ...prev,
+            ...grouped,
+          }));
+        }
+      } catch (error) {
+        console.error("Failed to load footer courses", error);
+      }
+    };
+
+    loadCourses();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const toggleSection = (section) => {
     if (!isMobile) return;
-    setAccordionState((prev) => ({ ...prev, [key]: !prev[key] }));
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
   };
 
-  const accordionContentStyle = (isOpen) =>
-    isMobile
-      ? {
-          maxHeight: isOpen ? "1000px" : 0,
-          opacity: isOpen ? 1 : 0,
-          visibility: isOpen ? "visible" : "hidden",
-          paddingTop: isOpen ? "12px" : 0,
-        }
-      : {};
-
-  const isNavOpen = accordionState.navigation;
-  const isPrivacyOpen = accordionState.privacy;
+  const isSectionExpanded = (section) => (isMobile ? !!expandedSections[section] : true);
 
   return (
-    <footer className='footer bg-main-25 position-relative z-1'>
-      <img
-        src='/assets/images/shapes/shape2.png'
-        alt=''
-        className='shape five animation-scalation'
-      />
-      <img
-        src='/assets/images/shapes/shape6.png'
-        alt=''
-        className='shape one animation-scalation'
-      />
-      <div className='py-40 '>
-        <div className='container container-two'>
-          <div className='row row-cols-xxl-4 row-cols-lg-3 row-cols-sm-2 row-cols-1 gy-5'>
-            <div className='col' data-aos='fade-up' data-aos-duration={300}>
-              <div className='footer-item'>
-                <div className='footer-item__logo'>
-                  <Link to='/'>
-                    {" "}
-                    <img src='/assets/images/logo/logo.png' alt='' />
-                  </Link>
-                </div>
-                {/* Removed testimonial text */}
-                <ul className='social-list flex-align gap-24'>
-                  <li className='social-list__item'>
-                    <a href='https://www.facebook.com/people/Gradus/61583093960559/?sk=about' className='text-main-600 text-2xl hover-text-main-two-600' target='_blank' rel='noopener noreferrer nofollow'>
-                      <i className='ph-bold ph-facebook-logo' />
-                    </a>
-                  </li>
-                  <li className='social-list__item'>
-                    <a href='https://www.instagram.com/gradusindiaofficial?igsh=MWdhdjJhZWp6NDI1aA==' className='text-main-600 text-2xl hover-text-main-two-600' target='_blank' rel='noopener noreferrer nofollow'>
-                      <i className='ph-bold ph-instagram-logo' />
-                    </a>
-                  </li>
-                  
-                  {/* Additional social links mirrored from /social */}
-                  <li className='social-list__item'>
-                    <a href='https://www.reddit.com/user/GradusIndia/' className='text-main-600 text-2xl hover-text-main-two-600' target='_blank' rel='noopener noreferrer nofollow'>
-                      <i className='ph-bold ph-reddit-logo' />
-                    </a>
-                  </li>
-                  <li className='social-list__item'>
-                    <a href='https://www.quora.com/profile/Marketing-Team-615' className='text-main-600 text-2xl hover-text-main-two-600 d-inline-flex align-items-center justify-content-center' target='_blank' rel='noopener noreferrer nofollow'>
-                      <img src='/assets/icons/quora.svg' alt='Quora' style={{ width: 20, height: 20 }} />
-                    </a>
-                  </li>
-                  <li className='social-list__item'>
-                    <a href='https://discord.com/channels/1432018650558238884/1432019463347114035' className='text-main-600 text-2xl hover-text-main-two-600' target='_blank' rel='noopener noreferrer nofollow'>
-                      <i className='ph-bold ph-discord-logo' />
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div className='col' data-aos='fade-up' data-aos-duration={400}>
-              <div className={`footer-item footer-accordion ${isNavOpen ? "is-open" : ""}`}>
+    <footer className='gradus-footer'>
+      <div className='gradus-footer__body container container-two'>
+        <div className='gradus-footer__primary'>
+          <div className='gradus-footer__grid'>
+            <div className='gradus-footer__column gradus-footer__column--company'>
+              <Link to='/' className='gradus-footer__logo gradus-footer__logo--inline' aria-label='Gradus home'>
+                <img src='/assets/images/logo/logo.png' alt='Gradus logo' />
+              </Link>
+              <div className={`gradus-footer__group ${isSectionExpanded("company") ? "is-open" : ""}`}>
                 <button
                   type='button'
-                  className='footer-item__title footer-accordion__trigger'
-                  onClick={() => toggleSection("navigation")}
-                  aria-expanded={isNavOpen}
-                  aria-controls='footer-navigation-links'
+                  className='gradus-footer__accordion'
+                  onClick={() => toggleSection("company")}
+                  aria-expanded={isSectionExpanded("company")}
                 >
-                  <span>Navigation</span>
+                  <span>Company</span>
                   <i className='ph ph-caret-down' aria-hidden='true' />
                 </button>
-                <div
-                  id='footer-navigation-links'
-                  className='footer-accordion__content'
-                  style={accordionContentStyle(isNavOpen)}
-                >
-                  <ul className='footer-menu'>
-                    <li className='mb-16'>
-                      <Link
-                        to='/about-us'
-                        className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
-                      >
-                        About us
-                      </Link>
-                    </li>
-                    <li className='mb-16'>
-                      <Link
-                        to='/our-courses'
-                        className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
-                      >
-                        Courses
-                      </Link>
-                    </li>
-                    {/* Show Instructor label but keep it non-clickable */}
-                    <li className='mb-16'>
-                      <span
-                        className='text-neutral-500'
-                        aria-disabled='true'
-                      >
-                        Instructor
-                      </span>
-                    </li>
-                    <li className='mb-0'>
-                      <Link
-                        to='/blogs'
-                        className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
-                      >
-                        Blogs
-                      </Link>
-                    </li>
+                <div className='gradus-footer__accordion-panel' hidden={!isSectionExpanded("company")}>
+                  <ul className='gradus-footer__list'>
+                    {companyLinks.map(({ label, to }) => (
+                      <li key={label}>
+                        {to ? (
+                          <Link to={to} className='gradus-footer__link'>
+                            {label}
+                          </Link>
+                        ) : (
+                          <span className='gradus-footer__link gradus-footer__link--muted' aria-disabled='true'>
+                            {label}
+                          </span>
+                        )}
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>
-            </div>
-            <div className='col' data-aos='fade-up' data-aos-duration={600}>
-              <div className={`footer-item footer-accordion ${isPrivacyOpen ? "is-open" : ""}`}>
+              <div className={`gradus-footer__group ${isSectionExpanded("privacy") ? "is-open" : ""}`}>
                 <button
                   type='button'
-                  className='footer-item__title footer-accordion__trigger'
+                  className='gradus-footer__accordion'
                   onClick={() => toggleSection("privacy")}
-                  aria-expanded={isPrivacyOpen}
-                  aria-controls='footer-privacy-links'
+                  aria-expanded={isSectionExpanded("privacy")}
                 >
                   <span>Privacy Statements</span>
                   <i className='ph ph-caret-down' aria-hidden='true' />
                 </button>
-                <div
-                  id='footer-privacy-links'
-                  className='footer-accordion__content'
-                  style={accordionContentStyle(isPrivacyOpen)}
-                >
-                  <ul className='footer-menu'>
-                    {privacyLinks.map(({ to, label }, index) => (
-                      <li
-                        key={to}
-                        className={`mb-${
-                          index === privacyLinks.length - 1 ? "0" : "16"
-                        }`}
-                      >
-                        <Link
-                          to={to}
-                          className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
-                        >
+                <div className='gradus-footer__accordion-panel' hidden={!isSectionExpanded("privacy")}>
+                  <ul className='gradus-footer__list'>
+                    {privacyLinks.map(({ label, to }) => (
+                      <li key={label}>
+                        <Link to={to} className='gradus-footer__link'>
                           {label}
                         </Link>
                       </li>
@@ -191,74 +220,106 @@ const FooterOne = () => {
                 </div>
               </div>
             </div>
-            <div className='col' data-aos='fade-up' data-aos-duration={800}>
-              <div className='footer-item'>
-                <h4 className='footer-item__title mb-32'>Subscribe Here</h4>
-                <p className='text-neutral-500'>
-                  Enter your email address to register to our newsletter
-                  subscription
-                </p>
-                <form action='#' className='mt-24 position-relative'>
-                  <input
-                    type='email'
-                    className='form-control bg-white shadow-none border border-neutral-30 rounded-pill h-52 ps-24 pe-48 focus-border-main-600'
-                    placeholder='Email...'
-                  />
-                  <button
-                    type='submit'
-                    className='w-36 h-36 flex-center rounded-circle bg-main-600 text-white hover-bg-main-800 position-absolute top-50 translate-middle-y inset-inline-end-0 me-8'
-                  >
-                    <i className='ph ph-paper-plane-tilt' />
-                  </button>
-                </form>
-              </div>
-            </div>
+            {PROGRAMMES.map(({ title, slug }) => {
+              const links = programmeCourses[slug] || [];
+              const hasDynamicLinks = links.length > 0;
+              return (
+                <div key={slug} className='gradus-footer__column'>
+                  <div className={`gradus-footer__group ${isSectionExpanded(`programme-${slug}`) ? "is-open" : ""}`}>
+                    <button
+                      type='button'
+                      className='gradus-footer__accordion'
+                      onClick={() => toggleSection(`programme-${slug}`)}
+                      aria-expanded={isSectionExpanded(`programme-${slug}`)}
+                    >
+                      <span>{title}</span>
+                      <i className='ph ph-caret-down' aria-hidden='true' />
+                    </button>
+                    <div className='gradus-footer__accordion-panel' hidden={!isSectionExpanded(`programme-${slug}`)}>
+                      <ul className='gradus-footer__list gradus-footer__list--courses'>
+                        {hasDynamicLinks ? (
+                          links.map(({ name, slug: courseSlug }) => {
+                            const path = courseSlug ? `/${courseSlug.replace(/^\//, "")}` : "/our-courses";
+                            return (
+                              <li key={`${slug}-${courseSlug || name}`}>
+                                <Link to={path} className='gradus-footer__link'>
+                                  {name}
+                                </Link>
+                              </li>
+                            );
+                          })
+                        ) : (
+                          <li>
+                            <span className='gradus-footer__link gradus-footer__link--muted'>
+                              Courses coming soon
+                            </span>
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className='gradus-footer__cta-row'>
+          <div className='gradus-footer__newsletter'>
+            <p className='gradus-footer__newsletter-text'>
+              Submit your email to Stay up to date with the latest courses
+            </p>
+            <form action='#' className='gradus-footer__newsletter-form'>
+              <input
+                type='email'
+                className='gradus-footer__newsletter-input'
+                placeholder='Email'
+              />
+              <button type='submit' className='gradus-footer__newsletter-button'>
+                Submit
+              </button>
+            </form>
+          </div>
+          <div className='gradus-footer__social gradus-footer__social--cta'>
+            {socialLinks.map(({ href, label, iconType, icon }) => (
+              <a
+                key={`cta-${label}`}
+                href={href}
+                className='gradus-footer__social-link'
+                target='_blank'
+                rel='noopener noreferrer nofollow'
+                aria-label={label}
+              >
+                {iconType === "image" ? (
+                  <img src={icon} alt='' aria-hidden='true' />
+                ) : (
+                  <i className={icon} aria-hidden='true' />
+                )}
+              </a>
+            ))}
           </div>
         </div>
       </div>
-      <div className='container'>
-        {/* bottom Footer */}
-        <div className='bottom-footer bg-main-25 border-top border-dashed border-main-100 border-0 py-16'>
-          <div className='container container-two'>
-            <div className='bottom-footer__inner flex-between gap-3 flex-wrap'>
-              <p className='bottom-footer__text'>
-                {" "}
-                Copyright © 2025 <span className='fw-semibold'>
-                  
-                </span>{" "}
-                All Rights Reserved by Century finance limited
-              </p>
-              <div className='footer-links d-flex flex-wrap gap-16 justify-content-center justify-content-lg-end'>
-                <Link
-                  to='/privacy-policy'
-                  className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
-                >
-                  Privacy Policy
-                </Link>
-                <Link
-                  to='/visitors'
-                  className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
-                >
-                  Visitors Privacy Notes
-                </Link>
-                <Link
-                  to='/vendors'
-                  className='text-neutral-500 hover-text-main-600 hover-text-decoration-underline'
-                >
-                  Vendors
-                </Link>
-              </div>
-            </div>
+      <div className='gradus-footer__meta container container-two'>
+        <p className='gradus-footer__copyright'>
+          Copyright &copy; 2025 All Rights Reserved by Century finance limited
+        </p>
+        <div className='gradus-footer__bottom'>
+          <div className='gradus-footer__legal'>
+            <Link to='/privacy-policy' className='gradus-footer__link'>
+              Privacy Policy
+            </Link>
+            <Link to='/visitors' className='gradus-footer__link'>
+              Visitors Privacy Notes
+            </Link>
+            <Link to='/vendors' className='gradus-footer__link'>
+              Vendors
+            </Link>
           </div>
         </div>
       </div>
     </footer>
-  );
+);
+
 };
 
 export default FooterOne;
-
-
-
-
-
