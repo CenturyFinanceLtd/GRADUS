@@ -8,8 +8,7 @@ const COUNTER_DATA = [
     value: 10,
     suffix: "K+",
     icon: "ph-graduation-cap",
-    accent: "#0B7077",
-    bg: "#E3F2F3",
+    accent: "#5B6CFF",
   },
   {
     id: "students",
@@ -17,8 +16,7 @@ const COUNTER_DATA = [
     value: 15,
     suffix: "K+",
     icon: "ph-users-three",
-    accent: "#F28705",
-    bg: "#FFF3E7",
+    accent: "#F57C00",
   },
   {
     id: "rating",
@@ -27,7 +25,6 @@ const COUNTER_DATA = [
     suffix: "",
     icon: "ph-thumbs-up",
     accent: "#4C6FFF",
-    bg: "#EDF0FF",
   },
   {
     id: "community",
@@ -36,7 +33,6 @@ const COUNTER_DATA = [
     suffix: "K",
     icon: "ph-circles-three-plus",
     accent: "#FF7D66",
-    bg: "#FFEFEA",
   },
 ];
 
@@ -50,14 +46,14 @@ const CounterTwo = () => {
     <section className='counter-highlight py-64'>
       <div className='container'>
         <div className='counter-highlight__grid' ref={ref}>
-          {COUNTER_DATA.map(({ id, label, value, suffix, icon, accent, bg }, index) => (
+          {COUNTER_DATA.map(({ id, label, value, suffix, icon, accent }, index) => (
             <article
               className='counter-highlight__item'
               key={id}
               data-aos='fade-up'
               data-aos-duration={200 + index * 150}
             >
-              <span className='counter-highlight__icon' style={{ color: accent, backgroundColor: bg }}>
+              <span className='counter-highlight__icon' style={{ color: accent }}>
                 <i className={`ph ${icon}`} />
               </span>
               <div className='counter-highlight__value'>

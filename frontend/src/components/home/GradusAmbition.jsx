@@ -42,12 +42,12 @@ const GradusAmbition = () => {
             <ul className="gradus-ambition__list">
               {HIGHLIGHTS.map(({ title, description, icon }) => (
                 <li className="gradus-ambition__item" key={title}>
-                  <span className="gradus-ambition__icon-wrap">
-                    <span className="gradus-ambition__icon">
+                  <div className="gradus-ambition__icon-wrap">
+                    <div className="gradus-ambition__icon">
                       <i className={icon} aria-hidden="true" />
-                    </span>
-                  </span>
-                  <div>
+                    </div>
+                  </div>
+                  <div className="gradus-ambition__item-content">
                     <p className="gradus-ambition__item-title">{title}</p>
                     <p className="gradus-ambition__item-desc">{description}</p>
                   </div>

@@ -6,7 +6,7 @@ import { listTestimonials } from "../../services/testimonialService";
 const cardStyles = {
   wrapper: {
     position: "relative",
-    borderRadius: 16,
+    borderRadius: 28,
     overflow: "hidden",
     boxShadow: "0 8px 24px rgba(16,24,40,0.08)",
     background: "#fff",
@@ -18,29 +18,70 @@ const cardStyles = {
     paddingBottom: "56.25%",
     backgroundSize: "cover",
     backgroundPosition: "center",
+    filter: "brightness(0.95)",
   },
   playWrap: {
     position: "absolute",
     left: "50%",
     top: "50%",
     transform: "translate(-50%, -50%)",
-    width: 72,
-    height: 72,
+    width: 68,
+    height: 68,
     borderRadius: 9999,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backdropFilter: "blur(2px)",
+    backdropFilter: "blur(3px)",
     background: "linear-gradient(180deg, rgba(255,255,255,.75), rgba(0,0,0,.25))",
-    boxShadow: "0 2px 10px rgba(0,0,0,.12), inset 0 0 0 1px rgba(255,255,255,.6)",
+    boxShadow: "0 12px 24px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.45)",
+    zIndex: 2,
+    pointerEvents: "none",
   },
   playIcon: {
     width: 0,
     height: 0,
-    borderTop: "12px solid transparent",
-    borderBottom: "12px solid transparent",
-    borderLeft: "18px solid rgba(20,31,54,0.9)",
+    borderTop: "11px solid transparent",
+    borderBottom: "11px solid transparent",
+    borderLeft: "17px solid rgba(20,31,54,0.9)",
     marginLeft: 4,
+  },
+  metaWrap: {
+    position: "absolute",
+    left: 16,
+    right: 16,
+    bottom: 16,
+    padding: "12px 14px",
+    borderRadius: 20,
+    background: "linear-gradient(135deg, rgba(15,23,42,0.9), rgba(2,6,23,0.65))",
+    color: "#fff",
+    display: "flex",
+    gap: 12,
+    alignItems: "center",
+    boxShadow: "0 15px 35px rgba(0,0,0,0.35)",
+    backdropFilter: "blur(8px)",
+    zIndex: 1,
+    pointerEvents: "none",
+  },
+  metaAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    flexShrink: 0,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundColor: "#0f172a",
+    border: "2px solid rgba(255,255,255,0.4)",
+  },
+  metaName: {
+    margin: 0,
+    fontWeight: 600,
+    fontSize: "1rem",
+    color: "#fff",
+  },
+  metaRole: {
+    margin: 0,
+    fontSize: "0.85rem",
+    color: "rgba(255,255,255,0.75)",
   },
 };
 
@@ -118,20 +159,33 @@ const VideoTestimonials = () => {
     prevArrow: <ArrowBtn />,
     nextArrow: <ArrowBtn />,
     dots: false,
-    autoplay: true,
+    autoplay: false,
     infinite: true,
     speed: 500,
     responsive: [
       { breakpoint: 1399, settings: { slidesToShow: 4 } },
       { breakpoint: 1200, settings: { slidesToShow: 3 } },
-      { breakpoint: 992, settings: { slidesToShow: 2 } },
+      { breakpoint: 992, settings: { slidesToShow: 2, infinite: true } },
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 1.5,
+          slidesToShow: 1,
           centerMode: true,
-          centerPadding: "16px",
+          centerPadding: "48px",
           swipeToSlide: true,
+          arrows: false,
+          infinite: true,
+        },
+      },
+      {
+        breakpoint: 576,
+        settings: {
+          slidesToShow: 1,
+          centerMode: true,
+          centerPadding: "34px",
+          swipeToSlide: true,
+          arrows: false,
+          infinite: true,
         },
       },
     ],
@@ -153,9 +207,12 @@ const VideoTestimonials = () => {
         <Slider {...sliderSettings} className="video-reels-slider">
           {items.map((item, idx) => {
             const thumb = item.thumbnailUrl || undefined;
+            const avatarSrc = item.avatarUrl || thumb;
+            const displayName = item.name || "Gradus Learner";
+            const displayRole = item.role || "Gradus Community";
             return (
               <div className="px-12" key={item.id + idx}>
-                <div style={cardStyles.wrapper}>
+                <div style={cardStyles.wrapper} className="video-testimonial-card">
                   <button
                     type="button"
                     aria-label={disablePlayback ? "Playback disabled" : "Play testimonial"}
@@ -165,7 +222,7 @@ const VideoTestimonials = () => {
                     style={{
                       position: "absolute",
                       inset: 0,
-                      zIndex: 2,
+                      zIndex: 3,
                       cursor: disablePlayback ? "not-allowed" : "pointer",
                       pointerEvents: disablePlayback ? "none" : "auto",
                       background: "transparent",
@@ -175,9 +232,8 @@ const VideoTestimonials = () => {
                   <div
                     style={{
                       ...cardStyles.thumb,
-                      // 9:16 vertical reels
                       paddingBottom: "177.78%",
-                      backgroundColor: thumb ? "#000" : "#000",
+                      backgroundColor: "#0b1120",
                       backgroundImage: showBlackPlaceholders || !thumb ? "none" : `url('${thumb}')`,
                     }}
                   />
@@ -186,12 +242,22 @@ const VideoTestimonials = () => {
                       <div style={cardStyles.playIcon} />
                     </div>
                   )}
-                </div>
-                <div className="d-flex align-items-center gap-12 mt-12">
-                  <div aria-hidden="true" style={{ width: 36, height: 36, borderRadius: 9999, background: "#000" }} />
-                  <div>
-                    <div className="text-md fw-semibold text-neutral-900">{item.name}</div>
-                    <div className="text-sm text-neutral-600">{item.role}</div>
+                  <div style={cardStyles.metaWrap}>
+                    <div
+                      style={{
+                        ...cardStyles.metaAvatar,
+                        backgroundImage: avatarSrc ? `url('${avatarSrc}')` : undefined,
+                      }}
+                      aria-hidden="true"
+                    />
+                    <div>
+                      <p style={cardStyles.metaName} className="mb-0">
+                        {displayName}
+                      </p>
+                      <p style={cardStyles.metaRole} className="mb-0">
+                        {displayRole}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -215,9 +281,45 @@ const VideoTestimonials = () => {
             alignItems: "center",
             justifyContent: "center",
             zIndex: 9999,
+            padding: "20px",
           }}
         >
-          <div style={{ width: "min(480px, 92vw)", borderRadius: 12, overflow: "hidden", background: "#000" }}>
+          <div
+            style={{
+              position: "relative",
+              width: "min(480px, 92vw)",
+              borderRadius: 16,
+              overflow: "hidden",
+              background: "#000",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              aria-label="Close video"
+              onClick={() => setIsOpen(false)}
+              style={{
+                position: "absolute",
+                top: 12,
+                right: 12,
+                width: 36,
+                height: 36,
+                borderRadius: 9999,
+                border: "none",
+                background: "rgba(15,23,42,0.85)",
+                color: "#fff",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                zIndex: 2,
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
             <video src={videoSrc} controls autoPlay playsInline style={{ width: "100%", height: "auto" }} />
           </div>
         </div>

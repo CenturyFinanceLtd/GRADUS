@@ -9,6 +9,9 @@ const ExpertVideos = () => {
   const [error, setError] = useState(null);
   const [direction, setDirection] = useState("next");
   const videoRef = useRef(null);
+  const touchStartX = useRef(null);
+  const touchLatestX = useRef(null);
+  const touchActive = useRef(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const { ref: viewRef, inView } = useInView({ threshold: 0.35 });
 
@@ -57,6 +60,39 @@ const ExpertVideos = () => {
     setIndex(targetIdx);
   };
 
+  const handleTouchStart = (event) => {
+    touchStartX.current = event.touches?.[0]?.clientX ?? null;
+    touchLatestX.current = touchStartX.current;
+    touchActive.current = true;
+  };
+
+  const handleTouchMove = (event) => {
+    if (!touchActive.current) return;
+    touchLatestX.current = event.touches?.[0]?.clientX ?? touchLatestX.current;
+  };
+
+  const resetTouchTracking = () => {
+    touchStartX.current = null;
+    touchLatestX.current = null;
+    touchActive.current = false;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchActive.current || touchStartX.current == null || touchLatestX.current == null) {
+      resetTouchTracking();
+      return;
+    }
+    const delta = touchLatestX.current - touchStartX.current;
+    if (Math.abs(delta) > 40) {
+      if (delta < 0) {
+        goNext();
+      } else {
+        goPrev();
+      }
+    }
+    resetTouchTracking();
+  };
+
   useEffect(() => {
     const el = videoRef.current;
     if (!el) return;
@@ -101,7 +137,14 @@ const ExpertVideos = () => {
             ) : null}
 
             <div className="expert-video-card is-current">
-              <div style={{ position: "relative", minHeight: 400 }}>
+              <div
+                className="expert-video-current-wrapper"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                onTouchCancel={resetTouchTracking}
+                style={{ touchAction: "pan-y" }}
+              >
                 {(loading || (!videoLoaded && currentVideo)) ? (
                   <div className="expert-video-skeleton" aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 1 }} />
                 ) : null}

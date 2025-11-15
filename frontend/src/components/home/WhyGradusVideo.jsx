@@ -74,7 +74,12 @@ const WhyGradusVideo = () => {
           </div>
           <div className="col-lg-7">
             <div className="why-gradus-video-frame">
-              <div style={{ position: "relative", minHeight: 360 }}>
+              <div
+                style={{
+                  position: "relative",
+                  minHeight: videoSrc && !videoLoaded ? 360 : undefined,
+                }}
+              >
                 {(loading || (!videoLoaded && videoSrc)) ? (
                   <div
                     className="why-gradus-skeleton"

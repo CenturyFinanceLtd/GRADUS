@@ -98,7 +98,10 @@ const WhyGradusComparison = () => {
           <article className="why-gradus-card compare-card" data-aos="fade-up" data-aos-duration="450">
             <div className="compare-card__header" ref={compareHeaderRef}>
               <div className="compare-card__brand">
-                <img src="/assets/images/logo/logo.png" alt="Gradus logo" loading="lazy" />
+                <picture>
+                  <source media="(max-width: 575.98px)" srcSet="/assets/images/logo/favicon.png" />
+                  <img src="/assets/images/logo/logo.png" alt="Gradus logo" loading="lazy" />
+                </picture>
               </div>
               <div className="compare-card__other">Other Platform</div>
             </div>
