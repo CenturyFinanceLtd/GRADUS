@@ -15,7 +15,7 @@ const userAuthLogSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: ['LOGIN', 'LOGOUT'],
+      enum: ['LOGIN', 'LOGOUT', 'GOOGLE_LOGIN', 'GOOGLE_SIGNUP'],
     },
     userAgent: {
       type: String,
