@@ -567,8 +567,8 @@ img {
   width: auto !important;
 }
 .only-image-slider .slick-dots li {
-  width: 48px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   margin: 0;
 }
 .only-image-slider .slick-dots li button {
@@ -582,12 +582,12 @@ img {
   height: 100%;
   display: block;
   opacity: 1;
-  background: rgba(255, 255, 255, 0.75);
-  border-radius: 999px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  background: #0c1325;
+  border-radius: 50%;
+  box-shadow: none;
 }
 .only-image-slider .slick-dots li.slick-active button:before {
-  background: rgba(20, 31, 54, 0.92);
+  background: #ffffff;
 }
 .badge-popular-courses {
   display: inline-flex;
