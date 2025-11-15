@@ -35,6 +35,8 @@ const {
   CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET,
   CLOUDINARY_TESTIMONIALS_FOLDER,
+  CLOUDINARY_EXPERT_VIDEOS_FOLDER,
+  CLOUDINARY_WHY_GRADUS_VIDEO_FOLDER,
   CLOUDINARY_COURSE_IMAGES_FOLDER,
   CLOUDINARY_BLOG_IMAGES_FOLDER,
   CLOUDINARY_BANNER_IMAGES_FOLDER,
@@ -51,6 +53,8 @@ cloudinary.config({
 });
 
 const defaultTestimonialsFolder = CLOUDINARY_TESTIMONIALS_FOLDER || 'testimonials';
+const defaultExpertVideosFolder = CLOUDINARY_EXPERT_VIDEOS_FOLDER || 'expert-videos';
+const defaultWhyGradusVideoFolder = CLOUDINARY_WHY_GRADUS_VIDEO_FOLDER || 'why-gradus-video';
 const defaultCourseImagesFolder = CLOUDINARY_COURSE_IMAGES_FOLDER || 'courses';
 const defaultBlogImagesFolder = CLOUDINARY_BLOG_IMAGES_FOLDER || 'blogs';
 const defaultBannerImagesFolder = CLOUDINARY_BANNER_IMAGES_FOLDER || 'banners';
@@ -60,6 +64,8 @@ const defaultLectureNotesFolder = CLOUDINARY_LECTURE_NOTES_FOLDER || 'gradus/lec
 module.exports = {
   cloudinary,
   testimonialsFolder: defaultTestimonialsFolder,
+  expertVideosFolder: defaultExpertVideosFolder,
+  whyGradusVideoFolder: defaultWhyGradusVideoFolder,
   courseImagesFolder: defaultCourseImagesFolder,
   blogImagesFolder: defaultBlogImagesFolder,
   bannerImagesFolder: defaultBannerImagesFolder,

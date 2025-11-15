@@ -39,6 +39,7 @@ const BannersPage = () => {
   const [previewUrl, setPreviewUrl] = useState({ desktop: '', mobile: '' });
   const desktopFileInputRef = useRef(null);
   const mobileFileInputRef = useRef(null);
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
 
   const load = async () => {
     try {
@@ -63,6 +64,35 @@ const BannersPage = () => {
       });
     };
   }, [previewUrl]);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') {
+      return undefined;
+    }
+    if (isFormModalOpen) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [isFormModalOpen]);
+
+  useEffect(() => {
+    if (!isFormModalOpen || typeof document === 'undefined') {
+      return undefined;
+    }
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsFormModalOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFormModalOpen]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -225,191 +255,193 @@ const BannersPage = () => {
     setDragging((prev) => ({ ...prev, [variant]: false }));
   };
 
+  const openFormModal = () => setIsFormModalOpen(true);
+  const closeFormModal = () => {
+    setIsFormModalOpen(false);
+    setDragging({ desktop: false, mobile: false });
+  };
+
+  const renderAddBannerForm = () => (
+    <form onSubmit={onSubmit}>
+      <div className='row g-3'>
+        <div className='col-12'>
+          <label className='form-label'>Title</label>
+          <input
+            className='form-control'
+            value={form.title}
+            onChange={(e) => setForm((s) => ({ ...s, title: e.target.value }))}
+          />
+        </div>
+        <div className='col-12'>
+          <label className='form-label'>Subtitle</label>
+          <input
+            className='form-control'
+            value={form.subtitle}
+            onChange={(e) => setForm((s) => ({ ...s, subtitle: e.target.value }))}
+          />
+        </div>
+        <div className='col-6'>
+          <label className='form-label'>CTA Label</label>
+          <input
+            className='form-control'
+            value={form.ctaLabel}
+            onChange={(e) => setForm((s) => ({ ...s, ctaLabel: e.target.value }))}
+          />
+        </div>
+        <div className='col-6'>
+          <label className='form-label'>CTA URL</label>
+          <input
+            className='form-control'
+            value={form.ctaUrl}
+            onChange={(e) => setForm((s) => ({ ...s, ctaUrl: e.target.value }))}
+            placeholder='https://...'
+          />
+        </div>
+        <div className='col-md-6 col-12'>
+          <label className='form-label'>Active</label>
+          <select
+            className='form-select'
+            value={String(form.active)}
+            onChange={(e) => setForm((s) => ({ ...s, active: e.target.value === 'true' }))}
+          >
+            <option value='true'>Yes</option>
+            <option value='false'>No</option>
+          </select>
+        </div>
+        <div className='col-md-6 col-12'>
+          <label className='form-label'>Order</label>
+          <input
+            type='number'
+            className='form-control'
+            value={form.order}
+            onChange={(e) => setForm((s) => ({ ...s, order: Number(e.target.value || 0) }))}
+          />
+        </div>
+        <div className='col-12'>
+          <label className='form-label'>Desktop Banner Image (JPG/PNG/WebP)</label>
+          <div
+            className='border rounded-3 p-4 text-center'
+            style={{
+              cursor: 'pointer',
+              borderStyle: 'dashed',
+              borderWidth: 2,
+              borderColor: dragging.desktop ? 'var(--bs-primary, #0d6efd)' : 'rgba(15,23,42,0.2)',
+              backgroundColor: dragging.desktop ? 'rgba(13,110,253,0.08)' : '#fff',
+              transition: 'background-color 0.2s ease, border-color 0.2s ease',
+            }}
+            onDragOver={(event) => onDragOver(event, 'desktop')}
+            onDragEnter={(event) => onDragOver(event, 'desktop')}
+            onDragLeave={(event) => onDragLeave(event, 'desktop')}
+            onDrop={(event) => onDropFile(event, 'desktop')}
+            onClick={() => desktopFileInputRef.current?.click()}
+          >
+            <p className='fw-semibold mb-2'>Drag & drop your banner here</p>
+            <p className='text-sm text-neutral-600 mb-3'>or click to browse</p>
+            {form.desktopFile ? (
+              <>
+                {previewUrl.desktop ? (
+                  <div className='mb-3'>
+                    <img
+                      src={previewUrl.desktop}
+                      alt='Desktop banner preview'
+                      style={{ maxWidth: '100%', borderRadius: 8, boxShadow: '0 4px 20px rgba(15,23,42,0.08)' }}
+                    />
+                  </div>
+                ) : null}
+                <div className='text-sm text-neutral-900'>
+                  Selected: <span className='fw-medium'>{form.desktopFile.name}</span>
+                </div>
+              </>
+            ) : (
+              <div className='text-sm text-neutral-500'>Recommended size: 1920x720px</div>
+            )}
+          </div>
+          <input
+            type='file'
+            accept='image/*'
+            className='d-none'
+            ref={desktopFileInputRef}
+            onChange={(e) => onFileChange(e, 'desktop')}
+          />
+        </div>
+        <div className='col-12'>
+          <label className='form-label'>Mobile Banner Image (Optional)</label>
+          <div
+            className='border rounded-3 p-4 text-center'
+            style={{
+              cursor: 'pointer',
+              borderStyle: 'dashed',
+              borderWidth: 2,
+              borderColor: dragging.mobile ? 'var(--bs-primary, #0d6efd)' : 'rgba(15,23,42,0.2)',
+              backgroundColor: dragging.mobile ? 'rgba(13,110,253,0.08)' : '#fff',
+              transition: 'background-color 0.2s ease, border-color 0.2s ease',
+            }}
+            onDragOver={(event) => onDragOver(event, 'mobile')}
+            onDragEnter={(event) => onDragOver(event, 'mobile')}
+            onDragLeave={(event) => onDragLeave(event, 'mobile')}
+            onDrop={(event) => onDropFile(event, 'mobile')}
+            onClick={() => mobileFileInputRef.current?.click()}
+          >
+            <p className='fw-semibold mb-2'>Drag & drop your mobile banner here</p>
+            <p className='text-sm text-neutral-600 mb-3'>or tap to browse</p>
+            {form.mobileFile ? (
+              <>
+                {previewUrl.mobile ? (
+                  <div className='mb-3'>
+                    <img
+                      src={previewUrl.mobile}
+                      alt='Mobile banner preview'
+                      style={{ maxWidth: '100%', borderRadius: 8, boxShadow: '0 4px 20px rgba(15,23,42,0.08)' }}
+                    />
+                  </div>
+                ) : null}
+                <div className='text-sm text-neutral-900'>
+                  Selected: <span className='fw-medium'>{form.mobileFile.name}</span>
+                </div>
+              </>
+            ) : (
+              <div className='text-sm text-neutral-500'>Recommended size: 1080x1350px</div>
+            )}
+          </div>
+          <input
+            type='file'
+            accept='image/*'
+            className='d-none'
+            ref={mobileFileInputRef}
+            onChange={(e) => onFileChange(e, 'mobile')}
+          />
+          <div className='form-text text-neutral-500 mt-2'>Leave empty to reuse the desktop hero on mobile screens.</div>
+        </div>
+      </div>
+      <div className='mt-16 d-flex gap-3 align-items-center'>
+        <button type='submit' className='btn btn-primary-600' disabled={saving || !form.desktopFile}>
+          Upload Banner
+        </button>
+        {saving ? <span className='text-sm text-neutral-500'>Saving...</span> : null}
+      </div>
+      <p className='text-sm text-neutral-500 mt-12 mb-0'>
+        Images upload straight to Cloudinary and are served on gradusindia.in automatically.
+      </p>
+    </form>
+  );
+
   return (
     <MasterLayout>
       <Breadcrumb title='Homepage Banners' />
       {error ? <div className='alert alert-danger mt-3'>{error}</div> : null}
       <div className='row gy-4'>
-        <div className='col-xxl-5'>
+        <div className='col-12'>
           <div className='card h-100'>
-            <div className='card-header bg-base py-16 px-24 border-bottom'>
-              <h6 className='text-lg fw-semibold mb-0'>Add New Banner</h6>
-            </div>
-            <div className='card-body p-24'>
-              <form onSubmit={onSubmit}>
-                <div className='row g-3'>
-                  <div className='col-12'>
-                    <label className='form-label'>Title</label>
-                    <input
-                      className='form-control'
-                      value={form.title}
-                      onChange={(e) => setForm((s) => ({ ...s, title: e.target.value }))}
-                    />
-                  </div>
-                  <div className='col-12'>
-                    <label className='form-label'>Subtitle</label>
-                    <input
-                      className='form-control'
-                      value={form.subtitle}
-                      onChange={(e) => setForm((s) => ({ ...s, subtitle: e.target.value }))}
-                    />
-                  </div>
-                  <div className='col-6'>
-                    <label className='form-label'>CTA Label</label>
-                    <input
-                      className='form-control'
-                      value={form.ctaLabel}
-                      onChange={(e) => setForm((s) => ({ ...s, ctaLabel: e.target.value }))}
-                    />
-                  </div>
-                  <div className='col-6'>
-                    <label className='form-label'>CTA URL</label>
-                    <input
-                      className='form-control'
-                      value={form.ctaUrl}
-                      onChange={(e) => setForm((s) => ({ ...s, ctaUrl: e.target.value }))}
-                      placeholder='https://...'
-                    />
-                  </div>
-                  <div className='col-md-6 col-12'>
-                    <label className='form-label'>Active</label>
-                    <select
-                      className='form-select'
-                      value={String(form.active)}
-                      onChange={(e) => setForm((s) => ({ ...s, active: e.target.value === 'true' }))}
-                    >
-                      <option value='true'>Yes</option>
-                      <option value='false'>No</option>
-                    </select>
-                  </div>
-                  <div className='col-md-6 col-12'>
-                    <label className='form-label'>Order</label>
-                    <input
-                      type='number'
-                      className='form-control'
-                      value={form.order}
-                      onChange={(e) => setForm((s) => ({ ...s, order: Number(e.target.value || 0) }))}
-                    />
-                  </div>
-                  <div className='col-12'>
-                    <label className='form-label'>Desktop Banner Image (JPG/PNG/WebP)</label>
-                    <div
-                      className='border rounded-3 p-4 text-center'
-                      style={{
-                        cursor: 'pointer',
-                        borderStyle: 'dashed',
-                        borderWidth: 2,
-                        borderColor: dragging.desktop ? 'var(--bs-primary, #0d6efd)' : 'rgba(15,23,42,0.2)',
-                        backgroundColor: dragging.desktop ? 'rgba(13,110,253,0.08)' : '#fff',
-                        transition: 'background-color 0.2s ease, border-color 0.2s ease',
-                      }}
-                      onDragOver={(event) => onDragOver(event, 'desktop')}
-                      onDragEnter={(event) => onDragOver(event, 'desktop')}
-                      onDragLeave={(event) => onDragLeave(event, 'desktop')}
-                      onDrop={(event) => onDropFile(event, 'desktop')}
-                      onClick={() => desktopFileInputRef.current?.click()}
-                    >
-                      <p className='fw-semibold mb-2'>Drag & drop your banner here</p>
-                      <p className='text-sm text-neutral-600 mb-3'>or click to browse</p>
-                      {form.desktopFile ? (
-                        <>
-                          {previewUrl.desktop ? (
-                            <div className='mb-3'>
-                              <img
-                                src={previewUrl.desktop}
-                                alt='Desktop banner preview'
-                                style={{ maxWidth: '100%', borderRadius: 8, boxShadow: '0 4px 20px rgba(15,23,42,0.08)' }}
-                              />
-                            </div>
-                          ) : null}
-                          <div className='text-sm text-neutral-900'>
-                            Selected: <span className='fw-medium'>{form.desktopFile.name}</span>
-                          </div>
-                        </>
-                      ) : (
-                        <div className='text-sm text-neutral-500'>Recommended size: 1920x720px</div>
-                      )}
-                    </div>
-                    <input
-                      type='file'
-                      accept='image/*'
-                      className='d-none'
-                      ref={desktopFileInputRef}
-                      onChange={(e) => onFileChange(e, 'desktop')}
-                    />
-                  </div>
-                  <div className='col-12'>
-                    <label className='form-label'>Mobile Banner Image (Optional)</label>
-                    <div
-                      className='border rounded-3 p-4 text-center'
-                      style={{
-                        cursor: 'pointer',
-                        borderStyle: 'dashed',
-                        borderWidth: 2,
-                        borderColor: dragging.mobile ? 'var(--bs-primary, #0d6efd)' : 'rgba(15,23,42,0.2)',
-                        backgroundColor: dragging.mobile ? 'rgba(13,110,253,0.08)' : '#fff',
-                        transition: 'background-color 0.2s ease, border-color 0.2s ease',
-                      }}
-                      onDragOver={(event) => onDragOver(event, 'mobile')}
-                      onDragEnter={(event) => onDragOver(event, 'mobile')}
-                      onDragLeave={(event) => onDragLeave(event, 'mobile')}
-                      onDrop={(event) => onDropFile(event, 'mobile')}
-                      onClick={() => mobileFileInputRef.current?.click()}
-                    >
-                      <p className='fw-semibold mb-2'>Drag & drop your mobile banner</p>
-                      <p className='text-sm text-neutral-600 mb-3'>or tap to browse</p>
-                      {form.mobileFile ? (
-                        <>
-                          {previewUrl.mobile ? (
-                            <div className='mb-3'>
-                              <img
-                                src={previewUrl.mobile}
-                                alt='Mobile banner preview'
-                                style={{ maxWidth: '100%', borderRadius: 8, boxShadow: '0 4px 20px rgba(15,23,42,0.08)' }}
-                              />
-                            </div>
-                          ) : null}
-                          <div className='text-sm text-neutral-900'>
-                            Selected: <span className='fw-medium'>{form.mobileFile.name}</span>
-                          </div>
-                        </>
-                      ) : (
-                        <div className='text-sm text-neutral-500'>Recommended size: 1080x1350px</div>
-                      )}
-                    </div>
-                    <input
-                      type='file'
-                      accept='image/*'
-                      className='d-none'
-                      ref={mobileFileInputRef}
-                      onChange={(e) => onFileChange(e, 'mobile')}
-                    />
-                    <div className='form-text text-neutral-500 mt-2'>
-                      Leave empty to reuse the desktop hero on mobile screens.
-                    </div>
-                  </div>
-                </div>
-                <div className='mt-16 d-flex gap-3 align-items-center'>
-                  <button type='submit' className='btn btn-primary-600' disabled={saving || !form.desktopFile}>
-                    Upload Banner
-                  </button>
-                  {saving ? <span className='text-sm text-neutral-500'>Saving...</span> : null}
-                </div>
-                <p className='text-sm text-neutral-500 mt-12 mb-0'>
-                  Images upload straight to Cloudinary and are served on gradusindia.in automatically.
-                </p>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <div className='col-xxl-7'>
-          <div className='card h-100'>
-            <div className='card-header bg-base py-16 px-24 border-bottom d-flex align-items-center justify-content-between'>
+            <div className='card-header bg-base py-16 px-24 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-3'>
               <h6 className='text-lg fw-semibold mb-0'>Existing Banners</h6>
-              <button type='button' className='btn btn-outline-secondary btn-sm' onClick={load} disabled={loading}>
-                Refresh
-              </button>
+              <div className='d-flex align-items-center gap-2 flex-wrap'>
+                <button type='button' className='btn btn-outline-secondary btn-sm' onClick={load} disabled={loading}>
+                  Refresh
+                </button>
+                <button type='button' className='btn btn-primary btn-sm' onClick={openFormModal}>
+                  Add Banner
+                </button>
+              </div>
             </div>
             <div className='card-body p-0'>
               <div className='table-responsive'>
@@ -592,8 +624,27 @@ const BannersPage = () => {
           </div>
         </div>
       </div>
+      {isFormModalOpen ? (
+        <>
+          <div className='modal-backdrop fade show' onClick={closeFormModal} />
+          <div className='modal fade show d-block' tabIndex='-1' role='dialog' aria-modal='true'>
+            <div className='modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable'>
+              <div className='modal-content'>
+                <div className='modal-header'>
+                  <h5 className='modal-title'>Add New Banner</h5>
+                  <button type='button' className='btn-close' aria-label='Close' onClick={closeFormModal} />
+                </div>
+                <div className='modal-body'>
+                  {renderAddBannerForm()}
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      ) : null}
     </MasterLayout>
   );
 };
 
 export default BannersPage;
+

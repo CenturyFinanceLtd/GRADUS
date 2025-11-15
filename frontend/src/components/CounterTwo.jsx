@@ -1,103 +1,72 @@
 import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
 
+const COUNTER_DATA = [
+  {
+    id: "trained",
+    label: "Successfully Trained",
+    value: 10,
+    suffix: "K+",
+    icon: "ph-graduation-cap",
+    accent: "#0B7077",
+    bg: "#E3F2F3",
+  },
+  {
+    id: "students",
+    label: "Students till date",
+    value: 15,
+    suffix: "K+",
+    icon: "ph-users-three",
+    accent: "#F28705",
+    bg: "#FFF3E7",
+  },
+  {
+    id: "rating",
+    label: "Overall Rating",
+    value: 5,
+    suffix: "",
+    icon: "ph-thumbs-up",
+    accent: "#4C6FFF",
+    bg: "#EDF0FF",
+  },
+  {
+    id: "community",
+    label: "Student Community",
+    value: 135,
+    suffix: "K",
+    icon: "ph-circles-three-plus",
+    accent: "#FF7D66",
+    bg: "#FFEFEA",
+  },
+];
+
 const CounterTwo = () => {
   const { ref, inView } = useInView({
     triggerOnce: true,
-    threshold: 0.1,
+    threshold: 0.2,
   });
+
   return (
-    <section className='counter-three py-64'>
+    <section className='counter-highlight py-64'>
       <div className='container'>
-        <div className='p-16 rounded-16 bg-white'>
-          <div className='row gy-4'>
-            <div
-              className='col-xl-3 col-sm-6 col-xs-6'
+        <div className='counter-highlight__grid' ref={ref}>
+          {COUNTER_DATA.map(({ id, label, value, suffix, icon, accent, bg }, index) => (
+            <article
+              className='counter-highlight__item'
+              key={id}
               data-aos='fade-up'
-              data-aos-duration={200}
+              data-aos-duration={200 + index * 150}
             >
-              <div className='counter-three-item animation-item h-100 text-center px-16 py-32 rounded-12 bg-main-25 border border-neutral-30'>
-                <span className='w-80 h-80 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-circle box-shadow-md mb-24'>
-                  <i className='animate__wobble ph ph-users' />
-                </span>
-
-                <div ref={ref}>
-                  {inView && (
-                    <h1 className='display-four mb-16 text-neutral-700 counter'>
-                      <CountUp end={10} />K+
-                    </h1>
-                  )}
-                </div>
-                <span className='text-neutral-500 text-lg'>
-                  Successfully Trained{" "}
-                </span>
+              <span className='counter-highlight__icon' style={{ color: accent, backgroundColor: bg }}>
+                <i className={`ph ${icon}`} />
+              </span>
+              <div className='counter-highlight__value'>
+                {inView ? <CountUp end={value} duration={1.5} /> : 0}
+                {suffix}
               </div>
-            </div>
-            <div
-              className='col-xl-3 col-sm-6 col-xs-6'
-              data-aos='fade-up'
-              data-aos-duration={400}
-            >
-              <div className='counter-three-item animation-item h-100 text-center px-16 py-32 rounded-12 bg-main-two-25 border border-neutral-30'>
-                <span className='w-80 h-80 flex-center d-inline-flex bg-white text-main-two-600 text-40 rounded-circle box-shadow-md mb-24'>
-                  <i className='animate__wobble ph ph-users-three' />
-                </span>
-
-                <div ref={ref}>
-                  {inView && (
-                    <h1 className='display-four mb-16 text-neutral-700 counter'>
-                      <CountUp end={14.7} />K
-                    </h1>
-                  )}
-                </div>
-                <span className='text-neutral-500 text-lg'>
-                  Students till date
-                </span>
-              </div>
-            </div>
-            <div
-              className='col-xl-3 col-sm-6 col-xs-6'
-              data-aos='fade-up'
-              data-aos-duration={600}
-            >
-              <div className='counter-three-item animation-item h-100 text-center px-16 py-32 rounded-12 bg-main-25 border border-neutral-30'>
-                <span className='w-80 h-80 flex-center d-inline-flex bg-white text-main-600 text-40 rounded-circle box-shadow-md mb-24'>
-                  <i className='animate__wobble ph ph-thumbs-up' />
-                </span>
-
-                <div ref={ref}>
-                  {inView && (
-                    <h1 className='display-four mb-16 text-neutral-700 counter'>
-                      <CountUp end={4.7} />
-                    </h1>
-                  )}
-                </div>
-                <span className='text-neutral-500 text-lg'>
-                  Overall Rating
-                </span>
-              </div>
-            </div>
-            <div
-              className='col-xl-3 col-sm-6 col-xs-6'
-              data-aos='fade-up'
-              data-aos-duration={800}
-            >
-              <div className='counter-three-item animation-item h-100 text-center px-16 py-32 rounded-12 bg-main-two-25 border border-neutral-30'>
-                <span className='w-80 h-80 flex-center d-inline-flex bg-white text-main-two-600 text-40 rounded-circle box-shadow-md mb-24'>
-                  <i className='animate__wobble ph ph-envelope-simple-open' />
-                </span>
-
-                <div ref={ref}>
-                  {inView && (
-                    <h1 className='display-four mb-16 text-neutral-700 counter'>
-                      <CountUp end={135} />K
-                    </h1>
-                  )}
-                </div>
-                <span className='text-neutral-500 text-lg'>Student Community</span>
-              </div>
-            </div>
-          </div>
+              <p className='counter-highlight__label'>{label}</p>
+            </article>
+          ))}
         </div>
       </div>
     </section>

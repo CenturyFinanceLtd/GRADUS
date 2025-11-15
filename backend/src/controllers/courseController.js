@@ -434,7 +434,7 @@ const listCourses = asyncHandler(async (req, res) => {
   const sortSpec = sort === 'new' ? { updatedAt: -1 } : { order: 1, createdAt: 1 };
   const courses = await Course.find()
     .sort(sortSpec)
-    .select(['name', 'slug', 'programme', 'updatedAt', 'createdAt', 'hero', 'stats', 'mode', 'level', 'duration', 'weeks', 'modules', 'price', 'image'])
+    .select(['name', 'slug', 'programme', 'updatedAt', 'createdAt', 'hero', 'stats', 'mode', 'level', 'duration', 'weeks', 'modules', 'price', 'image', 'aboutProgram'])
     .lean();
 
   const parsePrice = (rawPrice) => {
@@ -450,6 +450,14 @@ const listCourses = asyncHandler(async (req, res) => {
       const modulesCount = (course?.stats?.modules && Number(course.stats.modules)) ||
         (Array.isArray(course?.modules) ? course.modules.length : 0) ||
         (Array.isArray(course?.weeks) ? course.weeks.length : 0) || 0;
+      const enrolledCount = (() => {
+        const raw = course?.hero?.enrolledText;
+        if (!raw) return null;
+        const match = String(raw).match(/([0-9][0-9,]*)/);
+        if (!match) return null;
+        const num = Number(match[1].replace(/,/g, ""));
+        return Number.isFinite(num) ? num : null;
+      })();
       return {
         id: course.slug,
         slug: course.slug,
@@ -463,6 +471,8 @@ const listCourses = asyncHandler(async (req, res) => {
         level: course?.stats?.level || course?.level || '',
         duration: course?.stats?.duration || course?.duration || '',
         modulesCount,
+        aboutProgram: ensureArray(course.aboutProgram),
+        enrolledCount,
       };
     }),
   });

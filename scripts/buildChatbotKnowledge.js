@@ -73,14 +73,6 @@ const manualEntries = [
     source: 'frontend/src/pages/ApplyAdmissionPage.jsx',
   },
   {
-    id: 'blog-insights',
-    title: 'Gradus blog insights',
-    tags: ['blog', 'news', 'updates', 'insights'],
-    content:
-      'The Gradus blog publishes stories on program outcomes, cohort success, industry trends, and learner experiences. Readers can browse the Blogs section for the latest updates across finance, technology, artificial intelligence, and leadership topics.',
-    source: 'frontend/src/components/BlogTwo.jsx',
-  },
-  {
     id: 'contact-support',
     title: 'Contact and support',
     tags: ['contact', 'support', 'help', 'reach out'],

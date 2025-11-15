@@ -70,7 +70,7 @@ const ByCflAndPartners = () => {
   ];
 
   return (
-    <section className="bycfl-section py-64 position-relative z-1 bg-main-25 overflow-hidden">
+    <section className="bycfl-section py-64 position-relative z-1 bg-white overflow-hidden">
       <div className="container container--lg">
         <div className="text-center mb-32">
           <div

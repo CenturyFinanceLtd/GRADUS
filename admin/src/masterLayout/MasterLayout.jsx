@@ -461,6 +461,24 @@ const MasterLayout = ({ children }) => {
             </li>
             <li>
               <NavLink
+                to='/expert-videos'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='mdi:play-box-multiple-outline' className='menu-icon' />
+                <span>Expert Videos</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to='/why-gradus-video'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='mdi:play-network-outline' className='menu-icon' />
+                <span>Why Gradus Video</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
                 to='/banners'
                 className={(navData) => (navData.isActive ? "active-page" : "")}
               >

@@ -32,6 +32,7 @@ const ADMIN_PAGE_DEFINITIONS = [
     { key: 'blog_details_alt', label: 'Blog Details (Alt)', path: '/blog-details/:blogId', category: 'Content & Media' },
     { key: 'blog_add', label: 'Add Blog', path: '/add-blog', category: 'Content & Media' },
     { key: 'testimonials', label: 'Testimonials', path: '/testimonials', category: 'Content & Media' },
+    { key: 'expert_videos', label: 'Expert Videos', path: '/expert-videos', category: 'Content & Media' },
     { key: 'banners', label: 'Banners', path: '/banners', category: 'Content & Media' },
     { key: 'video_generator', label: 'Video Generator', path: '/video-generator', category: 'Content & Media' },
     { key: 'videos', label: 'Videos', path: '/videos', category: 'Content & Media' },

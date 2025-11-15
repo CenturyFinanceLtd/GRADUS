@@ -13,7 +13,7 @@ const UserAuthLog = require('../models/UserAuthLog');
 const generateOtp = require('../utils/generateOtp');
 const { sendOtpEmail, deliveryMode } = require('../utils/email');
 const generateAuthToken = require('../utils/token');
-const { exchangeGoogleCode } = require('../services/googleAuth');
+const { exchangeGoogleCode, verifyGoogleIdToken } = require('../services/googleAuth');
 
 const sanitizeString = (value) => (typeof value === 'string' ? value.trim() : '');
 
@@ -631,6 +631,69 @@ const loginWithGoogle = asyncHandler(async (req, res) => {
   res.status(status).json(authResponse);
 });
 
+const loginWithGoogleOneTap = asyncHandler(async (req, res) => {
+  const { credential } = req.body;
+
+  if (!process.env.GOOGLE_CLIENT_ID) {
+    res.status(503);
+    throw new Error('Google login is not enabled right now.');
+  }
+
+  if (!credential) {
+    res.status(400);
+    throw new Error('Missing Google identity token.');
+  }
+
+  let profile;
+  try {
+    profile = await verifyGoogleIdToken(credential);
+  } catch (error) {
+    console.error('[auth] Google One Tap verification failed:', error.message);
+    res.status(401);
+    throw new Error('Unable to verify your Google account. Please try again.');
+  }
+
+  const normalizedEmail = profile?.email?.toLowerCase();
+  if (!normalizedEmail) {
+    res.status(400);
+    throw new Error('Google did not provide an email address for this account.');
+  }
+
+  let user = await User.findOne({ email: normalizedEmail });
+  let status = 200;
+
+  if (!user) {
+    const firstName = sanitizeString(profile?.given_name || profile?.name || 'Google');
+    const lastName = sanitizeString(profile?.family_name || firstName || 'User');
+    const placeholderMobile = profile?.phone_number || `GGL-${profile?.sub || Date.now()}`;
+    const hashedPassword = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 12);
+
+    user = await User.create({
+      firstName: firstName || 'Google',
+      lastName: lastName || 'User',
+      email: normalizedEmail,
+      mobile: placeholderMobile,
+      personalDetails: buildDefaultPersonalDetails({
+        firstName: firstName || 'Google',
+        lastName: lastName || 'User',
+        locale: profile?.locale,
+      }),
+      educationDetails: buildDefaultEducationDetails(),
+      password: hashedPassword,
+      emailVerified: true,
+      authProvider: 'GOOGLE',
+    });
+
+    status = 201;
+    recordAuthEvent({ userId: user._id, type: 'GOOGLE_SIGNUP', req });
+  } else {
+    recordAuthEvent({ userId: user._id, type: 'GOOGLE_LOGIN', req });
+  }
+
+  const authResponse = buildAuthResponse(user);
+  res.status(status).json(authResponse);
+});
+
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const normalizedEmail = email.toLowerCase().trim();
@@ -677,6 +740,7 @@ module.exports = {
   verifyPasswordResetOtp,
   completePasswordReset,
   loginWithGoogle,
+  loginWithGoogleOneTap,
   login,
   logout,
 };

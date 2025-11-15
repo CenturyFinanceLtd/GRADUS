@@ -1,14 +1,14 @@
-import AboutThree from "../components/AboutThree";
 import BannerOne from "../components/BannerOne";
-import BlogTwo from "../components/BlogTwo";
-import ChooseUsTwo from "../components/ChooseUsTwo";
 import CounterTwo from "../components/CounterTwo";
-import GradusProgrammes from "../components/home/GradusProgrammes";
+import ProgrammesAndCourses from "../components/home/ProgrammesAndCourses";
 import ByCflAndPartners from "../components/home/ByCflAndPartners";
 import VideoTestimonials from "../components/home/VideoTestimonials";
+import WhyGradusVideo from "../components/home/WhyGradusVideo";
+import ExpertVideos from "../components/home/ExpertVideos";
+import GradusAmbition from "../components/home/GradusAmbition";
+import WhyGradusComparison from "../components/home/WhyGradusComparison";
 import FooterOne from "../components/FooterOne";
 import HeaderOne from "../components/HeaderOne";
-import InfoTwo from "../components/InfoTwo";
 import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
 
@@ -27,11 +27,11 @@ const HomePageOne = () => {
       {/* BannerOne */}
       <BannerOne />
 
-      {/* InfoTwo */}
-      <InfoTwo />
+      {/* Why Gradus Video */}
+      <WhyGradusVideo />
 
-      {/* Gradus Programmes */}
-      <GradusProgrammes />
+      {/* Programmes & Courses */}
+      <ProgrammesAndCourses />
 
       {/* Powered by CFL + Partners (3-row carousel) */}
       <ByCflAndPartners />
@@ -39,28 +39,17 @@ const HomePageOne = () => {
       {/* Video Testimonials */}
       <VideoTestimonials />
 
+      {/* Expert Videos */}
+      <ExpertVideos />
 
-      {/* AboutThree */}
-      <AboutThree />
-
-     
+      {/* Gradus Ambition */}
+      <GradusAmbition />
 
       {/* CounterTwo */}
       <CounterTwo />
 
-      
-
-      {/* ChooseUsTwo */}
-      <ChooseUsTwo />
-
-      
-
-      
-
-      {/* BlogTwo */}
-      <BlogTwo />
-
-      
+      {/* Why Gradus Comparison */}
+      <WhyGradusComparison />
 
       {/* Footer */}
       <FooterOne />

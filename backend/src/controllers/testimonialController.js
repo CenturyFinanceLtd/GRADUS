@@ -37,7 +37,11 @@ const listAdminTestimonials = asyncHandler(async (req, res) => {
 const uploadToCloudinary = (buffer, { folder }) =>
   new Promise((resolve, reject) => {
     const upload = cloudinary.uploader.upload_stream(
-      { resource_type: 'video', folder },
+      {
+        resource_type: 'video',
+        folder,
+        chunk_size: 6 * 1024 * 1024,
+      },
       (error, result) => {
         if (error) return reject(error);
         resolve(result);
@@ -59,7 +63,17 @@ const createTestimonial = asyncHandler(async (req, res) => {
   }
 
   const folder = testimonialsFolder;
-  const uploadResult = await uploadToCloudinary(req.file.buffer, { folder });
+  let uploadResult;
+  try {
+    uploadResult = await uploadToCloudinary(req.file.buffer, { folder });
+  } catch (error) {
+    const status = error?.http_code || error?.status || error?.statusCode;
+    if (status === 413) {
+      res.status(413);
+      throw new Error('Video is too large for the current plan. Please upload a smaller file or contact support.');
+    }
+    throw error;
+  }
 
   const posterUrl = cloudinary.url(uploadResult.public_id + '.jpg', {
     resource_type: 'video',
@@ -128,4 +142,3 @@ module.exports = {
   updateTestimonial,
   deleteTestimonial,
 };
-

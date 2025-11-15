@@ -11,6 +11,7 @@ const {
   completeSignup,
   login,
   loginWithGoogle,
+  loginWithGoogleOneTap,
   logout,
   startPasswordReset,
   verifyPasswordResetOtp,
@@ -124,6 +125,7 @@ router.post(
 );
 
 router.post('/social/google', loginWithGoogle);
+router.post('/social/google/onetap', loginWithGoogleOneTap);
 
 router.post('/logout', protect, logout);
 

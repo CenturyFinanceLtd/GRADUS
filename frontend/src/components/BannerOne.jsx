@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import { listBanners } from "../services/bannerService";
 
@@ -14,6 +15,8 @@ const sliderSettings = {
   infinite: true,
 };
 
+const isExternalUrl = (url = "") => /^https?:\/\//i.test(url);
+
 const BannerOne = () => {
   const [banners, setBanners] = useState([]);
   const [error, setError] = useState(null);
@@ -23,6 +26,7 @@ const BannerOne = () => {
     }
     return window.matchMedia("(max-width: 991.98px)").matches;
   });
+  const [heroReady, setHeroReady] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -39,11 +43,15 @@ const BannerOne = () => {
             if (!desktopImageUrl && !mobileImageUrl) {
               return null;
             }
+            const ctaLabel = (item.ctaLabel || "").trim();
+            const ctaUrl = (item.ctaUrl || "").trim();
             return {
               id: item.id || item._id || `banner-${idx}`,
               title: item.title || "Gradus banner",
               desktopImageUrl,
               mobileImageUrl,
+              ctaLabel,
+              ctaUrl,
             };
           })
           .filter(Boolean);
@@ -77,7 +85,9 @@ const BannerOne = () => {
   }, []);
 
   const baseSectionClass =
-    "banner banner--rounded banner--gutters position-relative overflow-hidden";
+    "banner banner--rounded banner--full-bleed position-relative overflow-hidden";
+  const minHeightDesktop = 420;
+  const minHeightMobile = 260;
 
   const renderSlider = (slides = [], variant = "desktop") => {
     if (!slides.length) {
@@ -90,7 +100,13 @@ const BannerOne = () => {
         if (!src) {
           return null;
         }
-        return { id: item.id, title: item.title, src };
+        return {
+          id: item.id,
+          title: item.title,
+          src,
+          ctaLabel: item.ctaLabel,
+          ctaUrl: item.ctaUrl,
+        };
       })
       .filter(Boolean);
 
@@ -99,15 +115,79 @@ const BannerOne = () => {
     }
     const visibilityClass = variant === "mobile" ? "d-lg-none" : "d-none d-lg-block";
     const sectionClassName = `${baseSectionClass} ${visibilityClass} banner--${variant}`.trim();
+    const minHeight = variant === "mobile" ? minHeightMobile : minHeightDesktop;
 
     return (
-      <section className={sectionClassName} data-variant={`${variant}-banner`}>
+      <section
+        className={sectionClassName}
+        data-variant={`${variant}-banner`}
+        style={{ minHeight }}
+      >
+        {!heroReady ? (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "linear-gradient(120deg, #f4f7fb, #e9eef5, #f4f7fb)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#6b7280",
+              fontWeight: 600,
+              zIndex: 2,
+            }}
+          >
+            Loading banner…
+          </div>
+        ) : null}
+        <style>{`
+          [data-variant="${variant}-banner"] .slick-list { padding-bottom: 0 !important; }
+        `}</style>
         <Slider {...sliderSettings} className='only-image-slider'>
-          {resolvedSlides.map((item) => (
-            <div key={`${variant}-${item.id}`} className='banner-image-slide'>
-              <img src={item.src} alt={item.title || 'Gradus banner'} className='banner-img-only' loading='lazy' />
-            </div>
-          ))}
+          {resolvedSlides.map((item) => {
+            const image = (
+              <img
+                src={item.src}
+                alt={item.title || "Gradus banner"}
+                className='banner-img-only'
+                loading='lazy'
+                onLoad={() => setHeroReady(true)}
+              />
+            );
+            const linkLabel = item.ctaLabel || item.title || "Gradus banner CTA";
+
+            if (!item.ctaUrl) {
+              return (
+                <div key={`${variant}-${item.id}`} className='banner-image-slide'>
+                  {image}
+                </div>
+              );
+            }
+
+            const linkProps = {
+              className: "banner-slide-link",
+              "aria-label": linkLabel,
+            };
+
+            return (
+              <div key={`${variant}-${item.id}`} className='banner-image-slide'>
+                {isExternalUrl(item.ctaUrl) ? (
+                  <a
+                    href={item.ctaUrl}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    {...linkProps}
+                  >
+                    {image}
+                  </a>
+                ) : (
+                  <Link to={item.ctaUrl} {...linkProps}>
+                    {image}
+                  </Link>
+                )}
+              </div>
+            );
+          })}
         </Slider>
       </section>
     );

@@ -10,7 +10,7 @@ const { ADMIN_PAGE_DEFINITIONS, ADMIN_PAGE_KEYS } = require('../data/adminPageDe
 const DEFAULT_ROLE_PERMISSIONS = {
   programmer_admin: ['*'],
   admin: ['*'],
-  seo: ['blog_list', 'blog_details', 'blog_details_alt', 'blog_add', 'inquiries'],
+  seo: ['blog_list', 'blog_details', 'blog_details_alt', 'blog_add', 'testimonials', 'expert_videos', 'inquiries'],
   sales: ['inquiries'],
   teacher: ['live_classes'],
 };

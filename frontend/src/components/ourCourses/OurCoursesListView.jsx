@@ -169,7 +169,10 @@ const OurCoursesListView = () => {
       // 'new' default: reverse insertion order
       arr.sort((a, b) => (b.order ?? 0) - (a.order ?? 0));
     }
-    return arr;
+    const flagship = [];
+    const regular = [];
+    arr.forEach((course) => (Number(course.priceINR) === FLAGSHIP_PRICE_INR ? flagship.push(course) : regular.push(course)));
+    return [...flagship, ...regular];
   }, [courses, selectedProgrammes, query, sort]);
 
   const handleSortChange = (e) => {

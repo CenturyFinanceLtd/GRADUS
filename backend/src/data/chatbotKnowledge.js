@@ -53,13 +53,6 @@ module.exports = [
     source: 'frontend/src/pages/ApplyAdmissionPage.jsx',
   },
   {
-    id: 'blog-insights',
-    title: 'Gradus blog insights',
-    tags: ["blog","news","updates","insights"],
-    content: 'The Gradus blog publishes stories on program outcomes, cohort success, industry trends, and learner experiences. Readers can browse the Blogs section for the latest updates across finance, technology, artificial intelligence, and leadership topics.',
-    source: 'frontend/src/components/BlogTwo.jsx',
-  },
-  {
     id: 'contact-support',
     title: 'Contact and support',
     tags: ["contact","support","help","reach out"],
@@ -198,13 +191,6 @@ module.exports = [
     tags: ["components","blogone"],
     content: 'normalizeBlog(blog)), [blogs]); return ( Recent Articles Consectetur adipisicing elit, sed do eiusmod tempor inc idid unt ut labore et dolore magna aliqua enim ad... ) : error ? ( ) : formattedBlogs.length === 0 ? ( No blog posts available yet. Failed to load blogs.',
     source: 'frontend/src/components/BlogOne.jsx',
-  },
-  {
-    id: 'components-blogtwo',
-    title: 'Insights from Components - BlogTwo',
-    tags: ["components","blogtwo"],
-    content: 'Stay Informed, Stay Inspired Welcome to our blog, where we share insights, stories, and updates on topics ranging from education ) : error ? ( ) : formattedBlogs.length === 0 ? ( No blog posts available yet. Failed to load blogs.',
-    source: 'frontend/src/components/BlogTwo.jsx',
   },
   {
     id: 'components-bookonlineclassinner',

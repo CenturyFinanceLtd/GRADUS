@@ -49,6 +49,23 @@ const exchangeGoogleCode = async ({ code, redirectUri }) => {
   return { profile, tokens };
 };
 
+const verifyGoogleIdToken = async (idToken) => {
+  ensureGoogleConfig();
+
+  if (!idToken) {
+    throw new Error('Google identity token is missing.');
+  }
+
+  const oauthClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+  const ticket = await oauthClient.verifyIdToken({
+    idToken,
+    audience: GOOGLE_CLIENT_ID,
+  });
+
+  return ticket.getPayload();
+};
+
 module.exports = {
   exchangeGoogleCode,
+  verifyGoogleIdToken,
 };

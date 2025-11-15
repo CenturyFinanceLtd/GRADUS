@@ -56,6 +56,7 @@ import SocialPortfolioPage from "./pages/SocialPortfolioPage.jsx";
 import ProgrammeCoursePage from "./pages/ProgrammeCoursePage.jsx";
 import CourseHomePage from "./pages/CourseHomePage.jsx";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback.jsx";
+import GoogleOneTap from "./components/GoogleOneTap.jsx";
 
 const GradusXRedirect = () => {
   const { course } = useParams();
@@ -69,6 +70,7 @@ function App() {
       <RouteScrollToTop />
       <SiteAnalyticsTracker />
       <HelpLauncher />
+      <GoogleOneTap />
 
       <Routes>
         <Route exact path='/' element={<HomePageOne />} />

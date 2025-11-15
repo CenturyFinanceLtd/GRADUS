@@ -99,6 +99,8 @@ const BlogDetailsPage = lazy(() => import("./pages/BlogDetailsPage"));
 const AddBlogPage = lazy(() => import("./pages/AddBlogPage"));
 const EditBlogPage = lazy(() => import("./pages/EditBlogPage"));
 const TestimonialsPage = lazy(() => import("./pages/TestimonialsPage"));
+const ExpertVideosPage = lazy(() => import("./pages/ExpertVideosPage"));
+const WhyGradusVideoPage = lazy(() => import("./pages/WhyGradusVideoPage"));
 const BannersPage = lazy(() => import("./pages/BannersPage"));
 const EventsAdminPage = lazy(() => import("./pages/EventsAdminPage"));
 const ComingSoonPage = lazy(() => import("./pages/ComingSoonPage"));
@@ -192,6 +194,8 @@ function App() {
         { /* Courses management and enrollments pages removed */ }
 
         <Route exact path='/testimonials' element={<TestimonialsPage />} />
+        <Route exact path='/expert-videos' element={<ExpertVideosPage />} />
+        <Route exact path='/why-gradus-video' element={<WhyGradusVideoPage />} />
         <Route exact path='/banners' element={<BannersPage />} />
         <Route exact path='/events-admin' element={<EventsAdminPage />} />
         <Route exact path='/coming-soon' element={<ComingSoonPage />} />

@@ -138,7 +138,7 @@ const VideoTestimonials = () => {
   };
 
   return (
-    <section className="py-64">
+    <section className="video-testimonials-section py-64">
       <div className="container">
         <div className="row justify-content-center text-center mb-24">
           <div className="col-xl-7 col-lg-8">
