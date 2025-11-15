@@ -84,12 +84,14 @@ const EventTabs = ({ active, onChange }) => (
   </div>
 );
 
-const OverviewTab = ({ event }) => {
+const OverviewTab = ({ event, overviewText }) => {
   const eventTypeLabel = event?.eventType || "Live session";
-  const paragraphs = (event?.description || "")
-    .split(/\n+/)
-    .map((text) => text.trim())
-    .filter(Boolean);
+  const paragraphs = overviewText
+    ? overviewText
+        .split(/\n+/)
+        .map((text) => text.trim())
+        .filter(Boolean)
+    : [];
 
   return (
     <div className='event-overview'>
@@ -105,15 +107,6 @@ const OverviewTab = ({ event }) => {
           ))}
         </ul>
       ) : null}
-      {paragraphs.length ? (
-        paragraphs.map((text, index) => (
-          <p key={`paragraph-${index}`} className='text-neutral-700 mb-16'>
-            {text}
-          </p>
-        ))
-      ) : (
-        <p className='text-neutral-500'>No description provided.</p>
-      )}
       {event?.meta?.agenda?.length ? (
         <div className='event-agenda mt-40'>
           <h4 className='mb-16'>Agenda</h4>
@@ -335,6 +328,8 @@ const RegistrationCard = ({ event }) => {
   );
 };
 
+const getTrimmed = (value) => (typeof value === "string" ? value.trim() : "");
+
 const EventDetailsOne = ({ event, loading, error }) => {
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -342,10 +337,16 @@ const EventDetailsOne = ({ event, loading, error }) => {
     setActiveTab("overview");
   }, [event?.id]);
 
+  const descriptionText = event ? getTrimmed(event.description) : "";
+  const summaryText = event ? getTrimmed(event.summary) : "";
+  const subtitleText = event ? getTrimmed(event.subtitle) : "";
+  const overviewText = descriptionText;
+  const heroLead = summaryText || subtitleText;
+
   const renderTab = () => {
     if (activeTab === "instructor") return <InstructorTab event={event} />;
     if (activeTab === "help") return <HelpTab />;
-    return <OverviewTab event={event} />;
+    return <OverviewTab event={event} overviewText={overviewText} />;
   };
 
   return (
@@ -383,7 +384,7 @@ const EventDetailsOne = ({ event, loading, error }) => {
                   ) : null}
                 </div>
                 <h1 className='display-5 mb-8 mt-16'>{event?.title}</h1>
-                <p className='text-neutral-600 mb-24'>{event?.summary || event?.subtitle}</p>
+                {heroLead ? <p className='text-neutral-600 mb-24'>{heroLead}</p> : null}
                 <EventTabs active={activeTab} onChange={setActiveTab} />
                 <div className='event-tab-content'>{renderTab()}</div>
               </div>
