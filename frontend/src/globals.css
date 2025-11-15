@@ -18050,11 +18050,14 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   color: #0f172a;
 }
 
-.compare-card__other {
-  text-align: center;
-  letter-spacing: 0.2em;
-  color: #0f2f45;
-}
+  .compare-card__other {
+    text-align: center;
+    letter-spacing: 0.2em;
+    color: #0f2f45;
+  }
+  .compare-card__other {
+    font-size: 0.80rem;;
+  }
 
 .compare-card__body {
   list-style: none;
@@ -18114,7 +18117,7 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   }
   .why-gradus-cards {
     grid-template-columns: 3fr 4fr;
-    gap: 8px;
+    gap: 5px;
   }
   .why-gradus-card {
     padding: 18px 14px;
@@ -18124,7 +18127,8 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   .feature-card__eyebrow {
     font-size: 0.95rem;
     letter-spacing: 0.22em;
-    padding-bottom: 49px;
+    padding-bottom: 48px;
+    padding-top: 1px;
     margin-bottom: 16px;
   }
   .feature-card__list {
@@ -18133,8 +18137,9 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
     gap: 0;
   }
   .feature-card__list li {
-    padding: 13px 0;
+    padding: 15px 0;
     min-height: 48px;
+    font-size: 0.75rem;
   }
   .compare-card__header {
     grid-template-columns: 1fr 2fr;

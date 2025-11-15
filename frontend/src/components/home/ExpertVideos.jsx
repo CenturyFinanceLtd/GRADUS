@@ -120,7 +120,7 @@ const ExpertVideos = () => {
       <div className="container">
         <div className="expert-videos-header text-center mb-32">
           <p className="expert-videos-eyebrow">
-            What <span>Expert&apos;s</span> Say?
+            What <span>Experts</span> Say?
           </p>
         </div>
 

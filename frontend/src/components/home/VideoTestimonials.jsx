@@ -196,10 +196,8 @@ const VideoTestimonials = () => {
       <div className="container">
         <div className="row justify-content-center text-center mb-24">
           <div className="col-xl-7 col-lg-8">
-            <a href="#video-testimonials" className="text-main fw-medium d-inline-block mb-8">
-              Curious how people are using Gradus?
-            </a>
-            <h2 className="mb-0 text-neutral-900">Hear what our customers are saying</h2>
+            
+            <h2 className="mb-0 text-neutral-900">Hear From Our Students</h2>
           </div>
         </div>
 
