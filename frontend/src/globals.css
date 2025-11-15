@@ -17819,6 +17819,23 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   padding: 12px 16px;
 }
 
+.event-register-card__form .form-select {
+  border-radius: 14px;
+  padding: 12px 16px;
+  border: 1px solid var(--neutral-40);
+  background-color: #fff;
+  color: #0f172a;
+  min-height: 48px;
+  line-height: 1.4;
+  box-shadow: none;
+}
+
+.event-register-card__form .form-select:disabled {
+  background-color: #fff;
+  color: #94a3b8;
+  opacity: 1;
+}
+
 .event-register-card__foot {
   text-align: center;
   margin-top: 16px;

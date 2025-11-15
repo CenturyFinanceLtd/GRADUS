@@ -47,6 +47,11 @@ const contactInquirySchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    qualification: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     contactStatus: {
       type: String,
       enum: ['pending', 'contacted', 'unable_to_contact'],

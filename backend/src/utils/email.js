@@ -6,6 +6,7 @@
 */
 const nodemailer = require('nodemailer');
 const config = require('../config/env');
+const { renderEmailTemplate } = require('../services/emailTemplateService');
 
 const deliveryMode = (config.smtp.deliveryMode || 'live').toLowerCase();
 const isLive = deliveryMode === 'live';
@@ -168,4 +169,124 @@ const sendAdminApprovalEmail = async ({ to, requester, approvalOptions, rejectio
   return sendEmail({ to, subject, text, html });
 };
 
-module.exports = { sendEmail, sendOtpEmail, sendAdminApprovalEmail, deliveryMode };
+const getFormattedDateParts = (isoString) => {
+  if (!isoString) {
+    return { dateLabel: null, timeLabel: null };
+  }
+
+  const parsed = new Date(isoString);
+  if (Number.isNaN(parsed.getTime())) {
+    return { dateLabel: null, timeLabel: null };
+  }
+
+  const dateLabel = new Intl.DateTimeFormat('en-IN', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(parsed);
+
+  const timeLabel = new Intl.DateTimeFormat('en-IN', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).format(parsed);
+
+  return { dateLabel, timeLabel };
+};
+
+const sendEventRegistrationEmail = async ({
+  to,
+  name,
+  eventTitle,
+  startsAt,
+  timezone,
+  joinUrl,
+  hostName,
+}) => {
+  const displayName = name?.trim() || 'there';
+  const normalizedTitle = eventTitle?.trim() || 'the Gradus masterclass';
+  const timezoneLabel = timezone?.trim() || '';
+  const { dateLabel, timeLabel } = getFormattedDateParts(startsAt);
+  const dateDisplay = dateLabel || 'To be announced';
+  const timeDisplay = timeLabel
+    ? `${timeLabel}${timezoneLabel ? ` (${timezoneLabel})` : ''}`
+    : timezoneLabel || 'To be announced';
+  const locationText = joinUrl ? joinUrl : 'We will send the joining link soon.';
+  const friendlyHostName = hostName?.trim() || 'Team Gradus';
+
+  const templatePayload = {
+    participantName: displayName,
+    eventTitle: normalizedTitle,
+    eventDate: dateDisplay,
+    eventTime: timeDisplay,
+    onlineLink: joinUrl || locationText,
+    onlineLinkHtml: joinUrl ? `<a href="${joinUrl}">${joinUrl}</a>` : locationText,
+    hostName: friendlyHostName,
+  };
+
+  const rendered = await renderEmailTemplate('event_registration', templatePayload);
+
+  let subject;
+  let text;
+  let html;
+
+  if (rendered) {
+    subject = rendered.subject;
+    text = rendered.text;
+    html = rendered.html;
+  } else {
+    subject = `You're registered for ${normalizedTitle}!`;
+    text = [
+      `Hi ${displayName},`,
+      '',
+      `Your registration for ${normalizedTitle} is confirmed! We're excited to have you join us.`,
+      '',
+      "Here's a quick snapshot of what you need to know:",
+      `📅 Date: ${dateDisplay}`,
+      `⏰ Time: ${timeDisplay}`,
+      `📍 Online Link: ${locationText}`,
+      '',
+      "We'll send reminders and updates as the event gets closer. If you need anything, just reply to this email!",
+      '',
+      'See you there,',
+      friendlyHostName,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    html = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1F2933;">
+        <h2 style="color: #0B5394; margin-bottom: 12px;">You're registered!</h2>
+        <p>Hi ${displayName},</p>
+        <p>Your registration for <strong>${normalizedTitle}</strong> is confirmed! We're excited to have you join us.</p>
+        <div style="margin: 20px 0; padding: 16px; border-radius: 16px; background: #f8fafc;">
+          <p style="margin: 0 0 6px; font-weight: 600;">Here's a quick snapshot:</p>
+          <ul style="list-style: none; padding: 0; margin: 0;">
+            <li style="margin-bottom: 6px;">📅 <strong>Date:</strong> ${dateDisplay}</li>
+            <li style="margin-bottom: 6px;">⏰ <strong>Time:</strong> ${timeDisplay}</li>
+            <li style="margin-bottom: 6px;">📍 <strong>Online link:</strong> ${
+              joinUrl
+                ? `<a href="${joinUrl}" style="color: #0B5394;">${joinUrl}</a>`
+                : 'We will send the joining link soon.'
+            }</li>
+          </ul>
+        </div>
+        <p>We'll send reminders and updates as the event gets closer. Need anything? Just reply to this email.</p>
+        ${
+          joinUrl
+            ? `<div style="margin: 20px 0;">
+                <a href="${joinUrl}" style="background: #0B5394; color: #fff; text-decoration: none; padding: 12px 20px; border-radius: 999px; display: inline-block;">Join link</a>
+              </div>`
+            : ''
+        }
+        <p>See you there,</p>
+        <p style="margin-top: 8px;">${friendlyHostName}</p>
+      </div>
+    `;
+  }
+
+  return sendEmail({ to, subject, text, html });
+};
+
+module.exports = { sendEmail, sendOtpEmail, sendAdminApprovalEmail, sendEventRegistrationEmail, deliveryMode };

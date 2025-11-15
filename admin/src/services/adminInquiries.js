@@ -20,9 +20,27 @@ export const fetchContactInquiries = ({ token, search, region } = {}) =>
     token,
   });
 
-export const updateContactInquiry = ({ token, inquiryId, data } = {}) =>
+export const getContactInquiry = ({ token, inquiryId } = {}) =>
   apiClient(`/inquiries/${inquiryId}`, {
-    method: 'PATCH',
+    token,
+  });
+
+export const createContactInquiryAdmin = ({ token, data } = {}) =>
+  apiClient(`/inquiries`, {
+    method: "POST",
     token,
     data,
+  });
+
+export const updateContactInquiry = ({ token, inquiryId, data } = {}) =>
+  apiClient(`/inquiries/${inquiryId}`, {
+    method: "PATCH",
+    token,
+    data,
+  });
+
+export const deleteContactInquiry = ({ token, inquiryId } = {}) =>
+  apiClient(`/inquiries/${inquiryId}`, {
+    method: "DELETE",
+    token,
   });

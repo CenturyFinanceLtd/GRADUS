@@ -7,7 +7,9 @@ const express = require('express');
 const {
   createContactInquiry,
   listContactInquiries,
-  updateContactInquiryStatus,
+  getContactInquiry,
+  updateContactInquiry,
+  deleteContactInquiry,
 } = require('../controllers/contactController');
 const { protectAdmin } = require('../middleware/adminAuthMiddleware');
 
@@ -18,6 +20,10 @@ router
   .post(createContactInquiry)
   .get(protectAdmin, listContactInquiries);
 
-router.route('/:id').patch(protectAdmin, updateContactInquiryStatus);
+router
+  .route('/:id')
+  .get(protectAdmin, getContactInquiry)
+  .patch(protectAdmin, updateContactInquiry)
+  .delete(protectAdmin, deleteContactInquiry);
 
 module.exports = router;

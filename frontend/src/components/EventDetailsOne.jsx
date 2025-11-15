@@ -34,38 +34,7 @@ const STATE_OPTIONS = [
   "West Bengal"
 ];
 
-const STATE_INSTITUTE_MAP = {
-  "Andhra Pradesh": ["Andhra University", "SRM University AP", "VIT-AP", "JNTU Kakinada", "Other"],
-  "Arunachal Pradesh": ["Rajiv Gandhi University", "National Institute of Technology Arunachal Pradesh", "Other"],
-  "Assam": ["IIT Guwahati", "Gauhati University", "Tezpur University", "Other"],
-  "Bihar": ["IIT Patna", "NIT Patna", "Patna University", "Other"],
-  "Chhattisgarh": ["National Institute of Technology Raipur", "IGKV Raipur", "Government Engineering College Raipur", "Other"],
-  "Delhi": ["IIT Delhi", "Delhi University", "Jamia Millia Islamia", "Amity University Delhi", "Other"],
-  "Goa": ["Goa University", "National Institute of Technology Goa", "Other"],
-  "Gujarat": ["IIM Ahmedabad", "Gujarat University", "DA-IICT Gandhinagar", "Nirma University", "Other"],
-  "Haryana": ["IIT Delhi (nearby)", "Kurukshetra University", "National Institute of Technology Kurukshetra", "Other"],
-  "Himachal Pradesh": ["IIT Mandi", "Jaypee University of Information Technology", "Himachal Pradesh University", "Other"],
-  "Jharkhand": ["IIT Dhanbad", "NIT Jamshedpur", "Ranchi University", "Other"],
-  "Karnataka": ["IISc Bengaluru", "IIM Bangalore", "RV College of Engineering", "Bangalore University", "Other"],
-  "Kerala": ["IIT Palakkad", "Cochin University of Science and Technology", "National Institute of Technology Calicut", "Other"],
-  "Madhya Pradesh": ["IIT Indore", "MANIT Bhopal", "Pt. Ravishankar Shukla University", "Other"],
-  "Maharashtra": ["IIT Bombay", "University of Mumbai", "College of Engineering Pune", "Savitribai Phule Pune University", "Other"],
-  "Manipur": ["National Institute of Technology Manipur", "Manipur University", "Other"],
-  "Meghalaya": ["North Eastern Hill University", "National Institute of Technology Meghalaya", "Other"],
-  "Mizoram": ["Mizoram University", "National Institute of Technology Mizoram", "Other"],
-  "Nagaland": ["Nagaland University", "National Institute of Technology Nagaland", "Other"],
-  "Odisha": ["IIT Bhubaneswar", "Utkal University", "KIIT University", "National Institute of Technology Rourkela", "Other"],
-  "Punjab": ["IIT Ropar", "Punjab University", "Thapar Institute of Engineering and Technology", "Other"],
-  "Rajasthan": ["BITS Pilani", "MNIT Jaipur", "IIM Udaipur", "University of Rajasthan", "Other"],
-  "Sikkim": ["Sikkim University", "National Institute of Technology Sikkim", "Other"],
-  "Tamil Nadu": ["IIT Madras", "Anna University", "NIT Trichy", "SRM Institute of Science and Technology", "Other"],
-  "Telangana": ["IIT Hyderabad", "IIIT Hyderabad", "Osmania University", "International Institute of Information Technology Hyderabad", "Other"],
-  "Tripura": ["Tripura University", "National Institute of Technology Agartala", "Other"],
-  "Uttar Pradesh": ["IIT Kanpur", "IIM Lucknow", "Banaras Hindu University", "Aligarh Muslim University", "Other"],
-  "Uttarakhand": ["IIT Roorkee", "G.B. Pant University of Agriculture and Technology", "Other"],
-  "West Bengal": ["IIT Kharagpur", "IIM Calcutta", "Jadavpur University", "University of Calcutta", "Other"]
-};
-
+const QUALIFICATION_OPTIONS = ["UG Pursuing", "UG Completed", "PG Pursuing", "PG Completed"];
 
 const TABS = [
   { id: "overview", icon: "ph-squares-four", label: "Overview" },
@@ -204,8 +173,7 @@ const RegistrationCard = ({ event }) => {
     email: "",
     phone: "",
     state: "",
-    institution: "",
-    customInstitution: "",
+    qualification: "",
   });
   const [status, setStatus] = useState({ submitting: false, success: false, error: null });
 
@@ -217,45 +185,17 @@ const RegistrationCard = ({ event }) => {
     [event?.schedule?.start, event?.schedule?.timezone]
   );
 
-  const instituteOptions = useMemo(() => {
-    if (!form.state) {
-      return [];
-    }
-    const options = STATE_INSTITUTE_MAP[form.state] || ["Other"];
-    return options.includes("Other") ? options : [...options, "Other"];
-  }, [form.state]);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => {
-      if (name === "state") {
-        return { ...prev, state: value, institution: "", customInstitution: "" };
-      }
-      if (name === "institution") {
-        return {
-          ...prev,
-          institution: value,
-          customInstitution: value === "Other" ? prev.customInstitution : "",
-        };
-      }
-      return { ...prev, [name]: value };
-    });
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.phone || !form.state || !form.institution) {
+    if (!form.name || !form.email || !form.phone || !form.state || !form.qualification) {
       setStatus((prev) => ({ ...prev, error: "Please complete all required fields." }));
       return;
     }
-
-    if (form.institution === "Other" && !form.customInstitution.trim()) {
-      setStatus((prev) => ({ ...prev, error: "Please specify your college/university." }));
-      return;
-    }
-
-    const institutionValue =
-      form.institution === "Other" ? form.customInstitution.trim() : form.institution;
 
     try {
       setStatus({ submitting: true, success: false, error: null });
@@ -265,9 +205,21 @@ const RegistrationCard = ({ event }) => {
         phone: form.phone,
         state: form.state,
         region: "events",
-        institution: institutionValue,
+        institution: "",
         course: event?.title || "Event",
         message: `Interested in ${event?.title || "event"} masterclass`,
+        qualification: form.qualification,
+        eventDetails: {
+          id: event?.id || event?._id || null,
+          slug: event?.slug || "",
+          title: event?.title || "",
+          schedule: {
+            start: event?.schedule?.start || null,
+            timezone: event?.schedule?.timezone || "",
+          },
+          hostName: event?.host?.name || "",
+          ctaUrl: event?.cta?.url || "",
+        },
       });
       setStatus({ submitting: false, success: true, error: null });
       setForm({
@@ -275,8 +227,7 @@ const RegistrationCard = ({ event }) => {
         email: "",
         phone: "",
         state: "",
-        institution: "",
-        customInstitution: "",
+        qualification: "",
       });
     } catch (err) {
       setStatus({
@@ -346,42 +297,21 @@ const RegistrationCard = ({ event }) => {
             </option>
           ))}
         </select>
-        <label className='form-label text-sm fw-semibold mt-16'>College / Institute *</label>
+        <label className='form-label text-sm fw-semibold mt-16'>Qualification *</label>
         <select
           className='form-select'
-          name='institution'
-          value={form.institution}
+          name='qualification'
+          value={form.qualification}
           onChange={handleChange}
-          disabled={!form.state}
           required
         >
-          <option value=''>{form.state ? "Select an institute" : "Select a state first"}</option>
-          {instituteOptions.map((option) => (
+          <option value=''>Select qualification</option>
+          {QUALIFICATION_OPTIONS.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>
           ))}
         </select>
-        {!form.state ? (
-          <p className='text-sm text-neutral-500 mt-8 mb-0'>Choose your state to see nearby institutes.</p>
-        ) : form.institution !== "Other" && instituteOptions.length === 1 ? (
-          <p className='text-sm text-neutral-500 mt-8 mb-0'>
-            We’ll keep adding more institutes for {form.state}. Use “Other” if yours is missing.
-          </p>
-        ) : null}
-        {form.institution === "Other" ? (
-          <>
-            <label className='form-label text-sm fw-semibold mt-16'>College / University name *</label>
-            <input
-              className='form-control'
-              name='customInstitution'
-              value={form.customInstitution}
-              onChange={handleChange}
-              placeholder='Enter your college or university'
-              required
-            />
-          </>
-        ) : null}
         <button
           type='submit'
           className='btn btn-main w-100 rounded-pill mt-20'

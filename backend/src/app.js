@@ -32,6 +32,7 @@ const adminWhyGradusVideoRoutes = require('./routes/adminWhyGradusVideoRoutes');
 const adminUploadRoutes = require('./routes/adminUploadRoutes');
 const adminBannerRoutes = require('./routes/adminBannerRoutes');
 const adminEventRoutes = require('./routes/adminEventRoutes');
+const adminEmailTemplateRoutes = require('./routes/adminEmailTemplateRoutes');
 const chatbotRoutes = require('./routes/chatbotRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
 const adminTicketRoutes = require('./routes/adminTicketRoutes');
@@ -122,6 +123,7 @@ app.use('/api/admin/why-gradus-video', adminWhyGradusVideoRoutes);
 app.use('/api/admin/uploads', adminUploadRoutes);
 app.use('/api/admin/banners', adminBannerRoutes);
 app.use('/api/admin/events', adminEventRoutes);
+app.use('/api/admin/email-templates', adminEmailTemplateRoutes);
 // Public content + services
 app.use('/api/blogs', blogRoutes);
 app.use('/api/courses', courseRoutes);

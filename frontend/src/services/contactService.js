@@ -9,8 +9,10 @@ export const submitContactInquiry = async ({
   institution,
   course,
   message,
+  qualification,
+  eventDetails,
 }) => {
-  return apiClient.post('/inquiries', {
+  const payload = {
     name,
     email,
     phone,
@@ -19,7 +21,14 @@ export const submitContactInquiry = async ({
     institution,
     course,
     message,
-  });
+    qualification,
+  };
+
+  if (eventDetails) {
+    payload.eventDetails = eventDetails;
+  }
+
+  return apiClient.post('/inquiries', payload);
 };
 
 export default {
