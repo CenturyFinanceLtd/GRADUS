@@ -20,6 +20,7 @@ const isExternalUrl = (url = "") => /^https?:\/\//i.test(url);
 const BannerOne = () => {
   const [banners, setBanners] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [isMobileViewport, setIsMobileViewport] = useState(() => {
     if (typeof window === "undefined") {
       return false;
@@ -64,6 +65,9 @@ const BannerOne = () => {
         setError(err?.message || "Failed to load banners");
         setBanners([]);
       }
+      if (isMounted) {
+        setLoading(false);
+      }
     })();
     return () => {
       isMounted = false;
@@ -88,6 +92,22 @@ const BannerOne = () => {
     "banner banner--rounded banner--full-bleed position-relative overflow-hidden";
   const minHeightDesktop = 420;
   const minHeightMobile = 260;
+  const showSkeleton = loading || error;
+
+  const skeletonStyle = {
+    background: "linear-gradient(90deg, #f1f4f9 25%, #e6ebf2 50%, #f1f4f9 75%)",
+    backgroundSize: "200% 100%",
+    animation: "banner-skeleton 1.2s ease-in-out infinite",
+    borderRadius: 18,
+    width: "100%",
+    height: "100%",
+  };
+  const skeletonKeyframes = `
+    @keyframes banner-skeleton {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  `;
 
   const renderSlider = (slides = [], variant = "desktop") => {
     if (!slides.length) {
@@ -116,6 +136,19 @@ const BannerOne = () => {
     const visibilityClass = variant === "mobile" ? "d-lg-none" : "d-none d-lg-block";
     const sectionClassName = `${baseSectionClass} ${visibilityClass} banner--${variant}`.trim();
     const minHeight = variant === "mobile" ? minHeightMobile : minHeightDesktop;
+
+    if (showSkeleton) {
+      return (
+        <section className={sectionClassName} data-variant={`${variant}-banner`} style={{ minHeight }}>
+          <style>{skeletonKeyframes}</style>
+          <div style={{ position: "relative", height: "100%" }}>
+            <div style={{ position: "absolute", inset: 0, padding: 12 }}>
+              <div style={{ ...skeletonStyle, height: "100%" }} />
+            </div>
+          </div>
+        </section>
+      );
+    }
 
     return (
       <section
@@ -193,7 +226,7 @@ const BannerOne = () => {
     );
   };
 
-  if (!banners.length) {
+  if (!banners.length && !showSkeleton) {
     return (
       <section className={`${baseSectionClass} d-flex align-items-center justify-content-center`} style={{ minHeight: 240 }}>
         <div className='text-center px-3'>

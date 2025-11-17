@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Slider from "react-slick";
 import { listTestimonials } from "../../services/testimonialService";
 
@@ -26,6 +26,7 @@ const VideoTestimonials = () => {
   const [videoSrc, setVideoSrc] = useState("");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const hoverTimersRef = useRef({});
 
   // Fetch testimonials from backend (Cloudinary-backed)
@@ -36,7 +37,10 @@ const VideoTestimonials = () => {
         const data = await listTestimonials();
         if (isMounted) setItems(Array.isArray(data) ? data : []);
       } catch (e) {
-        if (isMounted) setItems([]);
+        if (isMounted) {
+          setItems([]);
+          setError(e?.message || "Unable to load testimonials.");
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -144,8 +148,23 @@ const VideoTestimonials = () => {
     ],
   };
 
+  const showSkeleton = loading || error || !items.length;
+  const skeletonCards = useMemo(() => new Array(4).fill(null), []);
+  const skeletonStyle = {
+    background: "linear-gradient(90deg, #f1f4f9 25%, #e6ebf2 50%, #f1f4f9 75%)",
+    backgroundSize: "200% 100%",
+    animation: "video-skeleton 1.4s ease-in-out infinite",
+  };
+  const skeletonKeyframes = `
+    @keyframes video-skeleton {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  `;
+
   return (
     <section className="video-testimonials-section py-64">
+      <style>{skeletonKeyframes}</style>
       <div className="container">
         <div className="row justify-content-center text-center mb-24">
           <div className="col-xl-7 col-lg-8">
@@ -154,69 +173,83 @@ const VideoTestimonials = () => {
           </div>
         </div>
 
-        {loading ? null : (
-        <Slider {...sliderSettings} className="video-reels-slider">
-          {items.map((item, idx) => {
-            const thumb = item.thumbnailUrl || undefined;
-            const key = item.id || idx;
-            return (
-              <div className="px-12" key={key}>
-                <div
-                  style={cardStyles.wrapper}
-                  className="video-testimonial-card"
-                  onMouseEnter={() => handleHoverStart(key, item.playbackUrl)}
-                  onMouseLeave={() => handleHoverEnd(key)}
-                  onFocus={() => openVideo(item.playbackUrl)}
-                >
-                  <button
-                    type="button"
-                    aria-label={disablePlayback ? "Playback disabled" : "Play testimonial"}
-                    onClick={disablePlayback ? undefined : () => openVideo(item.playbackUrl)}
-                    aria-disabled={disablePlayback}
-                    tabIndex={disablePlayback ? -1 : 0}
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      zIndex: 3,
-                      cursor: disablePlayback ? "not-allowed" : "pointer",
-                      pointerEvents: disablePlayback ? "none" : "auto",
-                      background: "transparent",
-                      border: 0,
-                    }}
-                  />
-                  <div
-                    style={{
-                      position: "relative",
-                      width: "100%",
-                      height: 0,
-                      paddingBottom: "177.78%",
-                      backgroundColor: "#0b1120",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <video
-                      playsInline
-                      muted
-                      preload="metadata"
-                      poster={thumb}
-                      src={item.playbackUrl}
-                      crossOrigin="anonymous"
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        backgroundColor: "#0b1120",
-                      }}
-                    />
+        <div style={{ minHeight: 420 }}>
+          {showSkeleton ? (
+            <div className="video-reels-slider" style={{ display: "flex", gap: 24 }}>
+              {skeletonCards.map((_, idx) => (
+                <div className="px-12 flex-grow-1" key={`video-skeleton-${idx}`}>
+                  <div style={{ ...cardStyles.wrapper, height: "100%" }}>
+                    <div style={{ position: "relative", width: "100%", height: 0, paddingBottom: "177.78%", overflow: "hidden" }}>
+                      <div style={{ ...skeletonStyle, position: "absolute", inset: 0, borderRadius: 24 }} />
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </Slider>
-        )}
+              ))}
+            </div>
+          ) : (
+            <Slider {...sliderSettings} className="video-reels-slider">
+              {items.map((item, idx) => {
+                const thumb = item.thumbnailUrl || undefined;
+                const key = item.id || idx;
+                return (
+                  <div className="px-12" key={key}>
+                    <div
+                      style={cardStyles.wrapper}
+                      className="video-testimonial-card"
+                      onMouseEnter={() => handleHoverStart(key, item.playbackUrl)}
+                      onMouseLeave={() => handleHoverEnd(key)}
+                      onFocus={() => openVideo(item.playbackUrl)}
+                    >
+                      <button
+                        type="button"
+                        aria-label={disablePlayback ? "Playback disabled" : "Play testimonial"}
+                        onClick={disablePlayback ? undefined : () => openVideo(item.playbackUrl)}
+                        aria-disabled={disablePlayback}
+                        tabIndex={disablePlayback ? -1 : 0}
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          zIndex: 3,
+                          cursor: disablePlayback ? "not-allowed" : "pointer",
+                          pointerEvents: disablePlayback ? "none" : "auto",
+                          background: "transparent",
+                          border: 0,
+                        }}
+                      />
+                      <div
+                        style={{
+                          position: "relative",
+                          width: "100%",
+                          height: 0,
+                          paddingBottom: "177.78%",
+                          backgroundColor: "#0b1120",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <video
+                          playsInline
+                          muted
+                          preload="metadata"
+                          poster={thumb}
+                          src={item.playbackUrl}
+                          crossOrigin="anonymous"
+                          style={{
+                            position: "absolute",
+                            inset: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            backgroundColor: "#0b1120",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </Slider>
+          )}
+        </div>
       </div>
 
       {/* Simple HTML5 video modal for Cloudinary playback */}

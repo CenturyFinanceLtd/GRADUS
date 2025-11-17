@@ -82,7 +82,7 @@ const prioritizePartners = (items) => {
 };
 
 const ByCflAndPartners = () => {
-  const { partners } = usePartnerLogos();
+  const { partners, loading, error } = usePartnerLogos();
   const partnerItems = useMemo(
     () => buildPartnerDisplayItems(partners),
     [partners]
@@ -99,9 +99,25 @@ const ByCflAndPartners = () => {
     return rowBuckets;
   }, [prioritizedPartners]);
 
-  if (!partnerItems.length) {
-    return null;
-  }
+  const showSkeleton = loading || error || !partnerItems.length;
+
+  const skeletonRows = [0, 1, 2];
+  const skeletonItems = new Array(7).fill(null);
+  const skeletonStyle = {
+    background: "linear-gradient(90deg, #f1f4f9 25%, #e6ebf2 50%, #f1f4f9 75%)",
+    backgroundSize: "200% 100%",
+    animation: "partner-skeleton 1.4s ease-in-out infinite",
+    borderRadius: 12,
+    height: 70,
+    width: 160,
+    margin: "10px auto",
+  };
+  const skeletonKeyframes = `
+    @keyframes partner-skeleton {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  `;
 
   const baseSettings = {
     slidesToShow: 7,
@@ -130,6 +146,7 @@ const ByCflAndPartners = () => {
 
   return (
     <section className="bycfl-section py-64 position-relative z-1 bg-white overflow-hidden">
+      <style>{skeletonKeyframes}</style>
       <div className="container container--lg">
         <div className="text-center mb-32">
           <div
@@ -151,29 +168,43 @@ const ByCflAndPartners = () => {
          
         </div>
 
-        <div className="brand-box py-24 px-8">
+        <div className="brand-box py-24 px-8" style={{ minHeight: 320 }}>
           <div className="container">
-            {rows.map((row, i) => (
-              <div key={`partner-row-${i}`} style={{ marginBottom: i === rows.length - 1 ? 0 : 12 }}>
-                <Slider {...rowSettings[i]} className="brand-slider bycfl-slider">
-                  {row.map(({ key, logo, displayName }) => (
-                    <div
-                      className="brand-slider__item"
-                      key={key}
-                      style={{ paddingLeft: 8, paddingRight: 8 }}
-                    >
-                      <div>
-                        <img
-                          src={logo}
-                          alt={displayName || "Partner logo"}
-                          style={{ maxHeight: 44, width: "auto", display: "block", margin: "0 auto" }}
-                        />
+            {showSkeleton ? (
+              skeletonRows.map((rowKey) => (
+                <div key={`skeleton-row-${rowKey}`} style={{ marginBottom: rowKey === skeletonRows.length - 1 ? 0 : 12 }}>
+                  <div className="d-flex" style={{ gap: 12, justifyContent: "center" }}>
+                    {skeletonItems.map((_, idx) => (
+                      <div key={`skeleton-${rowKey}-${idx}`} style={{ padding: "0 8px" }}>
+                        <div style={skeletonStyle} />
                       </div>
-                    </div>
-                  ))}
-                </Slider>
-              </div>
-            ))}
+                    ))}
+                  </div>
+                </div>
+              ))
+            ) : (
+              rows.map((row, i) => (
+                <div key={`partner-row-${i}`} style={{ marginBottom: i === rows.length - 1 ? 0 : 12 }}>
+                  <Slider {...rowSettings[i]} className="brand-slider bycfl-slider">
+                    {row.map(({ key, logo, displayName }) => (
+                      <div
+                        className="brand-slider__item"
+                        key={key}
+                        style={{ paddingLeft: 8, paddingRight: 8 }}
+                      >
+                        <div>
+                          <img
+                            src={logo}
+                            alt={displayName || "Partner logo"}
+                            style={{ maxHeight: 44, width: "auto", display: "block", margin: "0 auto" }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </Slider>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
