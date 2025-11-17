@@ -99,7 +99,7 @@ const OverviewTab = ({ event, overviewText }) => {
         <span className='event-meta-pill__label'>Event Type</span>
         <span className='event-meta-pill__value'>{eventTypeLabel}</span>
       </div>
-      <h2 className='event-section-title'>What you will learn in this masterclass</h2>
+      <h2 className='event-section-title'>What you will learn in this event</h2>
       {event?.meta?.highlights?.length ? (
         <ul className='event-highlight-list'>
           {event.meta.highlights.map((item, index) => (
@@ -200,7 +200,7 @@ const RegistrationCard = ({ event }) => {
         region: "events",
         institution: "",
         course: event?.title || "Event",
-        message: `Interested in ${event?.title || "event"} masterclass`,
+        message: `Interested in ${event?.title || "event"} event`,
         qualification: form.qualification,
         eventDetails: {
           id: event?.id || event?._id || null,
@@ -383,25 +383,14 @@ const EventDetailsOne = ({ event, loading, error }) => {
             <div className='col-lg-8'>
               <div className='event-hero-card'>
                 <div className='d-flex gap-8 flex-wrap align-items-center mb-12'>
-                  <span className='badge badge--category'>{event?.category || "Masterclass"}</span>
+                  <span className='badge badge--category'>{event?.category || "Event"}</span>
                   {event?.badge ? <span className='badge badge--accent ms-2'>{event.badge}</span> : null}
                 {event?.eventType ? (
                   <span className='event-type-chip'>{event.eventType}</span>
                 ) : null}
               </div>
-              <h1 className='display-5 mb-8 mt-16'>{event?.title}</h1>
+              <h1 className='display-5 fw-semibold mb-8 mt-16'>{event?.title}</h1>
               {heroLead ? <p className='text-neutral-600 mb-24'>{heroLead}</p> : null}
-              <div className='d-lg-none'>
-                <div className='event-mobile-cta'>
-                  <div className='event-mobile-cta__text'>
-                    <span className='event-mobile-cta__price'>Free</span>
-                    <span className='event-mobile-cta__meta'>Limited seats available</span>
-                  </div>
-                  <button type='button' className='event-mobile-cta__button' onClick={scrollToRegistration}>
-                    Register Now
-                  </button>
-                </div>
-              </div>
               <EventTabs active={activeTab} onChange={setActiveTab} />
               <div className='event-tab-content'>{renderTab()}</div>
             </div>

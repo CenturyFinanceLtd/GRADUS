@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Breadcrumb from "../components/Breadcrumb";
 import CertificateOne from "../components/CertificateOne";
 import EventDetailsOne from "../components/EventDetailsOne";
 import FooterOne from "../components/FooterOne";
@@ -54,14 +53,11 @@ const EventDetailsPage = () => {
     };
   }, [slug]);
 
-  const breadcrumbTitle = state.event?.title || "Event Details";
-
   return (
     <>
       <Preloader />
       <Animation />
       <HeaderOne />
-      <Breadcrumb title={breadcrumbTitle} />
       <EventDetailsOne event={state.event} loading={state.loading} error={state.error} />
       <CertificateOne />
       <FooterOne />
