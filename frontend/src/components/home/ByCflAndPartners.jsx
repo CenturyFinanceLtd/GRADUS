@@ -168,7 +168,14 @@ const ByCflAndPartners = () => {
          
         </div>
 
-        <div className="brand-box py-24 px-8" style={{ minHeight: 320 }}>
+        <div
+          className="brand-box py-24 px-8"
+          style={{
+            minHeight: 360,
+            background: showSkeleton ? "#f7f9fc" : undefined,
+            border: "1px solid #eef1f5",
+          }}
+        >
           <div className="container">
             {showSkeleton ? (
               skeletonRows.map((rowKey) => (

@@ -272,7 +272,8 @@ const ProgrammesAndCourses = () => {
     };
   }, [tabbedCourses.length]);
 
-  const showComingSoon = !loading && !tabbedCourses.length;
+  const showSkeleton = (loading || Boolean(error)) && !courses.length;
+  const showComingSoon = !loading && !error && !tabbedCourses.length;
 
   const sliderKey = `${activeTab}-${tabbedCourses.length}`;
 
@@ -288,6 +289,11 @@ const ProgrammesAndCourses = () => {
             position: absolute;
             inset: 0;
             border-radius: 18px;
+            background: linear-gradient(120deg, #eef2f7, #e2e8f0, #eef2f7);
+            background-size: 200% 100%;
+            animation: programmeThumbShimmer 1.6s ease-in-out infinite;
+          }
+          .programme-card-skeleton {
             background: linear-gradient(120deg, #eef2f7, #e2e8f0, #eef2f7);
             background-size: 200% 100%;
             animation: programmeThumbShimmer 1.6s ease-in-out infinite;
@@ -308,14 +314,39 @@ const ProgrammesAndCourses = () => {
             </button>
           ))}
         </div>
-        {error ? (
-          <div className='alert alert-warning text-center mb-24'>{error}</div>
-        ) : null}
         <div className='programmes-courses-carousel'>
           <div className='programmes-courses-frame'>
-            {loading && !courses.length ? (
-              <div className='programmes-courses-loader text-white-50 text-center py-40'>
-                Loading curated courses&hellip;
+            {showSkeleton ? (
+              <div
+                className='programmes-courses-skeleton-grid'
+                style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}
+              >
+                {Array.from({ length: 4 }).map((_, idx) => (
+                  <div key={`course-skel-${idx}`} className='programme-card-wrapper' style={{ minWidth: 260, maxWidth: 320 }}>
+                    <div className='programme-card programme-card--skeleton'>
+                      <div className='programme-card__thumb programme-card-skeleton' style={{ height: 190, borderRadius: 18 }} />
+                      <div className='programme-card__pill programme-card-skeleton d-flex align-items-center gap-10' style={{ marginTop: 12, height: 36, borderRadius: 18, justifyContent: "space-between" }}>
+                        <div className='d-flex gap-8'>
+                          <span className='programme-card-skeleton' style={{ width: 24, height: 24, borderRadius: 12 }} />
+                          <span className='programme-card-skeleton' style={{ width: 24, height: 24, borderRadius: 12 }} />
+                          <span className='programme-card-skeleton' style={{ width: 24, height: 24, borderRadius: 12 }} />
+                        </div>
+                        <span className='programme-card-skeleton' style={{ width: 120, height: 14, borderRadius: 10 }} />
+                      </div>
+                      <div className='programme-card__body'>
+                        <div className='programme-card-skeleton mb-10' style={{ height: 14, width: "65%", borderRadius: 8 }} />
+                        <div className='programme-card-skeleton mb-14' style={{ height: 18, width: "90%", borderRadius: 10 }} />
+                        <div className='programme-card-skeleton mb-8' style={{ height: 14, width: "100%", borderRadius: 10 }} />
+                        <div className='programme-card-skeleton mb-8' style={{ height: 14, width: "92%", borderRadius: 10 }} />
+                        <div className='programme-card-skeleton mb-8' style={{ height: 14, width: "80%", borderRadius: 10 }} />
+                        <div className='d-flex justify-content-between align-items-center mt-14'>
+                          <div className='programme-card-skeleton' style={{ height: 22, width: 90, borderRadius: 10 }} />
+                          <div className='programme-card-skeleton' style={{ height: 34, width: 120, borderRadius: 10 }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : showComingSoon ? (
               <div className='programmes-courses-empty text-white-50 text-center py-40'>

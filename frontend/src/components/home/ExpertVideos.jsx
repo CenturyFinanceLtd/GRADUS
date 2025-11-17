@@ -27,6 +27,7 @@ const ExpertVideos = () => {
       } catch (err) {
         if (!isMounted) return;
         setError(err?.message || "Unable to load expert videos right now.");
+        setVideos([]);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -115,8 +116,25 @@ const ExpertVideos = () => {
     playSafe();
   }, [index, currentVideo?.playbackUrl, inView]);
 
+  const showSkeletonCard = loading || !currentVideo;
+  const videoSkeletonStyle = {
+    position: "absolute",
+    inset: 0,
+    zIndex: 1,
+    borderRadius: 24,
+    background: "linear-gradient(120deg, #1e2635, #0f172a, #1e2635)",
+    backgroundSize: "200% 100%",
+    animation: "expertVideoSkeleton 1.2s ease-in-out infinite",
+  };
+
   return (
     <section className="expert-videos-section py-64" ref={viewRef}>
+      <style>{`
+        @keyframes expertVideoSkeleton {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
       <div className="container">
         <div className="expert-videos-header text-center mb-32">
           <p className="expert-videos-eyebrow">
@@ -145,10 +163,10 @@ const ExpertVideos = () => {
                 onTouchCancel={resetTouchTracking}
                 style={{ touchAction: "pan-y" }}
               >
-                {(loading || (!videoLoaded && currentVideo)) ? (
-                  <div className="expert-video-skeleton" aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 1 }} />
+                {(showSkeletonCard || (!videoLoaded && currentVideo)) ? (
+                  <div className="expert-video-skeleton" aria-hidden="true" style={videoSkeletonStyle} />
                 ) : null}
-                {loading ? null : currentVideo ? (
+                {!showSkeletonCard && currentVideo ? (
                   <video
                     key={currentVideo.id || index}
                     src={currentVideo.playbackUrl}
@@ -160,13 +178,10 @@ const ExpertVideos = () => {
                     className={`expert-video-player animate-${direction}`}
                     ref={videoRef}
                     onLoadedData={() => setVideoLoaded(true)}
-                    style={{ position: "relative", zIndex: 2 }}
+                    style={{ position: "relative", zIndex: 2, display: videoLoaded ? "block" : "none" }}
                   />
-                ) : (
-                  <div className="expert-video-empty">
-                    <p>{error || "Expert videos will appear here soon."}</p>
-                  </div>
-                )}
+                ) : null}
+                {/* When no video is available we leave the skeleton visible */}
               </div>
             </div>
 
@@ -211,7 +226,9 @@ const ExpertVideos = () => {
           </div>
         ) : null}
 
-        {error && !loading ? <p className="text-center text-danger mt-16">{error}</p> : null}
+        {error && !loading && !videos.length && !showSkeletonCard ? (
+          <p className="text-center text-danger mt-16">{error}</p>
+        ) : null}
       </div>
     </section>
   );

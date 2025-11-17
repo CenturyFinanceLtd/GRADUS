@@ -92,6 +92,7 @@ const FooterOne = () => {
     });
     return initial;
   });
+  const [programmeLoading, setProgrammeLoading] = useState(true);
   const [expandedCourseLists, setExpandedCourseLists] = useState(() => {
     const initial = {};
     PROGRAMMES.forEach(({ slug }) => {
@@ -150,6 +151,15 @@ const FooterOne = () => {
         }
       } catch (error) {
         console.error("Failed to load footer courses", error);
+        if (isMounted) {
+          PROGRAMMES.forEach(({ slug }) => {
+            grouped[slug] = [];
+          });
+        }
+      } finally {
+        if (isMounted) {
+          setProgrammeLoading(false);
+        }
       }
     };
 
@@ -178,6 +188,12 @@ const FooterOne = () => {
 
   return (
     <footer className='gradus-footer'>
+      <style>{`
+        @keyframes footerCourseSkeleton {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
       <div className='gradus-footer__body container container-two'>
         <div className='gradus-footer__primary'>
           <div className='gradus-footer__logo-row'>
@@ -258,7 +274,24 @@ const FooterOne = () => {
                     </button>
                     <div className='gradus-footer__accordion-panel' hidden={!isSectionExpanded(`programme-${slug}`)}>
                       <ul className='gradus-footer__list gradus-footer__list--courses'>
-                        {hasDynamicLinks ? (
+                        {programmeLoading ? (
+                          Array.from({ length: 3 }).map((_, idx) => (
+                            <li key={`${slug}-skeleton-${idx}`}>
+                              <span
+                                className='gradus-footer__link gradus-footer__link--muted'
+                                style={{
+                                  display: "inline-block",
+                                  height: 14,
+                                  width: `${70 - idx * 8}%`,
+                                  background: "linear-gradient(120deg, #2a2f3d, #343a4a, #2a2f3d)",
+                                  backgroundSize: "200% 100%",
+                                  animation: "footerCourseSkeleton 1.4s ease-in-out infinite",
+                                  borderRadius: 6,
+                                }}
+                              />
+                            </li>
+                          ))
+                        ) : hasDynamicLinks ? (
                           <>
                             {displayCourses.map(({ name, slug: courseSlug }) => {
                               const path = courseSlug ? `/${courseSlug.replace(/^\//, "")}` : "/our-courses";
