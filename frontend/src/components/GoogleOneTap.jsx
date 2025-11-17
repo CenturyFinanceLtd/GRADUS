@@ -88,7 +88,7 @@ const GoogleOneTap = () => {
 
         initializedRef.current = true;
 
-        window.google.accounts.id.initialize({
+        const initOptions = {
           client_id: clientId,
           callback: async (response) => {
             const credential = response?.credential;
@@ -106,9 +106,15 @@ const GoogleOneTap = () => {
           },
           auto_select: false,
           cancel_on_tap_outside: true,
-          use_fedcm_for_prompt: shouldUseFedCM,
           itp_support: true,
-        });
+        };
+
+        // Only opt into FedCM when the browser supports it; avoid explicitly disabling it.
+        if (shouldUseFedCM) {
+          initOptions.use_fedcm_for_prompt = true;
+        }
+
+        window.google.accounts.id.initialize(initOptions);
 
         try {
           window.google.accounts.id.prompt();

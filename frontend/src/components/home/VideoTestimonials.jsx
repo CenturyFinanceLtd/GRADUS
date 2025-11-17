@@ -26,7 +26,7 @@ const VideoTestimonials = () => {
   const [videoSrc, setVideoSrc] = useState("");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const videoRefs = useRef({});
+  const hoverTimersRef = useRef({});
 
   // Fetch testimonials from backend (Cloudinary-backed)
   useEffect(() => {
@@ -48,47 +48,26 @@ const VideoTestimonials = () => {
 
   const disablePlayback = false;
 
-  const startHoverPlayback = (id, src) => {
-    const videoEl = videoRefs.current[id];
-    if (!videoEl) return;
-    // Always load the src to ensure playback starts
-    if (videoEl.src !== src) {
-      videoEl.src = src;
-      videoEl.load();
-    }
-    // Begin muted to satisfy browser autoplay and then unmute if allowed
-    videoEl.muted = true;
-    videoEl.currentTime = 0;
-    videoEl.style.opacity = '1';
-    const playPromise = videoEl.play();
-    if (playPromise?.then) {
-      playPromise
-        .then(() => {
-          videoEl.muted = false;
-          videoEl.volume = 1;
-        })
-        .catch(() => {
-          // If audible autoplay is blocked, keep it muted
-          videoEl.muted = true;
-          videoEl.play().catch(() => {});
-        });
-    }
-  };
-
-  const stopHoverPlayback = (id) => {
-    const videoEl = videoRefs.current[id];
-    if (!videoEl) return;
-    videoEl.pause();
-    videoEl.currentTime = 0;
-    videoEl.muted = false;
-    videoEl.style.opacity = '0';
-  };
-
   const openVideo = (src) => {
-    // Stop any inline hovers so audio doesn't continue behind the modal
-    Object.keys(videoRefs.current).forEach((id) => stopHoverPlayback(id));
+    if (isOpen && videoSrc === src) return;
     setVideoSrc(src);
     setIsOpen(true);
+  };
+
+  const handleHoverStart = (id, src) => {
+    clearTimeout(hoverTimersRef.current[id]);
+    hoverTimersRef.current[id] = setTimeout(() => {
+      hoverTimersRef.current[id] = null;
+      openVideo(src);
+    }, 500); // only open if cursor stays for 500ms
+  };
+
+  const handleHoverEnd = (id) => {
+    const timer = hoverTimersRef.current[id];
+    if (timer) {
+      clearTimeout(timer);
+      hoverTimersRef.current[id] = null;
+    }
   };
 
   const ArrowBtn = ({ className, style, onClick }) => {
@@ -185,10 +164,9 @@ const VideoTestimonials = () => {
                 <div
                   style={cardStyles.wrapper}
                   className="video-testimonial-card"
-                  onMouseEnter={() => startHoverPlayback(key, item.playbackUrl)}
-                  onMouseLeave={() => stopHoverPlayback(key)}
-                  onFocus={() => startHoverPlayback(key, item.playbackUrl)}
-                  onBlur={() => stopHoverPlayback(key)}
+                  onMouseEnter={() => handleHoverStart(key, item.playbackUrl)}
+                  onMouseLeave={() => handleHoverEnd(key)}
+                  onFocus={() => openVideo(item.playbackUrl)}
                 >
                   <button
                     type="button"
@@ -217,14 +195,12 @@ const VideoTestimonials = () => {
                     }}
                   >
                     <video
-                      ref={(el) => {
-                        if (el) videoRefs.current[key] = el;
-                        else delete videoRefs.current[key];
-                      }}
                       playsInline
                       muted
                       preload="metadata"
                       poster={thumb}
+                      src={item.playbackUrl}
+                      crossOrigin="anonymous"
                       style={{
                         position: "absolute",
                         inset: 0,
@@ -232,8 +208,6 @@ const VideoTestimonials = () => {
                         height: "100%",
                         objectFit: "cover",
                         backgroundColor: "#0b1120",
-                        opacity: 0,
-                        transition: "opacity 0.2s ease",
                       }}
                     />
                   </div>
@@ -269,6 +243,9 @@ const VideoTestimonials = () => {
               borderRadius: 16,
               overflow: "hidden",
               background: "#000",
+              transform: "scale(0.96)",
+              opacity: 0,
+              animation: "videoModalIn 180ms ease-out forwards",
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -307,3 +284,17 @@ const VideoTestimonials = () => {
 };
 
 export default VideoTestimonials;
+
+// Inline keyframes for modal pop animation
+const styleTag = document.getElementById("video-modal-anim");
+if (!styleTag) {
+  const tag = document.createElement("style");
+  tag.id = "video-modal-anim";
+  tag.innerHTML = `
+    @keyframes videoModalIn {
+      from { transform: scale(0.96); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+  `;
+  document.head.appendChild(tag);
+}

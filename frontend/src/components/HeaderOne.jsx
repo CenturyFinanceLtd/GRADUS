@@ -302,7 +302,16 @@ const HeaderOne = () => {
     return () => { cancelled = true; };
   }, []);
 
-  const renderNavLabel = (item) => <span>{item.label}</span>;
+  const renderNavLabel = (item) => (
+    <>
+      <span className='nav-menu__label'>{item.label}</span>
+      {item.badge ? (
+        <span className='nav-menu__badge' aria-hidden='true'>
+          {item.badge}
+        </span>
+      ) : null}
+    </>
+  );
 
   const menuItems = [
     {
