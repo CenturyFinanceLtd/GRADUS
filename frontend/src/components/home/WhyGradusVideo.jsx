@@ -61,8 +61,8 @@ const WhyGradusVideo = () => {
   const ctaLabel = item?.ctaLabel;
   const ctaHref = item?.ctaHref;
   const pillLabel = subtitle || "Why Gradus";
-  const showSkeleton = loading || !videoSrc;
-  const contentSkeleton = loading || !item;
+  const showSkeleton = loading && !videoSrc;
+  const contentSkeleton = loading && !item;
   const skeletonKeyframes = `
     @keyframes why-gradus-skel {
       0% { background-position: 200% 0; }
@@ -116,7 +116,7 @@ const WhyGradusVideo = () => {
                   minHeight: 380,
                 }}
               >
-                {(showSkeleton || (!videoLoaded && videoSrc)) ? (
+                {showSkeleton ? (
                   <div
                     className="why-gradus-skeleton"
                     style={{
