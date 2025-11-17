@@ -34,30 +34,35 @@ const socialLinks = [
     label: "Quora",
     iconType: "image",
     icon: "/assets/icons/quora.svg",
+    color: "#b92b27",
   },
   {
     href: "https://www.reddit.com/user/GradusIndia/",
     label: "Reddit",
     iconType: "icon",
     icon: "ph-bold ph-reddit-logo",
+    color: "#ff4500",
   },
   {
     href: "https://discord.com/channels/1432018650558238884/1432019463347114035",
     label: "Discord",
     iconType: "icon",
     icon: "ph-bold ph-discord-logo",
+    color: "#5b66f6",
   },
   {
     href: "https://www.instagram.com/gradusindiaofficial?igsh=MWdhdjJhZWp6NDI1aA==",
     label: "Instagram",
     iconType: "icon",
     icon: "ph-bold ph-instagram-logo",
+    color: "#e1306c",
   },
   {
     href: "https://www.facebook.com/people/Gradus/61583093960559/?sk=about",
     label: "Facebook",
     iconType: "icon",
     icon: "ph-bold ph-facebook-logo",
+    color: "#1877f2",
   },
 ];
 
@@ -282,11 +287,12 @@ const FooterOne = () => {
             </form>
           </div>
           <div className='gradus-footer__social gradus-footer__social--cta'>
-            {socialLinks.map(({ href, label, iconType, icon }) => (
+            {socialLinks.map(({ href, label, iconType, icon, color }) => (
               <a
                 key={`cta-${label}`}
                 href={href}
                 className='gradus-footer__social-link'
+                style={{ "--icon-color": color }}
                 target='_blank'
                 rel='noopener noreferrer nofollow'
                 aria-label={label}
@@ -310,8 +316,8 @@ const FooterOne = () => {
             <Link to='/privacy-policy' className='gradus-footer__link'>
               Privacy Policy
             </Link>
-            <Link to='/visitors' className='gradus-footer__link'>
-              Visitors Privacy Notes
+            <Link to='/visitor-policy' className='gradus-footer__link'>
+              Visitor Policy
             </Link>
             <Link to='/vendors' className='gradus-footer__link'>
               Vendors

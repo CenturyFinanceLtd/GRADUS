@@ -2,22 +2,22 @@ import Breadcrumb from "../components/Breadcrumb";
 import CertificateOne from "../components/CertificateOne";
 import FooterOne from "../components/FooterOne";
 import HeaderOne from "../components/HeaderOne";
-import VisitorPrivacyNotesContent from "../components/privacy/VisitorPrivacyNotesContent";
+import VisitorPolicyContent from "../components/privacy/VisitorPolicyContent";
 import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
 
-const VisitorPrivacyNotesPage = () => {
+const VisitorPolicyPage = () => {
   return (
     <>
       <Preloader />
       <Animation />
       <HeaderOne />
-      <Breadcrumb title={"Visitor Privacy Notes"} />
-      <VisitorPrivacyNotesContent />
+      <Breadcrumb title={"Visitor Policy"} />
+      <VisitorPolicyContent />
       <CertificateOne />
       <FooterOne />
     </>
   );
 };
 
-export default VisitorPrivacyNotesPage;
+export default VisitorPolicyPage;

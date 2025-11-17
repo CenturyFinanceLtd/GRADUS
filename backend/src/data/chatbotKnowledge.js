@@ -690,11 +690,11 @@ module.exports = [
     source: 'frontend/src/components/privacy/VendorsContent.jsx',
   },
   {
-    id: 'components-privacy-visitorprivacynotescontent',
-    title: 'Insights from Components - Privacy - VisitorPrivacyNotesContent',
-    tags: ["components","privacy","visitorprivacynotescontent"],
-    content: 'Visitor Privacy Notes *Visitors privacy notices are also displayed at the visitors\' entrance in Gradus offices. Categories of Personal Information (including sensitive personal information) that we process: * Please note that the categories of personal (or sensitive personal) details processed may differ based on the business requirement of the entity and legal requirement of a country. Use of your Personal Information: We use your Personal Information for the following purposes: To allow access to Gradus premises. Legal Basis of processing: We process your Personal Information when it is necessary for the purposes of a legitimate interest pursued by us or based on your consent, wherever applicable. For reference to our additional privacy practices regarding data security, retention, transfers (if any), and helping you exercise your rights, as applicable, please refer to our Global Privacy Statement.',
-    source: 'frontend/src/components/privacy/VisitorPrivacyNotesContent.jsx',
+    id: 'components-privacy-visitorpolicycontent',
+    title: 'Insights from Components - Privacy - VisitorPolicyContent',
+    tags: ["components","privacy","visitorpolicycontent"],
+    content: 'Visitor Policy *Visitor policies are also displayed at the visitors\' entrance in Gradus offices. Categories of Personal Information (including sensitive personal information) that we process: Visitor Name, Contact Details, Organization, Assets Information (if any), Date and purpose of visit, Photograph, and images/footage captured on CCTV or other video and related security/monitoring systems. * Please note that the categories of personal (or sensitive personal) details processed may differ based on the business requirement of the entity and legal requirement of a country. Use of your Personal Information: We use your Personal Information for the following purposes: To allow access to Gradus premises. Legal Basis of processing: We process your Personal Information when it is necessary for the purposes of a legitimate interest pursued by us or based on your consent, wherever applicable. For reference to our additional privacy practices regarding data security, retention, transfers (if any), and helping you exercise your rights, as applicable, please refer to our Global Privacy Statement.',
+    source: 'frontend/src/components/privacy/VisitorPolicyContent.jsx',
   },
   {
     id: 'components-privacypolicyinner',
@@ -847,7 +847,7 @@ module.exports = [
     id: 'data-privacylinks',
     title: 'Insights from Data - PrivacyLinks',
     tags: ["data","privacylinks"],
-    content: 'Candidates and Interns Employee and Alumni Shareholders Visitors Privacy Notes',
+    content: 'Candidates and Interns Employee and Alumni Shareholders Visitor Policy',
     source: 'frontend/src/data/privacyLinks.js',
   },
   {

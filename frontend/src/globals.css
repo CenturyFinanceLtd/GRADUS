@@ -11766,7 +11766,7 @@ ul.footer-menu {
   justify-content: center;
   background: #ffffff;
   border-radius: 18px;
-  padding: 18px 28px;
+  padding: 18px;
   box-shadow: 0 25px 40px rgba(0, 0, 0, 0.3);
 }
 .gradus-footer__logo--inline {
@@ -11878,10 +11878,6 @@ ul.footer-menu {
   gap: clamp(1rem, 2vw, 2rem);
 }
 .gradus-footer__newsletter {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 28px;
-  padding: clamp(1.5rem, 3vw, 2rem);
   flex: 1;
   min-width: min(100%, 540px);
 }
@@ -11974,7 +11970,7 @@ ul.footer-menu {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  color: var(--icon-color, #ffffff);
   font-size: 1.25rem;
   transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
@@ -11984,7 +11980,7 @@ ul.footer-menu {
 }
 .gradus-footer__social-link:hover {
   background: #ffffff;
-  color: #1c0f4a;
+  color: var(--icon-color, #1c0f4a);
   transform: translateY(-2px);
 }
 .gradus-footer__legal {

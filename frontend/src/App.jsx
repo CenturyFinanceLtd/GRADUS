@@ -46,7 +46,7 @@ import TuitionJobsPage from "./pages/TuitionJobsPage.jsx";
 import TutorPage from "./pages/TutorPage.jsx";
 import TutorDetailsPage from "./pages/TutorDetailsPage.jsx";
 import ShareholdersPrivacyPage from "./pages/ShareholdersPrivacyPage.jsx";
-import VisitorPrivacyNotesPage from "./pages/VisitorPrivacyNotesPage.jsx";
+import VisitorPolicyPage from "./pages/VisitorPolicyPage.jsx";
 import VendorsPrivacyPage from "./pages/VendorsPrivacyPage.jsx";
 import KnowCFLPage from "./pages/KnowCFLPage.jsx";
 import CoursePaymentPage from "./pages/CoursePaymentPage.jsx";
@@ -155,8 +155,8 @@ function App() {
         />
         <Route
           exact
-          path='/visitors'
-          element={<VisitorPrivacyNotesPage />}
+          path='/visitor-policy'
+          element={<VisitorPolicyPage />}
         />
         <Route
           exact

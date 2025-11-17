@@ -197,10 +197,10 @@ export const PAGE_META = {
     description:
       "Explore Gradus India's approach to shareholder privacy. Our policy outlines how we collect, use, and safeguard your personal information.",
   },
-  "/visitors": {
-    title: "Privacy Policy for Visitor Privacy | Gradus India",
+  "/visitor-policy": {
+    title: "Visitor Policy | Gradus India",
     description:
-      "Gradus’s policy for visitors: how we collect data, store it, protect it, and what choices you have over your information. ",
+      "Read Gradus's visitor policy to understand how we collect, use, and safeguard visitor information, plus the choices available to you.",
   },
   "/vendors": {
     title: "Privacy Policy for Vendors | Gradus India",
