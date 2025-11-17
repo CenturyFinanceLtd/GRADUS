@@ -12,7 +12,6 @@ const ExpertVideos = () => {
   const touchStartX = useRef(null);
   const touchLatestX = useRef(null);
   const touchActive = useRef(false);
-  const [videoLoaded, setVideoLoaded] = useState(false);
   const { ref: viewRef, inView } = useInView({ threshold: 0.35 });
 
   useEffect(() => {
@@ -97,7 +96,6 @@ const ExpertVideos = () => {
   useEffect(() => {
     const el = videoRef.current;
     if (!el) return;
-    setVideoLoaded(false);
     const playSafe = async () => {
       try {
         if (!el.muted) {
@@ -116,7 +114,7 @@ const ExpertVideos = () => {
     playSafe();
   }, [index, currentVideo?.playbackUrl, inView]);
 
-  const showSkeletonCard = loading || !currentVideo;
+  const showSkeletonCard = loading && !currentVideo;
   const videoSkeletonStyle = {
     position: "absolute",
     inset: 0,
@@ -163,7 +161,7 @@ const ExpertVideos = () => {
                 onTouchCancel={resetTouchTracking}
                 style={{ touchAction: "pan-y" }}
               >
-                {(showSkeletonCard || (!videoLoaded && currentVideo)) ? (
+                {showSkeletonCard ? (
                   <div className="expert-video-skeleton" aria-hidden="true" style={videoSkeletonStyle} />
                 ) : null}
                 {!showSkeletonCard && currentVideo ? (
@@ -177,8 +175,7 @@ const ExpertVideos = () => {
                     muted
                     className={`expert-video-player animate-${direction}`}
                     ref={videoRef}
-                    onLoadedData={() => setVideoLoaded(true)}
-                    style={{ position: "relative", zIndex: 2, display: videoLoaded ? "block" : "none" }}
+                    style={{ position: "relative", zIndex: 2 }}
                   />
                 ) : null}
                 {/* When no video is available we leave the skeleton visible */}
