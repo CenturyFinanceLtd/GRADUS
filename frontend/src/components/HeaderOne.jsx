@@ -332,7 +332,7 @@ const HeaderOne = () => {
     <>
       <div className={`side-overlay ${isMenuActive ? "show" : ""}`}></div>
       <header className={`header ${scroll ? "fixed-header" : ""}`}>
-        <div className='container container--xl'>
+        <div className='container container--lg'>
           <nav className='header-inner flex-between gap-8'>
             <div className='header-content-wrapper flex-align flex-grow-1'>
               {/* Mobile menu toggle - left aligned like reference */}

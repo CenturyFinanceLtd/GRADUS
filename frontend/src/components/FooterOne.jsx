@@ -34,36 +34,36 @@ const socialLinks = [
   {
     href: "https://www.quora.com/profile/Marketing-Team-615",
     label: "Quora",
-    iconType: "image",
-    icon: "/assets/icons/quora.svg",
+    iconType: "icon",
+    icon: "fa-brands fa-quora",
     color: "#b92b27",
   },
   {
     href: "https://www.reddit.com/user/GradusIndia/",
     label: "Reddit",
     iconType: "icon",
-    icon: "ph-bold ph-reddit-logo",
+    icon: "fa-brands fa-reddit-alien",
     color: "#ff4500",
   },
   {
     href: "https://discord.com/channels/1432018650558238884/1432019463347114035",
     label: "Discord",
     iconType: "icon",
-    icon: "ph-bold ph-discord-logo",
+    icon: "fa-brands fa-discord",
     color: "#5b66f6",
   },
   {
     href: "https://www.instagram.com/gradusindiaofficial?igsh=MWdhdjJhZWp6NDI1aA==",
     label: "Instagram",
     iconType: "icon",
-    icon: "ph-bold ph-instagram-logo",
+    icon: "fa-brands fa-instagram",
     color: "#e1306c",
   },
   {
     href: "https://www.facebook.com/people/Gradus/61583093960559/?sk=about",
     label: "Facebook",
     iconType: "icon",
-    icon: "ph-bold ph-facebook-logo",
+    icon: "fa-brands fa-facebook-f",
     color: "#1877f2",
   },
 ];
@@ -323,9 +323,7 @@ const FooterOne = () => {
               <a
                 key={`cta-${label}`}
                 href={href}
-                className={`gradus-footer__social-link ${
-                  iconType === "image" ? "gradus-footer__social-link--image" : "gradus-footer__social-link--icon"
-                }`}
+                className='gradus-footer__social-link'
                 style={{ "--icon-color": color }}
                 target='_blank'
                 rel='noopener noreferrer nofollow'
