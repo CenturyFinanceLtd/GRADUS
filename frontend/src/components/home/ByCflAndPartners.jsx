@@ -1,51 +1,7 @@
+import { useMemo } from "react";
 import Slider from "react-slick";
-import partners from "@shared/placementPartners.json";
-import {
-  createPartnerCatalogLookup,
-  derivePartnerDisplayName,
-  hydratePartnerDetails,
-  resolvePartnerWebsite,
-  sanitizePartnerKey,
-} from "../../utils/partners";
-
-// Build a normalized list of partners with logo + href
-const catalogLookup = createPartnerCatalogLookup(partners);
-const partnerItems = partners
-  .map((partner, index) => {
-    const hydrated = hydratePartnerDetails(partner, catalogLookup);
-    const logo = typeof hydrated?.logo === "string" ? hydrated.logo.trim() : "";
-    if (!logo) return null;
-
-    const href = resolvePartnerWebsite(hydrated?.website);
-    const displayName =
-      derivePartnerDisplayName(hydrated) ||
-      derivePartnerDisplayName(partner) ||
-      hydrated?.name ||
-      partner?.name ||
-      "";
-
-    const keyBase =
-      sanitizePartnerKey(displayName) ||
-      sanitizePartnerKey(hydrated?.name) ||
-      sanitizePartnerKey(partner?.name) ||
-      `partner-${index}`;
-
-    const programs =
-      (Array.isArray(hydrated?.programs) && hydrated.programs.length
-        ? hydrated.programs
-        : Array.isArray(partner?.programs)
-        ? partner.programs
-        : []) || [];
-
-    return {
-      key: `${keyBase}-${index}`,
-      href: href || "",
-      logo,
-      displayName,
-      programs,
-    };
-  })
-  .filter(Boolean);
+import usePartnerLogos from "../../hooks/usePartnerLogos";
+import { buildPartnerDisplayItems } from "../../utils/partners";
 
 const preferredPartnerNames = ["century finance"];
 const itProgramKeys = ["gradusx"];
@@ -75,13 +31,13 @@ const shufflePartners = (items) => {
   return arr;
 };
 
-// Keep preferred partners (e.g., CFL) at the front, shuffle everything else.
-const prioritizedPartners = (() => {
+const prioritizePartners = (items) => {
+  if (!items?.length) return [];
   const priority = [];
   const itPartners = [];
   const rest = [];
 
-  partnerItems.forEach((item) => {
+  items.forEach((item) => {
     const name = (item.displayName || "").toLowerCase();
     const programs = Array.isArray(item.programs)
       ? item.programs.map((p) => (p || "").toLowerCase())
@@ -123,12 +79,29 @@ const prioritizedPartners = (() => {
   };
 
   return weavePartners();
-})();
+};
 
 const ByCflAndPartners = () => {
+  const { partners } = usePartnerLogos();
+  const partnerItems = useMemo(
+    () => buildPartnerDisplayItems(partners),
+    [partners]
+  );
+  const prioritizedPartners = useMemo(
+    () => prioritizePartners(partnerItems),
+    [partnerItems]
+  );
+
   // Split partners into 3 independent rows
-  const rows = [[], [], []];
-  prioritizedPartners.forEach((item, idx) => rows[idx % 3].push(item));
+  const rows = useMemo(() => {
+    const rowBuckets = [[], [], []];
+    prioritizedPartners.forEach((item, idx) => rowBuckets[idx % 3].push(item));
+    return rowBuckets;
+  }, [prioritizedPartners]);
+
+  if (!partnerItems.length) {
+    return null;
+  }
 
   const baseSettings = {
     slidesToShow: 7,

@@ -1,49 +1,19 @@
+import { useMemo } from "react";
 import Slider from "react-slick";
-import partners from "@shared/placementPartners.json";
-import {
-  createPartnerCatalogLookup,
-  derivePartnerDisplayName,
-  hydratePartnerDetails,
-  resolvePartnerWebsite,
-  sanitizePartnerKey,
-} from "../utils/partners";
-
-const catalogLookup = createPartnerCatalogLookup(partners);
-
-const brandPartners = partners
-  .map((partner, index) => {
-    const hydratedPartner = hydratePartnerDetails(partner, catalogLookup);
-    const logo =
-      typeof hydratedPartner?.logo === "string" ? hydratedPartner.logo.trim() : "";
-
-    if (!logo) {
-      return null;
-    }
-
-    const href = resolvePartnerWebsite(hydratedPartner?.website);
-    const displayName =
-      derivePartnerDisplayName(hydratedPartner) ||
-      derivePartnerDisplayName(partner) ||
-      hydratedPartner?.name ||
-      partner?.name ||
-      "";
-
-    const keyBase =
-      sanitizePartnerKey(displayName) ||
-      sanitizePartnerKey(hydratedPartner?.name) ||
-      sanitizePartnerKey(partner?.name) ||
-      `partner-${index}`;
-
-    return {
-      key: `${keyBase}-${index}`,
-      href: href || "",
-      logo,
-      displayName,
-    };
-  })
-  .filter(Boolean);
+import usePartnerLogos from "../hooks/usePartnerLogos";
+import { buildPartnerDisplayItems } from "../utils/partners";
 
 const BrandTwo = () => {
+  const { partners } = usePartnerLogos();
+  const brandPartners = useMemo(
+    () => buildPartnerDisplayItems(partners),
+    [partners]
+  );
+
+  if (!brandPartners.length) {
+    return null;
+  }
+
   const settings = {
     slidesToShow: 7,
     slidesToScroll: 1,

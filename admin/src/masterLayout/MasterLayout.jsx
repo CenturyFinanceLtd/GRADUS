@@ -488,6 +488,15 @@ const MasterLayout = ({ children }) => {
             </li>
             <li>
               <NavLink
+                to='/partner-logos'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='mdi:handshake-outline' className='menu-icon' />
+                <span>Partner Logos</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
                 to='/events-admin'
                 className={(navData) => (navData.isActive ? "active-page" : "")}
               >

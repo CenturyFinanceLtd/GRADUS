@@ -33,6 +33,7 @@
   { key: 'expert_videos', label: 'Expert Videos', path: '/expert-videos', category: 'Application' },
   { key: 'why_gradus_video', label: 'Why Gradus Video', path: '/why-gradus-video', category: 'Application' },
   { key: 'banners', label: 'Banners', path: '/banners', category: 'Application' },
+  { key: 'partner_logos', label: 'Partner Logos', path: '/partner-logos', category: 'Application' },
   { key: 'video_generator', label: 'Video Generator', path: '/video-generator', category: 'Content & Media' },
   { key: 'videos', label: 'Videos', path: '/videos', category: 'Content & Media' },
   { key: 'voice_generator', label: 'Voice Generator', path: '/voice-generator', category: 'Content & Media' },

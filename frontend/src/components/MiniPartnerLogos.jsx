@@ -1,11 +1,6 @@
-import partners from "@shared/placementPartners.json";
-import {
-  createPartnerCatalogLookup,
-  derivePartnerDisplayName,
-  hydratePartnerDetails,
-  resolvePartnerWebsite,
-  sanitizePartnerKey,
-} from "../utils/partners";
+import { useMemo } from "react";
+import usePartnerLogos from "../hooks/usePartnerLogos";
+import { buildPartnerDisplayItems } from "../utils/partners";
 
 /*
   Compact, non-slider row of partner logos for tight spaces
@@ -16,45 +11,18 @@ import {
     - programFilter: string | string[] filter by partner.programs (optional)
 */
 const MiniPartnerLogos = ({ count = 6, className = "", size = 48, programFilter }) => {
-  const catalogLookup = createPartnerCatalogLookup(partners);
+  const { partners } = usePartnerLogos();
 
-  const filterByProgram = (p) => {
-    if (!programFilter) return true;
-    const programs = Array.isArray(p?.programs) ? p.programs : [];
-    const filters = Array.isArray(programFilter) ? programFilter : [programFilter];
-    return filters.some((f) => programs.includes(f));
-  };
+  const logoItems = useMemo(() => {
+    const filters = Array.isArray(programFilter) ? programFilter : programFilter ? [programFilter] : [];
+    const items = buildPartnerDisplayItems(partners).filter((item) => {
+      if (!filters.length) return true;
+      const programs = Array.isArray(item?.programs) ? item.programs : [];
+      return filters.some((f) => programs.includes(f));
+    });
 
-  const logoItems = partners
-    .filter(filterByProgram)
-    .map((partner, index) => {
-      const hydrated = hydratePartnerDetails(partner, catalogLookup);
-      const logo = typeof hydrated?.logo === "string" ? hydrated.logo.trim() : "";
-      if (!logo) return null;
-
-      const href = resolvePartnerWebsite(hydrated?.website);
-      const displayName =
-        derivePartnerDisplayName(hydrated) ||
-        derivePartnerDisplayName(partner) ||
-        hydrated?.name ||
-        partner?.name ||
-        "";
-
-      const keyBase =
-        sanitizePartnerKey(displayName) ||
-        sanitizePartnerKey(hydrated?.name) ||
-        sanitizePartnerKey(partner?.name) ||
-        `partner-${index}`;
-
-      return {
-        key: `${keyBase}-${index}`,
-        href: href || "",
-        logo,
-        displayName,
-      };
-    })
-    .filter(Boolean)
-    .slice(0, Math.max(0, Number(count) || 6));
+    return items.slice(0, Math.max(0, Number(count) || 6));
+  }, [partners, programFilter, count]);
 
   if (!logoItems.length) {
     return null;
@@ -90,4 +58,3 @@ const MiniPartnerLogos = ({ count = 6, className = "", size = 48, programFilter 
 };
 
 export default MiniPartnerLogos;
-

@@ -184,3 +184,77 @@ export const derivePartnerDisplayName = (partner) => {
 
   return '';
 };
+
+export const normalizePrograms = (value) => {
+  if (!value) return [];
+  const arr = Array.isArray(value) ? value : String(value || '').split(',');
+  return arr
+    .map((entry) => trimValue(entry))
+    .filter(Boolean);
+};
+
+export const normalizePartnerLogos = (partners) => {
+  if (!Array.isArray(partners)) {
+    return [];
+  }
+
+  return partners
+    .map((partner) => {
+      if (!partner) return null;
+
+      const name = trimValue(partner?.name || partner?.title || partner?.label);
+      const logo = trimValue(partner?.logo || partner?.logoUrl || partner?.image || partner?.imageUrl);
+      const website = trimValue(partner?.website || partner?.url || partner?.link);
+      const programs = normalizePrograms(partner?.programs);
+      const order = typeof partner?.order !== 'undefined' ? Number(partner.order) || 0 : 0;
+      const active = typeof partner?.active === 'undefined' ? true : Boolean(partner.active);
+
+      if (!name && !logo && !website) {
+        return null;
+      }
+
+      return { name, logo, website, programs, order, active };
+    })
+    .filter(Boolean);
+};
+
+export const buildPartnerDisplayItems = (partners, catalogSource = []) => {
+  const normalizedPartners = normalizePartnerLogos(partners);
+  const lookupSource = catalogSource.length ? normalizePartnerLogos(catalogSource) : normalizedPartners;
+  const catalogLookup = createPartnerCatalogLookup(lookupSource);
+
+  return normalizedPartners
+    .map((partner, index) => {
+      const hydrated = hydratePartnerDetails(partner, catalogLookup);
+      const logo = trimValue(hydrated?.logo);
+
+      if (!logo) {
+        return null;
+      }
+
+      const href = resolvePartnerWebsite(hydrated?.website);
+      const displayName =
+        derivePartnerDisplayName(hydrated) ||
+        derivePartnerDisplayName(partner) ||
+        hydrated?.name ||
+        partner?.name ||
+        '';
+
+      const keyBase =
+        sanitizePartnerKey(displayName) ||
+        sanitizePartnerKey(hydrated?.name) ||
+        sanitizePartnerKey(partner?.name) ||
+        `partner-${index}`;
+
+      return {
+        key: `${keyBase}-${index}`,
+        href: href || '',
+        logo,
+        displayName,
+        programs: Array.isArray(hydrated?.programs) ? hydrated.programs : partner.programs || [],
+        order: typeof hydrated?.order !== 'undefined' ? hydrated.order : partner.order || 0,
+        active: typeof hydrated?.active !== 'undefined' ? hydrated.active : partner.active ?? true,
+      };
+    })
+    .filter(Boolean);
+};
