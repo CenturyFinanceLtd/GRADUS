@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 
 const FEATURES = [
-  "India-First Focus",
-  "Transparent Pricing",
-  "Full Customization",
-  "Fast Onboarding",
-  "Multilingual Support",
-  "Dedicated Support",
-  "UPI / Indian Payments",
+  "Job Guarantee",
+  "Paid Internship",
+  "Industry Level Projects",
+  "Top Industry Mentors",
+  "Hands on learning with tools",
+  "Outcome Driven Curriculam",
+  "Teach Job ready skills",
+  "Live + Practical Learning",
 ];
 
 const CheckIcon = () => (
@@ -54,20 +55,9 @@ const WhyGradusComparison = () => {
 
     window.addEventListener("resize", calculateOffsets);
 
-    const logo = compareHeader.querySelector("img");
-    let logoListenerAdded = false;
-    const handleLogoLoad = () => calculateOffsets();
-    if (logo && !logo.complete) {
-      logo.addEventListener("load", handleLogoLoad);
-      logoListenerAdded = true;
-    }
-
     return () => {
       window.removeEventListener("resize", calculateOffsets);
       resizeObserver?.disconnect();
-      if (logoListenerAdded && logo) {
-        logo.removeEventListener("load", handleLogoLoad);
-      }
     };
   }, []);
 
@@ -98,10 +88,10 @@ const WhyGradusComparison = () => {
           <article className="why-gradus-card compare-card" data-aos="fade-up" data-aos-duration="450">
             <div className="compare-card__header" ref={compareHeaderRef}>
               <div className="compare-card__brand">
-                <picture>
-                  <source media="(max-width: 575.98px)" srcSet="/assets/images/logo/favicon.png" />
-                  <img src="/assets/images/logo/logo.png" alt="Gradus logo" loading="lazy" />
-                </picture>
+                <span className="compare-card__brand-name" aria-hidden="true">
+                  Gradus
+                </span>
+                <span className="visually-hidden">Gradus</span>
               </div>
               <div className="compare-card__other">Other Platform</div>
             </div>

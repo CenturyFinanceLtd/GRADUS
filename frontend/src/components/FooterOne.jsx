@@ -164,11 +164,13 @@ const FooterOne = () => {
     <footer className='gradus-footer'>
       <div className='gradus-footer__body container container-two'>
         <div className='gradus-footer__primary'>
+          <div className='gradus-footer__logo-row'>
+            <Link to='/' className='gradus-footer__logo' aria-label='Gradus home'>
+              <img src='/assets/images/logo/logo.png' alt='Gradus logo' />
+            </Link>
+          </div>
           <div className='gradus-footer__grid'>
             <div className='gradus-footer__column gradus-footer__column--company'>
-              <Link to='/' className='gradus-footer__logo gradus-footer__logo--inline' aria-label='Gradus home'>
-                <img src='/assets/images/logo/logo.png' alt='Gradus logo' />
-              </Link>
               <div className={`gradus-footer__group ${isSectionExpanded("company") ? "is-open" : ""}`}>
                 <button
                   type='button'
