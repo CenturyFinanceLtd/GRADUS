@@ -175,7 +175,7 @@ const PartnerLogosPage = () => {
 
       <div className='row gy-4'>
         <div className='col-xxl-5'>
-          <div className='card h-100 mb-3'>
+          <div className='card h-100 mb-3' style={{ maxHeight: 290 }}>
             <div className='card-header bg-base py-16 px-24 border-bottom'>
               <h6 className='text-lg fw-semibold mb-0'>Add Partner Logo</h6>
             </div>
@@ -186,7 +186,7 @@ const PartnerLogosPage = () => {
                     <label className='form-label'>Logo *</label>
                     <input
                       type='file'
-                      className='form-control'
+                      className='form-control form-control-lg'
                       accept='image/*'
                       ref={createFileInputRef}
                       onChange={(e) => setForm((prev) => ({ ...prev, file: e.target.files?.[0] || null }))}
@@ -197,7 +197,7 @@ const PartnerLogosPage = () => {
                     </small>
                   </div>
                   <div className='col-12'>
-                    <button className='btn btn-primary w-100' type='submit' disabled={saving}>
+                    <button className='btn btn-primary w-100 py-3' type='submit' disabled={saving}>
                       {saving ? 'Saving...' : 'Save Partner'}
                     </button>
                   </div>
@@ -206,7 +206,7 @@ const PartnerLogosPage = () => {
             </div>
           </div>
 
-          <div className='card h-100'>
+          <div className='card h-100' style={{ maxHeight: 290 }}>
             <div className='card-header bg-base py-16 px-24 border-bottom'>
               <h6 className='text-lg fw-semibold mb-0'>Bulk Upload Logos</h6>
             </div>
@@ -230,7 +230,7 @@ const PartnerLogosPage = () => {
                     </small>
                   </div>
                   <div className='col-12'>
-                    <button className='btn btn-outline-primary w-100' type='submit' disabled={saving}>
+                    <button className='btn btn-outline-primary w-100 py-3' type='submit' disabled={saving}>
                       {saving ? 'Uploading...' : 'Upload All'}
                     </button>
                   </div>

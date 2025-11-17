@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react';
-import fallbackPartners from '@shared/placementPartners.json';
 import { fetchPartnerLogos } from '../services/partnerService';
 import { normalizePartnerLogos } from '../utils/partners';
-
-const fallbackNormalized = normalizePartnerLogos(fallbackPartners);
 
 const usePartnerLogos = () => {
   const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [usedFallback, setUsedFallback] = useState(false);
+  const [usedFallback, setUsedFallback] = useState(false); // retained for compatibility with callers
 
   useEffect(() => {
     let cancelled = false;
@@ -18,19 +15,14 @@ const usePartnerLogos = () => {
         const items = await fetchPartnerLogos();
         if (cancelled) return;
         const normalized = normalizePartnerLogos(items);
-        if (normalized.length) {
-          setPartners(normalized);
-          setUsedFallback(false);
-        } else {
-          setPartners(fallbackNormalized);
-          setUsedFallback(true);
-        }
+        setPartners(normalized);
+        setUsedFallback(false);
         setError(null);
       } catch (e) {
         if (cancelled) return;
-        setPartners(fallbackNormalized);
-        setUsedFallback(true);
-        setError(e?.message || 'Failed to load partners; showing fallback data.');
+        setPartners([]);
+        setUsedFallback(false);
+        setError(e?.message || 'Failed to load partners.');
       } finally {
         if (!cancelled) {
           setLoading(false);
