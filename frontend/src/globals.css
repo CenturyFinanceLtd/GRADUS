@@ -11238,6 +11238,36 @@ button:focus {
   white-space: nowrap;
   transition: color 0.2s ease;
 }
+.nav-menu__link--has-badge {
+  position: relative;
+  padding-inline-end: 18px;
+}
+.nav-menu__badge {
+  position: absolute;
+  top: -14px;
+  right: -26px;
+  padding: 2px 6px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #000000;
+  background: rgb(255 201 14);
+  border: 1px solid rgba(37, 99, 235, 0.5);
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  animation: navBadgeBlink 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes navBadgeBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
 @media screen and (max-width: 1399px) {
   .nav-menu__link {
     font-size: 0.875rem !important;
@@ -11831,6 +11861,23 @@ ul.footer-menu {
   color: #ffffff;
   font-size: 1rem;
   line-height: 1.2;
+}
+.gradus-footer__list-more {
+  margin-top: 0.35rem;
+}
+.gradus-footer__list--courses .gradus-footer__list-more::before {
+  content: none;
+}
+.gradus-footer__link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.gradus-footer__link-button:focus-visible {
+  outline: 2px solid #47f1c5;
+  outline-offset: 2px;
 }
 .gradus-footer__accordion {
   width: 100%;

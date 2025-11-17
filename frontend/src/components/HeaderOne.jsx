@@ -302,6 +302,13 @@ const HeaderOne = () => {
     return () => { cancelled = true; };
   }, []);
 
+  const renderNavLabel = (item) => (
+    <>
+      <span>{item.label}</span>
+      {item.badge ? <span className='nav-menu__badge nav-menu__badge--pulse'>{item.badge}</span> : null}
+    </>
+  );
+
   const menuItems = [
     {
       label: "Programmes",
@@ -316,7 +323,7 @@ const HeaderOne = () => {
     // Redirect to Our Courses with pre-applied filters
     { to: "/our-courses?programme=gradus-x", label: "Tech Courses" },
     { to: "/our-courses?programme=gradus-finlit", label: "Stock Market Courses" },
-    { to: "/events", label: "Events" },
+    { to: "/events", label: "Events", badge: "New" },
     { to: "/blogs", label: "Blogs" },
     { to: "/contact", label: "Contact us" },
   ];
@@ -401,8 +408,11 @@ const HeaderOne = () => {
                     }
                     return (
                       <li key={`menu-contact-${index}`} className={`nav-menu__item ${pathname === item.to && "activePage"}`}>
-                        <Link to={item.to} className='nav-menu__link'>
-                          {item.label}
+                        <Link
+                          to={item.to}
+                          className={`nav-menu__link ${item.badge ? "nav-menu__link--has-badge" : ""}`}
+                        >
+                          {renderNavLabel(item)}
                         </Link>
                       </li>
                     );
@@ -633,8 +643,11 @@ const HeaderOne = () => {
                 }
                 return (
                   <li className={`nav-menu__item ${pathname === item.to && "activePage"}`} key={index}>
-                    <Link to={item.to} className='nav-menu__link'>
-                      {item.label}
+                    <Link
+                      to={item.to}
+                      className={`nav-menu__link ${item.badge ? "nav-menu__link--has-badge" : ""}`}
+                    >
+                      {renderNavLabel(item)}
                     </Link>
                   </li>
                 );

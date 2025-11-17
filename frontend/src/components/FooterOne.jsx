@@ -28,6 +28,8 @@ const PROGRAMMES = [
   { title: "Gradus Lead", slug: "gradus-lead" },
 ];
 
+const COURSE_PREVIEW_LIMIT = 9;
+
 const socialLinks = [
   {
     href: "https://www.quora.com/profile/Marketing-Team-615",
@@ -92,6 +94,13 @@ const FooterOne = () => {
     const initial = {};
     PROGRAMMES.forEach(({ slug }) => {
       initial[slug] = [];
+    });
+    return initial;
+  });
+  const [expandedCourseLists, setExpandedCourseLists] = useState(() => {
+    const initial = {};
+    PROGRAMMES.forEach(({ slug }) => {
+      initial[slug] = false;
     });
     return initial;
   });
@@ -165,6 +174,13 @@ const FooterOne = () => {
 
   const isSectionExpanded = (section) => (isMobile ? !!expandedSections[section] : true);
 
+  const toggleCourseList = (programmeSlug) => {
+    setExpandedCourseLists((prev) => ({
+      ...prev,
+      [programmeSlug]: !prev[programmeSlug],
+    }));
+  };
+
   return (
     <footer className='gradus-footer'>
       <div className='gradus-footer__body container container-two'>
@@ -230,6 +246,9 @@ const FooterOne = () => {
             {PROGRAMMES.map(({ title, slug }) => {
               const links = programmeCourses[slug] || [];
               const hasDynamicLinks = links.length > 0;
+              const showAllCourses = expandedCourseLists[slug];
+              const displayCourses = showAllCourses ? links : links.slice(0, COURSE_PREVIEW_LIMIT);
+              const hasMoreCourses = links.length > COURSE_PREVIEW_LIMIT;
               return (
                 <div key={slug} className='gradus-footer__column'>
                   <div className={`gradus-footer__group ${isSectionExpanded(`programme-${slug}`) ? "is-open" : ""}`}>
@@ -245,16 +264,29 @@ const FooterOne = () => {
                     <div className='gradus-footer__accordion-panel' hidden={!isSectionExpanded(`programme-${slug}`)}>
                       <ul className='gradus-footer__list gradus-footer__list--courses'>
                         {hasDynamicLinks ? (
-                          links.map(({ name, slug: courseSlug }) => {
-                            const path = courseSlug ? `/${courseSlug.replace(/^\//, "")}` : "/our-courses";
-                            return (
-                              <li key={`${slug}-${courseSlug || name}`}>
-                                <Link to={path} className='gradus-footer__link'>
-                                  {name}
-                                </Link>
+                          <>
+                            {displayCourses.map(({ name, slug: courseSlug }) => {
+                              const path = courseSlug ? `/${courseSlug.replace(/^\//, "")}` : "/our-courses";
+                              return (
+                                <li key={`${slug}-${courseSlug || name}`}>
+                                  <Link to={path} className='gradus-footer__link'>
+                                    {name}
+                                  </Link>
+                                </li>
+                              );
+                            })}
+                            {hasMoreCourses && (
+                              <li className='gradus-footer__list-more'>
+                                <button
+                                  type='button'
+                                  className='gradus-footer__link gradus-footer__link-button'
+                                  onClick={() => toggleCourseList(slug)}
+                                >
+                                  {showAllCourses ? "Show less" : `Show more (${links.length - COURSE_PREVIEW_LIMIT})`}
+                                </button>
                               </li>
-                            );
-                          })
+                            )}
+                          </>
                         ) : (
                           <li>
                             <span className='gradus-footer__link gradus-footer__link--muted'>
