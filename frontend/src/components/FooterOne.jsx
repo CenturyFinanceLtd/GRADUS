@@ -323,7 +323,9 @@ const FooterOne = () => {
               <a
                 key={`cta-${label}`}
                 href={href}
-                className='gradus-footer__social-link'
+                className={`gradus-footer__social-link ${
+                  iconType === "image" ? "gradus-footer__social-link--image" : "gradus-footer__social-link--icon"
+                }`}
                 style={{ "--icon-color": color }}
                 target='_blank'
                 rel='noopener noreferrer nofollow'

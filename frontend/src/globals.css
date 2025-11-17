@@ -12013,22 +12013,30 @@ ul.footer-menu {
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.12);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--icon-color, #ffffff);
-  font-size: 1.25rem;
-  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+  color: #ffffff;
+  background: transparent;
+  font-size: 1.4rem;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
-.gradus-footer__social-link img {
-  width: 22px;
-  height: 22px;
+.gradus-footer__social-link--icon {
+  background: var(--icon-color, #1c0f4a);
+  color: #ffffff;
+}
+.gradus-footer__social-link--image img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
 }
 .gradus-footer__social-link:hover {
-  background: #ffffff;
-  color: var(--icon-color, #1c0f4a);
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+.gradus-footer__social-link--icon:hover {
+  filter: brightness(1.08);
 }
 .gradus-footer__legal {
   display: flex;
@@ -13407,7 +13415,8 @@ a.footer-item__logo img {
     background: #ffffff !important; /* opaque */
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
-    border: 1px solid var(--neutral-30);
+    border: 1px solid transparent; /* remove visible outline on hover */
+    outline: none;
     border-radius: 22px;
     box-shadow: 0 32px 80px rgba(15, 23, 42, 0.18),
       0 6px 14px rgba(15, 23, 42, 0.08);
