@@ -1,5 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
-import ModalVideo from "react-modal-video";
+import { useState, useEffect, useRef } from "react";
 import Slider from "react-slick";
 import { listTestimonials } from "../../services/testimonialService";
 
@@ -20,69 +19,6 @@ const cardStyles = {
     backgroundPosition: "center",
     filter: "brightness(0.95)",
   },
-  playWrap: {
-    position: "absolute",
-    left: "50%",
-    top: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 68,
-    height: 68,
-    borderRadius: 9999,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    backdropFilter: "blur(3px)",
-    background: "linear-gradient(180deg, rgba(255,255,255,.75), rgba(0,0,0,.25))",
-    boxShadow: "0 12px 24px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.45)",
-    zIndex: 2,
-    pointerEvents: "none",
-  },
-  playIcon: {
-    width: 0,
-    height: 0,
-    borderTop: "11px solid transparent",
-    borderBottom: "11px solid transparent",
-    borderLeft: "17px solid rgba(20,31,54,0.9)",
-    marginLeft: 4,
-  },
-  metaWrap: {
-    position: "absolute",
-    left: 16,
-    right: 16,
-    bottom: 16,
-    padding: "12px 14px",
-    borderRadius: 20,
-    background: "linear-gradient(135deg, rgba(15,23,42,0.9), rgba(2,6,23,0.65))",
-    color: "#fff",
-    display: "flex",
-    gap: 12,
-    alignItems: "center",
-    boxShadow: "0 15px 35px rgba(0,0,0,0.35)",
-    backdropFilter: "blur(8px)",
-    zIndex: 1,
-    pointerEvents: "none",
-  },
-  metaAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    flexShrink: 0,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundColor: "#0f172a",
-    border: "2px solid rgba(255,255,255,0.4)",
-  },
-  metaName: {
-    margin: 0,
-    fontWeight: 600,
-    fontSize: "1rem",
-    color: "#fff",
-  },
-  metaRole: {
-    margin: 0,
-    fontSize: "0.85rem",
-    color: "rgba(255,255,255,0.75)",
-  },
 };
 
 const VideoTestimonials = () => {
@@ -90,6 +26,7 @@ const VideoTestimonials = () => {
   const [videoSrc, setVideoSrc] = useState("");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const videoRefs = useRef({});
 
   // Fetch testimonials from backend (Cloudinary-backed)
   useEffect(() => {
@@ -110,9 +47,46 @@ const VideoTestimonials = () => {
   }, []);
 
   const disablePlayback = false;
-  const showBlackPlaceholders = false;
+
+  const startHoverPlayback = (id, src) => {
+    const videoEl = videoRefs.current[id];
+    if (!videoEl) return;
+    // Always load the src to ensure playback starts
+    if (videoEl.src !== src) {
+      videoEl.src = src;
+      videoEl.load();
+    }
+    // Begin muted to satisfy browser autoplay and then unmute if allowed
+    videoEl.muted = true;
+    videoEl.currentTime = 0;
+    videoEl.style.opacity = '1';
+    const playPromise = videoEl.play();
+    if (playPromise?.then) {
+      playPromise
+        .then(() => {
+          videoEl.muted = false;
+          videoEl.volume = 1;
+        })
+        .catch(() => {
+          // If audible autoplay is blocked, keep it muted
+          videoEl.muted = true;
+          videoEl.play().catch(() => {});
+        });
+    }
+  };
+
+  const stopHoverPlayback = (id) => {
+    const videoEl = videoRefs.current[id];
+    if (!videoEl) return;
+    videoEl.pause();
+    videoEl.currentTime = 0;
+    videoEl.muted = false;
+    videoEl.style.opacity = '0';
+  };
 
   const openVideo = (src) => {
+    // Stop any inline hovers so audio doesn't continue behind the modal
+    Object.keys(videoRefs.current).forEach((id) => stopHoverPlayback(id));
     setVideoSrc(src);
     setIsOpen(true);
   };
@@ -205,12 +179,17 @@ const VideoTestimonials = () => {
         <Slider {...sliderSettings} className="video-reels-slider">
           {items.map((item, idx) => {
             const thumb = item.thumbnailUrl || undefined;
-            const avatarSrc = item.avatarUrl || thumb;
-            const displayName = item.name || "Gradus Learner";
-            const displayRole = item.role || "Gradus Community";
+            const key = item.id || idx;
             return (
-              <div className="px-12" key={item.id + idx}>
-                <div style={cardStyles.wrapper} className="video-testimonial-card">
+              <div className="px-12" key={key}>
+                <div
+                  style={cardStyles.wrapper}
+                  className="video-testimonial-card"
+                  onMouseEnter={() => startHoverPlayback(key, item.playbackUrl)}
+                  onMouseLeave={() => stopHoverPlayback(key)}
+                  onFocus={() => startHoverPlayback(key, item.playbackUrl)}
+                  onBlur={() => stopHoverPlayback(key)}
+                >
                   <button
                     type="button"
                     aria-label={disablePlayback ? "Playback disabled" : "Play testimonial"}
@@ -229,33 +208,34 @@ const VideoTestimonials = () => {
                   />
                   <div
                     style={{
-                      ...cardStyles.thumb,
+                      position: "relative",
+                      width: "100%",
+                      height: 0,
                       paddingBottom: "177.78%",
                       backgroundColor: "#0b1120",
-                      backgroundImage: showBlackPlaceholders || !thumb ? "none" : `url('${thumb}')`,
+                      overflow: "hidden",
                     }}
-                  />
-                  {showBlackPlaceholders ? null : (
-                    <div style={cardStyles.playWrap}>
-                      <div style={cardStyles.playIcon} />
-                    </div>
-                  )}
-                  <div style={cardStyles.metaWrap}>
-                    <div
-                      style={{
-                        ...cardStyles.metaAvatar,
-                        backgroundImage: avatarSrc ? `url('${avatarSrc}')` : undefined,
+                  >
+                    <video
+                      ref={(el) => {
+                        if (el) videoRefs.current[key] = el;
+                        else delete videoRefs.current[key];
                       }}
-                      aria-hidden="true"
+                      playsInline
+                      muted
+                      preload="metadata"
+                      poster={thumb}
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        backgroundColor: "#0b1120",
+                        opacity: 0,
+                        transition: "opacity 0.2s ease",
+                      }}
                     />
-                    <div>
-                      <p style={cardStyles.metaName} className="mb-0">
-                        {displayName}
-                      </p>
-                      <p style={cardStyles.metaRole} className="mb-0">
-                        {displayRole}
-                      </p>
-                    </div>
                   </div>
                 </div>
               </div>

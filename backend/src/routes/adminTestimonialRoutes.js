@@ -5,7 +5,7 @@
 */
 const express = require('express');
 const { protectAdmin } = require('../middleware/adminAuthMiddleware');
-const { videoUpload } = require('../middleware/videoUploadMiddleware');
+const { testimonialUpload } = require('../middleware/testimonialUploadMiddleware');
 const {
   listAdminTestimonials,
   createTestimonial,
@@ -17,11 +17,10 @@ const router = express.Router();
 
 router.route('/')
   .get(protectAdmin, listAdminTestimonials)
-  .post(protectAdmin, videoUpload.single('video'), createTestimonial);
+  .post(protectAdmin, testimonialUpload, createTestimonial);
 
 router.route('/:id')
-  .patch(protectAdmin, updateTestimonial)
+  .patch(protectAdmin, testimonialUpload, updateTestimonial)
   .delete(protectAdmin, deleteTestimonial);
 
 module.exports = router;
-

@@ -12010,6 +12010,10 @@ ul.footer-menu {
   flex-wrap: wrap;
 }
 .gradus-footer__social-link {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--icon-color, #1c0f4a);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -12018,8 +12022,8 @@ ul.footer-menu {
   transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 .gradus-footer__social-link img {
-  width: 35px;
-  height: 35px;
+  width: 22px;
+  height: 22px;
 }
 .gradus-footer__social-link:hover {
   filter: brightness(1.1);

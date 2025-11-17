@@ -30,19 +30,105 @@ const partnerItems = partners
       sanitizePartnerKey(partner?.name) ||
       `partner-${index}`;
 
+    const programs =
+      (Array.isArray(hydrated?.programs) && hydrated.programs.length
+        ? hydrated.programs
+        : Array.isArray(partner?.programs)
+        ? partner.programs
+        : []) || [];
+
     return {
       key: `${keyBase}-${index}`,
       href: href || "",
       logo,
       displayName,
+      programs,
     };
   })
   .filter(Boolean);
 
+const preferredPartnerNames = ["century finance"];
+const itProgramKeys = ["gradusx"];
+const itNameKeywords = [
+  " tech",
+  "tech ",
+  "technology",
+  "technologies",
+  "software",
+  "solutions",
+  "digital",
+  "infotech",
+  "systems",
+  "labs",
+  "analytics",
+  "cloud",
+  "ai ",
+  " ai",
+];
+
+const shufflePartners = (items) => {
+  const arr = [...items];
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
+
+// Keep preferred partners (e.g., CFL) at the front, shuffle everything else.
+const prioritizedPartners = (() => {
+  const priority = [];
+  const itPartners = [];
+  const rest = [];
+
+  partnerItems.forEach((item) => {
+    const name = (item.displayName || "").toLowerCase();
+    const programs = Array.isArray(item.programs)
+      ? item.programs.map((p) => (p || "").toLowerCase())
+      : [];
+
+    if (preferredPartnerNames.some((preferred) => name.includes(preferred))) {
+      priority.push(item);
+    } else if (
+      programs.some((program) => itProgramKeys.includes(program)) ||
+      itNameKeywords.some((kw) => name.includes(kw))
+    ) {
+      itPartners.push(item);
+    } else {
+      rest.push(item);
+    }
+  });
+
+  const shuffledIt = shufflePartners(itPartners);
+  const shuffledRest = shufflePartners(rest);
+
+  // Interleave IT partners with 3-4 non-IT partners so IT still leads.
+  const weavePartners = () => {
+    const result = [...priority];
+    let itIndex = 0;
+    let restIndex = 0;
+    while (itIndex < shuffledIt.length || restIndex < shuffledRest.length) {
+      if (itIndex < shuffledIt.length) {
+        result.push(shuffledIt[itIndex]);
+        itIndex += 1;
+      }
+
+      const batchSize = 3 + Math.floor(Math.random() * 2); // 3 or 4
+      for (let count = 0; count < batchSize && restIndex < shuffledRest.length; count += 1) {
+        result.push(shuffledRest[restIndex]);
+        restIndex += 1;
+      }
+    }
+    return result;
+  };
+
+  return weavePartners();
+})();
+
 const ByCflAndPartners = () => {
   // Split partners into 3 independent rows
   const rows = [[], [], []];
-  partnerItems.forEach((item, idx) => rows[idx % 3].push(item));
+  prioritizedPartners.forEach((item, idx) => rows[idx % 3].push(item));
 
   const baseSettings = {
     slidesToShow: 7,

@@ -22,12 +22,16 @@ const isLocalhost = (hostname) => {
 
 const resolveApiBaseUrl = () => {
   const envValue = import.meta.env.VITE_API_BASE_URL;
+  const forceRemoteOnLocal = String(import.meta.env.VITE_API_FORCE_REMOTE || '').toLowerCase() === 'true';
 
   if (typeof window !== 'undefined') {
     const { hostname } = window.location;
 
-    // When running on localhost, prefer a localhost API base.
+    // When running on localhost, prefer a localhost API base unless explicitly forced remote.
     if (isLocalhost(hostname)) {
+      if (forceRemoteOnLocal && envValue) {
+        return envValue;
+      }
       if (envValue && /^https?:\/\/localhost(?::\d+)?\/.*/i.test(envValue)) {
         return envValue;
       }

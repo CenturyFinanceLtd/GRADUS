@@ -15,9 +15,9 @@ const TestimonialsPage = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-  const [form, setForm] = useState({ name: '', role: '', active: true, order: 0, file: null });
+  const [form, setForm] = useState({ name: '', role: '', active: true, order: 0, file: null, thumbnailFile: null });
   const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({ name: '', role: '', order: 0 });
+  const [editForm, setEditForm] = useState({ name: '', role: '', order: 0, thumbnailFile: null });
 
   const load = async () => {
     try {
@@ -38,8 +38,16 @@ const TestimonialsPage = () => {
     if (!form.file || !form.name) return;
     try {
       setSaving(true);
-      await createAdminTestimonial({ token, file: form.file, name: form.name, role: form.role, active: form.active, order: form.order });
-      setForm({ name: '', role: '', active: true, order: 0, file: null });
+      await createAdminTestimonial({
+        token,
+        file: form.file,
+        thumbnailFile: form.thumbnailFile,
+        name: form.name,
+        role: form.role,
+        active: form.active,
+        order: form.order,
+      });
+      setForm({ name: '', role: '', active: true, order: 0, file: null, thumbnailFile: null });
       await load();
     } catch (e) {
       setError(e?.message || 'Failed to upload');
@@ -69,18 +77,23 @@ const TestimonialsPage = () => {
 
   const startEdit = (it) => {
     setEditingId(it._id);
-    setEditForm({ name: it.name || '', role: it.role || '', order: Number(it.order || 0) });
+    setEditForm({ name: it.name || '', role: it.role || '', order: Number(it.order || 0), thumbnailFile: null });
   };
 
   const cancelEdit = () => {
     setEditingId(null);
-    setEditForm({ name: '', role: '', order: 0 });
+    setEditForm({ name: '', role: '', order: 0, thumbnailFile: null });
   };
 
   const saveEdit = async (id) => {
     try {
       setSaving(true);
-      await updateAdminTestimonial({ token, id, patch: { name: editForm.name, role: editForm.role, order: Number(editForm.order || 0) } });
+      await updateAdminTestimonial({
+        token,
+        id,
+        patch: { name: editForm.name, role: editForm.role, order: Number(editForm.order || 0) },
+        thumbnailFile: editForm.thumbnailFile,
+      });
       await load();
       cancelEdit();
     } catch (e) {
@@ -126,6 +139,16 @@ const TestimonialsPage = () => {
                     <label className='form-label'>Video File (mp4/webm/mov)</label>
                     <input type='file' accept='video/*' className='form-control' onChange={(e) => setForm((s) => ({ ...s, file: e.target.files?.[0] || null }))} />
                   </div>
+                  <div className='col-12'>
+                    <label className='form-label'>Thumbnail (optional)</label>
+                    <input
+                      type='file'
+                      accept='image/*'
+                      className='form-control'
+                      onChange={(e) => setForm((s) => ({ ...s, thumbnailFile: e.target.files?.[0] || null }))}
+                    />
+                    <small className='text-muted'>Uploads a custom poster instead of the auto-generated frame.</small>
+                  </div>
                 </div>
                 <div className='mt-16 d-flex gap-2'>
                   <button type='submit' className='btn btn-primary-600' disabled={saving || !form.file || !form.name}>Upload</button>
@@ -149,6 +172,7 @@ const TestimonialsPage = () => {
                   <thead>
                     <tr>
                       <th style={{ width: 80 }}>Preview</th>
+                      <th style={{ width: 120 }}>Thumbnail</th>
                       <th>Name</th>
                       <th>Role</th>
                       <th>Active</th>
@@ -161,6 +185,27 @@ const TestimonialsPage = () => {
                       <tr key={it._id}>
                         <td>
                           <video src={it.secureUrl} style={{ width: 80, height: 80 }} muted playsInline />
+                        </td>
+                        <td>
+                          <div className='d-flex flex-column gap-2'>
+                            {it.thumbnailUrl ? (
+                              <img
+                                src={it.thumbnailUrl}
+                                alt={`${it.name || 'thumbnail'}`}
+                                style={{ width: 96, height: 80, objectFit: 'cover', borderRadius: 8 }}
+                              />
+                            ) : (
+                              <span className='text-neutral-500 text-sm'>Auto</span>
+                            )}
+                            {editingId === it._id ? (
+                              <input
+                                type='file'
+                                accept='image/*'
+                                className='form-control form-control-sm'
+                                onChange={(e) => setEditForm((s) => ({ ...s, thumbnailFile: e.target.files?.[0] || null }))}
+                              />
+                            ) : null}
+                          </div>
                         </td>
                         <td>
                           {editingId === it._id ? (
@@ -216,7 +261,7 @@ const TestimonialsPage = () => {
                     ))}
                     {!items?.length ? (
                       <tr>
-                        <td colSpan={6} className='text-center py-24 text-neutral-500'>No items</td>
+                        <td colSpan={7} className='text-center py-24 text-neutral-500'>No items</td>
                       </tr>
                     ) : null}
                   </tbody>
