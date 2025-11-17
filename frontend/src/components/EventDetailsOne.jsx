@@ -169,6 +169,7 @@ const RegistrationCard = ({ event }) => {
     qualification: "",
   });
   const [status, setStatus] = useState({ submitting: false, success: false, error: null });
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const { dateLabel, timeLabel } = useMemo(
     () => ({
@@ -192,6 +193,7 @@ const RegistrationCard = ({ event }) => {
 
     try {
       setStatus({ submitting: true, success: false, error: null });
+      setShowSuccessModal(false);
       await submitContactInquiry({
         name: form.name,
         email: form.email,
@@ -222,6 +224,7 @@ const RegistrationCard = ({ event }) => {
         state: "",
         qualification: "",
       });
+      setShowSuccessModal(true);
     } catch (err) {
       setStatus({
         submitting: false,
@@ -324,6 +327,24 @@ const RegistrationCard = ({ event }) => {
       <p className='event-register-card__foot text-sm text-neutral-500'>
         200+ students have already registered!
       </p>
+      {showSuccessModal ? (
+        <div className='event-register-modal' role='dialog' aria-modal='true' aria-labelledby='event-register-success-title'>
+          <div className='event-register-modal__content'>
+            <div className='event-register-modal__icon' aria-hidden='true'>
+              ✓
+            </div>
+            <h4 className='event-register-modal__title' id='event-register-success-title'>
+              Registration confirmed
+            </h4>
+            <p className='event-register-modal__text'>
+              You’re in! Our team will reach out with joining details shortly.
+            </p>
+            <button type='button' className='btn btn-main rounded-pill w-100 mt-2' onClick={() => setShowSuccessModal(false)}>
+              Close
+            </button>
+          </div>
+        </div>
+      ) : null}
     </aside>
   );
 };

@@ -8,6 +8,7 @@ import {
   updateAdminEvent,
   deleteAdminEvent,
 } from "../services/adminEvents";
+import { uploadImage } from "../services/uploads";
 
 const EVENT_TYPE_OPTIONS = ["Webinar", "Workshop", "Bootcamp", "Info Session", "Live Q&A"];
 
@@ -77,6 +78,7 @@ const EventsAdminPage = () => {
   const [error, setError] = useState(null);
   const [form, setForm] = useState(defaultForm);
   const [editing, setEditing] = useState(null);
+  const [uploadingHero, setUploadingHero] = useState(false);
 
   const load = async () => {
     try {
@@ -224,6 +226,23 @@ const EventsAdminPage = () => {
     }
   };
 
+  const handleHeroImageUpload = async (file) => {
+    if (!file) return;
+    try {
+      setUploadingHero(true);
+      setError(null);
+      const uploaded = await uploadImage({ file, token });
+      setForm((prev) => ({
+        ...prev,
+        heroImageUrl: uploaded.url || prev.heroImageUrl,
+      }));
+    } catch (err) {
+      setError(err?.message || "Image upload failed");
+    } finally {
+      setUploadingHero(false);
+    }
+  };
+
   const statusBadgeClass = (status) => {
     switch (status) {
       case "published":
@@ -303,6 +322,32 @@ const EventsAdminPage = () => {
                 <div className='col-12'>
                   <label className='form-label'>Hero Image URL</label>
                   <input className='form-control' name='heroImageUrl' value={form.heroImageUrl} onChange={handleInputChange} placeholder='https://...' />
+                </div>
+                <div className='col-12 d-flex align-items-center gap-3'>
+                  <div className='flex-grow-1'>
+                    <label className='form-label'>Upload Banner</label>
+                    <input
+                      type='file'
+                      accept='image/*'
+                      className='form-control'
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        handleHeroImageUpload(file);
+                        e.target.value = "";
+                      }}
+                      disabled={uploadingHero}
+                    />
+                    <small className='text-muted'>Recommended: landscape image (max 5MB)</small>
+                  </div>
+                  {form.heroImageUrl ? (
+                    <div className='border rounded p-2 bg-light-subtle'>
+                      <img
+                        src={form.heroImageUrl}
+                        alt={form.heroImageAlt || "Event banner preview"}
+                        style={{ maxWidth: 140, maxHeight: 90, objectFit: "cover", display: "block" }}
+                      />
+                    </div>
+                  ) : null}
                 </div>
                 <div className='col-12'>
                   <label className='form-label'>Hero Image Alt</label>
