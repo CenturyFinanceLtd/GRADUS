@@ -10,6 +10,7 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const config = require('./config/env');
 const authRoutes = require('./routes/authRoutes');
 const adminAuthRoutes = require('./routes/adminAuthRoutes');
@@ -78,17 +79,29 @@ if (config.nodeEnv !== 'production') {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(
-    session({
-        secret: config.sessionSecret || 'gradus_secret',
-        resave: false,
-        saveUninitialized: true,
-        cookie: {
-            // Session cookie lifetime (24h). For production, consider SameSite/Lax and Secure behind HTTPS.
-            maxAge: 1000 * 60 * 60 * 24,
-        },
-    })
-);
+const sessionOptions = {
+    secret: config.sessionSecret || 'gradus_secret',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        // Session cookie lifetime (24h). For production, consider SameSite/Lax and Secure behind HTTPS.
+        maxAge: 1000 * 60 * 60 * 24,
+    },
+};
+
+if (config.nodeEnv === 'production') {
+    if (config.mongoUri) {
+        sessionOptions.store = MongoStore.create({
+            mongoUrl: config.mongoUri,
+            collectionName: 'sessions',
+            ttl: 60 * 60 * 24, // match cookie maxAge (24h)
+        });
+    } else {
+        console.warn('[session] MongoDB URI missing; falling back to in-memory store for sessions.');
+    }
+}
+
+app.use(session(sessionOptions));
 
 // Publicly serve uploaded blog images
 app.use('/blog-images', express.static(blogImagesDirectory));

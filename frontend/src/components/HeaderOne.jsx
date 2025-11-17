@@ -302,12 +302,7 @@ const HeaderOne = () => {
     return () => { cancelled = true; };
   }, []);
 
-  const renderNavLabel = (item) => (
-    <>
-      <span>{item.label}</span>
-      {item.badge ? <span className='nav-menu__badge nav-menu__badge--pulse'>{item.badge}</span> : null}
-    </>
-  );
+  const renderNavLabel = (item) => <span>{item.label}</span>;
 
   const menuItems = [
     {

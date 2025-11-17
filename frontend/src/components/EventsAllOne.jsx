@@ -176,8 +176,7 @@ const EventsAllOne = () => {
       <div className='container container--xl'>
         <header className='events-list__header flex-between flex-wrap gap-20 mb-32'>
           <div>
-            <p className='text-neutral-500 text-sm mb-4'>Free masterclasses</p>
-            <h1 className='display-5 fw-semibold mb-8'>Masterclasses</h1>
+            <h1 className='display-5 fw-semibold mb-8'>Events</h1>
             <p className='text-neutral-600 mb-0'>
               Explore live sessions and bootcamps powered by Gradus mentors. Filter by track to find
               what matters to you most.

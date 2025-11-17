@@ -34,37 +34,32 @@ const socialLinks = [
   {
     href: "https://www.quora.com/profile/Marketing-Team-615",
     label: "Quora",
-    iconType: "icon",
-    icon: "fa-brands fa-quora",
+    icon: "/assets/social/Quora.svg",
     color: "#b92b27",
   },
   {
     href: "https://www.reddit.com/user/GradusIndia/",
     label: "Reddit",
-    iconType: "icon",
-    icon: "fa-brands fa-reddit-alien",
+    icon: "/assets/social/reddit.svg",
     color: "#ff4500",
   },
   {
     href: "https://discord.com/channels/1432018650558238884/1432019463347114035",
     label: "Discord",
-    iconType: "icon",
-    icon: "fa-brands fa-discord",
+    icon: "/assets/social/discord.svg",
     color: "#5b66f6",
   },
   {
     href: "https://www.instagram.com/gradusindiaofficial?igsh=MWdhdjJhZWp6NDI1aA==",
     label: "Instagram",
-    iconType: "icon",
-    icon: "fa-brands fa-instagram",
+    icon: "/assets/social/instagram.svg",
     color: "#e1306c",
   },
   {
     href: "https://www.facebook.com/people/Gradus/61583093960559/?sk=about",
     label: "Facebook",
-    iconType: "icon",
-    icon: "fa-brands fa-facebook-f",
-    color: "#1877f2",
+    icon: "/assets/social/facebook.svg",
+    color: "#0080ff",
   },
 ];
 
@@ -319,7 +314,7 @@ const FooterOne = () => {
             </form>
           </div>
           <div className='gradus-footer__social gradus-footer__social--cta'>
-            {socialLinks.map(({ href, label, iconType, icon, color }) => (
+            {socialLinks.map(({ href, label, icon, color }) => (
               <a
                 key={`cta-${label}`}
                 href={href}
@@ -329,11 +324,7 @@ const FooterOne = () => {
                 rel='noopener noreferrer nofollow'
                 aria-label={label}
               >
-                {iconType === "image" ? (
-                  <img src={icon} alt='' aria-hidden='true' />
-                ) : (
-                  <i className={icon} aria-hidden='true' />
-                )}
+                <img src={icon} alt='' aria-hidden='true' />
               </a>
             ))}
           </div>

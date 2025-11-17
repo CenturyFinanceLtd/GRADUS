@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { submitContactInquiry } from "../services/contactService";
 
@@ -246,7 +246,7 @@ const RegistrationCard = ({ event }) => {
           Upcoming slot is {dateLabel} at {timeLabel}
         </span>
       </div>
-      <form className='event-register-card__form' onSubmit={handleSubmit}>
+      <form className='event-register-card__form' id='event-register-form' onSubmit={handleSubmit}>
         <label className='form-label text-sm fw-semibold'>Name *</label>
         <input
           className='form-control'
@@ -332,6 +332,12 @@ const getTrimmed = (value) => (typeof value === "string" ? value.trim() : "");
 
 const EventDetailsOne = ({ event, loading, error }) => {
   const [activeTab, setActiveTab] = useState("overview");
+  const scrollToRegistration = useCallback(() => {
+    const formEl = document.getElementById("event-register-form");
+    if (formEl) {
+      formEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
 
   useEffect(() => {
     setActiveTab("overview");
@@ -379,15 +385,26 @@ const EventDetailsOne = ({ event, loading, error }) => {
                 <div className='d-flex gap-8 flex-wrap align-items-center mb-12'>
                   <span className='badge badge--category'>{event?.category || "Masterclass"}</span>
                   {event?.badge ? <span className='badge badge--accent ms-2'>{event.badge}</span> : null}
-                  {event?.eventType ? (
-                    <span className='event-type-chip'>{event.eventType}</span>
-                  ) : null}
-                </div>
-                <h1 className='display-5 mb-8 mt-16'>{event?.title}</h1>
-                {heroLead ? <p className='text-neutral-600 mb-24'>{heroLead}</p> : null}
-                <EventTabs active={activeTab} onChange={setActiveTab} />
-                <div className='event-tab-content'>{renderTab()}</div>
+                {event?.eventType ? (
+                  <span className='event-type-chip'>{event.eventType}</span>
+                ) : null}
               </div>
+              <h1 className='display-5 mb-8 mt-16'>{event?.title}</h1>
+              {heroLead ? <p className='text-neutral-600 mb-24'>{heroLead}</p> : null}
+              <div className='d-lg-none'>
+                <div className='event-mobile-cta'>
+                  <div className='event-mobile-cta__text'>
+                    <span className='event-mobile-cta__price'>Free</span>
+                    <span className='event-mobile-cta__meta'>Limited seats available</span>
+                  </div>
+                  <button type='button' className='event-mobile-cta__button' onClick={scrollToRegistration}>
+                    Register Now
+                  </button>
+                </div>
+              </div>
+              <EventTabs active={activeTab} onChange={setActiveTab} />
+              <div className='event-tab-content'>{renderTab()}</div>
+            </div>
             </div>
             <div className='col-lg-4'>
               <RegistrationCard event={event} />
