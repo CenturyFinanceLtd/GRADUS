@@ -12013,11 +12013,11 @@ ul.footer-menu {
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--icon-color, #1c0f4a);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--icon-color, #ffffff);
+  color: #ffffff;
   font-size: 1.25rem;
   transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
@@ -12026,8 +12026,7 @@ ul.footer-menu {
   height: 22px;
 }
 .gradus-footer__social-link:hover {
-  background: #ffffff;
-  color: var(--icon-color, #1c0f4a);
+  filter: brightness(1.1);
   transform: translateY(-2px);
 }
 .gradus-footer__legal {
