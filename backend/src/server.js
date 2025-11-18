@@ -4,10 +4,12 @@
   - Performs one-time/data-ensuring tasks (e.g., default course content)
   - Starts the Express app and wires graceful shutdown on fatal errors
 */
+const http = require('http');
 const config = require('./config/env');
 const connectDB = require('./config/db');
 const app = require('./app');
 const ensureCourseContent = require('./utils/ensureCourseContent');
+const startLiveSfu = require('./liveSfu');
 
 const startServer = async () => {
   await connectDB();
@@ -19,7 +21,10 @@ const startServer = async () => {
   }
 
   // Start HTTP server
-  const server = app.listen(config.port, () => {
+  const server = http.createServer(app);
+  startLiveSfu(server);
+
+  server.listen(config.port, () => {
     console.log(`[server] Listening on port ${config.port}`);
   });
 

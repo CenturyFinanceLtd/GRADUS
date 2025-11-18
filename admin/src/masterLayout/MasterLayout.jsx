@@ -441,6 +441,17 @@ const MasterLayout = ({ children }) => {
                 <span>Course Enrollments</span>
               </NavLink>
             </li>
+            {(hasFullAccess || allowedPages.includes('live_classes')) && (
+              <li>
+                <NavLink
+                  to='/go-live'
+                  className={(navData) => (navData.isActive ? "active-page" : "")}
+                >
+                  <Icon icon='mdi:radio-tower' className='menu-icon' />
+                  <span>Go Live</span>
+                </NavLink>
+              </li>
+            )}
             <li>
               <NavLink
                 to='/blog'

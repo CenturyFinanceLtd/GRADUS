@@ -37,7 +37,7 @@ function ProgrammeCoursePage() {
     return Array.from(new Set(list.filter(Boolean)));
   };
   const courseSlugCandidates = resolveCourseSlugCandidates(programmeSlug, courseSlug);
-  const courseHomePath = programmeSlug && courseSlug ? `/${programmeSlug}/${courseSlug}/home/course-info` : '/my-courses';
+  const courseHomePath = programmeSlug && courseSlug ? `/${programmeSlug}/${courseSlug}/home` : '/my-courses';
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
