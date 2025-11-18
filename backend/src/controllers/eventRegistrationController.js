@@ -6,7 +6,7 @@
 const asyncHandler = require('express-async-handler');
 const EventRegistration = require('../models/EventRegistration');
 const Event = require('../models/Event');
-const { sendEventRegistrationEmail } = require('../utils/email');
+const { sendEmail, sendEventRegistrationEmail } = require('../utils/email');
 
 const serializeRegistration = (registration) => ({
   id: registration._id.toString(),
@@ -278,6 +278,91 @@ const deleteEventRegistration = asyncHandler(async (req, res) => {
   res.json({ success: true });
 });
 
+const sendJoinLinkEmails = asyncHandler(async (req, res) => {
+  const { registrationIds, joinUrl, subject, additionalNote } = req.body || {};
+
+  const normalizedJoinUrl = (joinUrl || '').trim();
+  if (!normalizedJoinUrl) {
+    res.status(400);
+    throw new Error('Join URL is required');
+  }
+
+  const ids = Array.isArray(registrationIds) ? registrationIds.filter(Boolean) : [];
+  if (!ids.length) {
+    res.status(400);
+    throw new Error('Select at least one registration to send the link');
+  }
+
+  const registrations = await EventRegistration.find({ _id: { $in: ids } }).lean();
+  if (!registrations.length) {
+    res.status(404);
+    throw new Error('No registrations found for the provided IDs');
+  }
+
+  const emailSubject = (subject || 'Join link for your upcoming webinar').trim();
+  const note = (additionalNote || '').trim();
+  let sentCount = 0;
+  const failures = [];
+
+  await Promise.all(
+    registrations.map(async (registration) => {
+      const displayName = registration.name || 'Learner';
+      const displayCourse = registration.course || 'your webinar';
+      const textLines = [
+        `Hi ${displayName},`,
+        '',
+        `Here is the join link for ${displayCourse}:`,
+        normalizedJoinUrl,
+        '',
+        note ? note : null,
+        'See you there!',
+        'Team Gradus',
+      ].filter(Boolean);
+
+      const html = `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1F2937;">
+          <p style="margin: 0 0 12px;">Hi ${displayName},</p>
+          <p style="margin: 0 0 12px;">Here is the join link for <strong>${displayCourse}</strong>:</p>
+          <p style="margin: 0 0 16px;">
+            <a href="${normalizedJoinUrl}" style="color: #0B5394;">${normalizedJoinUrl}</a>
+          </p>
+          ${note ? `<p style="margin: 0 0 12px;">${note}</p>` : ''}
+          <p style="margin: 0 0 12px;">See you there!</p>
+          <p style="margin: 0;">Team Gradus</p>
+        </div>
+      `;
+
+      try {
+        await sendEmail({
+          to: registration.email,
+          subject: emailSubject,
+          text: textLines.join('\n'),
+          html,
+        });
+        sentCount += 1;
+      } catch (error) {
+        failures.push({
+          id: registration._id.toString(),
+          email: registration.email,
+          error: error?.message || 'Failed to send',
+        });
+        console.error('[event-registration] Failed to send join link email', {
+          id: registration._id,
+          email: registration.email,
+          error: error?.message,
+        });
+      }
+    })
+  );
+
+  res.json({
+    message: 'Join link emails processed',
+    sent: sentCount,
+    total: registrations.length,
+    failed: failures,
+  });
+});
+
 module.exports = {
   createEventRegistration,
   listEventRegistrations,
@@ -285,4 +370,5 @@ module.exports = {
   updateEventRegistration,
   deleteEventRegistration,
   createEventRegistrationEntry,
+  sendJoinLinkEmails,
 };

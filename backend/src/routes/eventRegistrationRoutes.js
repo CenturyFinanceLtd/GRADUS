@@ -10,6 +10,7 @@ const {
   getEventRegistration,
   updateEventRegistration,
   deleteEventRegistration,
+  sendJoinLinkEmails,
 } = require('../controllers/eventRegistrationController');
 const { protectAdmin } = require('../middleware/adminAuthMiddleware');
 
@@ -19,6 +20,8 @@ router
   .route('/')
   .post(createEventRegistration)
   .get(protectAdmin, listEventRegistrations);
+
+router.post('/send-join-link', protectAdmin, sendJoinLinkEmails);
 
 router
   .route('/:id')

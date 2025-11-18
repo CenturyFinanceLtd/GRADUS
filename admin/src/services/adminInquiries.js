@@ -74,3 +74,10 @@ export const deleteEventRegistration = ({ token, registrationId } = {}) =>
     method: "DELETE",
     token,
   });
+
+export const sendEventRegistrationJoinLinks = ({ token, registrationIds, joinUrl, subject, additionalNote } = {}) =>
+  apiClient(`/event-registrations/send-join-link`, {
+    method: "POST",
+    token,
+    data: { registrationIds, joinUrl, subject, additionalNote },
+  });

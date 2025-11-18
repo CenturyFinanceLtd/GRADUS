@@ -5,6 +5,7 @@ import {
   createEventRegistrationAdmin,
   updateEventRegistration,
   deleteEventRegistration,
+  sendEventRegistrationJoinLinks,
 } from "../services/adminInquiries";
 
 const formatDateTime = (value) => {
@@ -84,6 +85,9 @@ const EventRegistrationsTable = () => {
   const [reloadKey, setReloadKey] = useState(0);
   const [actionMessage, setActionMessage] = useState(null);
   const [pendingActionId, setPendingActionId] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [joinLink, setJoinLink] = useState("");
+  const [sendingLinks, setSendingLinks] = useState(false);
   const [editorState, setEditorState] = useState({
     open: false,
     mode: "create",
@@ -111,7 +115,9 @@ const EventRegistrationsTable = () => {
         });
 
         if (isActive) {
-          setItems(response?.items || []);
+          const nextItems = response?.items || [];
+          setItems(nextItems);
+          setSelectedIds((prev) => prev.filter((id) => nextItems.some((item) => item.id === id)));
         }
       } catch (err) {
         if (isActive) {
@@ -285,6 +291,54 @@ const EventRegistrationsTable = () => {
     }
   };
 
+  const toggleSelectAll = () => {
+    const visibleIds = filteredItems.map((item) => item.id);
+    const allSelected = visibleIds.length > 0 && visibleIds.every((id) => selectedIds.includes(id));
+    setSelectedIds(
+      allSelected
+        ? selectedIds.filter((id) => !visibleIds.includes(id))
+        : Array.from(new Set([...selectedIds, ...visibleIds]))
+    );
+  };
+
+  const toggleSelectOne = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
+    );
+  };
+
+  const handleSendJoinLinks = async () => {
+    const url = joinLink.trim();
+    if (!token || !selectedIds.length || !url) {
+      setActionMessage({ type: "danger", text: "Select registrations and enter a join link first." });
+      return;
+    }
+
+    setSendingLinks(true);
+    setActionMessage(null);
+
+    try {
+      const response = await sendEventRegistrationJoinLinks({
+        token,
+        registrationIds: selectedIds,
+        joinUrl: url,
+      });
+      const sentCount = response?.sent ?? selectedIds.length;
+      const total = response?.total ?? selectedIds.length;
+      setActionMessage({
+        type: "success",
+        text: `Join link sent to ${sentCount} of ${total} registration(s).`,
+      });
+    } catch (err) {
+      setActionMessage({
+        type: "danger",
+        text: err?.message || "Failed to send join links.",
+      });
+    } finally {
+      setSendingLinks(false);
+    }
+  };
+
   return (
     <div className='card mt-24'>
       <div className='card-header border-0 pb-0'>
@@ -295,7 +349,7 @@ const EventRegistrationsTable = () => {
               View the latest sign-ups coming from the public event CTA form.
             </p>
           </div>
-          <div className='d-flex gap-12 ms-auto'>
+          <div className='d-flex flex-wrap gap-12 ms-auto align-items-center'>
             <input
               type='search'
               className='form-control'
@@ -304,6 +358,23 @@ const EventRegistrationsTable = () => {
               onChange={(event) => setSearch(event.target.value)}
               style={{ minWidth: 240 }}
             />
+            <input
+              type='url'
+              className='form-control'
+              placeholder='Join link to email selected'
+              value={joinLink}
+              onChange={(event) => setJoinLink(event.target.value)}
+              style={{ minWidth: 260 }}
+            />
+            <button
+              type='button'
+              className='btn btn-outline-primary'
+              onClick={handleSendJoinLinks}
+              disabled={sendingLinks || !selectedIds.length}
+              title='Send join link to selected registrations'
+            >
+              {sendingLinks ? "Sending..." : `Send Link (${selectedIds.length || 0})`}
+            </button>
             <button type='button' className='btn btn-primary' onClick={openCreateEditor}>
               Add Registration
             </button>
@@ -333,6 +404,17 @@ const EventRegistrationsTable = () => {
             <table className='table align-middle'>
               <thead>
                 <tr>
+                  <th style={{ width: 36 }}>
+                    <input
+                      type='checkbox'
+                      className='form-check-input'
+                      onChange={toggleSelectAll}
+                      checked={
+                        filteredItems.length > 0 &&
+                        filteredItems.every((item) => selectedIds.includes(item.id))
+                      }
+                    />
+                  </th>
                   <th>Name</th>
                   <th>Email</th>
                   <th>Phone</th>
@@ -351,6 +433,14 @@ const EventRegistrationsTable = () => {
 
                   return (
                     <tr key={item.id}>
+                      <td>
+                        <input
+                          type='checkbox'
+                          className='form-check-input'
+                          checked={selectedIds.includes(item.id)}
+                          onChange={() => toggleSelectOne(item.id)}
+                        />
+                      </td>
                       <td>{item.name}</td>
                       <td>
                         <a href={`mailto:${item.email}`} className='text-decoration-none'>
