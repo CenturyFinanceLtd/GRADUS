@@ -20,6 +20,8 @@ const defaultForm = {
   eventType: EVENT_TYPE_OPTIONS[0],
   hostName: "",
   hostTitle: "",
+  hostBio: "",
+  hostAvatarUrl: "",
   heroImageUrl: "",
   heroImageAlt: "",
   startDate: "",
@@ -79,6 +81,7 @@ const EventsAdminPage = () => {
   const [form, setForm] = useState(defaultForm);
   const [editing, setEditing] = useState(null);
   const [uploadingHero, setUploadingHero] = useState(false);
+  const [uploadingHostAvatar, setUploadingHostAvatar] = useState(false);
 
   const load = async () => {
     try {
@@ -106,6 +109,8 @@ const EventsAdminPage = () => {
     eventType: event?.eventType || EVENT_TYPE_OPTIONS[0],
     hostName: event?.host?.name || "",
     hostTitle: event?.host?.title || "",
+    hostBio: event?.host?.bio || "",
+    hostAvatarUrl: event?.host?.avatarUrl || "",
     heroImageUrl: event?.heroImage?.url || "",
     heroImageAlt: event?.heroImage?.alt || "",
     startDate: toDatetimeLocal(event?.schedule?.start),
@@ -153,10 +158,12 @@ const EventsAdminPage = () => {
       category: form.category.trim() || "General",
       badge: form.badge.trim(),
       eventType: form.eventType || EVENT_TYPE_OPTIONS[0],
-      hostName: form.hostName.trim(),
-      hostTitle: form.hostTitle.trim(),
-      heroImageUrl: form.heroImageUrl.trim(),
-      heroImageAlt: form.heroImageAlt.trim(),
+    hostName: form.hostName.trim(),
+    hostTitle: form.hostTitle.trim(),
+    hostBio: form.hostBio.trim(),
+    hostAvatarUrl: form.hostAvatarUrl.trim(),
+    heroImageUrl: form.heroImageUrl.trim(),
+    heroImageAlt: form.heroImageAlt.trim(),
       startDate: fromDatetimeLocal(form.startDate),
       endDate: fromDatetimeLocal(form.endDate),
       timezone: form.timezone.trim() || "Asia/Kolkata",
@@ -243,6 +250,23 @@ const EventsAdminPage = () => {
     }
   };
 
+  const handleHostAvatarUpload = async (file) => {
+    if (!file) return;
+    try {
+      setUploadingHostAvatar(true);
+      setError(null);
+      const uploaded = await uploadImage({ file, token });
+      setForm((prev) => ({
+        ...prev,
+        hostAvatarUrl: uploaded.url || prev.hostAvatarUrl,
+      }));
+    } catch (err) {
+      setError(err?.message || "Image upload failed");
+    } finally {
+      setUploadingHostAvatar(false);
+    }
+  };
+
   const statusBadgeClass = (status) => {
     switch (status) {
       case "published":
@@ -318,6 +342,53 @@ const EventsAdminPage = () => {
                 <div className='col-6'>
                   <label className='form-label'>Host Title</label>
                   <input className='form-control' name='hostTitle' value={form.hostTitle} onChange={handleInputChange} />
+                </div>
+                <div className='col-12'>
+                  <label className='form-label'>Host Bio</label>
+                  <textarea
+                    className='form-control'
+                    rows={3}
+                    name='hostBio'
+                    value={form.hostBio}
+                    onChange={handleInputChange}
+                    placeholder='Short instructor introduction'
+                  />
+                </div>
+                <div className='col-12'>
+                  <label className='form-label'>Host Photo URL</label>
+                  <input
+                    className='form-control'
+                    name='hostAvatarUrl'
+                    value={form.hostAvatarUrl}
+                    onChange={handleInputChange}
+                    placeholder='https://...'
+                  />
+                </div>
+                <div className='col-12 d-flex align-items-center gap-3'>
+                  <div className='flex-grow-1'>
+                    <label className='form-label'>Upload Host Photo</label>
+                    <input
+                      type='file'
+                      accept='image/*'
+                      className='form-control'
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        handleHostAvatarUpload(file);
+                        e.target.value = "";
+                      }}
+                      disabled={uploadingHostAvatar}
+                    />
+                    <small className='text-muted'>Recommended: square image (max 5MB)</small>
+                  </div>
+                  {form.hostAvatarUrl ? (
+                    <div className='border rounded p-2 bg-light-subtle'>
+                      <img
+                        src={form.hostAvatarUrl}
+                        alt={form.hostName || "Host photo preview"}
+                        style={{ maxWidth: 96, maxHeight: 96, objectFit: "cover", display: "block", borderRadius: 12 }}
+                      />
+                    </div>
+                  ) : null}
                 </div>
                 <div className='col-12'>
                   <label className='form-label'>Hero Image URL</label>

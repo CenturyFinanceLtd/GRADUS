@@ -208,6 +208,7 @@ const serializeEvent = (event) => {
       name: host.name || '',
       title: host.title || '',
       avatarUrl: host.avatarUrl || '',
+      bio: host.bio || '',
     },
     price: {
       label: price.label || (price.isFree ? 'Free' : ''),
@@ -327,13 +328,15 @@ const buildEventPayload = (input = {}, { isCreate = false } = {}) => {
     input.host !== undefined ||
     input.hostName !== undefined ||
     input.hostTitle !== undefined ||
-    input.hostAvatarUrl !== undefined
+    input.hostAvatarUrl !== undefined ||
+    input.hostBio !== undefined
   ) {
     const host = input.host || {};
     payload.host = {
       name: String(host.name ?? input.hostName ?? '').trim(),
       title: String(host.title ?? input.hostTitle ?? '').trim(),
       avatarUrl: String(host.avatarUrl ?? input.hostAvatarUrl ?? '').trim(),
+      bio: String(host.bio ?? input.hostBio ?? '').trim(),
     };
   }
 

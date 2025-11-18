@@ -11,6 +11,7 @@ const HostSchema = new mongoose.Schema(
     name: { type: String, trim: true, default: '' },
     title: { type: String, trim: true, default: '' },
     avatarUrl: { type: String, trim: true, default: '' },
+    bio: { type: String, trim: true, default: '' },
   },
   { _id: false }
 );

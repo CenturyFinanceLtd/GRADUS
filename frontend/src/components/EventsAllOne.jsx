@@ -115,7 +115,7 @@ const EmptyState = () => (
     </div>
     <h4 className='mb-8'>Nothing scheduled yet</h4>
     <p className='text-neutral-600 mb-0'>
-      We’re curating the next wave of masterclasses. Check back shortly or subscribe to updates.
+      We’re curating the next wave of events. Check back shortly or subscribe to updates.
     </p>
   </div>
 );
@@ -203,7 +203,7 @@ const EventsAllOne = () => {
                   <p className='text-neutral-100 mb-16 text-line-3'>
                     {featuredEvent.summary ||
                       featuredEvent.subtitle ||
-                      "Join our flagship live cohort to experience Gradus masterclasses."}
+                      "Join our flagship live cohort to experience Gradus events."}
                   </p>
                   <div className='d-flex flex-wrap gap-12 align-items-center mb-20'>
                     <span className='spotlight-chip'>
@@ -240,7 +240,7 @@ const EventsAllOne = () => {
               </div>
             ) : (
               <div className='text-center py-40 text-neutral-500 fw-semibold'>
-                More masterclasses are being scheduled. Stay tuned!
+                More events are being scheduled. Stay tuned!
               </div>
             )}
           </>

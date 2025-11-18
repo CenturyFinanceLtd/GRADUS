@@ -121,24 +121,38 @@ const OverviewTab = ({ event, overviewText }) => {
   );
 };
 
-const InstructorTab = ({ event }) => (
-  <div className='event-overview'>
-    <h2 className='event-section-title'>Instructor</h2>
-    <div className='event-instructor-card'>
-      <div className='event-host-avatar rounded-circle bg-main-25 text-main-600 fw-semibold'>
-        {(event?.host?.name || "G")[0]}
-      </div>
-      <div>
-        <p className='fw-semibold mb-2'>{event?.host?.name || "Gradus Mentor"}</p>
-        <p className='text-neutral-500 mb-0'>{event?.host?.title || "Lead Instructor"}</p>
+const InstructorTab = ({ event }) => {
+  const defaultBio =
+    "Hello, my name is Vaibhav Batra. With 6 years of trading and training experience, I’m here to guide you through the course details and help you build real-world financial market skills. At Gradus, we bridge the gap between academics and industry, preparing you for real market-ready opportunities.";
+  const name = event?.host?.name || "Gradus Mentor";
+  const title = event?.host?.title || "Lead Instructor";
+  const bio = event?.host?.bio || defaultBio;
+  const photoUrl = event?.host?.avatarUrl;
+  const hasPhoto = Boolean(photoUrl);
+  const layoutClass = `event-instructor-layout${hasPhoto ? "" : " event-instructor-layout--no-photo"}`;
+
+  return (
+    <div className='event-overview'>
+      <div className={layoutClass}>
+        {hasPhoto ? (
+          <div className='event-instructor__media'>
+            <img
+              className='event-instructor__photo'
+              src={photoUrl}
+              alt={name}
+              loading='lazy'
+            />
+          </div>
+        ) : null}
+        <div className='event-instructor__details'>
+          <h3 className='event-instructor__name'>{name}</h3>
+          {title ? <p className='text-neutral-500 mb-12'>{title}</p> : null}
+          <p className='event-instructor__bio text-neutral-600'>{bio}</p>
+        </div>
       </div>
     </div>
-    <p className='text-neutral-600 mt-16'>
-      {event?.host?.bio ||
-        "Our mentors bring real-world expertise from top institutions and make every session interactive and actionable."}
-    </p>
-  </div>
-);
+  );
+};
 
 const HelpTab = () => (
   <div className='event-overview'>
@@ -148,7 +162,7 @@ const HelpTab = () => (
       custom corporate cohort.
     </p>
     <ul className='event-highlight-list'>
-      <li>Email: <a href='mailto:hello@gradusindia.in'>hello@gradusindia.in</a></li>
+      <li>Email: <a href='mailto:business@gradusindia.in'>business@gradusindia.in</a></li>
       <li>Phone / WhatsApp: <a href='tel:+919999999999'>+91 99999 99999</a></li>
       <li>
         Support Center:{" "}
