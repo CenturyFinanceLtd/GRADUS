@@ -2,6 +2,112 @@ import { useEffect, useMemo, useState } from "react";
 import { submitContactInquiry } from "../services/contactService";
 import { fetchCourseOptions } from "../services/courseService";
 
+const REGION_OPTIONS = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Jammu and Kashmir",
+  "Ladakh",
+  "Lakshadweep",
+  "Puducherry",
+];
+
+const SUBJECT_OPTIONS = ["General Inquiry", "Course Inquiry", "Others"];
+
+const DEGREE_OPTIONS = [
+  "B.Tech",
+  "B.E.",
+  "B.Sc",
+  "B.Com",
+  "B.A.",
+  "BBA",
+  "BCA",
+  "B.Arch",
+  "B.Pharm",
+  "MBBS",
+  "LLB",
+  "B.Ed",
+  "B.Des",
+  "BHM",
+  "BSW",
+  "BMS",
+  "B.Voc",
+  "BFA",
+  "M.Tech",
+  "M.E.",
+  "M.Sc",
+  "M.Com",
+  "M.A.",
+  "MBA / PGDM",
+  "MCA",
+  "M.Arch",
+  "M.Pharm",
+  "MD",
+  "MS (Medical)",
+  "LLM",
+  "M.Ed",
+  "M.Des",
+  "MPH",
+  "MPA",
+];
+
+const SOCIAL_LINKS = [
+  {
+    href: "https://www.quora.com/profile/Marketing-Team-615",
+    label: "Quora",
+    icon: "/assets/social/Quora.svg",
+  },
+  {
+    href: "https://www.reddit.com/user/GradusIndia/",
+    label: "Reddit",
+    icon: "/assets/social/reddit.svg",
+  },
+  {
+    href: "https://discord.com/channels/1432018650558238884/1432019463347114035",
+    label: "Discord",
+    icon: "/assets/social/discord.svg",
+  },
+  {
+    href: "https://www.instagram.com/gradusindiaofficial?igsh=MWdhdjJhZWp6NDI1aA==",
+    label: "Instagram",
+    icon: "/assets/social/instagram.svg",
+  },
+  {
+    href: "https://www.facebook.com/people/Gradus/61583093960559/?sk=about",
+    label: "Facebook",
+    icon: "/assets/social/facebook.svg",
+  },
+];
+
 const ContactInner = () => {
   const initialFormState = {
     name: "",
@@ -12,17 +118,8 @@ const ContactInner = () => {
     institution: "",
     course: "",
     message: "",
+    subject: SUBJECT_OPTIONS[0],
   };
-
-  const regionOptions = [
-    "North India",
-    "South India",
-    "East India",
-    "West India",
-    "Central India",
-    "North-East India",
-    "Union Territories",
-  ];
 
   const [courseOptions, setCourseOptions] = useState([]);
   const [courseOptionsLoading, setCourseOptionsLoading] = useState(true);
@@ -71,14 +168,22 @@ const ContactInner = () => {
     [courseOptions]
   );
 
-  const hasCourseOptions = courseOptionNames.length > 0;
+  const degreeOptionsList = useMemo(
+    () => Array.from(new Set(DEGREE_OPTIONS)),
+    []
+  );
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setFormData((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
+    if (name === "region") {
+      setFormData((previous) => ({
+        ...previous,
+        region: value,
+        institution: "",
+      }));
+      return;
+    }
+    setFormData((previous) => ({ ...previous, [name]: value }));
   };
 
   const handleSubmit = async (event) => {
@@ -92,6 +197,7 @@ const ContactInner = () => {
     const trimmedInstitution = formData.institution.trim();
     const trimmedCourse = formData.course.trim();
     const trimmedMessage = formData.message.trim();
+    const trimmedSubject = formData.subject.trim();
 
     if (!trimmedName) {
       setFeedback({ type: "danger", message: "Please enter your name." });
@@ -140,7 +246,8 @@ const ContactInner = () => {
         region: trimmedRegion,
         institution: trimmedInstitution,
         course: trimmedCourse,
-        message: trimmedMessage,
+        message:
+          trimmedSubject && trimmedMessage ? `[${trimmedSubject}] ${trimmedMessage}` : trimmedMessage,
       });
 
       setFeedback({
@@ -159,215 +266,244 @@ const ContactInner = () => {
   };
 
   return (
-    <>
-      <section className='contact-page-section position-relative overflow-hidden z-1'>
-        <span className='contact-page-accent contact-page-accent--one' aria-hidden='true' />
-        <span className='contact-page-accent contact-page-accent--two' aria-hidden='true' />
-        <div className='container position-relative z-1'>
-          <div className='row gy-5 gx-xl-5 align-items-start justify-content-between'>
-            <div className='col-xl-5 col-lg-6'>
-              <div className='contact-intro-card h-100'>
-                <span className='contact-badge mb-20'>
-                  <span className='contact-badge__icon d-flex align-items-center justify-content-center'>
-                    <i className='ph-bold ph-book' />
-                  </span>
-                  Talk to Gradus
+    <section className='contact-page-section'>
+      <div className='container'>
+        <div className='contact-split-card'>
+          <div className='contact-info-panel'>
+            <h3 className='contact-info-title'>Contact Information</h3>
+            <p className='contact-info-subtitle'>Call us during office hours if facing any doubts</p>
+
+            <div className='contact-info-list'>
+              <div className='contact-info-item'>
+                <span className='contact-info-icon'>
+                  <i className='ph-bold ph-phone-call' />
                 </span>
-                <h2 className='contact-title text-capitalize mb-24'>
-                  Shape industry-ready futures with Gradus
-                </h2>
-                <div className='contact-highlight-card'>
-                  <p className='mb-0 text-neutral-500'>
-                    Share your learner, campus, or workforce goals and we'll craft a tailored, industry-aligned pathway. With 16+ years of experience, employer-led mentors, and immersive internships, the Gradus team accelerates outcomes with confidence.
+                <div>
+                  <p className='contact-info-label mb-4'>Call us</p>
+                  <a className='contact-info-link d-inline-flex gap-6 align-items-center' href='tel:+918448429040'>
+                    +91 84484 29040
+                  </a>
+                </div>
+              </div>
+              <div className='contact-info-item'>
+                <span className='contact-info-icon'>
+                  <i className='ph-bold ph-envelope-simple' />
+                </span>
+                <div>
+                  <p className='contact-info-label mb-4'>Email</p>
+                  <a
+                    className='contact-info-link d-inline-flex gap-6 align-items-center'
+                    href='mailto:contact@gradusindia.in'
+                  >
+                    contact@gradusindia.in
+                  </a>
+                </div>
+              </div>
+              <div className='contact-info-item align-items-start'>
+                <span className='contact-info-icon'>
+                  <i className='ph-bold ph-map-pin' />
+                </span>
+                <div>
+                  <p className='contact-info-label mb-4'>Office</p>
+                  <p className='contact-info-address mb-0'>
+                    First floor, southern park, D-2, District Centre, Saket, New Delhi, 110017
                   </p>
                 </div>
               </div>
             </div>
-            <div className='col-xl-7 col-lg-6'>
-              <div className='contact-form-card'>
-                <form id='contactForm' className='contact-form' onSubmit={handleSubmit} noValidate>
-                  <div className='contact-form-header'>
-                    <h4 className='mb-0'>Get In Touch</h4>
-                  </div>
-                  <div className='contact-form-grid'>
-                    <div className='contact-form-field'>
-                      <label htmlFor='name' className='contact-form-label'>
-                        Name
-                      </label>
-                      <input
-                        type='text'
-                        className='common-input rounded-pill border-transparent focus-border-main-600'
-                        id='name'
-                        name='name'
-                        placeholder='Enter Name...'
-                        value={formData.name}
-                        onChange={handleChange}
-                        disabled={submitting}
-                        required
-                      />
-                    </div>
-                    <div className='contact-form-field'>
-                      <label htmlFor='email' className='contact-form-label'>
-                        Email
-                      </label>
-                      <input
-                        type='email'
-                        className='common-input rounded-pill border-transparent focus-border-main-600'
-                        id='email'
-                        name='email'
-                        placeholder='Enter Email...'
-                        value={formData.email}
-                        onChange={handleChange}
-                        disabled={submitting}
-                        required
-                      />
-                    </div>
-                    <div className='contact-form-field'>
-                      <label htmlFor='phone' className='contact-form-label'>
-                        Phone
-                      </label>
-                      <input
-                        type='tel'
-                        className='common-input rounded-pill border-transparent focus-border-main-600'
-                        id='phone'
-                        name='phone'
-                        placeholder='Enter Your Number...'
-                        value={formData.phone}
-                        onChange={handleChange}
-                        disabled={submitting}
-                        required
-                      />
-                    </div>
-                    <div className='contact-form-field'>
-                      <label htmlFor='region' className='contact-form-label'>
-                        Region
-                      </label>
-                      <select
-                        id='region'
-                        name='region'
-                        className='common-input rounded-pill border-transparent focus-border-main-600'
-                        value={formData.region}
-                        onChange={handleChange}
-                        disabled={submitting}
-                        required
-                      >
-                        <option value=''>Select Region</option>
-                        {regionOptions.map((region) => (
-                          <option key={region} value={region}>
-                            {region}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className='contact-form-field'>
-                      <label htmlFor='institution' className='contact-form-label'>
-                        College / University
-                      </label>
-                      <input
-                        type='text'
-                        className='common-input rounded-pill border-transparent focus-border-main-600'
-                        id='institution'
-                        name='institution'
-                        placeholder='Enter College or University...'
-                        value={formData.institution}
-                        onChange={handleChange}
-                        disabled={submitting}
-                        required
-                      />
-                    </div>
-                    <div className='contact-form-field'>
-                      <label htmlFor='course' className='contact-form-label'>
-                        Course
-                      </label>
-                      {courseOptionsLoading ? (
-                        <select
-                          id='course'
-                          name='course'
-                          className='common-input rounded-pill border-transparent focus-border-main-600'
-                          disabled
-                          value=''
-                        >
-                          <option value=''>Loading courses…</option>
-                        </select>
-                      ) : hasCourseOptions ? (
-                        <select
-                          id='course'
-                          name='course'
-                          className='common-input rounded-pill border-transparent focus-border-main-600'
-                          value={formData.course}
-                          onChange={handleChange}
-                          disabled={submitting}
-                          required
-                        >
-                          <option value=''>Select Course</option>
-                          {courseOptionNames.map((courseName) => (
-                            <option key={courseName} value={courseName}>
-                              {courseName}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <input
-                          type='text'
-                          id='course'
-                          name='course'
-                          className='common-input rounded-pill border-transparent focus-border-main-600'
-                          placeholder='Enter Course...'
-                          value={formData.course}
-                          onChange={handleChange}
-                          disabled={submitting}
-                          required
-                        />
-                      )}
-                      {courseOptionsError ? (
-                        <p className='contact-error text-danger-600 text-sm mb-0'>{courseOptionsError}</p>
-                      ) : null}
-                    </div>
-                    <div className='contact-form-field contact-form-field--full'>
-                      <label htmlFor='desc' className='contact-form-label'>
-                        Message
-                      </label>
-                      <textarea
-                        id='desc'
-                        name='message'
-                        className='common-input rounded-24 border-transparent focus-border-main-600 contact-textarea'
-                        placeholder='Enter Your Message...'
-                        value={formData.message}
-                        onChange={handleChange}
-                        disabled={submitting}
-                        required
-                      />
-                    </div>
-                    {feedback && (
-                      <div className='contact-form-field contact-form-field--full'>
-                        <div
-                          className={`alert mb-0 ${
-                            feedback.type === "success" ? "alert-success" : "alert-danger"
-                          }`}
-                          role='alert'
-                        >
-                          {feedback.message}
-                        </div>
-                      </div>
-                    )}
-                    <div className='contact-form-field contact-form-field--full'>
-                      <button
-                        type='submit'
-                        className='btn btn-main rounded-pill flex-center gap-8'
-                        disabled={submitting}
-                      >
-                        {submitting ? "Sending..." : "Send Message"}
-                        <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              </div>
+
+            <div className='contact-socials'>
+              {SOCIAL_LINKS.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target='_blank'
+                  rel='noreferrer'
+                  className='contact-social-link'
+                  aria-label={link.label}
+                >
+                  <img src={link.icon} alt={link.label} />
+                </a>
+              ))}
             </div>
           </div>
+
+          <div className='contact-form-panel'>
+            <h3 className='contact-form-title mb-4'>Send us a message</h3>
+            <p className='contact-form-subtitle'>Submit the form and we will reach you soon</p>
+
+            <form id='contactForm' className='contact-form' onSubmit={handleSubmit} noValidate>
+              <div className='contact-form-grid'>
+                <div className='contact-form-field'>
+                  <label htmlFor='name' className='contact-form-label'>
+                    Full Name
+                  </label>
+                  <input
+                    type='text'
+                    className='contact-input'
+                    id='name'
+                    name='name'
+                    placeholder='Enter your full name'
+                    value={formData.name}
+                    onChange={handleChange}
+                    disabled={submitting}
+                    required
+                  />
+                </div>
+                <div className='contact-form-field'>
+                  <label htmlFor='phone' className='contact-form-label'>
+                    Phone Number
+                  </label>
+                  <input
+                    type='tel'
+                    className='contact-input'
+                    id='phone'
+                    name='phone'
+                    placeholder='Enter your number'
+                    value={formData.phone}
+                    onChange={handleChange}
+                    disabled={submitting}
+                    required
+                  />
+                </div>
+                <div className='contact-form-field'>
+                  <label htmlFor='email' className='contact-form-label'>
+                    Email
+                  </label>
+                  <input
+                    type='email'
+                    className='contact-input'
+                    id='email'
+                    name='email'
+                    placeholder='Enter your email'
+                    value={formData.email}
+                    onChange={handleChange}
+                    disabled={submitting}
+                    required
+                  />
+                </div>
+                <div className='contact-form-field'>
+                  <label htmlFor='region' className='contact-form-label'>
+                    University State
+                  </label>
+                  <select
+                    id='region'
+                    name='region'
+                    className='contact-select contact-input'
+                    value={formData.region}
+                    onChange={handleChange}
+                    disabled={submitting}
+                    required
+                  >
+                    <option value=''>Select State</option>
+                    {REGION_OPTIONS.map((region) => (
+                      <option key={region} value={region}>
+                        {region}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className='contact-form-field'>
+                  <label htmlFor='institution' className='contact-form-label'>
+                    University / College
+                  </label>
+                  <input
+                    type='text'
+                    className='contact-input'
+                    id='institution'
+                    name='institution'
+                    placeholder='Enter your college or university'
+                    value={formData.institution}
+                    onChange={handleChange}
+                    disabled={submitting}
+                    required
+                  />
+                </div>
+                <div className='contact-form-field'>
+                  <label htmlFor='course' className='contact-form-label'>
+                    Degree
+                  </label>
+                  <input
+                    type='text'
+                    id='course'
+                    name='course'
+                    className='contact-input'
+                    placeholder='Start typing e.g. B.Tech, MBA'
+                    list='degreeOptions'
+                    value={formData.course}
+                    onChange={handleChange}
+                    disabled={submitting}
+                    required
+                  />
+                  <datalist id='degreeOptions'>
+                    {degreeOptionsList.map((degree) => (
+                      <option key={degree} value={degree} />
+                    ))}
+                  </datalist>
+                  {courseOptionsError ? (
+                    <p className='contact-error text-danger-600 text-sm mb-0'>{courseOptionsError}</p>
+                  ) : null}
+                </div>
+
+                <div className='contact-form-field contact-form-field--full'>
+                  <span className='contact-form-label mb-2'>Select Subject?</span>
+                  <div className='contact-radio-group'>
+                    {SUBJECT_OPTIONS.map((option) => (
+                      <label key={option} className='contact-radio'>
+                        <input
+                          type='radio'
+                          name='subject'
+                          value={option}
+                          checked={formData.subject === option}
+                          onChange={handleChange}
+                          disabled={submitting}
+                        />
+                        <span>{option}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className='contact-form-field contact-form-field--full'>
+                  <label htmlFor='desc' className='contact-form-label'>
+                    Message
+                  </label>
+                  <textarea
+                    id='desc'
+                    name='message'
+                    className='contact-textarea'
+                    placeholder='Write your message..'
+                    value={formData.message}
+                    onChange={handleChange}
+                    disabled={submitting}
+                    required
+                  />
+                </div>
+
+                {feedback && (
+                  <div className='contact-form-field contact-form-field--full'>
+                    <div
+                      className={`alert mb-0 ${feedback.type === "success" ? "alert-success" : "alert-danger"}`}
+                      role='alert'
+                    >
+                      {feedback.message}
+                    </div>
+                  </div>
+                )}
+
+                <div className='contact-form-field contact-form-field--full contact-actions'>
+                  <p className='contact-helper mb-0'>Submit the form we will reach you soon</p>
+                  <button type='submit' className='btn btn-main flex-center gap-8' disabled={submitting}>
+                    {submitting ? "Submitting..." : "Submit"}
+                    <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 };
 
