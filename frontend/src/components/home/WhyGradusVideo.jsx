@@ -6,6 +6,7 @@ const WhyGradusVideo = () => {
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoAspect, setVideoAspect] = useState(null);
   const [error, setError] = useState(null);
   const videoRef = useRef(null);
   const { ref: viewRef, inView } = useInView({ threshold: 0.35 });
@@ -35,7 +36,7 @@ const WhyGradusVideo = () => {
 
   useEffect(() => {
     const el = videoRef.current;
-    if (!el || loading) return;
+    if (!el || loading || !item?.secureUrl) return;
     setVideoLoaded(false);
     const playSafe = async () => {
       try {
@@ -53,6 +54,28 @@ const WhyGradusVideo = () => {
     playSafe();
   }, [item, loading, inView]);
 
+  const handleEnded = () => {
+    const el = videoRef.current;
+    if (!el) return;
+    el.pause();
+    el.currentTime = 0;
+  };
+
+  const handleMetadata = () => {
+    const el = videoRef.current;
+    if (!el) return;
+    const { videoWidth, videoHeight } = el;
+    if (videoWidth > 0 && videoHeight > 0) {
+      setVideoAspect(videoWidth / videoHeight);
+    }
+    setVideoLoaded(true);
+  };
+
+  const handleVideoError = () => {
+    setError("The video failed to load. Please try again later.");
+    setVideoLoaded(false);
+  };
+
   const videoSrc = item?.secureUrl;
   const poster = item?.thumbnailUrl;
   const title = item?.title;
@@ -61,8 +84,9 @@ const WhyGradusVideo = () => {
   const ctaLabel = item?.ctaLabel;
   const ctaHref = item?.ctaHref;
   const pillLabel = subtitle || "Why Gradus";
-  const showSkeleton = loading && !videoSrc;
+  const showSkeleton = (loading || (videoSrc && !videoLoaded)) && !error;
   const contentSkeleton = loading && !item;
+  const showEmptyState = (!loading && !videoSrc) || Boolean(error);
   const skeletonKeyframes = `
     @keyframes why-gradus-skel {
       0% { background-position: 200% 0; }
@@ -113,7 +137,8 @@ const WhyGradusVideo = () => {
               <div
                 style={{
                   position: "relative",
-                  minHeight: 380,
+                  width: "100%",
+                  aspectRatio: videoAspect || 16 / 9,
                 }}
               >
                 {showSkeleton ? (
@@ -136,9 +161,40 @@ const WhyGradusVideo = () => {
                     controls
                     playsInline
                     muted
+                    preload="metadata"
+                    onEnded={handleEnded}
+                    onLoadedMetadata={handleMetadata}
                     onLoadedData={() => setVideoLoaded(true)}
-                    style={{ position: "relative", zIndex: 2, display: videoLoaded ? "block" : "none" }}
+                    onError={handleVideoError}
+                    style={{
+                      position: "relative",
+                      zIndex: 2,
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      opacity: videoLoaded ? 1 : 0.05,
+                      transition: "opacity 0.3s ease",
+                      backgroundColor: "#0f172a",
+                    }}
                   />
+                ) : null}
+                {showEmptyState ? (
+                  <div
+                    className="why-gradus-empty"
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      zIndex: 1,
+                      borderRadius: 16,
+                      textAlign: "center",
+                      paddingInline: 24,
+                      color: "#0f172a",
+                      fontWeight: 600,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {error || "Video not available right now."}
+                  </div>
                 ) : null}
               </div>
             </div>

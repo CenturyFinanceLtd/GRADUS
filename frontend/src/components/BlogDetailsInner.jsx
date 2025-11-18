@@ -339,7 +339,7 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
 
   if (loading) {
     return (
-      <div className='blog-page-section py-120'>
+      <div className='blog-page-section py-64'>
         <div className='container'>
           <div className='d-flex justify-content-center align-items-center py-5'>
             <div className='spinner-border text-primary' role='status'>
@@ -402,7 +402,7 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
   );
 
   return (
-    <div className='blog-page-section py-120'>
+    <div className='blog-page-section py-64'>
       <div className='container'>
         <div className='blog-details__controls flex-between gap-16 flex-wrap mb-40'>
           <span className='blog-details__category text-neutral-500'>

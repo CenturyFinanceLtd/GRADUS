@@ -8,7 +8,7 @@ import { slugify } from "../utils/slugify.js";
 const Breadcrumb = ({ title, programme }) => {
   return (
     <section className='breadcrumb py-40 bg-main-25 position-relative z-1 mb-0'>
-      <div className='container'>
+      <div className='container-fluid'>
         <div className='row justify-content-center'>
           <div className='col-lg-8'>
             <div className='breadcrumb__wrapper'>

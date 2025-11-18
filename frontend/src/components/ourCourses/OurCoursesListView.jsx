@@ -1,9 +1,8 @@
 import { useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { PROGRAMMES } from "../../data/programmes.js";
 import { API_BASE_URL } from "../../services/apiClient";
-import { slugify, stripBrackets } from "../../utils/slugify.js";
+import { stripBrackets } from "../../utils/slugify.js";
 
 const FLAGSHIP_PRICE_INR = 46000;
 const INR_CURRENCY_FORMATTER = new Intl.NumberFormat("en-IN", {
@@ -13,7 +12,7 @@ const INR_CURRENCY_FORMATTER = new Intl.NumberFormat("en-IN", {
 });
 
 const OurCoursesListView = () => {
-  // Loaded courses from backend (fallback to PROGRAMMES if API fails)
+  // Loaded courses from backend
   const [items, setItems] = useState([]);
   const courses = useMemo(() => items, [items]);
 
@@ -60,24 +59,8 @@ const OurCoursesListView = () => {
         });
         if (!cancelled) setItems(mapped);
       } catch (e) {
-        // Fallback to static list
         if (!cancelled) {
-          const fallback = [];
-          PROGRAMMES.forEach((p) => {
-            const pslug = p.slug || slugify(p.title);
-            (p.courses || []).forEach((c) => {
-              const label = typeof c === 'string' ? c : (c?.name || c?.title || '');
-              const cslug = typeof c === 'string' ? slugify(c) : (c?.slug || slugify(label));
-              fallback.push({
-                programme: p.title,
-                programmeSlug: pslug,
-                name: stripBrackets(label),
-                url: `/${pslug}/${cslug}`,
-                order: fallback.length,
-              });
-            });
-          });
-          setItems(fallback);
+          setItems([]);
         }
       }
     })();

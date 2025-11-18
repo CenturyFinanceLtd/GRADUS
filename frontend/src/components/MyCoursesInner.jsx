@@ -108,7 +108,12 @@ const MyCoursesInner = () => {
     return "Here are the programs you are enrolled in.";
   }, [user]);
 
-  const enrolledCount = state.items.length;
+  const visibleItems = useMemo(
+    () => state.items.filter((enrollment) => normalizeText(enrollment?.course?.name)),
+    [state.items]
+  );
+
+  const enrolledCount = visibleItems.length;
   const enrolledLabel = useMemo(
     () => `${enrolledCount} ${enrolledCount === 1 ? 'course' : 'courses'} enrolled`,
     [enrolledCount]
@@ -174,7 +179,7 @@ const MyCoursesInner = () => {
                 </button>
               </div>
             </div>
-          ) : state.items.length === 0 ? (
+          ) : visibleItems.length === 0 ? (
             <div className='col-12'>
               <div className='text-center py-80'>
                 <p className='text-neutral-600 mb-16'>0 courses enrolled</p>
@@ -188,9 +193,9 @@ const MyCoursesInner = () => {
               </div>
             </div>
           ) : (
-            state.items.map((enrollment) => {
+            visibleItems.map((enrollment) => {
               const course = enrollment.course || {};
-              const courseName = normalizeText(course.name) || "Gradus Course";
+              const courseName = normalizeText(course.name);
               const paymentStatus = toTitleCase(enrollment.paymentStatus);
               const enrollmentStatus = toTitleCase(enrollment.status);
               const enrolledAt = formatDate(enrollment.enrolledAt);
