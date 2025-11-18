@@ -6,6 +6,7 @@ import {
   updateEventRegistration,
   deleteEventRegistration,
   sendEventRegistrationJoinLinks,
+  resendEventRegistrationConfirmation,
 } from "../services/adminInquiries";
 
 const formatDateTime = (value) => {
@@ -85,6 +86,7 @@ const EventRegistrationsTable = () => {
   const [reloadKey, setReloadKey] = useState(0);
   const [actionMessage, setActionMessage] = useState(null);
   const [pendingActionId, setPendingActionId] = useState(null);
+  const [resendingId, setResendingId] = useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
   const [joinLink, setJoinLink] = useState("");
   const [sendingLinks, setSendingLinks] = useState(false);
@@ -223,7 +225,7 @@ const EventRegistrationsTable = () => {
     const trimmedState = form.state.trim();
     const trimmedQualification = form.qualification.trim();
     const trimmedCourse = form.course.trim() || "Event";
-    const trimmedMessage = form.message.trim() || `Interested in ${trimmedCourse} masterclass`;
+    const trimmedMessage = form.message.trim() || `Interested in ${trimmedCourse} event`;
 
     if (!trimmedName || !trimmedEmail || !trimmedPhone || !trimmedState || !trimmedQualification) {
       setEditorState((previous) => ({
@@ -288,6 +290,32 @@ const EventRegistrationsTable = () => {
       setActionMessage({ type: "danger", text: err?.message || "Failed to delete registration." });
     } finally {
       setPendingActionId(null);
+    }
+  };
+
+  const handleResendConfirmation = async (item) => {
+    if (!token || !item?.id) {
+      return;
+    }
+    setResendingId(item.id);
+    setActionMessage(null);
+
+    try {
+      const response = await resendEventRegistrationConfirmation({
+        token,
+        registrationId: item.id,
+      });
+      setActionMessage({
+        type: "success",
+        text: response?.message || "Confirmation email resent successfully.",
+      });
+    } catch (err) {
+      setActionMessage({
+        type: "danger",
+        text: err?.message || "Failed to resend confirmation email.",
+      });
+    } finally {
+      setResendingId(null);
     }
   };
 
@@ -421,7 +449,6 @@ const EventRegistrationsTable = () => {
                   <th>State</th>
                   <th>Qualification</th>
                   <th>Event</th>
-                  <th>Message</th>
                   <th>Submitted</th>
                   <th style={{ minWidth: 160 }}>Actions</th>
                 </tr>
@@ -429,7 +456,6 @@ const EventRegistrationsTable = () => {
               <tbody>
                 {filteredItems.map((item) => {
                   const derivedState = item.state || extractStateFromMessage(item.message);
-                  const cleanedMessage = stripStateFromMessage(item.message);
 
                   return (
                     <tr key={item.id}>
@@ -455,9 +481,6 @@ const EventRegistrationsTable = () => {
                       <td>{derivedState || '--'}</td>
                       <td>{item.qualification || '--'}</td>
                       <td>{item.course}</td>
-                      <td style={{ maxWidth: 260 }}>
-                        <div className='text-break'>{cleanedMessage}</div>
-                      </td>
                       <td>{formatDateTime(item.createdAt)}</td>
                       <td>
                         <div className='d-flex gap-2 flex-wrap'>
@@ -467,6 +490,14 @@ const EventRegistrationsTable = () => {
                             onClick={() => openEditEditor(item)}
                           >
                             Edit
+                          </button>
+                          <button
+                            type='button'
+                            className='btn btn-sm btn-outline-success'
+                            onClick={() => handleResendConfirmation(item)}
+                            disabled={resendingId === item.id}
+                          >
+                            {resendingId === item.id ? "Resending..." : "Resend confirmation"}
                           </button>
                           <button
                             type='button'

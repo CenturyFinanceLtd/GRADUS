@@ -81,3 +81,9 @@ export const sendEventRegistrationJoinLinks = ({ token, registrationIds, joinUrl
     token,
     data: { registrationIds, joinUrl, subject, additionalNote },
   });
+
+export const resendEventRegistrationConfirmation = ({ token, registrationId } = {}) =>
+  apiClient(`/event-registrations/${registrationId}/resend-confirmation`, {
+    method: "POST",
+    token,
+  });

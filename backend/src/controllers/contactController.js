@@ -76,7 +76,7 @@ const createContactInquiry = asyncHandler(async (req, res) => {
 
   const courseValue = trimmedCourse || (eventRegion ? 'Event interest' : '');
   const messageValue =
-    trimmedMessage || (eventRegion ? `Interested in ${courseValue || 'event'} masterclass` : '');
+    trimmedMessage || (eventRegion ? `Interested in ${courseValue || 'event'} event` : '');
   const institutionValue = eventRegion
     ? trimmedInstitution || trimmedQualification || 'Not provided'
     : trimmedInstitution;

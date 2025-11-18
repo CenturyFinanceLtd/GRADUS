@@ -114,7 +114,7 @@ const normalizePayload = (payload = {}) => {
   }
 
   const courseValue = trimmedCourse || 'Event';
-  const messageValue = trimmedMessage || `Interested in ${courseValue} masterclass`;
+  const messageValue = trimmedMessage || `Interested in ${courseValue} event`;
 
   return {
     name: trimmedName,
