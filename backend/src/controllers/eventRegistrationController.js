@@ -100,7 +100,7 @@ const buildEventEmailDetails = (rawDetails, fallbackTitle, eventRecord) => {
 
 const normalizePayload = (payload = {}) => {
   const trimmedName = (payload.name || '').trim();
-  const trimmedEmail = (payload.email || '').trim();
+  const trimmedEmail = (payload.email || '').trim().toLowerCase();
   const trimmedPhone = (payload.phone || '').trim();
   const trimmedState = (payload.state || '').trim();
   const trimmedQualification = (payload.qualification || '').trim();
@@ -129,6 +129,42 @@ const normalizePayload = (payload = {}) => {
   };
 };
 
+const checkDuplicateRegistration = async ({ email, phone, excludeId } = {}) => {
+  const conditions = [];
+  if (email) {
+    conditions.push({ email: email.toLowerCase() });
+  }
+  if (phone) {
+    conditions.push({ phone });
+  }
+
+  if (!conditions.length) return;
+
+  const query = { $or: conditions };
+  if (excludeId) {
+    query._id = { $ne: excludeId };
+  }
+
+  const existing = await EventRegistration.findOne(query).lean();
+  if (!existing) return;
+
+  const emailMatch = email && existing.email.toLowerCase() === email.toLowerCase();
+  const phoneMatch = phone && existing.phone === phone;
+
+  let message = 'Already registered';
+  if (emailMatch && phoneMatch) {
+    message = 'Email and mobile number are already registered';
+  } else if (emailMatch) {
+    message = 'Email is already registered';
+  } else if (phoneMatch) {
+    message = 'Mobile number is already registered';
+  }
+
+  const error = new Error(message);
+  error.statusCode = 400;
+  throw error;
+};
+
 const sendEventConfirmation = async (registration, eventDetails) => {
   const eventRecord = await findEventRecord(eventDetails);
   const details = buildEventEmailDetails(eventDetails, registration.course, eventRecord);
@@ -155,6 +191,7 @@ const sendEventConfirmation = async (registration, eventDetails) => {
 // Shared helper so contact controller can delegate event registrations here
 const createEventRegistrationEntry = async (payload = {}) => {
   const normalized = normalizePayload(payload);
+  await checkDuplicateRegistration({ email: normalized.email, phone: normalized.phone });
   const registration = await EventRegistration.create(normalized);
   await sendEventConfirmation(registration, normalized.eventDetails);
   return registration;
@@ -257,6 +294,12 @@ const updateEventRegistration = asyncHandler(async (req, res) => {
   registration.message = normalized.message;
   registration.consent = normalized.consent;
   registration.eventDetails = normalized.eventDetails;
+
+  await checkDuplicateRegistration({
+    email: registration.email,
+    phone: registration.phone,
+    excludeId: registration._id,
+  });
 
   await registration.save();
 
