@@ -11,6 +11,7 @@ const {
   updateEventRegistration,
   deleteEventRegistration,
   sendJoinLinkEmails,
+  resendEventConfirmationEmail,
 } = require('../controllers/eventRegistrationController');
 const { protectAdmin } = require('../middleware/adminAuthMiddleware');
 
@@ -22,6 +23,7 @@ router
   .get(protectAdmin, listEventRegistrations);
 
 router.post('/send-join-link', protectAdmin, sendJoinLinkEmails);
+router.post('/:id/resend-confirmation', protectAdmin, resendEventConfirmationEmail);
 
 router
   .route('/:id')

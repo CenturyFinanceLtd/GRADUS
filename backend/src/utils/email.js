@@ -169,7 +169,7 @@ const sendAdminApprovalEmail = async ({ to, requester, approvalOptions, rejectio
   return sendEmail({ to, subject, text, html });
 };
 
-const getFormattedDateParts = (isoString) => {
+const getFormattedDateParts = (isoString, timezone) => {
   if (!isoString) {
     return { dateLabel: null, timeLabel: null };
   }
@@ -179,14 +179,24 @@ const getFormattedDateParts = (isoString) => {
     return { dateLabel: null, timeLabel: null };
   }
 
-  const dateLabel = new Intl.DateTimeFormat('en-IN', {
+  const normalizedTz = timezone?.trim() || 'Asia/Kolkata';
+  const getFormatter = (options) => {
+    try {
+      return new Intl.DateTimeFormat('en-IN', { ...options, timeZone: normalizedTz });
+    } catch (error) {
+      // Fallback to system timezone if provided timezone is invalid
+      return new Intl.DateTimeFormat('en-IN', options);
+    }
+  };
+
+  const dateLabel = getFormatter({
     weekday: 'long',
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   }).format(parsed);
 
-  const timeLabel = new Intl.DateTimeFormat('en-IN', {
+  const timeLabel = getFormatter({
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
@@ -207,7 +217,7 @@ const sendEventRegistrationEmail = async ({
   const displayName = name?.trim() || 'there';
   const normalizedTitle = eventTitle?.trim() || 'the Gradus masterclass';
   const timezoneLabel = timezone?.trim() || '';
-  const { dateLabel, timeLabel } = getFormattedDateParts(startsAt);
+  const { dateLabel, timeLabel } = getFormattedDateParts(startsAt, timezoneLabel || undefined);
   const dateDisplay = dateLabel || 'To be announced';
   const timeDisplay = timeLabel
     ? `${timeLabel}${timezoneLabel ? ` (${timezoneLabel})` : ''}`

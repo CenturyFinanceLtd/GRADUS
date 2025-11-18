@@ -406,6 +406,23 @@ const sendJoinLinkEmails = asyncHandler(async (req, res) => {
   });
 });
 
+const resendEventConfirmationEmail = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const registration = await EventRegistration.findById(id);
+  if (!registration) {
+    res.status(404);
+    throw new Error('Event registration not found');
+  }
+
+  await sendEventConfirmation(registration, registration.eventDetails || {});
+
+  res.json({
+    message: 'Confirmation email resent successfully',
+    item: serializeRegistration(registration),
+  });
+});
+
 module.exports = {
   createEventRegistration,
   listEventRegistrations,
@@ -414,4 +431,5 @@ module.exports = {
   deleteEventRegistration,
   createEventRegistrationEntry,
   sendJoinLinkEmails,
+  resendEventConfirmationEmail,
 };
