@@ -44,3 +44,33 @@ export const deleteContactInquiry = ({ token, inquiryId } = {}) =>
     method: "DELETE",
     token,
   });
+
+export const fetchEventRegistrations = ({ token, search } = {}) =>
+  apiClient(`/event-registrations${buildQueryString({ search })}`, {
+    token,
+  });
+
+export const getEventRegistration = ({ token, registrationId } = {}) =>
+  apiClient(`/event-registrations/${registrationId}`, {
+    token,
+  });
+
+export const createEventRegistrationAdmin = ({ token, data } = {}) =>
+  apiClient(`/event-registrations`, {
+    method: "POST",
+    token,
+    data,
+  });
+
+export const updateEventRegistration = ({ token, registrationId, data } = {}) =>
+  apiClient(`/event-registrations/${registrationId}`, {
+    method: "PATCH",
+    token,
+    data,
+  });
+
+export const deleteEventRegistration = ({ token, registrationId } = {}) =>
+  apiClient(`/event-registrations/${registrationId}`, {
+    method: "DELETE",
+    token,
+  });

@@ -44,6 +44,7 @@ const expertVideoRoutes = require('./routes/expertVideoRoutes');
 const whyGradusVideoRoutes = require('./routes/whyGradusVideoRoutes');
 const bannerRoutes = require('./routes/bannerRoutes');
 const eventRoutes = require('./routes/eventRoutes');
+const eventRegistrationRoutes = require('./routes/eventRegistrationRoutes');
 const partnerRoutes = require('./routes/partnerRoutes');
 const { blogImagesDirectory } = require('./middleware/uploadMiddleware');
 
@@ -150,6 +151,7 @@ app.use('/api/expert-videos', expertVideoRoutes);
 app.use('/api/why-gradus-video', whyGradusVideoRoutes);
 app.use('/api/banners', bannerRoutes);
 app.use('/api/partners', partnerRoutes);
+app.use('/api/event-registrations', eventRegistrationRoutes);
 app.use('/api/inquiries', contactRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/chatbot', chatbotRoutes);

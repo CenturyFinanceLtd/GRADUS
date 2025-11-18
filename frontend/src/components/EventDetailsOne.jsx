@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { submitContactInquiry } from "../services/contactService";
+import { submitEventRegistration } from "../services/contactService";
 
 const STATE_OPTIONS = [
   "Andhra Pradesh",
@@ -195,13 +195,11 @@ const RegistrationCard = ({ event }) => {
     try {
       setStatus({ submitting: true, success: false, error: null });
       setShowSuccessModal(false);
-      await submitContactInquiry({
+      await submitEventRegistration({
         name: form.name,
         email: form.email,
         phone: form.phone,
         state: form.state,
-        region: "events",
-        institution: "",
         course: event?.title || "Event",
         message: `Interested in ${event?.title || "event"} event`,
         qualification: form.qualification,

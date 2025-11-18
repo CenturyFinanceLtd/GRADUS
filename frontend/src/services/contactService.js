@@ -31,6 +31,33 @@ export const submitContactInquiry = async ({
   return apiClient.post('/inquiries', payload);
 };
 
+export const submitEventRegistration = async ({
+  name,
+  email,
+  phone,
+  state,
+  qualification,
+  course,
+  message,
+  eventDetails,
+  consent,
+}) => {
+  const payload = {
+    name,
+    email,
+    phone,
+    state,
+    qualification,
+    course,
+    message,
+    eventDetails,
+    consent,
+  };
+
+  return apiClient.post('/event-registrations', payload);
+};
+
 export default {
   submitContactInquiry,
+  submitEventRegistration,
 };

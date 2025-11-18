@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import useAuth from "../hook/useAuth";
 import {
-  fetchContactInquiries,
-  createContactInquiryAdmin,
-  updateContactInquiry,
-  deleteContactInquiry,
+  fetchEventRegistrations,
+  createEventRegistrationAdmin,
+  updateEventRegistration,
+  deleteEventRegistration,
 } from "../services/adminInquiries";
 
 const formatDateTime = (value) => {
@@ -106,9 +106,8 @@ const EventRegistrationsTable = () => {
       setError(null);
 
       try {
-        const response = await fetchContactInquiries({
+        const response = await fetchEventRegistrations({
           token,
-          region: "events",
         });
 
         if (isActive) {
@@ -236,7 +235,6 @@ const EventRegistrationsTable = () => {
       qualification: trimmedQualification,
       course: trimmedCourse,
       message: trimmedMessage,
-      region: "events",
     };
 
     setEditorState((previous) => ({
@@ -248,10 +246,10 @@ const EventRegistrationsTable = () => {
 
     try {
       if (mode === "create") {
-        await createContactInquiryAdmin({ token, data: payload });
+        await createEventRegistrationAdmin({ token, data: payload });
         setActionMessage({ type: "success", text: "Registration added successfully." });
       } else if (form.id) {
-        await updateContactInquiry({ token, inquiryId: form.id, data: payload });
+        await updateEventRegistration({ token, registrationId: form.id, data: payload });
         setActionMessage({ type: "success", text: "Registration updated successfully." });
       }
       closeEditor();
@@ -277,7 +275,7 @@ const EventRegistrationsTable = () => {
     setActionMessage(null);
 
     try {
-      await deleteContactInquiry({ token, inquiryId: item.id });
+      await deleteEventRegistration({ token, registrationId: item.id });
       setActionMessage({ type: "success", text: "Registration deleted successfully." });
       setReloadKey((previous) => previous + 1);
     } catch (err) {

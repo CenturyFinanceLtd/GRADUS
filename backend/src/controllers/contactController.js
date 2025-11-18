@@ -4,8 +4,7 @@
 */
 const asyncHandler = require('express-async-handler');
 const ContactInquiry = require('../models/ContactInquiry');
-const Event = require('../models/Event');
-const { sendEventRegistrationEmail } = require('../utils/email');
+const { createEventRegistrationEntry } = require('./eventRegistrationController');
 
 const CONTACT_STATUS_VALUES = ['pending', 'contacted', 'unable_to_contact'];
 
@@ -30,81 +29,6 @@ const serializeInquiry = (inquiry) => ({
 const EVENT_REGION_KEY = 'events';
 const isEventRegion = (value) =>
   typeof value === 'string' && value.trim().toLowerCase() === EVENT_REGION_KEY;
-
-const extractEventDetails = (rawDetails, fallbackTitle) => {
-  if (!rawDetails || typeof rawDetails !== 'object') {
-    return { title: fallbackTitle || '' };
-  }
-
-  const schedule = rawDetails.schedule && typeof rawDetails.schedule === 'object' ? rawDetails.schedule : {};
-  const start =
-    rawDetails.start || rawDetails.startsAt || schedule.start || rawDetails.eventDate || null;
-  const timezone =
-    rawDetails.timezone || schedule.timezone || rawDetails.eventTimezone || rawDetails.zone || '';
-
-  return {
-    title: rawDetails.title || fallbackTitle || '',
-    startsAt: start,
-    timezone,
-    joinUrl: rawDetails.joinUrl || rawDetails.ctaUrl || rawDetails.registrationUrl || '',
-    hostName: rawDetails.hostName || '',
-  };
-};
-
-const findEventRecord = async (eventDetails) => {
-  if (!eventDetails || typeof eventDetails !== 'object') {
-    return null;
-  }
-
-  const { id, slug } = eventDetails;
-
-  if (id) {
-    try {
-      const eventById = await Event.findById(id).lean();
-      if (eventById) {
-        return eventById;
-      }
-    } catch (error) {
-      console.warn('[contact] Unable to load event by id', { id, error: error?.message });
-    }
-  }
-
-  if (slug) {
-    try {
-      const eventBySlug = await Event.findOne({ slug }).lean();
-      if (eventBySlug) {
-        return eventBySlug;
-      }
-    } catch (error) {
-      console.warn('[contact] Unable to load event by slug', { slug, error: error?.message });
-    }
-  }
-
-  return null;
-};
-
-const buildEventEmailDetails = (rawDetails, fallbackTitle, eventRecord) => {
-  const normalized = extractEventDetails(rawDetails, fallbackTitle);
-
-  if (!eventRecord) {
-    return normalized;
-  }
-
-  const schedule = eventRecord.schedule || {};
-  const startValue = schedule.start
-    ? schedule.start instanceof Date
-      ? schedule.start.toISOString()
-      : schedule.start
-    : normalized.startsAt;
-
-  return {
-    title: eventRecord.title || normalized.title,
-    startsAt: startValue,
-    timezone: schedule.timezone || normalized.timezone,
-    joinUrl: (eventRecord.cta && eventRecord.cta.url) || normalized.joinUrl,
-    hostName: (eventRecord.host && eventRecord.host.name) || normalized.hostName,
-  };
-};
 
 const createContactInquiry = asyncHandler(async (req, res) => {
   const {
@@ -157,6 +81,32 @@ const createContactInquiry = asyncHandler(async (req, res) => {
     ? trimmedInstitution || trimmedQualification || 'Not provided'
     : trimmedInstitution;
 
+  if (eventRegion) {
+    let registration;
+    try {
+      registration = await createEventRegistrationEntry({
+        name: trimmedName,
+        email: trimmedEmail,
+        phone: trimmedPhone,
+        state: normalizedState,
+        qualification: trimmedQualification,
+        course: courseValue,
+        message: messageValue,
+        eventDetails,
+        consent: !!req.body.consent,
+      });
+    } catch (error) {
+      res.status(error?.statusCode || 400);
+      throw error;
+    }
+
+    res.status(201).json({
+      message: 'Registration submitted successfully',
+      registrationId: registration._id,
+    });
+    return;
+  }
+
   const inquiry = await ContactInquiry.create({
     name: trimmedName,
     email: trimmedEmail,
@@ -168,31 +118,6 @@ const createContactInquiry = asyncHandler(async (req, res) => {
     message: messageValue,
     qualification: trimmedQualification,
   });
-
-  if (eventRegion) {
-    let eventRecord = null;
-    if (eventDetails && typeof eventDetails === 'object' && (eventDetails.id || eventDetails.slug)) {
-      eventRecord = await findEventRecord(eventDetails);
-    }
-    const details = buildEventEmailDetails(eventDetails, course, eventRecord);
-    try {
-      await sendEventRegistrationEmail({
-        to: email,
-        name,
-        eventTitle: details.title || course,
-        startsAt: details.startsAt,
-        timezone: details.timezone,
-        joinUrl: details.joinUrl,
-        hostName: details.hostName,
-      });
-    } catch (error) {
-      console.error('[contact] Failed to send event confirmation email', {
-        error: error?.message,
-        email,
-        course,
-      });
-    }
-  }
 
   res.status(201).json({
     message: 'Inquiry submitted successfully',
