@@ -167,6 +167,7 @@ const RegistrationCard = ({ event }) => {
     phone: "",
     state: "",
     qualification: "",
+    consent: false,
   });
   const [status, setStatus] = useState({ submitting: false, success: false, error: null });
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -180,13 +181,13 @@ const RegistrationCard = ({ event }) => {
   );
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.phone || !form.state || !form.qualification) {
+    if (!form.name || !form.email || !form.phone || !form.state || !form.qualification || !form.consent) {
       setStatus((prev) => ({ ...prev, error: "Please complete all required fields." }));
       return;
     }
@@ -204,6 +205,7 @@ const RegistrationCard = ({ event }) => {
         course: event?.title || "Event",
         message: `Interested in ${event?.title || "event"} event`,
         qualification: form.qualification,
+        consent: form.consent,
         eventDetails: {
           id: event?.id || event?._id || null,
           slug: event?.slug || "",
@@ -223,6 +225,7 @@ const RegistrationCard = ({ event }) => {
         phone: "",
         state: "",
         qualification: "",
+        consent: false,
       });
       setShowSuccessModal(true);
     } catch (err) {
@@ -308,6 +311,21 @@ const RegistrationCard = ({ event }) => {
             </option>
           ))}
         </select>
+        <div className='form-check event-register-card__consent mt-16'>
+          <input
+            className='form-check-input'
+            type='checkbox'
+            id='event-consent'
+            name='consent'
+            checked={form.consent}
+            onChange={handleChange}
+            required
+          />
+          <label className='form-check-label text-sm text-neutral-700' htmlFor='event-consent'>
+            I authorize Gradus Team to reach out to me with updates and notifications via
+            Email, SMS, WhatsApp and RCS.
+          </label>
+        </div>
         <button
           type='submit'
           className='btn btn-main w-100 rounded-pill mt-20'

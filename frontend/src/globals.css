@@ -18132,21 +18132,25 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
 
 .event-register-card {
   border: 1px solid var(--neutral-40);
-  border-radius: 32px;
+  border-radius: 24px;
   padding: 24px;
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 24px 60px #0f172a14;
   background: #fff;
 }
 
 .event-register-card__thumb {
-  border-radius: 24px;
-  overflow: hidden;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  margin-left: -24px;
+  margin-right: -24px;
+  margin-top: -24px;
   margin-bottom: 16px;
+  overflow: hidden;
 }
 
 .event-register-card__thumb img {
   width: 100%;
-  height: 220px;
+  height: 100%;
   object-fit: cover;
 }
 
@@ -18160,6 +18164,22 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   color: var(--success-700, #0f5132);
   font-weight: 600;
   margin-bottom: 16px;
+}
+
+.event-register-card__consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--neutral-600, #475467);
+}
+
+.event-register-card__consent .form-check-input {
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.event-register-card__consent .form-check-label {
+  line-height: 1.5;
 }
 
 .event-register-card__form .form-control {
