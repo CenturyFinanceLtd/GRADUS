@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { PROGRAMMES } from "../../data/programmes.js";
 import { API_BASE_URL } from "../../services/apiClient";
-import { slugify, stripBrackets } from "../../utils/slugify.js";
+import { stripBrackets } from "../../utils/slugify.js";
 
 const AllCoursesList = () => {
   const location = useLocation();
@@ -46,18 +45,7 @@ const AllCoursesList = () => {
         });
         if (!cancelled) setCourses(mapped);
       } catch (e) {
-        // Fallback to static list if API fails
         if (!cancelled) {
-          const fallback = [];
-          PROGRAMMES.forEach((p) => {
-            const pslug = p.slug || slugify(p.title);
-            (p.courses || []).forEach((c) => {
-              const label = typeof c === 'string' ? c : (c?.name || c?.title || '');
-              const cslug = typeof c === 'string' ? slugify(c) : (c?.slug || slugify(label));
-              fallback.push({ programme: p.title, name: stripBrackets(label), slug: cslug, url: `/${pslug}/${cslug}` });
-            });
-          });
-          setCourses(fallback);
           setError(e?.message || 'Failed to load');
         }
       } finally {
