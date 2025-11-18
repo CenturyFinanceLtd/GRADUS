@@ -921,7 +921,25 @@ img {
   .only-image-slider .slick-dots {
     bottom: 7% !important;
   }
-} /* Large screens: show 5 cards, disable scroll, hide nav */
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+  /* Tablet banner adjustments */
+  .only-image-slider .slick-dots {
+    bottom: 10% !important;
+    gap: 10px;
+  }
+  .banner-img-only {
+    border-radius: 0 0 14px 14px !important;
+  }
+}
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  /* Large tablets (e.g., iPad Air landscape) banner dots */
+  .only-image-slider .slick-dots {
+    bottom: 8% !important;
+    gap: 12px;
+  }
+}
+/* Large screens: show 5 cards, disable scroll, hide nav */
 @media (min-width: 1200px) {
   .courses-scroller {
     overflow-x: hidden;
@@ -12035,7 +12053,7 @@ ul.footer-menu {
 }
 @media (max-width: 1199.98px) {
   .gradus-footer__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (max-width: 991.98px) {
@@ -18415,6 +18433,12 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   }
 }
 
+@media (min-width: 992px) {
+  .counter-highlight__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 /* ======================= Why Gradus Comparison ======================= */
 .why-gradus-section {
   background: #fff;
@@ -18452,6 +18476,12 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
 @media (min-width: 992px) {
   .why-gradus-cards {
     grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .why-gradus-cards {
+    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
   }
 }
 
