@@ -131,10 +131,49 @@ const resolveWorkspaceImpersonate = (loginUser) => {
 
 const smtpLoginUser = resolveSmtpLoginUser();
 const smtpWorkspaceImpersonate = resolveWorkspaceImpersonate(smtpLoginUser);
+const baseSmtpPassword = normalizeSmtpPassword(process.env.SMTP_PASS);
 const defaultFromAddress =
   process.env.SMTP_FROM || (process.env.SMTP_USER ? `Gradus <${process.env.SMTP_USER}>` : '');
 const verificationFromAddress = process.env.SMTP_FROM_VERIFICATION || defaultFromAddress;
 const registrationFromAddress = process.env.SMTP_FROM_REGISTRATION || defaultFromAddress;
+const trimOrNull = (value) => {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const trimmed = value.trim();
+  return trimmed.length ? trimmed : null;
+};
+
+const buildSmtpAccount = ({ loginKey, passKey, impersonateKey }) => {
+  const loginOverride = trimOrNull(process.env[loginKey]);
+  const passOverride =
+    typeof process.env[passKey] === 'string' ? normalizeSmtpPassword(process.env[passKey]) : null;
+  const impersonateOverride = trimOrNull(process.env[impersonateKey]);
+
+  const loginUser = loginOverride || smtpLoginUser;
+  const pass = passOverride || baseSmtpPassword;
+  const workspaceImpersonate = impersonateOverride || loginOverride || smtpWorkspaceImpersonate;
+
+  return { loginUser, pass, workspaceImpersonate };
+};
+
+const smtpAccounts = {
+  default: {
+    loginUser: smtpLoginUser,
+    pass: baseSmtpPassword,
+    workspaceImpersonate: smtpWorkspaceImpersonate,
+  },
+  verification: buildSmtpAccount({
+    loginKey: 'SMTP_VERIFICATION_LOGIN_USER',
+    passKey: 'SMTP_VERIFICATION_PASS',
+    impersonateKey: 'SMTP_VERIFICATION_WORKSPACE_IMPERSONATE_EMAIL',
+  }),
+  registration: buildSmtpAccount({
+    loginKey: 'SMTP_REGISTRATION_LOGIN_USER',
+    passKey: 'SMTP_REGISTRATION_PASS',
+    impersonateKey: 'SMTP_REGISTRATION_WORKSPACE_IMPERSONATE_EMAIL',
+  }),
+};
 
 const config = {
   nodeEnv,
@@ -157,13 +196,14 @@ const config = {
     user: process.env.SMTP_USER,
     loginUser: smtpLoginUser,
     workspaceImpersonate: smtpWorkspaceImpersonate,
-    pass: normalizeSmtpPassword(process.env.SMTP_PASS),
+    pass: baseSmtpPassword,
     from: defaultFromAddress,
     verificationFrom: verificationFromAddress,
     registrationFrom: registrationFromAddress,
     deliveryMode: process.env.EMAIL_DELIVERY_MODE || 'live',
     useWorkspaceOAuth: (process.env.SMTP_USE_WORKSPACE_OAUTH || 'false').toLowerCase() === 'true',
     workspaceSendAs: process.env.SMTP_WORKSPACE_SEND_AS || process.env.SMTP_USER,
+    accounts: smtpAccounts,
   },
   admin: {
     approverEmail: process.env.ADMIN_APPROVER_EMAIL || 'dvisro13@gmail.com',

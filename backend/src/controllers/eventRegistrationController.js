@@ -435,6 +435,7 @@ const sendJoinLinkEmails = asyncHandler(async (req, res) => {
           subject: emailSubject,
           text: textLines.join('\n'),
           html,
+          mailbox: 'registration',
         });
         sentCount += 1;
       } catch (error) {

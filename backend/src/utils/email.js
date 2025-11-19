@@ -15,6 +15,15 @@ const workspaceOAuthEnabled = Boolean(config.smtp.useWorkspaceOAuth);
 const workspaceSendAs = config.smtp.workspaceSendAs || config.smtp.user;
 const smtpLoginUser = config.smtp.loginUser || workspaceSendAs;
 const workspaceImpersonate = config.smtp.workspaceImpersonate || smtpLoginUser;
+const smtpAccounts =
+  config.smtp.accounts ||
+  {
+    default: {
+      loginUser: smtpLoginUser,
+      pass: config.smtp.pass,
+      workspaceImpersonate,
+    },
+  };
 const SERVICE_ACCOUNT_EMAIL = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
 const SERVICE_ACCOUNT_PRIVATE_KEY = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
   ? process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY.replace(/\\n/g, '\n')
@@ -22,9 +31,8 @@ const SERVICE_ACCOUNT_PRIVATE_KEY = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_K
 const WORKSPACE_SMTP_SCOPES = ['https://mail.google.com/'];
 
 let transporter = null;
-let cachedWorkspaceToken = null;
-let cachedWorkspaceTokenExpiry = 0;
-let inflightWorkspaceTokenPromise = null;
+const workspaceTokenCache = new Map();
+const workspaceTokenPromises = new Map();
 
 if (isLive) {
   transporter = nodemailer.createTransport({
@@ -35,63 +43,83 @@ if (isLive) {
   });
 }
 
-const getWorkspaceAccessToken = async () => {
+const getWorkspaceAccessToken = async (impersonateSubject) => {
   if (!workspaceOAuthEnabled) {
     return null;
   }
 
-  if (!SERVICE_ACCOUNT_EMAIL || !SERVICE_ACCOUNT_PRIVATE_KEY || !workspaceImpersonate) {
+  const subjectEmail = impersonateSubject || workspaceImpersonate;
+
+  if (!SERVICE_ACCOUNT_EMAIL || !SERVICE_ACCOUNT_PRIVATE_KEY || !subjectEmail) {
     throw new Error(
       'Workspace SMTP OAuth is enabled but service account credentials or impersonation email are missing.'
     );
   }
 
   const now = Date.now();
-  if (cachedWorkspaceToken && cachedWorkspaceTokenExpiry - now > 60 * 1000) {
-    return cachedWorkspaceToken;
+  const cacheKey = subjectEmail.toLowerCase();
+  const cached = workspaceTokenCache.get(cacheKey);
+  if (cached && cached.expiry - now > 60 * 1000) {
+    return cached.token;
   }
 
-  if (inflightWorkspaceTokenPromise) {
-    return inflightWorkspaceTokenPromise;
+  if (workspaceTokenPromises.has(cacheKey)) {
+    return workspaceTokenPromises.get(cacheKey);
   }
 
   const jwtClient = new google.auth.JWT({
     email: SERVICE_ACCOUNT_EMAIL,
     key: SERVICE_ACCOUNT_PRIVATE_KEY,
     scopes: WORKSPACE_SMTP_SCOPES,
-    subject: workspaceImpersonate,
+    subject: subjectEmail,
   });
 
-  inflightWorkspaceTokenPromise = jwtClient
+  const inflightPromise = jwtClient
     .authorize()
     .then((tokens) => {
-      cachedWorkspaceToken = tokens.access_token;
-      cachedWorkspaceTokenExpiry = tokens.expiry_date || now + 45 * 60 * 1000;
-      inflightWorkspaceTokenPromise = null;
-      return cachedWorkspaceToken;
+      const token = tokens.access_token;
+      const expiry = tokens.expiry_date || Date.now() + 45 * 60 * 1000;
+      workspaceTokenCache.set(cacheKey, { token, expiry });
+      workspaceTokenPromises.delete(cacheKey);
+      return token;
     })
     .catch((error) => {
-      inflightWorkspaceTokenPromise = null;
+      workspaceTokenPromises.delete(cacheKey);
       throw error;
     });
 
-  return inflightWorkspaceTokenPromise;
+  workspaceTokenPromises.set(cacheKey, inflightPromise);
+
+  return inflightPromise;
 };
 
-const buildMailAuth = async () => {
+const getSmtpAccount = (mailbox = 'default') => {
+  const normalized = typeof mailbox === 'string' ? mailbox : 'default';
+  return smtpAccounts[normalized] || smtpAccounts.default || {
+    loginUser: smtpLoginUser,
+    pass: config.smtp.pass,
+    workspaceImpersonate,
+  };
+};
+
+const buildMailAuth = async (mailbox = 'default') => {
   if (!isLive) {
     return null;
   }
 
-  const hasPasswordAuth = Boolean(config.smtp.user && config.smtp.pass);
+  const account = getSmtpAccount(mailbox);
+  const loginUser = account.loginUser || smtpLoginUser;
+  const accountPass = account.pass || config.smtp.pass;
+  const impersonationTarget = account.workspaceImpersonate || workspaceImpersonate;
+  const hasPasswordAuth = Boolean(loginUser && accountPass);
 
   if (workspaceOAuthEnabled) {
     try {
-      const accessToken = await getWorkspaceAccessToken();
+      const accessToken = await getWorkspaceAccessToken(impersonationTarget);
       if (accessToken) {
         return {
           type: 'OAuth2',
-          user: workspaceImpersonate,
+          user: impersonationTarget,
           accessToken,
         };
       }
@@ -114,12 +142,12 @@ const buildMailAuth = async () => {
   }
 
   return {
-    user: smtpLoginUser,
-    pass: config.smtp.pass,
+    user: loginUser,
+    pass: accountPass,
   };
 };
 
-const sendEmail = async ({ from, to, subject, text, html }) => {
+const sendEmail = async ({ from, to, subject, text, html, mailbox = 'default' }) => {
   if (!to) {
     throw new Error('Recipient email address is required');
   }
@@ -137,7 +165,7 @@ const sendEmail = async ({ from, to, subject, text, html }) => {
     return { mocked: true };
   }
 
-  const auth = await buildMailAuth();
+  const auth = await buildMailAuth(mailbox);
   const info = await transporter.sendMail({ ...mailOptions, auth });
   return { mocked: false, info };
 };
@@ -161,6 +189,7 @@ const sendOtpEmail = async ({ to, otp, subject, context }) => {
     subject: emailSubject,
     text: emailText,
     html: emailHtml,
+    mailbox: 'verification',
   });
   if (result.mocked) {
     return { mocked: true, otp };
@@ -266,7 +295,7 @@ const sendAdminApprovalEmail = async ({ to, requester, approvalOptions, rejectio
     </div>
   `;
 
-  return sendEmail({ to, subject, text, html });
+  return sendEmail({ to, subject, text, html, mailbox: 'registration' });
 };
 
 const getFormattedDateParts = (isoString, timezone) => {

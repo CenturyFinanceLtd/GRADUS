@@ -66,7 +66,7 @@ const MasterLayout = ({ children }) => {
   }, [isSeo, location.pathname, navigate]);
 
   useEffect(() => {
-    if (!token) {
+    if (!token || !hasEmailAccess) {
       setEmailSidebarAccounts([]);
       return;
     }
@@ -95,7 +95,7 @@ const MasterLayout = ({ children }) => {
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, hasEmailAccess]);
 
   const handleDropdownToggle = (event) => {
     event.preventDefault();
