@@ -9,6 +9,8 @@ const config = require('./config/env');
 const connectDB = require('./config/db');
 const app = require('./app');
 const ensureCourseContent = require('./utils/ensureCourseContent');
+const { startEventSpreadsheetSync } = require('./services/eventSpreadsheetSync');
+const { startRegistrationSpreadsheetSync } = require('./services/registrationSpreadsheetSync');
 const startLiveSfu = require('./liveSfu');
 
 const startServer = async () => {
@@ -19,6 +21,16 @@ const startServer = async () => {
   } catch (error) {
     console.error('[server] Failed to ensure course content:', error);
   }
+
+  startEventSpreadsheetSync().catch((error) => {
+    console.warn('[server] Unable to start event spreadsheet sync watcher', error?.message);
+  });
+  startRegistrationSpreadsheetSync().catch((error) => {
+    console.warn(
+      '[server] Unable to start registration spreadsheet sync watcher',
+      error?.message
+    );
+  });
 
   // Start HTTP server
   const server = http.createServer(app);

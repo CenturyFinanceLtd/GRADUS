@@ -8,6 +8,15 @@ const EventRegistration = require('../models/EventRegistration');
 const Event = require('../models/Event');
 const { sendEmail, sendEventRegistrationEmail } = require('../utils/email');
 const { syncRegistrationToGoogleDoc } = require('../services/googleDocsRegistrationSync');
+const { syncRegistrationToGoogleSheet } = require('../services/googleSheetsRegistrationSync');
+const {
+  resyncEventRegistrationsForEvent,
+  isRegistrationSheetWatcherEnabled,
+} = require('../services/registrationSpreadsheetSync');
+
+const SHEETS_SYNC_DELAY_MS = Number(process.env.GOOGLE_SHEETS_SYNC_DELAY_MS) || 2000;
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const shouldManuallySyncRegistration = () => !isRegistrationSheetWatcherEnabled();
 
 const serializeRegistration = (registration) => ({
   id: registration._id.toString(),
@@ -196,6 +205,20 @@ const createEventRegistrationEntry = async (payload = {}) => {
   const registration = await EventRegistration.create(normalized);
   await sendEventConfirmation(registration, normalized.eventDetails);
   await syncRegistrationToGoogleDoc(registration, { mode: 'create' });
+  if (shouldManuallySyncRegistration()) {
+    const sheetRow = await syncRegistrationToGoogleSheet(registration);
+    if (Number.isFinite(sheetRow)) {
+      try {
+        await EventRegistration.updateOne(
+          { _id: registration._id },
+          { sheetRowIndex: sheetRow }
+        );
+        registration.sheetRowIndex = sheetRow;
+      } catch (error) {
+        console.warn('[event-registration] Failed to store sheetRowIndex', error?.message);
+      }
+    }
+  }
   return registration;
 };
 
@@ -305,6 +328,20 @@ const updateEventRegistration = asyncHandler(async (req, res) => {
 
   await registration.save();
   await syncRegistrationToGoogleDoc(registration, { mode: 'update' });
+  if (shouldManuallySyncRegistration()) {
+    const sheetRow = await syncRegistrationToGoogleSheet(registration);
+    if (Number.isFinite(sheetRow)) {
+      try {
+        await EventRegistration.updateOne(
+          { _id: registration._id },
+          { sheetRowIndex: sheetRow }
+        );
+        registration.sheetRowIndex = sheetRow;
+      } catch (error) {
+        console.warn('[event-registration] Failed to store sheetRowIndex', error?.message);
+      }
+    }
+  }
 
   res.json({
     message: 'Event registration updated successfully',
@@ -321,6 +358,18 @@ const deleteEventRegistration = asyncHandler(async (req, res) => {
   }
 
   await registration.deleteOne();
+  const eventName =
+    registration.course ||
+    (registration.eventDetails && registration.eventDetails.title) ||
+    '';
+  if (eventName) {
+    resyncEventRegistrationsForEvent(eventName).catch((error) => {
+      console.warn('[event-registration] Failed to resync sheet after delete', {
+        event: eventName,
+        error: error?.message,
+      });
+    });
+  }
   res.json({ success: true });
 });
 
@@ -426,6 +475,66 @@ const resendEventConfirmationEmail = asyncHandler(async (req, res) => {
   });
 });
 
+const syncEventRegistrationSheetBulk = asyncHandler(async (req, res) => {
+  const { registrationIds } = req.body || {};
+  const ids = Array.isArray(registrationIds) ? registrationIds.filter(Boolean) : [];
+
+  const filter = ids.length ? { _id: { $in: ids } } : {};
+  const registrations = await EventRegistration.find(filter);
+
+  if (!registrations.length) {
+    res.status(404);
+    throw new Error(ids.length ? 'No registrations found for the provided IDs' : 'No registrations found to sync');
+  }
+
+  const eventStats = new Map();
+  const failures = [];
+  registrations.forEach((registration) => {
+    const eventName =
+      registration.course ||
+      (registration.eventDetails && registration.eventDetails.title) ||
+      '';
+    if (!eventName.trim()) {
+      failures.push(`missing-event:${registration._id.toString()}`);
+      return;
+    }
+    const normalized = eventName.trim();
+    const stats = eventStats.get(normalized) || { count: 0 };
+    stats.count += 1;
+    eventStats.set(normalized, stats);
+  });
+
+  if (!eventStats.size) {
+    res.status(400);
+    throw new Error('Unable to determine event names for the selected registrations');
+  }
+
+  let eventsSynced = 0;
+  let syncedRegistrations = 0;
+
+  for (const [eventName, stats] of eventStats.entries()) {
+    const ok = await resyncEventRegistrationsForEvent(eventName);
+    if (ok) {
+      eventsSynced += 1;
+      syncedRegistrations += stats.count;
+    } else {
+      failures.push(`event:${eventName}`);
+    }
+    if (SHEETS_SYNC_DELAY_MS > 0) {
+      await delay(SHEETS_SYNC_DELAY_MS);
+    }
+  }
+
+  res.json({
+    message: `Sheet sync processed for ${eventsSynced}/${eventStats.size} event(s)`,
+    total: registrations.length,
+    synced: syncedRegistrations,
+    failed: failures,
+    eventsProcessed: eventStats.size,
+    eventsSynced,
+  });
+});
+
 module.exports = {
   createEventRegistration,
   listEventRegistrations,
@@ -435,4 +544,5 @@ module.exports = {
   createEventRegistrationEntry,
   sendJoinLinkEmails,
   resendEventConfirmationEmail,
+  syncEventRegistrationSheetBulk,
 };

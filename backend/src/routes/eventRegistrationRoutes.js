@@ -12,6 +12,7 @@ const {
   deleteEventRegistration,
   sendJoinLinkEmails,
   resendEventConfirmationEmail,
+  syncEventRegistrationSheetBulk,
 } = require('../controllers/eventRegistrationController');
 const { protectAdmin } = require('../middleware/adminAuthMiddleware');
 
@@ -24,6 +25,7 @@ router
 
 router.post('/send-join-link', protectAdmin, sendJoinLinkEmails);
 router.post('/:id/resend-confirmation', protectAdmin, resendEventConfirmationEmail);
+router.post('/sync-sheet', protectAdmin, syncEventRegistrationSheetBulk);
 
 router
   .route('/:id')

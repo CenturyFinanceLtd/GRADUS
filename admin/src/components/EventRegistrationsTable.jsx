@@ -7,6 +7,7 @@ import {
   deleteEventRegistration,
   sendEventRegistrationJoinLinks,
   resendEventRegistrationConfirmation,
+  syncEventRegistrationsToSheet,
 } from "../services/adminInquiries";
 
 const formatDateTime = (value) => {
@@ -87,6 +88,7 @@ const EventRegistrationsTable = () => {
   const [actionMessage, setActionMessage] = useState(null);
   const [pendingActionId, setPendingActionId] = useState(null);
   const [resendingId, setResendingId] = useState(null);
+  const [sheetSyncing, setSheetSyncing] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [joinLink, setJoinLink] = useState("");
   const [sendingLinks, setSendingLinks] = useState(false);
@@ -319,6 +321,7 @@ const EventRegistrationsTable = () => {
     }
   };
 
+
   const toggleSelectAll = () => {
     const visibleIds = filteredItems.map((item) => item.id);
     const allSelected = visibleIds.length > 0 && visibleIds.every((id) => selectedIds.includes(id));
@@ -367,6 +370,55 @@ const EventRegistrationsTable = () => {
     }
   };
 
+  const handleSyncSheetsBulk = async () => {
+    if (!token) {
+      return;
+    }
+
+    const targetIds = selectedIds.length
+      ? selectedIds
+      : filteredItems.map((item) => item.id);
+
+    if (!targetIds.length) {
+      setActionMessage({
+        type: "danger",
+        text: "No registrations available to sync.",
+      });
+      return;
+    }
+
+    if (!selectedIds.length) {
+      const confirmed = window.confirm(
+        "Sync all loaded registrations to Google Sheets?"
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    setSheetSyncing(true);
+    setActionMessage(null);
+
+    try {
+      const response = await syncEventRegistrationsToSheet({
+        token,
+        registrationIds: targetIds,
+      });
+      const synced = typeof response?.synced === "number" ? response.synced : targetIds.length;
+      setActionMessage({
+        type: "success",
+        text: response?.message || `Synced ${synced} registration(s) to Google Sheets.`,
+      });
+    } catch (err) {
+      setActionMessage({
+        type: "danger",
+        text: err?.message || "Failed to sync registrations to Google Sheets.",
+      });
+    } finally {
+      setSheetSyncing(false);
+    }
+  };
+
   return (
     <div className='card mt-24'>
       <div className='card-header border-0 pb-0'>
@@ -402,6 +454,23 @@ const EventRegistrationsTable = () => {
               title='Send join link to selected registrations'
             >
               {sendingLinks ? "Sending..." : `Send Link (${selectedIds.length || 0})`}
+            </button>
+            <button
+              type='button'
+              className='btn btn-outline-secondary'
+              onClick={handleSyncSheetsBulk}
+              disabled={sheetSyncing || (!selectedIds.length && filteredItems.length === 0)}
+              title={
+                selectedIds.length
+                  ? "Sync selected registrations to Google Sheets"
+                  : "Sync all loaded registrations to Google Sheets"
+              }
+            >
+              {sheetSyncing
+                ? "Syncing..."
+                : selectedIds.length
+                ? `Sync Sheets (${selectedIds.length})`
+                : "Sync Sheets (All)"}
             </button>
             <button type='button' className='btn btn-primary' onClick={openCreateEditor}>
               Add Registration

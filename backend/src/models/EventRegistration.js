@@ -50,6 +50,10 @@ const eventRegistrationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: {},
     },
+    sheetRowIndex: {
+      type: Number,
+      default: null,
+    },
   },
   {
     timestamps: true,

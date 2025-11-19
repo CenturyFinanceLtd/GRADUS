@@ -87,3 +87,10 @@ export const resendEventRegistrationConfirmation = ({ token, registrationId } = 
     method: "POST",
     token,
   });
+
+export const syncEventRegistrationsToSheet = ({ token, registrationIds } = {}) =>
+  apiClient(`/event-registrations/sync-sheet`, {
+    method: "POST",
+    token,
+    data: { registrationIds },
+  });

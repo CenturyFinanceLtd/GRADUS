@@ -38,8 +38,9 @@ Environment Variables
 - SMTP: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `EMAIL_DELIVERY_MODE`.
 - Admin: `ADMIN_APPROVER_EMAIL`, `ADMIN_PORTAL_NAME`, optional `ADMIN_API_PUBLIC_BASE_URL`.
 - Cloudinary: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_TESTIMONIALS_FOLDER`, `CLOUDINARY_COURSE_IMAGES_FOLDER`, `CLOUDINARY_BLOG_IMAGES_FOLDER`, `CLOUDINARY_BANNER_IMAGES_FOLDER`.
-- Google Docs sync (optional): `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` (use `\n` literals), optional `GOOGLE_DOCS_PARENT_FOLDER_ID` to keep docs in a specific Drive folder.
-- Google Docs impersonation (optional, Workspace only): `GOOGLE_WORKSPACE_IMPERSONATE_EMAIL` (e.g., `no-reply@yourdomain.com`) when domain-wide delegation is enabled for the service account so docs are created under that user.
+- Google Docs/Sheets sync (optional): `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` (use `\n` literals), optional `GOOGLE_DOCS_PARENT_FOLDER_ID` to keep per-event spreadsheets in a specific Drive folder, optional `GOOGLE_SHEETS_SYNC_DELAY_MS` (default 2000ms) to throttle bulk sheet syncs.
+- Google Sheets rate limiting (optional): `GOOGLE_SHEETS_MAX_WRITES_PER_MINUTE` (defaults to 45) to throttle append operations and stay under the Sheets API write quota.
+- Google Workspace impersonation (optional, Workspace only): `GOOGLE_WORKSPACE_IMPERSONATE_EMAIL` (e.g., `no-reply@yourdomain.com`) when domain-wide delegation is enabled so Docs/Sheets are created under that user.
 
 Run Locally
 1. `cd backend && npm install`
@@ -50,3 +51,8 @@ Run Locally
 Notes
 - In production, let your reverse proxy (e.g., Nginx/Cloudflare) set CORS headers. The app enables CORS only in non-production.
 - Blog featured images upload to Cloudinary (see `CLOUDINARY_*` vars). The legacy `/blog-images` static path remains available to serve older, disk-based assets.
+- When enabling Google Docs/Sheets sync, make sure the service account has the Docs, Sheets, and Drive APIs enabled and that the parent Drive folder is shared with that service account.
+- Event registration sync creates a dedicated Google Sheet per event (file name = event title) so marketing teams can share registrant lists independently.
+- Each spreadsheet also includes an `Event Details` tab that is auto-populated from MongoDB (title, schedule, CTA, host info, etc.) whenever the event is created or edited, whether via the admin UI or direct Compass edits.
+- MongoDB change streams automatically ensure/rename the per-event spreadsheets when events are added or edited directly in the database; deployments without change-stream support can run `npm run ensure-event-sheets` to backfill manually whenever needed.
+- Event registration change streams keep each sheet’s registration tab in sync; deleting registrations (even directly in MongoDB Compass) triggers a rebuild so stale rows disappear.
