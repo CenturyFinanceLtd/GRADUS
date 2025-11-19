@@ -522,6 +522,7 @@ const applyPayloadToEvent = (event, payload) => {
 const listPublicEvents = asyncHandler(async (req, res) => {
   const {
     category,
+    eventType,
     tag,
     search,
     limit = 12,
@@ -545,6 +546,10 @@ const listPublicEvents = asyncHandler(async (req, res) => {
 
   if (category) {
     filter.category = new RegExp(`^${escapeRegex(category.trim())}$`, 'i');
+  }
+
+  if (eventType) {
+    filter.eventType = new RegExp(`^${escapeRegex(eventType.trim())}$`, 'i');
   }
 
   if (tag) {
@@ -576,10 +581,11 @@ const listPublicEvents = asyncHandler(async (req, res) => {
 
   const skip = (currentPage - 1) * pageSize;
 
-  const [items, total, categories] = await Promise.all([
+  const [items, total, categories, eventTypes] = await Promise.all([
     Event.find(filter).sort(sort).skip(skip).limit(pageSize).lean(),
     Event.countDocuments(filter),
     Event.distinct('category', { status: 'published' }),
+    Event.distinct('eventType', { status: 'published' }),
   ]);
 
   res.json({
@@ -590,6 +596,7 @@ const listPublicEvents = asyncHandler(async (req, res) => {
     hasMore: skip + items.length < total,
     filters: {
       categories: categories.filter(Boolean).sort(),
+      eventTypes: eventTypes.filter(Boolean).sort(),
     },
   });
 });

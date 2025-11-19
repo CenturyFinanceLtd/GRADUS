@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchEvents } from "../services/eventService";
 
 const EVENT_LIMIT = 24;
+const EVENT_TYPE_OPTIONS = ["Seminar", "Webinar", "Job fair", "Corporate Initiatives"];
 
 const formatSchedule = (schedule) => {
   if (!schedule?.start) {
@@ -25,7 +26,7 @@ const formatSchedule = (schedule) => {
 
   return {
     dateLabel: dateFormatter.format(date),
-    timeLabel: `${timeFormatter.format(date)} ${schedule.timezone || ""}`.trim(),
+    timeLabel: timeFormatter.format(date),
   };
 };
 
@@ -46,9 +47,12 @@ const EventsFilterChips = ({ categories, active, onSelect }) => (
 
 const MasterclassCard = ({ event }) => {
   const { dateLabel, timeLabel } = formatSchedule(event?.schedule);
+  const rawLabel = event?.price?.label || "";
+  const isFreeLabel = rawLabel.trim().toLowerCase() === "free";
   const priceLabel =
-    event?.price?.label ||
-    (event?.price?.isFree ? "Free" : event?.price?.amount ? `Rs ${event.price.amount}` : "Paid");
+    event?.price?.amount || (rawLabel && !isFreeLabel)
+      ? rawLabel || `Rs ${event.price.amount}`
+      : null;
 
   return (
     <article className='masterclass-card h-100'>
@@ -66,10 +70,12 @@ const MasterclassCard = ({ event }) => {
       </Link>
       <div className='masterclass-card__body'>
         <div className='masterclass-card__head flex-between gap-8'>
-          <span className='masterclass-card__category'>{event?.category || "Masterclass"}</span>
-          <span className={`masterclass-card__price-tag ${event?.price?.isFree ? "is-free" : ""}`}>
-            {priceLabel}
-          </span>
+          <span className='masterclass-card__category'>{event?.eventType || "Event"}</span>
+          {priceLabel ? (
+            <span className={`masterclass-card__price-tag ${event?.price?.isFree ? "is-free" : ""}`}>
+              {priceLabel}
+            </span>
+          ) : null}
         </div>
         <h3 className='masterclass-card__title text-line-2'>
           <Link to={event?.slug ? `/events/${event.slug}` : "#"} className='link'>
@@ -121,16 +127,10 @@ const EmptyState = () => (
 );
 
 const EventsAllOne = () => {
-  const [category, setCategory] = useState("All");
+  const [eventType, setEventType] = useState(EVENT_TYPE_OPTIONS[0]);
   const [events, setEvents] = useState([]);
-  const [filters, setFilters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const categories = useMemo(() => {
-    const unique = new Set(["All", ...filters]);
-    return Array.from(unique);
-  }, [filters]);
 
   useEffect(() => {
     let isMounted = true;
@@ -143,12 +143,11 @@ const EventsAllOne = () => {
         const response = await fetchEvents({
           limit: EVENT_LIMIT,
           timeframe: "upcoming",
-          category: category === "All" ? undefined : category,
+          eventType,
           signal: controller.signal,
         });
         if (!isMounted) return;
         setEvents(response?.items || []);
-        setFilters(response?.filters?.categories || []);
       } catch (err) {
         if (!isMounted || err?.name === "AbortError") return;
         setError(err?.message || "Failed to fetch events");
@@ -165,7 +164,7 @@ const EventsAllOne = () => {
       isMounted = false;
       controller.abort();
     };
-  }, [category]);
+  }, [eventType]);
 
   const showSpotlight = events.length > 2;
   const featuredEvent = showSpotlight ? events[0] : null;
@@ -177,12 +176,12 @@ const EventsAllOne = () => {
         <header className='events-list__header flex-between flex-wrap gap-20 mb-32'>
           <div>
             <h1 className='display-5 fw-semibold mb-8'>Events</h1>
-            <p className='text-neutral-600 mb-0'>
-              Explore live sessions and bootcamps powered by Gradus mentors. Filter by track to find
-              what matters to you most.
-            </p>
           </div>
-          <EventsFilterChips categories={categories} active={category} onSelect={setCategory} />
+          <EventsFilterChips
+            categories={EVENT_TYPE_OPTIONS}
+            active={eventType}
+            onSelect={setEventType}
+          />
         </header>
 
         {error ? (

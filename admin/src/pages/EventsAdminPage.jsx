@@ -10,7 +10,7 @@ import {
 } from "../services/adminEvents";
 import { uploadImage } from "../services/uploads";
 
-const EVENT_TYPE_OPTIONS = ["Webinar", "Workshop", "Bootcamp", "Info Session", "Live Q&A"];
+const EVENT_TYPE_OPTIONS = ["Seminar", "Webinar", "Job fair", "Corporate Initiatives"];
 
 const defaultForm = {
   title: "",
