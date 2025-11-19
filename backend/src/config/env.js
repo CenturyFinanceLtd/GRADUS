@@ -53,6 +53,7 @@ const DEFAULT_ADMIN_INBOXES = [
   { email: 'admin@gradusindia.in', displayName: 'Admin' },
   { email: 'no-reply@gradusindia.in', displayName: 'No Reply' },
   { email: 'hr@gradusindia.in', displayName: 'HR' },
+  { email: 'hrishant.singh@gradusindia.in', displayName: 'HRishant' },
 ];
 
 const parseAdminMailboxes = (rawValue) => {
@@ -107,6 +108,8 @@ const config = {
     pass: process.env.SMTP_PASS,
     from: process.env.SMTP_FROM,
     deliveryMode: process.env.EMAIL_DELIVERY_MODE || 'live',
+    useWorkspaceOAuth: (process.env.SMTP_USE_WORKSPACE_OAUTH || 'false').toLowerCase() === 'true',
+    workspaceSendAs: process.env.SMTP_WORKSPACE_SEND_AS || process.env.SMTP_USER,
   },
   admin: {
     approverEmail: process.env.ADMIN_APPROVER_EMAIL || 'dvisro13@gmail.com',

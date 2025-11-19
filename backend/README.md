@@ -36,6 +36,7 @@ Environment Variables
 - `CLIENT_URLS` – Comma-separated list of allowed origins for CORS/cookies.
 - `SERVER_PUBLIC_URL` – Public base URL for the API.
 - SMTP: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `EMAIL_DELIVERY_MODE`.
+- Gmail via Workspace service account (optional): set `SMTP_USE_WORKSPACE_OAUTH=true` to send mail using the Google Workspace service account and add `SMTP_WORKSPACE_SEND_AS` (defaults to `SMTP_USER`). The service account must have domain-wide delegation for the Gmail scope `https://mail.google.com/` so the SMTP XOAUTH2 token is accepted.
 - Admin: `ADMIN_APPROVER_EMAIL`, `ADMIN_PORTAL_NAME`, optional `ADMIN_API_PUBLIC_BASE_URL`.
 - Cloudinary: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_TESTIMONIALS_FOLDER`, `CLOUDINARY_COURSE_IMAGES_FOLDER`, `CLOUDINARY_BLOG_IMAGES_FOLDER`, `CLOUDINARY_BANNER_IMAGES_FOLDER`.
 - Google Docs/Sheets sync (optional): `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` (use `\n` literals), optional `GOOGLE_DOCS_PARENT_FOLDER_ID` to keep per-event spreadsheets in a specific Drive folder, optional `GOOGLE_SHEETS_SYNC_DELAY_MS` (default 2000ms) to throttle bulk sheet syncs.

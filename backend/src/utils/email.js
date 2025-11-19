@@ -5,26 +5,117 @@
   - sendAdminApprovalEmail: rich email with approval/rejection links
 */
 const nodemailer = require('nodemailer');
+const { google } = require('googleapis');
 const config = require('../config/env');
 const { renderEmailTemplate } = require('../services/emailTemplateService');
 
 const deliveryMode = (config.smtp.deliveryMode || 'live').toLowerCase();
 const isLive = deliveryMode === 'live';
+const workspaceOAuthEnabled = Boolean(config.smtp.useWorkspaceOAuth);
+const workspaceSendAs = config.smtp.workspaceSendAs || config.smtp.user;
+const SERVICE_ACCOUNT_EMAIL = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+const SERVICE_ACCOUNT_PRIVATE_KEY = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
+  ? process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY.replace(/\\n/g, '\n')
+  : null;
+const WORKSPACE_SMTP_SCOPES = ['https://mail.google.com/'];
 
 let transporter = null;
+let cachedWorkspaceToken = null;
+let cachedWorkspaceTokenExpiry = 0;
+let inflightWorkspaceTokenPromise = null;
 
 if (isLive) {
   transporter = nodemailer.createTransport({
     host: config.smtp.host,
     port: config.smtp.port,
     secure: Number(config.smtp.port) === 465,
-    auth: {
-      user: config.smtp.user,
-      pass: config.smtp.pass,
-    },
     requireTLS: true,
   });
 }
+
+const getWorkspaceAccessToken = async () => {
+  if (!workspaceOAuthEnabled) {
+    return null;
+  }
+
+  if (!SERVICE_ACCOUNT_EMAIL || !SERVICE_ACCOUNT_PRIVATE_KEY || !workspaceSendAs) {
+    throw new Error(
+      'Workspace SMTP OAuth is enabled but service account credentials or send-as email are missing.'
+    );
+  }
+
+  const now = Date.now();
+  if (cachedWorkspaceToken && cachedWorkspaceTokenExpiry - now > 60 * 1000) {
+    return cachedWorkspaceToken;
+  }
+
+  if (inflightWorkspaceTokenPromise) {
+    return inflightWorkspaceTokenPromise;
+  }
+
+  const jwtClient = new google.auth.JWT({
+    email: SERVICE_ACCOUNT_EMAIL,
+    key: SERVICE_ACCOUNT_PRIVATE_KEY,
+    scopes: WORKSPACE_SMTP_SCOPES,
+    subject: workspaceSendAs,
+  });
+
+  inflightWorkspaceTokenPromise = jwtClient
+    .authorize()
+    .then((tokens) => {
+      cachedWorkspaceToken = tokens.access_token;
+      cachedWorkspaceTokenExpiry = tokens.expiry_date || now + 45 * 60 * 1000;
+      inflightWorkspaceTokenPromise = null;
+      return cachedWorkspaceToken;
+    })
+    .catch((error) => {
+      inflightWorkspaceTokenPromise = null;
+      throw error;
+    });
+
+  return inflightWorkspaceTokenPromise;
+};
+
+const buildMailAuth = async () => {
+  if (!isLive) {
+    return null;
+  }
+
+  const hasPasswordAuth = Boolean(config.smtp.user && config.smtp.pass);
+
+  if (workspaceOAuthEnabled) {
+    try {
+      const accessToken = await getWorkspaceAccessToken();
+      if (accessToken) {
+        return {
+          type: 'OAuth2',
+          user: config.smtp.user,
+          accessToken,
+        };
+      }
+      console.warn('[email] Workspace OAuth returned an empty access token, falling back to SMTP password auth.');
+    } catch (error) {
+      if (!hasPasswordAuth) {
+        console.error(
+          `[email] Workspace OAuth token retrieval failed and no SMTP_PASS fallback is configured: ${error.message}`
+        );
+        throw new Error('Unable to authenticate with Workspace SMTP. Check OAuth delegation or set SMTP_PASS.');
+      }
+      console.warn(
+        `[email] Workspace OAuth token retrieval failed, falling back to SMTP password auth: ${error.message}`
+      );
+    }
+  }
+
+  if (!hasPasswordAuth) {
+    throw new Error('SMTP_USER and SMTP_PASS are required for password-based SMTP auth.');
+  }
+
+  return {
+    user: config.smtp.user,
+    pass: config.smtp.pass,
+  };
+};
 
 const sendEmail = async ({ to, subject, text, html }) => {
   if (!to) {
@@ -44,7 +135,8 @@ const sendEmail = async ({ to, subject, text, html }) => {
     return { mocked: true };
   }
 
-  const info = await transporter.sendMail(mailOptions);
+  const auth = await buildMailAuth();
+  const info = await transporter.sendMail({ ...mailOptions, auth });
   return { mocked: false, info };
 };
 
