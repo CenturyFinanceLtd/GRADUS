@@ -7,6 +7,7 @@ import { ToastContainer } from 'react-toastify';
 import useAuth from "../hook/useAuth";
 import { ADMIN_PAGE_DEFINITIONS } from "../data/adminPageDefinitions";
 import getHomePath from "../helper/getHomePath";
+import { fetchEmailAccounts } from "../services/adminEmailInbox";
 
 const ADMIN_ROLE_LABELS = {
   admin: 'Admin',
@@ -31,6 +32,8 @@ const MasterLayout = ({ children }) => {
     [permissions]
   );
   const hasFullAccess = isProgrammerAdmin || allowedPages.includes("*");
+  const [emailSidebarAccounts, setEmailSidebarAccounts] = useState([]);
+  const [emailSidebarLoading, setEmailSidebarLoading] = useState(false);
 
   const pageDefinition = useMemo(() => {
     const currentPath = isSeo && location.pathname === '/' ? '/index-9' : location.pathname;
@@ -58,6 +61,38 @@ const MasterLayout = ({ children }) => {
       navigate('/', { replace: true });
     }
   }, [isSeo, location.pathname, navigate]);
+
+  useEffect(() => {
+    if (!token) {
+      setEmailSidebarAccounts([]);
+      return;
+    }
+
+    let cancelled = false;
+    const loadAccounts = async () => {
+      try {
+        setEmailSidebarLoading(true);
+        const response = await fetchEmailAccounts(token);
+        if (!cancelled) {
+          setEmailSidebarAccounts(Array.isArray(response?.accounts) ? response.accounts : []);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.warn("[sidebar] Failed to load email accounts", error);
+          setEmailSidebarAccounts([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setEmailSidebarLoading(false);
+        }
+      }
+    };
+
+    loadAccounts();
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   const handleDropdownToggle = (event) => {
     event.preventDefault();
@@ -359,6 +394,46 @@ const MasterLayout = ({ children }) => {
                 <span>Chat</span>
               </NavLink>
             </li>
+            {isProgrammerAdmin && (
+              <li className='dropdown'>
+                <Link to='#' onClick={handleDropdownToggle}>
+                  <Icon icon='mdi:email-outline' className='menu-icon' />
+                  <span>Email</span>
+                </Link>
+                <ul className='sidebar-submenu'>
+                  <li>
+                    <NavLink
+                      to='/email'
+                      className={(navData) => (navData.isActive ? "active-page" : "")}
+                    >
+                      <i className='ri-circle-fill circle-icon text-primary-600 w-auto' />
+                      All Mailboxes
+                    </NavLink>
+                  </li>
+                  {emailSidebarLoading ? (
+                    <li className='px-24 py-12 text-secondary-light text-xxs'>
+                      Loading mailboxes...
+                    </li>
+                  ) : emailSidebarAccounts.length === 0 ? (
+                    <li className='px-24 py-12 text-secondary-light text-xxs'>
+                      No Gmail accounts
+                    </li>
+                  ) : (
+                    emailSidebarAccounts.map((account) => (
+                      <li key={account.email}>
+                        <NavLink
+                          to={`/email?account=${encodeURIComponent(account.email)}`}
+                          className={(navData) => (navData.isActive ? "active-page" : "")}
+                        >
+                          <i className='ri-circle-fill circle-icon text-success-main w-auto' />
+                          {account.displayName || account.email}
+                        </NavLink>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              </li>
+            )}
             {(hasFullAccess || allowedPages.includes('user_list')) && (
               <li>
                 <NavLink

@@ -41,6 +41,7 @@ Environment Variables
 - Google Docs/Sheets sync (optional): `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` (use `\n` literals), optional `GOOGLE_DOCS_PARENT_FOLDER_ID` to keep per-event spreadsheets in a specific Drive folder, optional `GOOGLE_SHEETS_SYNC_DELAY_MS` (default 2000ms) to throttle bulk sheet syncs.
 - Google Sheets rate limiting (optional): `GOOGLE_SHEETS_MAX_WRITES_PER_MINUTE` (defaults to 45) to throttle append operations and stay under the Sheets API write quota.
 - Google Workspace impersonation (optional, Workspace only): `GOOGLE_WORKSPACE_IMPERSONATE_EMAIL` (e.g., `no-reply@yourdomain.com`) when domain-wide delegation is enabled so Docs/Sheets are created under that user.
+- Admin Gmail inboxes (optional, Workspace only): `ADMIN_GMAIL_INBOXES` as a comma-separated list of `email[:Display Name]` entries (e.g., `contact@gradusindia.in:Contact Inbox,admin@gradusindia.in:Admin Inbox`). Requires the service account above to be granted Gmail API scopes with domain-wide delegation.
 
 Run Locally
 1. `cd backend && npm install`

@@ -48,6 +48,43 @@ if (!isProduction) {
 const sessionSecret = process.env.SESSION_SECRET;
 const DEFAULT_SESSION_SECRET = 'gradus_secret';
 
+const DEFAULT_ADMIN_INBOXES = [
+  { email: 'contact@gradusindia.in', displayName: 'Contact' },
+  { email: 'admin@gradusindia.in', displayName: 'Admin' },
+  { email: 'no-reply@gradusindia.in', displayName: 'No Reply' },
+  { email: 'hr@gradusindia.in', displayName: 'HR' },
+];
+
+const parseAdminMailboxes = (rawValue) => {
+  if (!rawValue || typeof rawValue !== 'string') {
+    return [];
+  }
+
+  const seen = new Set();
+  return rawValue
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0)
+    .map((entry) => {
+      const [emailPart, labelPart] = entry.split(':');
+      const normalizedEmail = (emailPart || '').trim().toLowerCase();
+      if (!normalizedEmail) {
+        return null;
+      }
+      const displayNameRaw = (labelPart || emailPart || '').trim();
+      const displayName = displayNameRaw || normalizedEmail;
+      if (seen.has(normalizedEmail)) {
+        return null;
+      }
+      seen.add(normalizedEmail);
+      return { email: normalizedEmail, displayName };
+    })
+    .filter(Boolean);
+};
+
+const adminMailboxes = parseAdminMailboxes(process.env.ADMIN_GMAIL_INBOXES);
+const delegatedInboxes = adminMailboxes.length > 0 ? adminMailboxes : DEFAULT_ADMIN_INBOXES;
+
 const config = {
   nodeEnv,
   port,
@@ -75,6 +112,9 @@ const config = {
     approverEmail: process.env.ADMIN_APPROVER_EMAIL || 'dvisro13@gmail.com',
     portalName: process.env.ADMIN_PORTAL_NAME || 'Gradus Admin Portal',
     approvalBaseUrl: adminApprovalBaseUrl,
+  },
+  gmail: {
+    delegatedInboxes,
   },
   adminApiBaseUrl,
   sessionSecret: sessionSecret || DEFAULT_SESSION_SECRET,

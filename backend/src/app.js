@@ -34,6 +34,7 @@ const adminUploadRoutes = require('./routes/adminUploadRoutes');
 const adminBannerRoutes = require('./routes/adminBannerRoutes');
 const adminEventRoutes = require('./routes/adminEventRoutes');
 const adminEmailTemplateRoutes = require('./routes/adminEmailTemplateRoutes');
+const adminEmailRoutes = require('./routes/adminEmailRoutes');
 const adminPartnerRoutes = require('./routes/adminPartnerRoutes');
 const adminLiveSessionRoutes = require('./routes/adminLiveSessionRoutes');
 const liveSessionRoutes = require('./routes/liveSessionRoutes');
@@ -142,6 +143,7 @@ app.use('/api/admin/uploads', adminUploadRoutes);
 app.use('/api/admin/banners', adminBannerRoutes);
 app.use('/api/admin/events', adminEventRoutes);
 app.use('/api/admin/email-templates', adminEmailTemplateRoutes);
+app.use('/api/admin/email', adminEmailRoutes);
 app.use('/api/admin/partners', adminPartnerRoutes);
 app.use('/api/admin/live-sessions', adminLiveSessionRoutes);
 // Public content + services
