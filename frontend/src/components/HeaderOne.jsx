@@ -313,6 +313,15 @@ const HeaderOne = () => {
     </>
   );
 
+  const ourCoursesDropdown = {
+    label: "Our courses",
+    links: [
+      { to: "/our-courses", label: "All courses" },
+      { to: "/our-courses?programme=gradus-x", label: "Tech Courses" },
+      { to: "/our-courses?programme=gradus-finlit", label: "Stock Market Courses" },
+    ],
+  };
+
   const menuItems = [
     {
       label: "Programmes",
@@ -324,9 +333,7 @@ const HeaderOne = () => {
         { to: "/our-courses?programme=gradus-lead", label: "Gradus Lead" },
       ],
     },
-    // Redirect to Our Courses with pre-applied filters
-    { to: "/our-courses?programme=gradus-x", label: "Tech Courses" },
-    { to: "/our-courses?programme=gradus-finlit", label: "Stock Market Courses" },
+    ourCoursesDropdown,
     { to: "/events", label: "Events", badge: "New" },
     { to: "/blogs", label: "Blogs" },
     { to: "/contact", label: "Contact us" },
