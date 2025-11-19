@@ -5,6 +5,7 @@
 */
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { lazy, Suspense } from "react";
+import RequireProgrammerEmailAccess from "./components/RequireProgrammerEmailAccess";
 const HomePageOne = lazy(() => import("./pages/HomePageOne"));
 const EmailPage = lazy(() => import("./pages/EmailPage"));
 const AddUserPage = lazy(() => import("./pages/AddUserPage"));
@@ -173,7 +174,15 @@ function App() {
         <Route exact path='/company' element={<CompanyPage />} />
         <Route exact path='/currencies' element={<CurrenciesPage />} />
         <Route exact path='/dropdown' element={<DropdownPage />} />
-        <Route exact path='/email' element={<EmailPage />} />
+        <Route
+          exact
+          path='/email'
+          element={
+            <RequireProgrammerEmailAccess>
+              <EmailPage />
+            </RequireProgrammerEmailAccess>
+          }
+        />
         <Route exact path='/faq' element={<FaqPage />} />
         <Route exact path='/forgot-password' element={<ForgotPasswordPage />} />
         <Route exact path='/form-layout' element={<FormLayoutPage />} />

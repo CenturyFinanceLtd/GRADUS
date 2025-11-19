@@ -46,6 +46,10 @@ const protectAdmin = asyncHandler(async (req, res, next) => {
   }
 });
 
+const EMAIL_ACCESS_WHITELIST = Array.isArray(config.admin?.emailAccessUsers)
+  ? config.admin.emailAccessUsers.map((email) => email.toLowerCase())
+  : [];
+
 const requireAdminRole = (...roles) => (req, res, next) => {
   const allowedRoles = roles.map((role) => normalizeRole(role));
   const currentRole = normalizeRole(req.admin?.role);
@@ -59,4 +63,17 @@ const requireAdminRole = (...roles) => (req, res, next) => {
   throw new Error('You do not have permission to perform this action.');
 };
 
-module.exports = { protectAdmin, requireAdminRole };
+const requireProgrammerEmailAccess = (req, res, next) => {
+  const currentRole = normalizeRole(req.admin?.role);
+  const email = (req.admin?.email || '').toLowerCase();
+
+  if (currentRole === 'programmer_admin' && EMAIL_ACCESS_WHITELIST.includes(email)) {
+    next();
+    return;
+  }
+
+  res.status(403);
+  throw new Error('You do not have permission to perform this action.');
+};
+
+module.exports = { protectAdmin, requireAdminRole, requireProgrammerEmailAccess };

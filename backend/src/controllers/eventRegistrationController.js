@@ -7,6 +7,7 @@ const asyncHandler = require('express-async-handler');
 const EventRegistration = require('../models/EventRegistration');
 const Event = require('../models/Event');
 const { sendEmail, sendEventRegistrationEmail } = require('../utils/email');
+const config = require('../config/env');
 const { syncRegistrationToGoogleDoc } = require('../services/googleDocsRegistrationSync');
 const { syncRegistrationToGoogleSheet } = require('../services/googleSheetsRegistrationSync');
 const {
@@ -429,6 +430,7 @@ const sendJoinLinkEmails = asyncHandler(async (req, res) => {
 
       try {
         await sendEmail({
+          from: config.smtp.registrationFrom,
           to: registration.email,
           subject: emailSubject,
           text: textLines.join('\n'),

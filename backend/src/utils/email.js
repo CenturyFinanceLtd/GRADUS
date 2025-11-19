@@ -13,6 +13,8 @@ const deliveryMode = (config.smtp.deliveryMode || 'live').toLowerCase();
 const isLive = deliveryMode === 'live';
 const workspaceOAuthEnabled = Boolean(config.smtp.useWorkspaceOAuth);
 const workspaceSendAs = config.smtp.workspaceSendAs || config.smtp.user;
+const smtpLoginUser = config.smtp.loginUser || workspaceSendAs;
+const workspaceImpersonate = config.smtp.workspaceImpersonate || smtpLoginUser;
 const SERVICE_ACCOUNT_EMAIL = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
 const SERVICE_ACCOUNT_PRIVATE_KEY = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
   ? process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY.replace(/\\n/g, '\n')
@@ -38,9 +40,9 @@ const getWorkspaceAccessToken = async () => {
     return null;
   }
 
-  if (!SERVICE_ACCOUNT_EMAIL || !SERVICE_ACCOUNT_PRIVATE_KEY || !workspaceSendAs) {
+  if (!SERVICE_ACCOUNT_EMAIL || !SERVICE_ACCOUNT_PRIVATE_KEY || !workspaceImpersonate) {
     throw new Error(
-      'Workspace SMTP OAuth is enabled but service account credentials or send-as email are missing.'
+      'Workspace SMTP OAuth is enabled but service account credentials or impersonation email are missing.'
     );
   }
 
@@ -57,7 +59,7 @@ const getWorkspaceAccessToken = async () => {
     email: SERVICE_ACCOUNT_EMAIL,
     key: SERVICE_ACCOUNT_PRIVATE_KEY,
     scopes: WORKSPACE_SMTP_SCOPES,
-    subject: workspaceSendAs,
+    subject: workspaceImpersonate,
   });
 
   inflightWorkspaceTokenPromise = jwtClient
@@ -89,7 +91,7 @@ const buildMailAuth = async () => {
       if (accessToken) {
         return {
           type: 'OAuth2',
-          user: config.smtp.user,
+          user: workspaceImpersonate,
           accessToken,
         };
       }
@@ -112,18 +114,18 @@ const buildMailAuth = async () => {
   }
 
   return {
-    user: config.smtp.user,
+    user: smtpLoginUser,
     pass: config.smtp.pass,
   };
 };
 
-const sendEmail = async ({ to, subject, text, html }) => {
+const sendEmail = async ({ from, to, subject, text, html }) => {
   if (!to) {
     throw new Error('Recipient email address is required');
   }
 
   const mailOptions = {
-    from: config.smtp.from || config.smtp.user,
+    from: from || config.smtp.from || config.smtp.user,
     to,
     subject,
     text,
@@ -153,7 +155,13 @@ const sendOtpEmail = async ({ to, otp, subject, context }) => {
     </div>
   `;
 
-  const result = await sendEmail({ to, subject: emailSubject, text: emailText, html: emailHtml });
+  const result = await sendEmail({
+    from: config.smtp.verificationFrom,
+    to,
+    subject: emailSubject,
+    text: emailText,
+    html: emailHtml,
+  });
   if (result.mocked) {
     return { mocked: true, otp };
   }
@@ -388,7 +396,7 @@ const sendEventRegistrationEmail = async ({
     `;
   }
 
-  return sendEmail({ to, subject, text, html });
+  return sendEmail({ from: config.smtp.registrationFrom, to, subject, text, html });
 };
 
 module.exports = { sendEmail, sendOtpEmail, sendAdminApprovalEmail, sendEventRegistrationEmail, deliveryMode };

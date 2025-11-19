@@ -36,8 +36,11 @@ Environment Variables
 - `CLIENT_URLS` – Comma-separated list of allowed origins for CORS/cookies.
 - `SERVER_PUBLIC_URL` – Public base URL for the API.
 - SMTP: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `EMAIL_DELIVERY_MODE`.
+- SMTP login overrides (optional): `SMTP_LOGIN_USER` when your login mailbox (e.g., `admin@...`) differs from `SMTP_USER` (e.g., `no-reply@...` alias). Pair with `SMTP_WORKSPACE_IMPERSONATE_EMAIL` to control which Workspace user the service account impersonates for XOAUTH2.
+- Per-template senders (optional): `SMTP_FROM_VERIFICATION` (OTP / auth mails) and `SMTP_FROM_REGISTRATION` (event registration confirmations, reminder/join emails). Defaults fall back to `SMTP_FROM`.
 - Gmail via Workspace service account (optional): set `SMTP_USE_WORKSPACE_OAUTH=true` to send mail using the Google Workspace service account and add `SMTP_WORKSPACE_SEND_AS` (defaults to `SMTP_USER`). The service account must have domain-wide delegation for the Gmail scope `https://mail.google.com/` so the SMTP XOAUTH2 token is accepted.
 - Admin: `ADMIN_APPROVER_EMAIL`, `ADMIN_PORTAL_NAME`, optional `ADMIN_API_PUBLIC_BASE_URL`.
+- Admin Gmail access whitelist: `ADMIN_EMAIL_ACCESS_USERS` (comma-separated list of programmer-admin email addresses allowed to view Gmail inboxes in the admin panel).
 - Cloudinary: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_TESTIMONIALS_FOLDER`, `CLOUDINARY_COURSE_IMAGES_FOLDER`, `CLOUDINARY_BLOG_IMAGES_FOLDER`, `CLOUDINARY_BANNER_IMAGES_FOLDER`.
 - Google Docs/Sheets sync (optional): `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` (use `\n` literals), optional `GOOGLE_DOCS_PARENT_FOLDER_ID` to keep per-event spreadsheets in a specific Drive folder, optional `GOOGLE_SHEETS_SYNC_DELAY_MS` (default 2000ms) to throttle bulk sheet syncs.
 - Google Sheets rate limiting (optional): `GOOGLE_SHEETS_MAX_WRITES_PER_MINUTE` (defaults to 45) to throttle append operations and stay under the Sheets API write quota.

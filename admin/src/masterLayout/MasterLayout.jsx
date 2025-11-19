@@ -7,6 +7,7 @@ import { ToastContainer } from 'react-toastify';
 import useAuth from "../hook/useAuth";
 import { ADMIN_PAGE_DEFINITIONS } from "../data/adminPageDefinitions";
 import getHomePath from "../helper/getHomePath";
+import { EMAIL_WHITELIST } from "../components/RequireProgrammerEmailAccess";
 import { fetchEmailAccounts } from "../services/adminEmailInbox";
 
 const ADMIN_ROLE_LABELS = {
@@ -31,7 +32,9 @@ const MasterLayout = ({ children }) => {
     () => (Array.isArray(permissions?.allowedPages) ? permissions.allowedPages : []),
     [permissions]
   );
+  const normalizedEmail = (admin?.email || '').toLowerCase();
   const hasFullAccess = isProgrammerAdmin || allowedPages.includes("*");
+  const hasEmailAccess = isProgrammerAdmin && EMAIL_WHITELIST.includes(normalizedEmail);
   const [emailSidebarAccounts, setEmailSidebarAccounts] = useState([]);
   const [emailSidebarLoading, setEmailSidebarLoading] = useState(false);
 
@@ -394,7 +397,7 @@ const MasterLayout = ({ children }) => {
                 <span>Chat</span>
               </NavLink>
             </li>
-            {isProgrammerAdmin && (
+            {hasEmailAccess && (
               <li className='dropdown'>
                 <Link to='#' onClick={handleDropdownToggle}>
                   <Icon icon='mdi:email-outline' className='menu-icon' />

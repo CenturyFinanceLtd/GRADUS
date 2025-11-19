@@ -85,6 +85,56 @@ const parseAdminMailboxes = (rawValue) => {
 
 const adminMailboxes = parseAdminMailboxes(process.env.ADMIN_GMAIL_INBOXES);
 const delegatedInboxes = adminMailboxes.length > 0 ? adminMailboxes : DEFAULT_ADMIN_INBOXES;
+const parseEmailList = (rawValue) =>
+  (rawValue || '')
+    .split(',')
+    .map((entry) => entry.trim().toLowerCase())
+    .filter((entry) => entry.length > 0);
+const adminEmailAccessUsers = parseEmailList(process.env.ADMIN_EMAIL_ACCESS_USERS);
+
+const normalizeSmtpPassword = (rawValue) => {
+  if (typeof rawValue !== 'string') {
+    return rawValue;
+  }
+
+  const trimmed = rawValue.trim();
+  if (!trimmed.includes(' ')) {
+    return trimmed;
+  }
+
+  const compact = trimmed.replace(/\s+/g, '');
+  if (/^[A-Za-z0-9]{16}$/.test(compact)) {
+    console.warn(
+      '[config] SMTP_PASS appears to be a Gmail app password with spaces. Normalizing it by removing whitespace.'
+    );
+    return compact;
+  }
+
+  return trimmed;
+};
+
+const resolveSmtpLoginUser = () => {
+  const envLogin = process.env.SMTP_LOGIN_USER || process.env.SMTP_WORKSPACE_IMPERSONATE_EMAIL;
+  if (envLogin && envLogin.trim()) {
+    return envLogin.trim();
+  }
+  return process.env.SMTP_USER;
+};
+
+const resolveWorkspaceImpersonate = (loginUser) => {
+  const explicit = process.env.SMTP_WORKSPACE_IMPERSONATE_EMAIL;
+  if (explicit && explicit.trim()) {
+    return explicit.trim();
+  }
+  return loginUser;
+};
+
+const smtpLoginUser = resolveSmtpLoginUser();
+const smtpWorkspaceImpersonate = resolveWorkspaceImpersonate(smtpLoginUser);
+const defaultFromAddress =
+  process.env.SMTP_FROM || (process.env.SMTP_USER ? `Gradus <${process.env.SMTP_USER}>` : '');
+const verificationFromAddress = process.env.SMTP_FROM_VERIFICATION || defaultFromAddress;
+const registrationFromAddress = process.env.SMTP_FROM_REGISTRATION || defaultFromAddress;
 
 const config = {
   nodeEnv,
@@ -105,8 +155,12 @@ const config = {
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 587,
     user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-    from: process.env.SMTP_FROM,
+    loginUser: smtpLoginUser,
+    workspaceImpersonate: smtpWorkspaceImpersonate,
+    pass: normalizeSmtpPassword(process.env.SMTP_PASS),
+    from: defaultFromAddress,
+    verificationFrom: verificationFromAddress,
+    registrationFrom: registrationFromAddress,
     deliveryMode: process.env.EMAIL_DELIVERY_MODE || 'live',
     useWorkspaceOAuth: (process.env.SMTP_USE_WORKSPACE_OAUTH || 'false').toLowerCase() === 'true',
     workspaceSendAs: process.env.SMTP_WORKSPACE_SEND_AS || process.env.SMTP_USER,
@@ -115,6 +169,7 @@ const config = {
     approverEmail: process.env.ADMIN_APPROVER_EMAIL || 'dvisro13@gmail.com',
     portalName: process.env.ADMIN_PORTAL_NAME || 'Gradus Admin Portal',
     approvalBaseUrl: adminApprovalBaseUrl,
+    emailAccessUsers: adminEmailAccessUsers,
   },
   gmail: {
     delegatedInboxes,
