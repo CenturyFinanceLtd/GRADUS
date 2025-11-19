@@ -173,10 +173,7 @@ const EventsAllOne = () => {
   return (
     <section className='events-list py-50 bg-white'>
       <div className='container container--xl'>
-        <header className='events-list__header flex-between flex-wrap gap-20 mb-32'>
-          <div>
-            <h1 className='display-5 fw-semibold mb-8'>Events</h1>
-          </div>
+        <header className='events-list__header d-flex flex-wrap gap-20 justify-content-lg-end mb-32'>
           <EventsFilterChips
             categories={EVENT_TYPE_OPTIONS}
             active={eventType}
