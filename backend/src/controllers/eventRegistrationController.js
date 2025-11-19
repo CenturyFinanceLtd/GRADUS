@@ -7,6 +7,7 @@ const asyncHandler = require('express-async-handler');
 const EventRegistration = require('../models/EventRegistration');
 const Event = require('../models/Event');
 const { sendEmail, sendEventRegistrationEmail } = require('../utils/email');
+const { syncRegistrationToGoogleDoc } = require('../services/googleDocsRegistrationSync');
 
 const serializeRegistration = (registration) => ({
   id: registration._id.toString(),
@@ -194,6 +195,7 @@ const createEventRegistrationEntry = async (payload = {}) => {
   await checkDuplicateRegistration({ email: normalized.email, phone: normalized.phone });
   const registration = await EventRegistration.create(normalized);
   await sendEventConfirmation(registration, normalized.eventDetails);
+  await syncRegistrationToGoogleDoc(registration, { mode: 'create' });
   return registration;
 };
 
@@ -302,6 +304,7 @@ const updateEventRegistration = asyncHandler(async (req, res) => {
   });
 
   await registration.save();
+  await syncRegistrationToGoogleDoc(registration, { mode: 'update' });
 
   res.json({
     message: 'Event registration updated successfully',

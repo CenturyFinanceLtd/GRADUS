@@ -17,6 +17,7 @@ let warnedMissingConfig = false;
 const getGoogleAuth = () => {
   const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   const privateKeyRaw = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY;
+  const subject = process.env.GOOGLE_WORKSPACE_IMPERSONATE_EMAIL;
 
   if (!clientEmail || !privateKeyRaw) {
     if (!warnedMissingConfig) {
@@ -31,11 +32,14 @@ const getGoogleAuth = () => {
   const privateKey = privateKeyRaw.replace(/\\n/g, '\n');
 
   try {
-    return new google.auth.JWT({
-      email: clientEmail,
-      key: privateKey,
-      scopes: SCOPES,
-    });
+    return new google.auth.JWT(
+      {
+        email: clientEmail,
+        key: privateKey,
+        scopes: SCOPES,
+        subject: subject || undefined, // requires domain-wide delegation if set
+      }
+    );
   } catch (error) {
     if (!warnedMissingConfig) {
       console.error('[google-docs] Failed to initialize auth', error?.message);
@@ -147,7 +151,7 @@ const formatRegistrationBlock = (registration, mode = 'create') => {
     timestamp instanceof Date ? timestamp.toISOString() : new Date(timestamp).toISOString();
   const lines = [
     '---',
-    `${mode === 'update' ? 'Updated entry' : 'New entry'} • ${displayTime}`,
+    `${mode === 'update' ? 'Updated entry' : 'New entry'} - ${displayTime}`,
     `Registration ID: ${registration._id || registration.id || ''}`,
     `Name: ${registration.name || ''}`,
     `Email: ${registration.email || ''}`,

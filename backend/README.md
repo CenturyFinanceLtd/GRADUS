@@ -32,12 +32,14 @@ Key Modules
 Environment Variables
 - `MONGODB_URI` — Mongo connection string.
 - `JWT_SECRET`, `JWT_EXPIRES_IN` — JWT signing secret and lifetime.
-- `SESSION_SECRET` — Express session secret (required in production).
-- `CLIENT_URLS` — Comma-separated list of allowed origins for CORS/cookies.
-- `SERVER_PUBLIC_URL` — Public base URL for the API.
+- `SESSION_SECRET` – Express session secret (required in production).
+- `CLIENT_URLS` – Comma-separated list of allowed origins for CORS/cookies.
+- `SERVER_PUBLIC_URL` – Public base URL for the API.
 - SMTP: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `EMAIL_DELIVERY_MODE`.
 - Admin: `ADMIN_APPROVER_EMAIL`, `ADMIN_PORTAL_NAME`, optional `ADMIN_API_PUBLIC_BASE_URL`.
 - Cloudinary: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_TESTIMONIALS_FOLDER`, `CLOUDINARY_COURSE_IMAGES_FOLDER`, `CLOUDINARY_BLOG_IMAGES_FOLDER`, `CLOUDINARY_BANNER_IMAGES_FOLDER`.
+- Google Docs sync (optional): `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` (use `\n` literals), optional `GOOGLE_DOCS_PARENT_FOLDER_ID` to keep docs in a specific Drive folder.
+- Google Docs impersonation (optional, Workspace only): `GOOGLE_WORKSPACE_IMPERSONATE_EMAIL` (e.g., `no-reply@yourdomain.com`) when domain-wide delegation is enabled for the service account so docs are created under that user.
 
 Run Locally
 1. `cd backend && npm install`
