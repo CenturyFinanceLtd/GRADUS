@@ -11286,6 +11286,20 @@ button:focus {
     opacity: 0.35;
   }
 }
+@media (max-width: 575.98px) {
+  .nav-menu__link--has-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding-inline-end: 0;
+  }
+  .nav-menu__badge {
+    position: static;
+    top: auto;
+    right: auto;
+    margin-inline-start: 8px;
+  }
+}
 @media screen and (max-width: 1399px) {
   .nav-menu__link {
     font-size: 0.875rem !important;
@@ -18756,7 +18770,7 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
     box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
   }
   .feature-card__eyebrow {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     letter-spacing: 0.08em;
     padding-bottom: 48px;
     padding-top: 1px;
@@ -18782,10 +18796,10 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   }
   .compare-card__brand-name {
     margin-bottom: 6px;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
   }
   .compare-card__other {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
   }
   .compare-card__brand img {
     max-height: 48px;

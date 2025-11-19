@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { fetchEvents } from "../services/eventService";
 
 const EVENT_LIMIT = 24;
-const EVENT_TYPE_OPTIONS = ["Seminar", "Webinar", "Job fair", "Corporate Initiatives"];
+const EVENT_TYPE_OPTIONS = ["All", "Seminar", "Webinar", "Job fair", "Corporate Initiatives"];
 
 const formatSchedule = (schedule) => {
   if (!schedule?.start) {
@@ -143,7 +143,7 @@ const EventsAllOne = () => {
         const response = await fetchEvents({
           limit: EVENT_LIMIT,
           timeframe: "upcoming",
-          eventType,
+          eventType: eventType === "All" ? undefined : eventType,
           signal: controller.signal,
         });
         if (!isMounted) return;
