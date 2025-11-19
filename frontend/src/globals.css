@@ -12813,9 +12813,9 @@ body::after {
   height: 70%;
 } /* ============================== Features Section Css End ============================== */ /* ===================== Course Item Css Start ============================ */
 .course-item:hover .course-item__img {
-  -webkit-transform: scale(1.1);
-  -ms-transform: scale(1.1);
-  transform: scale(1.1);
+  -webkit-transform: none;
+  -ms-transform: none;
+  transform: none;
 }
 .course-item__thumb {
   overflow: hidden;
@@ -12863,11 +12863,13 @@ body::after {
 .course-item--flagship {
   border-color: var(--main-two-600);
   box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+  position: relative;
+  overflow: visible;
 }
 .course-item__flagship-badge {
   position: absolute;
-  inset-block-start: 1px;
-  inset-inline-end: 1px;
+  inset-block-start: 8px;
+  inset-inline-end: 8px;
   background-color: var(--main-two-600);
   color: #fff;
   padding: 6px 10px;

@@ -19,6 +19,7 @@ const OurCoursesListView = () => {
   const [selectedProgrammes, setSelectedProgrammes] = useState([]);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("new"); // 'alpha' | 'new' | 'old'
+  const [flagshipOnly, setFlagshipOnly] = useState(false);
   const [sidebarActive, setSidebarActive] = useState(false);
   const sidebarControl = () => setSidebarActive((p) => !p);
 
@@ -73,6 +74,10 @@ const OurCoursesListView = () => {
     courses.forEach((c) => counts.set(c.programmeSlug, (counts.get(c.programmeSlug) || 0) + 1));
     return Array.from(counts.entries()).map(([id, count]) => ({ id, title: programmeLabel(id), count }));
   }, [courses]);
+  const flagshipCount = useMemo(
+    () => courses.filter((c) => Number(c.priceINR) === FLAGSHIP_PRICE_INR).length,
+    [courses]
+  );
 
   // Parse filters from URL on load and when URL or available programme options change
   useEffect(() => {
@@ -80,6 +85,7 @@ const OurCoursesListView = () => {
     const programmesParam = params.get("programme") || params.get("programmes");
     const qParam = params.get("q") || "";
     const sParam = params.get("sort") || "new";
+    const flagshipParam = params.get("flagship");
     const available = new Set(programmeOptions.map((p) => p.id));
     if (programmesParam) {
       const parsed = programmesParam
@@ -92,9 +98,10 @@ const OurCoursesListView = () => {
     }
     setQuery(qParam);
     setSort(["alpha", "new", "old"].includes(sParam) ? sParam : "new");
+    setFlagshipOnly(flagshipParam === "1");
   }, [location.search, programmeOptions]);
 
-  const updateUrl = (progs, q, s = sort) => {
+  const updateUrl = (progs, q, s = sort, flagship = flagshipOnly) => {
     const params = new URLSearchParams(location.search);
     if (progs && progs.length) {
       params.set("programme", progs.join(","));
@@ -110,6 +117,11 @@ const OurCoursesListView = () => {
     } else {
       params.delete("sort");
     }
+    if (flagship) {
+      params.set("flagship", "1");
+    } else {
+      params.delete("flagship");
+    }
     const search = params.toString();
     navigate(`${location.pathname}${search ? `?${search}` : ""}`, { replace: true });
   };
@@ -117,19 +129,27 @@ const OurCoursesListView = () => {
   const toggleProgramme = (id) => {
     setSelectedProgrammes((prev) => {
       const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
-      updateUrl(next, query);
+      updateUrl(next, query, sort, flagshipOnly);
       return next;
     });
   };
 
   const clearSelection = () => {
     setSelectedProgrammes([]);
-    updateUrl([], query);
+    updateUrl([], query, sort, flagshipOnly);
   };
   const resetFilters = () => {
     setSelectedProgrammes([]);
     setQuery("");
-    updateUrl([], "");
+    setFlagshipOnly(false);
+    updateUrl([], "", sort, false);
+  };
+  const toggleFlagshipOnly = () => {
+    setFlagshipOnly((prev) => {
+      const next = !prev;
+      updateUrl(selectedProgrammes, query, sort, next);
+      return next;
+    });
   };
 
   const filteredCourses = useMemo(() => {
@@ -137,6 +157,9 @@ const OurCoursesListView = () => {
     if (selectedProgrammes.length) {
       const set = new Set(selectedProgrammes);
       list = list.filter((c) => set.has(c.programmeSlug));
+    }
+    if (flagshipOnly) {
+      list = list.filter((c) => Number(c.priceINR) === FLAGSHIP_PRICE_INR);
     }
     if (query.trim()) {
       const q = query.trim().toLowerCase();
@@ -156,12 +179,12 @@ const OurCoursesListView = () => {
     const regular = [];
     arr.forEach((course) => (Number(course.priceINR) === FLAGSHIP_PRICE_INR ? flagship.push(course) : regular.push(course)));
     return [...flagship, ...regular];
-  }, [courses, selectedProgrammes, query, sort]);
+  }, [courses, selectedProgrammes, query, sort, flagshipOnly]);
 
   const handleSortChange = (e) => {
     const value = e.target.value;
     setSort(value);
-    updateUrl(selectedProgrammes, query, value);
+    updateUrl(selectedProgrammes, query, value, flagshipOnly);
   };
 
   return (
@@ -225,6 +248,22 @@ const OurCoursesListView = () => {
                     Clear selection
                   </button>
                 ) : null}
+                <span className='d-block border border-neutral-30 border-dashed my-24' />
+               
+                <label className='flex-between gap-12 cursor-pointer'>
+                  <span className='form-check common-check mb-0'>
+                    <input
+                      className='form-check-input'
+                      type='checkbox'
+                      checked={flagshipOnly}
+                      onChange={toggleFlagshipOnly}
+                    />
+                    <span className='form-check-label fw-normal flex-grow-1'>
+                      Flagship
+                    </span>
+                  </span>
+                  <span className='text-neutral-500'>{flagshipCount}</span>
+                </label>
                 <span className='d-block border border-neutral-30 border-dashed my-24' />
                 <button
                   type='button'
