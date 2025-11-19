@@ -12882,11 +12882,10 @@ body::after {
 }
 @media (prefers-reduced-motion: no-preference) {
   .course-item--flagship {
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    transition: box-shadow 0.2s ease;
   }
   .course-item--flagship:hover {
-    box-shadow: 0 24px 50px rgba(15, 23, 42, 0.22);
-    transform: translateY(-4px);
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
   }
 } /* ===================== Course Item Css End ============================ */ /* =========================== ABout Css Start ============================ */
 @media (min-width: 1600px) {
