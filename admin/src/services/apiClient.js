@@ -39,10 +39,20 @@ const apiClient = async (endpoint, { method = 'GET', data, token, headers } = {}
   }
 
   if (!response.ok) {
-    const message =
-      (responseBody && responseBody.message) ||
-      (typeof responseBody === 'string' && responseBody) ||
-      'Request failed';
+    let message = 'Request failed';
+    if (responseBody && typeof responseBody === 'object' && responseBody.message) {
+      message = responseBody.message;
+    } else if (typeof responseBody === 'string') {
+      const trimmed = responseBody.trim();
+      const looksLikeHtml = /^<!DOCTYPE/i.test(trimmed) || /^<html/i.test(trimmed);
+      if (looksLikeHtml) {
+        message = `${response.status} ${response.statusText || ''}`.trim() || 'Request failed';
+      } else {
+        message = trimmed || message;
+      }
+    } else if (response.status) {
+      message = `${response.status} ${response.statusText || ''}`.trim() || message;
+    }
     const error = new Error(message);
     error.status = response.status;
     error.data = responseBody;

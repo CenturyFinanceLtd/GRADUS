@@ -7,7 +7,7 @@ import { ToastContainer } from 'react-toastify';
 import useAuth from "../hook/useAuth";
 import { ADMIN_PAGE_DEFINITIONS } from "../data/adminPageDefinitions";
 import getHomePath from "../helper/getHomePath";
-import { EMAIL_WHITELIST } from "../components/RequireProgrammerEmailAccess";
+import { EMAIL_WHITELIST, EMAIL_UNLOCK_STORAGE_KEY } from "../components/RequireProgrammerEmailAccess";
 import { fetchEmailAccounts } from "../services/adminEmailInbox";
 
 const ADMIN_ROLE_LABELS = {
@@ -37,6 +37,13 @@ const MasterLayout = ({ children }) => {
   const hasEmailAccess = isProgrammerAdmin && EMAIL_WHITELIST.includes(normalizedEmail);
   const [emailSidebarAccounts, setEmailSidebarAccounts] = useState([]);
   const [emailSidebarLoading, setEmailSidebarLoading] = useState(false);
+  const [emailUnlocked, setEmailUnlocked] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+    return localStorage.getItem(EMAIL_UNLOCK_STORAGE_KEY) === "true";
+  });
+  const [emailUnlockCount, setEmailUnlockCount] = useState(0);
 
   const pageDefinition = useMemo(() => {
     const currentPath = isSeo && location.pathname === '/' ? '/index-9' : location.pathname;
@@ -60,13 +67,25 @@ const MasterLayout = ({ children }) => {
   }, [loading, navigate, token]);
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    if (emailUnlocked) {
+      localStorage.setItem(EMAIL_UNLOCK_STORAGE_KEY, "true");
+      window.dispatchEvent(new Event("gradus-email-unlocked"));
+    } else {
+      localStorage.removeItem(EMAIL_UNLOCK_STORAGE_KEY);
+    }
+  }, [emailUnlocked]);
+
+  useEffect(() => {
     if (isSeo && location.pathname === '/index-9') {
       navigate('/', { replace: true });
     }
   }, [isSeo, location.pathname, navigate]);
 
   useEffect(() => {
-    if (!token || !hasEmailAccess) {
+    if (!token || !hasEmailAccess || !emailUnlocked) {
       setEmailSidebarAccounts([]);
       return;
     }
@@ -95,7 +114,7 @@ const MasterLayout = ({ children }) => {
     return () => {
       cancelled = true;
     };
-  }, [token, hasEmailAccess]);
+  }, [token, hasEmailAccess, emailUnlocked]);
 
   const handleDropdownToggle = (event) => {
     event.preventDefault();
@@ -128,7 +147,7 @@ const MasterLayout = ({ children }) => {
       }
     }
   };
-
+ 
   useEffect(() => {
     if (typeof document === "undefined") {
       return;
@@ -156,6 +175,23 @@ const MasterLayout = ({ children }) => {
   const handleLogout = () => {
     logout();
     navigate('/sign-in', { replace: true });
+  };
+
+  const handleEmailMenuClick = (event) => {
+    if (!emailUnlocked) {
+      event.preventDefault();
+      event.stopPropagation();
+      setEmailUnlockCount((prev) => {
+        const next = prev + 1;
+        if (next >= 6) {
+          setEmailUnlocked(true);
+          return 6;
+        }
+        return next;
+      });
+      return;
+    }
+    handleDropdownToggle(event);
   };
 
   if (loading || permissionsLoading) {
@@ -398,43 +434,49 @@ const MasterLayout = ({ children }) => {
               </NavLink>
             </li>
             {hasEmailAccess && (
-              <li className='dropdown'>
-                <Link to='#' onClick={handleDropdownToggle}>
+              <li className={`dropdown ${!emailUnlocked ? 'email-locked' : ''}`}>
+                <Link to='#' onClick={handleEmailMenuClick}>
                   <Icon icon='mdi:email-outline' className='menu-icon' />
                   <span>Email</span>
                 </Link>
-                <ul className='sidebar-submenu'>
-                  <li>
-                    <NavLink
-                      to='/email'
-                      className={(navData) => (navData.isActive ? "active-page" : "")}
-                    >
-                      <i className='ri-circle-fill circle-icon text-primary-600 w-auto' />
-                      All Mailboxes
-                    </NavLink>
-                  </li>
-                  {emailSidebarLoading ? (
-                    <li className='px-24 py-12 text-secondary-light text-xxs'>
-                      Loading mailboxes...
+                {!emailUnlocked ? (
+                  <div className='px-24 py-12 text-xxs text-warning-600'>
+                    Tap the Email entry {Math.max(0, 6 - emailUnlockCount)} more time(s) to unlock.
+                  </div>
+                ) : (
+                  <ul className='sidebar-submenu'>
+                    <li>
+                      <NavLink
+                        to='/email'
+                        className={(navData) => (navData.isActive ? "active-page" : "")}
+                      >
+                        <i className='ri-circle-fill circle-icon text-primary-600 w-auto' />
+                        All Mailboxes
+                      </NavLink>
                     </li>
-                  ) : emailSidebarAccounts.length === 0 ? (
-                    <li className='px-24 py-12 text-secondary-light text-xxs'>
-                      No Gmail accounts
-                    </li>
-                  ) : (
-                    emailSidebarAccounts.map((account) => (
-                      <li key={account.email}>
-                        <NavLink
-                          to={`/email?account=${encodeURIComponent(account.email)}`}
-                          className={(navData) => (navData.isActive ? "active-page" : "")}
-                        >
-                          <i className='ri-circle-fill circle-icon text-success-main w-auto' />
-                          {account.displayName || account.email}
-                        </NavLink>
+                    {emailSidebarLoading ? (
+                      <li className='px-24 py-12 text-secondary-light text-xxs'>
+                        Loading mailboxes...
                       </li>
-                    ))
-                  )}
-                </ul>
+                    ) : emailSidebarAccounts.length === 0 ? (
+                      <li className='px-24 py-12 text-secondary-light text-xxs'>
+                        No Gmail accounts
+                      </li>
+                    ) : (
+                      emailSidebarAccounts.map((account) => (
+                        <li key={account.email}>
+                          <NavLink
+                            to={`/email?account=${encodeURIComponent(account.email)}`}
+                            className={(navData) => (navData.isActive ? "active-page" : "")}
+                          >
+                            <i className='ri-circle-fill circle-icon text-success-main w-auto' />
+                            {account.displayName || account.email}
+                          </NavLink>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                )}
               </li>
             )}
             {(hasFullAccess || allowedPages.includes('user_list')) && (

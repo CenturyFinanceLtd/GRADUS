@@ -10,6 +10,9 @@ import {
 } from '../services/adminWhyGradusVideo';
 import './WhyGradusVideoPage.css';
 
+const MAX_VIDEO_FILE_SIZE_MB = 200;
+const MAX_VIDEO_FILE_SIZE_BYTES = MAX_VIDEO_FILE_SIZE_MB * 1024 * 1024;
+
 const defaultForm = {
   title: '',
   subtitle: '',
@@ -50,7 +53,21 @@ const WhyGradusVideoPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleFile = (file) => setForm((s) => ({ ...s, file }));
+  const handleFile = (file) => {
+    if (!file) {
+      setForm((s) => ({ ...s, file: null }));
+      return;
+    }
+    if (file.size > MAX_VIDEO_FILE_SIZE_BYTES) {
+      setError(`File is too large. Please keep it under ${MAX_VIDEO_FILE_SIZE_MB} MB.`);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
+    setError(null);
+    setForm((s) => ({ ...s, file }));
+  };
   const onDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -227,7 +244,7 @@ const WhyGradusVideoPage = () => {
                         {form.file ? 'File ready to upload' : 'Drag & drop your video'}
                       </p>
                       <p className='dropzone-file'>
-                        {form.file ? `${form.file.name} • ${formatSize(form.file)}` : 'MP4, MOV or WEBM up to 200 MB'}
+                        {form.file ? `${form.file.name} • ${formatSize(form.file)}` : `MP4, MOV or WEBM up to ${MAX_VIDEO_FILE_SIZE_MB} MB`}
                       </p>
                       <div className='dropzone-actions'>
                         <button type='button' className='btn btn-outline-primary btn-sm'>
