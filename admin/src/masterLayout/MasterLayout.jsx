@@ -43,7 +43,7 @@ const MasterLayout = ({ children }) => {
     }
     return localStorage.getItem(EMAIL_UNLOCK_STORAGE_KEY) === "true";
   });
-  const [emailUnlockCount, setEmailUnlockCount] = useState(0);
+  const [, setEmailUnlockCount] = useState(0);
 
   const pageDefinition = useMemo(() => {
     const currentPath = isSeo && location.pathname === '/' ? '/index-9' : location.pathname;
@@ -439,11 +439,7 @@ const MasterLayout = ({ children }) => {
                   <Icon icon='mdi:email-outline' className='menu-icon' />
                   <span>Email</span>
                 </Link>
-                {!emailUnlocked ? (
-                  <div className='px-24 py-12 text-xxs text-warning-600'>
-                    Tap the Email entry {Math.max(0, 6 - emailUnlockCount)} more time(s) to unlock.
-                  </div>
-                ) : (
+                {emailUnlocked ? (
                   <ul className='sidebar-submenu'>
                     <li>
                       <NavLink
@@ -476,7 +472,7 @@ const MasterLayout = ({ children }) => {
                       ))
                     )}
                   </ul>
-                )}
+                ) : null}
               </li>
             )}
             {(hasFullAccess || allowedPages.includes('user_list')) && (

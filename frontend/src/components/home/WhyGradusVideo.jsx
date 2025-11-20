@@ -10,6 +10,7 @@ const WhyGradusVideo = () => {
   const [error, setError] = useState(null);
   const videoRef = useRef(null);
   const { ref: viewRef, inView } = useInView({ threshold: 0.35 });
+  const videoSrc = item?.secureUrl || "";
 
   useEffect(() => {
     let isMounted = true;
@@ -36,8 +37,7 @@ const WhyGradusVideo = () => {
 
   useEffect(() => {
     const el = videoRef.current;
-    if (!el || loading || !item?.secureUrl) return;
-    setVideoLoaded(false);
+    if (!el || loading || !videoSrc) return;
     const playSafe = async () => {
       try {
         el.muted = true;
@@ -52,7 +52,14 @@ const WhyGradusVideo = () => {
       }
     };
     playSafe();
-  }, [item, loading, inView]);
+  }, [videoSrc, loading, inView]);
+
+  useEffect(() => {
+    if (!videoSrc) {
+      return;
+    }
+    setVideoLoaded(false);
+  }, [videoSrc]);
 
   const handleEnded = () => {
     const el = videoRef.current;
@@ -76,7 +83,6 @@ const WhyGradusVideo = () => {
     setVideoLoaded(false);
   };
 
-  const videoSrc = item?.secureUrl;
   const poster = item?.thumbnailUrl;
   const title = item?.title;
   const subtitle = item?.subtitle;

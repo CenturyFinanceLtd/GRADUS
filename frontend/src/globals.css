@@ -14959,7 +14959,7 @@ table.dataTable.display > tbody > tr > * {
 }
 .contact-social-link:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(66, 9, 9, 0.22);
 }
 .contact-social-link img {
   width: 30px;
@@ -19676,7 +19676,7 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   flex-direction: column;
   box-shadow: 0 25px 50px rgba(15, 23, 42, 0.08);
   position: relative;
-  flex: 1 1 calc(33.333% - 14px);
+  /* flex: 1 1 calc(33.333% - 14px); */
   min-width: 320px;
 }
 .course-card__thumb {
