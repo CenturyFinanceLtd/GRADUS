@@ -55,10 +55,9 @@ import SupportTicketDetailsPage from "./pages/SupportTicketDetailsPage.jsx";
 import SocialPortfolioPage from "./pages/SocialPortfolioPage.jsx";
 import ProgrammeCoursePage from "./pages/ProgrammeCoursePage.jsx";
 import CourseHomePage from "./pages/CourseHomePage.jsx";
-import LiveViewerPage from "./pages/LiveViewerPage.jsx";
-import LiveEmbedPage from "./pages/LiveEmbedPage.jsx";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback.jsx";
 import GoogleOneTap from "./components/GoogleOneTap.jsx";
+import LiveStudentPage from "./live/LiveStudentPage.jsx";
 
 const GradusXRedirect = () => {
   const { course } = useParams();
@@ -193,17 +192,6 @@ function App() {
         <Route exact path='/tutor' element={<TutorPage />} />
         <Route exact path='/tutor-details' element={<TutorDetailsPage />} />
         <Route exact path='/social' element={<SocialPortfolioPage />} />
-        <Route exact path='/live/:code' element={<LiveViewerPage />} />
-        <Route exact path='/live/embed/:code' element={<LiveEmbedPage />} />
-        <Route
-          exact
-          path='/:programme/:course/home/live/:liveCode'
-          element={
-            <RequireAuth>
-              <CourseHomePage />
-            </RequireAuth>
-          }
-        />
         {/* Canonicalize old programme slug to hyphenated version */}
         <Route path='/gradusx/:course' element={<GradusXRedirect />} />
         <Route
@@ -214,6 +202,15 @@ function App() {
             </RequireAuth>
           }
         />
+        <Route
+          exact
+          path='/live/:sessionId'
+          element={
+            <RequireAuth>
+              <LiveStudentPage />
+            </RequireAuth>
+          }
+        />
         <Route path='/:programme/:course' element={<ProgrammeCoursePage />} />
       </Routes>
     </BrowserRouter>
@@ -221,9 +218,6 @@ function App() {
 }
 
 export default App;
-
-
-
 
 
 

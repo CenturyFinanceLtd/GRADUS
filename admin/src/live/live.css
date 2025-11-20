@@ -1,0 +1,75 @@
+.live-session-list .live-session-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.live-session-actions .btn {
+  margin-right: 0.5rem;
+}
+
+.live-stage {
+  min-height: 420px;
+}
+
+.live-stage-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.live-stage-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.live-stage-video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.live-participant {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  background: #0b192d;
+  color: #fff;
+  overflow: hidden;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.live-participant video {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  background: #000;
+}
+
+.live-participant-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 160px;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.live-participant-meta {
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.live-stage-controls {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.live-stage-actions .btn {
+  margin-left: 0.5rem;
+}

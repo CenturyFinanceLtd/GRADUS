@@ -10,7 +10,10 @@ const notFound = (req, res, next) => {
 };
 
 const errorHandler = (err, req, res, next) => {
-  const statusCode = res.statusCode && res.statusCode !== 200 ? res.statusCode : 500;
+  const derivedStatus =
+    typeof err.statusCode === 'number' && err.statusCode !== 200 ? err.statusCode : null;
+  const statusCode =
+    derivedStatus || (res.statusCode && res.statusCode !== 200 ? res.statusCode : 500);
   res.status(statusCode);
 
   const response = {

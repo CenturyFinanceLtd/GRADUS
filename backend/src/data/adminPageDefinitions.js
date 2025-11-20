@@ -72,7 +72,6 @@ const ADMIN_PAGE_DEFINITIONS = [
 
     // Learning & support
     { key: 'courses', label: 'Courses', path: '/courses', category: 'Learning & Support' },
-    { key: 'live_classes', label: 'Go Live (Host)', path: '/go-live', category: 'Learning & Support' },
     { key: 'enrollments', label: 'Course Enrollments', path: '/enrollments', category: 'Learning & Support' },
     { key: 'inquiries', label: 'Inquiries', path: '/inquiries', category: 'Learning & Support' },
     { key: 'support_list', label: 'List', path: '/list', category: 'Learning & Support' },

@@ -36,9 +36,7 @@ const adminEventRoutes = require('./routes/adminEventRoutes');
 const adminEmailTemplateRoutes = require('./routes/adminEmailTemplateRoutes');
 const adminEmailRoutes = require('./routes/adminEmailRoutes');
 const adminPartnerRoutes = require('./routes/adminPartnerRoutes');
-const adminLiveSessionRoutes = require('./routes/adminLiveSessionRoutes');
 const adminPageMetaRoutes = require('./routes/adminPageMetaRoutes');
-const liveSessionRoutes = require('./routes/liveSessionRoutes');
 const chatbotRoutes = require('./routes/chatbotRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
 const adminTicketRoutes = require('./routes/adminTicketRoutes');
@@ -51,6 +49,7 @@ const eventRoutes = require('./routes/eventRoutes');
 const eventRegistrationRoutes = require('./routes/eventRegistrationRoutes');
 const partnerRoutes = require('./routes/partnerRoutes');
 const pageMetaRoutes = require('./routes/pageMetaRoutes');
+const liveRoutes = require('./live/routes');
 const { blogImagesDirectory } = require('./middleware/uploadMiddleware');
 
 const app = express();
@@ -147,12 +146,10 @@ app.use('/api/admin/events', adminEventRoutes);
 app.use('/api/admin/email-templates', adminEmailTemplateRoutes);
 app.use('/api/admin/email', adminEmailRoutes);
 app.use('/api/admin/partners', adminPartnerRoutes);
-app.use('/api/admin/live-sessions', adminLiveSessionRoutes);
 app.use('/api/admin/page-meta', adminPageMetaRoutes);
 // Public content + services
 app.use('/api/blogs', blogRoutes);
 app.use('/api/courses', courseRoutes);
-app.use('/api/live-sessions', liveSessionRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/testimonials', testimonialRoutes);
@@ -165,6 +162,7 @@ app.use('/api/inquiries', contactRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/tickets', ticketRoutes);
+app.use('/api/live', liveRoutes);
 app.use('/api/page-meta', pageMetaRoutes);
 
 // 404 and error handling (must be last)
