@@ -17974,7 +17974,7 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   background: #fff;
   border: 1px solid rgba(17, 24, 39, 0.08);
   border-radius: 28px;
-  padding: 20px;
+  padding: 15px 20px;
   transition: box-shadow 0.2s ease, transform 0.2s ease;
   box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
 }
@@ -17989,7 +17989,7 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   border-radius: 20px;
   overflow: hidden;
   margin-bottom: 0px;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 2;
   height: auto;
   min-height: 200px;
 }
@@ -19638,6 +19638,13 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   flex-direction: column;
   gap: 4px;
 }
+.breadcrumb__title{
+  font-size: 2.5rem;
+}
+li.breadcrumb__item{
+  font-size: 0.8rem;
+}
+
 .courses-sort select {
   border: 1px solid #dbe4f3;
   border-radius: 999px;
