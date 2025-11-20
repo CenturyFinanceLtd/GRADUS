@@ -14962,8 +14962,8 @@ table.dataTable.display > tbody > tr > * {
   background: rgba(255, 255, 255, 0.22);
 }
 .contact-social-link img {
-  width: 22px;
-  height: 22px;
+  width: 30px;
+  height: 30px;
   object-fit: contain;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
 }
