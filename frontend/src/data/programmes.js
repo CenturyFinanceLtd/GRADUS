@@ -45,7 +45,7 @@ export const PROGRAMMES = [
       "Swing trading & investing",
       "Scalping & Intraday",
       "Futures and options",
-      "commodity trading",
+      "Commodity trading",
       "Mutual funds and SIPs",
     ],
   },
