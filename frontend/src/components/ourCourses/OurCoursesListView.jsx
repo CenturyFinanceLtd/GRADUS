@@ -204,7 +204,7 @@ const OurCoursesListView = () => {
   const headingLabel = query.trim()
     ? `${query.trim()} Courses`
     : selectedProgrammes.length === 1
-    ? `${programmeLabel(selectedProgrammes[0])} Courses`
+    ? `${programmeLabel(selectedProgrammes[0])}`
     : "All Courses";
 
   return (
@@ -214,31 +214,6 @@ const OurCoursesListView = () => {
         onClick={() => setSidebarActive(false)}
       />
       <div className='container container--xl'>
-        <div className='courses-archive__searchbar rounded-16'>
-          <div className='courses-archive__select'>
-            <button type='button' className='courses-archive__select-btn'>
-              <span className='label'>Course</span>
-              <span className='value'>{headingLabel}</span>
-              <i className='ph ph-caret-down text-lg' />
-            </button>
-          </div>
-          <div className='courses-archive__input'>
-            <input
-              type='text'
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder='Search for courses'
-            />
-            {query ? (
-              <button type='button' className='clear-btn' onClick={() => setQuery("")} aria-label='Clear search'>
-                <i className='ph-bold ph-x' />
-              </button>
-            ) : null}
-            <button type='button' className='search-btn' aria-label='Search courses'>
-              <i className='ph-bold ph-magnifying-glass' />
-            </button>
-          </div>
-        </div>
 
         <div className='courses-archive__grid'>
           <aside className={`courses-filters ${sidebarActive ? "is-open" : ""}`}>
@@ -387,9 +362,6 @@ const OurCoursesListView = () => {
                         <span>{course.programme || "Programme"}</span>
                         {isFlagship ? <span className='badge'>Flagship</span> : null}
                       </div>
-                      <button type='button' className='wishlist-btn' aria-label='Save course'>
-                        <i className='ph ph-heart' />
-                      </button>
                     </div>
                     <div className='course-card__body'>
                       {/* <p className='course-card__duration'>{durationLabel}</p> */}
