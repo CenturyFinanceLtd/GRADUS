@@ -191,6 +191,31 @@ const registerInstructorParticipant = ({ sessionId, admin, hostSecret }) => {
   };
 };
 
+const findActiveSessionByCourse = ({ courseKey }) => {
+  if (!courseKey) {
+    return null;
+  }
+
+  const normalized = String(courseKey).trim().toLowerCase();
+  if (!normalized) {
+    return null;
+  }
+
+  const sessions = listSessionSnapshots();
+  return (
+    sessions.find((session) => {
+      if (session.status !== 'live') {
+        return false;
+      }
+      const courseIdMatch =
+        session.courseId && String(session.courseId).trim().toLowerCase() === normalized;
+      const courseSlugMatch =
+        session.courseSlug && String(session.courseSlug).trim().toLowerCase() === normalized;
+      return courseIdMatch || courseSlugMatch;
+    }) || null
+  );
+};
+
 module.exports = {
   createSession,
   listSessions,
@@ -199,4 +224,5 @@ module.exports = {
   updateSession,
   registerStudentParticipant,
   registerInstructorParticipant,
+  findActiveSessionByCourse,
 };

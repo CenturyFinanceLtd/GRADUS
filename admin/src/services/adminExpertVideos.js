@@ -5,17 +5,101 @@ export const listAdminExpertVideos = async ({ token } = {}) => {
   return data?.items || [];
 };
 
-export const createAdminExpertVideo = async ({ token, file, title, subtitle, description, active = true, order = 0 }) => {
-  const form = new FormData();
-  form.append('video', file);
-  form.append('title', title);
-  if (subtitle) form.append('subtitle', subtitle);
-  if (description) form.append('description', description);
-  form.append('active', String(Boolean(active)));
-  form.append('order', String(order));
+const requestUploadSignature = async ({ token }) => {
+  const data = await apiClient('/admin/expert-videos/upload/signature', { method: 'POST', token });
+  return data;
+};
 
-  const data = await apiClient('/admin/expert-videos', { method: 'POST', data: form, token });
+const uploadVideoDirectly = async ({ file, signature }) => {
+  if (!signature?.uploadUrl) {
+    throw new Error('Missing direct upload endpoint');
+  }
+  const form = new FormData();
+  form.append('file', file);
+  if (signature.folder) {
+    form.append('folder', signature.folder);
+  }
+  form.append('timestamp', String(signature.timestamp));
+  form.append('api_key', signature.apiKey);
+  form.append('signature', signature.signature);
+
+  const response = await fetch(signature.uploadUrl, {
+    method: 'POST',
+    body: form,
+    credentials: 'omit',
+  });
+  const body = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const message = body?.error?.message || body?.message || 'Cloudinary upload failed';
+    const error = new Error(message);
+    error.status = response.status;
+    error.data = body;
+    throw error;
+  }
+
+  return body;
+};
+
+const finalizeExpertVideo = async ({ token, payload, uploadResult }) => {
+  const data = await apiClient('/admin/expert-videos/upload/direct', {
+    method: 'POST',
+    data: {
+      ...payload,
+      upload: {
+        public_id: uploadResult.public_id,
+        secure_url: uploadResult.secure_url || uploadResult.url,
+        folder: uploadResult.folder,
+        resource_type: uploadResult.resource_type,
+        format: uploadResult.format,
+        width: uploadResult.width,
+        height: uploadResult.height,
+        duration: uploadResult.duration,
+        bytes: uploadResult.bytes,
+      },
+    },
+    token,
+  });
   return data?.item;
+};
+
+export const createAdminExpertVideo = async ({
+  token,
+  file,
+  title,
+  subtitle,
+  description,
+  active = true,
+  order = 0,
+  onStageChange,
+}) => {
+  if (!file) {
+    throw new Error('Video file is required');
+  }
+  if (!title || !String(title).trim()) {
+    throw new Error('Title is required');
+  }
+
+  const emitStage = (stage) => {
+    if (typeof onStageChange === 'function') {
+      onStageChange(stage);
+    }
+  };
+
+  emitStage('signature');
+  const signature = await requestUploadSignature({ token });
+
+  emitStage('upload');
+  const uploadResult = await uploadVideoDirectly({ file, signature });
+
+  emitStage('finalize');
+  const item = await finalizeExpertVideo({
+    token,
+    payload: { title, subtitle, description, active, order },
+    uploadResult,
+  });
+  emitStage(null);
+  return item;
 };
 
 export const updateAdminExpertVideo = async ({ token, id, patch }) => {
@@ -34,4 +118,3 @@ export default {
   updateAdminExpertVideo,
   deleteAdminExpertVideo,
 };
-

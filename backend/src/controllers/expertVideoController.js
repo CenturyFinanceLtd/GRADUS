@@ -8,6 +8,126 @@ const ExpertVideo = require('../models/ExpertVideo');
 
 const toPlaybackUrl = (secureUrl) => secureUrl;
 
+const optionalString = (value) => {
+  if (typeof value === 'undefined' || value === null) {
+    return undefined;
+  }
+  const trimmed = String(value).trim();
+  return trimmed.length ? trimmed : undefined;
+};
+
+const ensureTitle = (title) => {
+  const normalized = optionalString(title);
+  if (!normalized) {
+    const error = new Error('Title is required');
+    error.statusCode = 400;
+    throw error;
+  }
+  return normalized;
+};
+
+const coerceBoolean = (value, fallback = true) => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (['true', '1', 'yes', 'on'].includes(normalized)) return true;
+    if (['false', '0', 'no', 'off'].includes(normalized)) return false;
+  }
+  if (typeof value === 'number') return value !== 0;
+  if (typeof value === 'undefined') return fallback;
+  return Boolean(value);
+};
+
+const coerceNumber = (value, fallback = 0) => {
+  if (typeof value === 'undefined' || value === null) return fallback;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const maybeNumber = (value) => {
+  if (typeof value === 'undefined' || value === null) return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+const buildPosterUrl = (publicId) =>
+  cloudinary.url(`${publicId}.jpg`, {
+    resource_type: 'video',
+    secure: true,
+    transformation: [{ format: 'jpg' }],
+  });
+
+const normalizeUploadResult = (rawUpload) => {
+  if (!rawUpload || typeof rawUpload !== 'object') {
+    const error = new Error('Upload metadata is required');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const publicId = rawUpload.publicId || rawUpload.public_id;
+  const secureUrl = rawUpload.secureUrl || rawUpload.secure_url || rawUpload.url;
+  if (!publicId || !secureUrl) {
+    const error = new Error('Upload metadata missing required fields');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (expertVideosFolder) {
+    const normalizedFolder = expertVideosFolder.replace(/^\/+/, '').replace(/\/+$/, '');
+    const uploadFolder = (rawUpload.folder || '').replace(/^\/+/, '').replace(/\/+$/, '');
+    if (normalizedFolder && uploadFolder && uploadFolder !== normalizedFolder) {
+      const error = new Error('Uploaded asset must be stored inside the expert videos folder');
+      error.statusCode = 400;
+      throw error;
+    }
+    if (normalizedFolder && !uploadFolder && !publicId.startsWith(`${normalizedFolder}/`)) {
+      const error = new Error('Uploaded asset must be stored inside the expert videos folder');
+      error.statusCode = 400;
+      throw error;
+    }
+  }
+
+  return {
+    public_id: publicId,
+    secure_url: secureUrl,
+    folder: rawUpload.folder,
+    resource_type: rawUpload.resourceType || rawUpload.resource_type || 'video',
+    format: rawUpload.format,
+    width: maybeNumber(rawUpload.width),
+    height: maybeNumber(rawUpload.height),
+    duration: maybeNumber(rawUpload.duration),
+    bytes: maybeNumber(rawUpload.bytes),
+  };
+};
+
+const buildDocumentFromUpload = ({ uploadResult, payload }) => {
+  if (!uploadResult?.public_id) {
+    const error = new Error('Upload result missing public_id');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const posterUrl = buildPosterUrl(uploadResult.public_id);
+
+  return {
+    title: ensureTitle(payload.title),
+    subtitle: optionalString(payload.subtitle),
+    description: optionalString(payload.description),
+    active: coerceBoolean(payload.active, true),
+    order: coerceNumber(payload.order, 0),
+    publicId: uploadResult.public_id,
+    folder: uploadResult.folder,
+    resourceType: uploadResult.resource_type,
+    format: uploadResult.format,
+    width: uploadResult.width,
+    height: uploadResult.height,
+    duration: uploadResult.duration,
+    bytes: uploadResult.bytes,
+    secureUrl: uploadResult.secure_url,
+    thumbnailUrl: posterUrl,
+  };
+};
+
 const mapItem = (doc) => ({
   id: doc._id,
   title: doc.title,
@@ -52,12 +172,9 @@ const uploadToCloudinary = (buffer, { folder }) =>
   });
 
 const createExpertVideo = asyncHandler(async (req, res) => {
-  const { title, subtitle, description, active, order } = req.body || {};
+  const { title } = req.body || {};
+  ensureTitle(title);
 
-  if (!title || !String(title).trim()) {
-    res.status(400);
-    throw new Error('Title is required');
-  }
   if (!req.file || !req.file.buffer) {
     res.status(400);
     throw new Error('Video file is required');
@@ -79,31 +196,66 @@ const createExpertVideo = asyncHandler(async (req, res) => {
     throw error;
   }
 
-  const posterUrl = cloudinary.url(uploadResult.public_id + '.jpg', {
-    resource_type: 'video',
-    secure: true,
-    transformation: [{ format: 'jpg' }],
-  });
-
-  const doc = await ExpertVideo.create({
-    title: String(title).trim(),
-    subtitle: subtitle ? String(subtitle).trim() : undefined,
-    description: description ? String(description).trim() : undefined,
-    active: active === 'false' ? false : active === 'true' ? true : Boolean(active ?? true),
-    order: typeof order !== 'undefined' ? Number(order) : 0,
-    publicId: uploadResult.public_id,
-    folder: uploadResult.folder,
-    resourceType: uploadResult.resource_type,
-    format: uploadResult.format,
-    width: uploadResult.width,
-    height: uploadResult.height,
-    duration: uploadResult.duration,
-    bytes: uploadResult.bytes,
-    secureUrl: uploadResult.secure_url,
-    thumbnailUrl: posterUrl,
-  });
+  const doc = await ExpertVideo.create(
+    buildDocumentFromUpload({
+      uploadResult,
+      payload: req.body || {},
+    })
+  );
 
   res.status(201).json({ item: doc });
+});
+
+const parseUploadPayload = (value) => {
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value);
+    } catch (error) {
+      const err = new Error('Invalid upload metadata payload');
+      err.statusCode = 400;
+      throw err;
+    }
+  }
+  return value;
+};
+
+const createExpertVideoFromDirectUpload = asyncHandler(async (req, res) => {
+  const { upload } = req.body || {};
+  const parsedUpload = parseUploadPayload(upload);
+  const normalizedUpload = normalizeUploadResult(parsedUpload);
+
+  const doc = await ExpertVideo.create(
+    buildDocumentFromUpload({
+      uploadResult: normalizedUpload,
+      payload: req.body || {},
+    })
+  );
+
+  res.status(201).json({ item: doc });
+});
+
+const getExpertVideoUploadSignature = asyncHandler(async (_req, res) => {
+  const config = cloudinary.config();
+  if (!config?.cloud_name || !config?.api_key || !config?.api_secret || !cloudinary?.utils?.api_sign_request) {
+    res.status(500);
+    throw new Error('Cloudinary is not configured for uploads');
+  }
+
+  const timestamp = Math.round(Date.now() / 1000);
+  const paramsToSign = { timestamp };
+  if (expertVideosFolder) {
+    paramsToSign.folder = expertVideosFolder;
+  }
+  const signature = cloudinary.utils.api_sign_request(paramsToSign, config.api_secret);
+
+  res.json({
+    cloudName: config.cloud_name,
+    apiKey: config.api_key,
+    timestamp,
+    folder: expertVideosFolder,
+    signature,
+    uploadUrl: `https://api.cloudinary.com/v1_1/${config.cloud_name}/video/upload`,
+  });
 });
 
 const updateExpertVideo = asyncHandler(async (req, res) => {
@@ -146,6 +298,8 @@ module.exports = {
   listPublicExpertVideos,
   listAdminExpertVideos,
   createExpertVideo,
+  createExpertVideoFromDirectUpload,
   updateExpertVideo,
   deleteExpertVideo,
+  getExpertVideoUploadSignature,
 };

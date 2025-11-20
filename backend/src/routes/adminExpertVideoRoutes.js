@@ -8,11 +8,16 @@ const { videoUpload } = require('../middleware/videoUploadMiddleware');
 const {
   listAdminExpertVideos,
   createExpertVideo,
+  createExpertVideoFromDirectUpload,
   updateExpertVideo,
   deleteExpertVideo,
+  getExpertVideoUploadSignature,
 } = require('../controllers/expertVideoController');
 
 const router = express.Router();
+
+router.post('/upload/signature', protectAdmin, getExpertVideoUploadSignature);
+router.post('/upload/direct', protectAdmin, createExpertVideoFromDirectUpload);
 
 router
   .route('/')
@@ -25,4 +30,3 @@ router
   .delete(protectAdmin, deleteExpertVideo);
 
 module.exports = router;
-

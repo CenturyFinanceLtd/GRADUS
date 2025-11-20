@@ -6,6 +6,7 @@ import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
 import { useAuth } from "../context/AuthContext";
 import { API_BASE_URL } from "../services/apiClient";
+import { fetchActiveLiveSessionForCourse } from "../live/liveApi";
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker?url";
 
@@ -1676,6 +1677,23 @@ const CourseHomePage = () => {
   const [subtitlePreference, setSubtitlePreference] = useState("off");
 
   const isEnrolled = Boolean(state.course?.isEnrolled);
+  const [liveSessionState, setLiveSessionState] = useState({ checking: false, session: null, error: null });
+  const courseLookupKeys = useMemo(() => {
+    const keys = [];
+    if (state.course?.slug) {
+      keys.push(state.course.slug);
+    }
+    if (state.course?.id) {
+      keys.push(state.course.id);
+    }
+    if (state.course?._id) {
+      keys.push(state.course._id);
+    }
+    if (course) {
+      keys.push(course);
+    }
+    return [...new Set(keys.filter(Boolean).map((key) => String(key).trim()))];
+  }, [state.course?.slug, state.course?.id, state.course?._id, course]);
   const handleSectionChange = (nextSectionId) => {
     const normalizedSection =
       NAV_SECTIONS.find((section) => section.id === nextSectionId)?.id || DEFAULT_SECTION_ID;
@@ -1702,6 +1720,55 @@ const CourseHomePage = () => {
       handleModuleClick(moduleIndex);
     }
   };
+  const checkActiveLiveSession = useCallback(async () => {
+    if (!isEnrolled || !token || courseLookupKeys.length === 0) {
+      setLiveSessionState({ checking: false, session: null, error: null });
+      return;
+    }
+
+    setLiveSessionState((prev) => ({ ...prev, checking: true }));
+    for (const key of courseLookupKeys) {
+      try {
+        const response = await fetchActiveLiveSessionForCourse(key, { token });
+        setLiveSessionState({ checking: false, session: response?.session || null, error: null });
+        return;
+      } catch (error) {
+        if (error?.status === 404) {
+          continue;
+        }
+        setLiveSessionState({
+          checking: false,
+          session: null,
+          error: error?.message || "Unable to check live class status.",
+        });
+        return;
+      }
+    }
+    setLiveSessionState({ checking: false, session: null, error: null });
+  }, [courseLookupKeys, isEnrolled, token]);
+
+  useEffect(() => {
+    if (!isEnrolled || !token || !course) {
+      setLiveSessionState({ checking: false, session: null, error: null });
+      return;
+    }
+
+    let isMounted = true;
+    const poll = async () => {
+      if (!isMounted) {
+        return;
+      }
+      await checkActiveLiveSession();
+    };
+
+    poll();
+    const intervalId = setInterval(poll, 15000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
+  }, [checkActiveLiveSession, courseLookupKeys, isEnrolled, token]);
   const syncProgressWithServer = useCallback(
     async ({ lectureId, moduleId, sectionId, lectureTitle, videoUrl, currentTime, duration }) => {
       if (!token || !programme || !course || !lectureId) {
@@ -2612,6 +2679,15 @@ const CourseHomePage = () => {
           );
         })}
       </nav>
+      {isEnrolled && liveSessionState.session?.isLive && liveSessionState.session?.isJoinable ? (
+        <button
+          type='button'
+          className='btn btn-main rounded-pill course-live-cta'
+          onClick={() => navigate(`/live/${liveSessionState.session.id}`)}
+        >
+          Join live class
+        </button>
+      ) : null}
     </div>
   );
 

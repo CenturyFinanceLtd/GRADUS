@@ -9,3 +9,6 @@ export const joinLiveSession = (sessionId, { displayName }, { token }) =>
     { displayName },
     { token }
   );
+
+export const fetchActiveLiveSessionForCourse = (courseKey, { token }) =>
+  apiClient.get(`/live/sessions/course/${encodeURIComponent(courseKey)}/active`, { token });

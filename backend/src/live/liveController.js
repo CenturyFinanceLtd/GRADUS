@@ -113,6 +113,16 @@ const joinInstructorSession = asyncHandler(async (req, res) => {
   }
 });
 
+const getActiveLiveSessionForCourse = asyncHandler(async (req, res) => {
+  const courseKey = req.params.courseKey || req.params.courseSlug || req.params.courseId;
+  const session = liveService.findActiveSessionByCourse({ courseKey });
+  if (!session) {
+    res.status(404);
+    throw new Error('No live class is currently in progress for this course.');
+  }
+  res.json({ session });
+});
+
 module.exports = {
   createSession,
   listSessions,
@@ -121,4 +131,5 @@ module.exports = {
   updateSession,
   joinStudentSession,
   joinInstructorSession,
+  getActiveLiveSessionForCourse,
 };

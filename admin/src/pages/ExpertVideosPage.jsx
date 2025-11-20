@@ -10,6 +10,12 @@ import {
 } from '../services/adminExpertVideos';
 import './ExpertVideosPage.css';
 
+const uploadStageMessages = {
+  signature: 'Preparing secure upload link...',
+  upload: 'Uploading video to Cloudinary... This may take a while.',
+  finalize: 'Saving expert video metadata...',
+};
+
 const defaultForm = { title: '', subtitle: '', description: '', active: true, order: 0, file: null };
 
 const ExpertVideosPage = () => {
@@ -22,6 +28,7 @@ const ExpertVideosPage = () => {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ title: '', subtitle: '', description: '', order: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const [uploadStage, setUploadStage] = useState(null);
   const fileInputRef = useRef(null);
 
   const load = async () => {
@@ -98,6 +105,7 @@ const ExpertVideosPage = () => {
     if (!form.file || !form.title) return;
     try {
       setSaving(true);
+      setUploadStage(null);
       await createAdminExpertVideo({
         token,
         file: form.file,
@@ -106,6 +114,7 @@ const ExpertVideosPage = () => {
         description: form.description,
         active: form.active,
         order: form.order,
+        onStageChange: setUploadStage,
       });
       setForm(defaultForm);
       await load();
@@ -113,6 +122,7 @@ const ExpertVideosPage = () => {
       setError(e?.message || 'Failed to upload');
     } finally {
       setSaving(false);
+      setUploadStage(null);
     }
   };
 
@@ -308,11 +318,13 @@ const ExpertVideosPage = () => {
                     </div>
                   </div>
                 </div>
-                <div className='mt-16 d-flex gap-2 align-items-center'>
+                <div className='mt-16 d-flex gap-2 align-items-center flex-wrap'>
                   <button type='submit' className='btn btn-primary-600' disabled={saving || !form.file || !form.title}>
                     Upload
                   </button>
-                  {saving ? <span className='text-sm text-neutral-500'>Uploading�?�</span> : null}
+                  {saving ? (
+                    <span className='text-sm text-neutral-500'>{uploadStageMessages[uploadStage] || 'Processing upload...'}</span>
+                  ) : null}
                 </div>
                 {error ? <div className='text-danger mt-12'>{error}</div> : null}
               </form>
