@@ -5,7 +5,7 @@
 */
 const asyncHandler = require('express-async-handler');
 const PageMeta = require('../models/PageMeta');
-const { DEFAULT_META, PAGE_META } = require('../../../shared/pageMetaDefaults.cjs');
+const { DEFAULT_META, PAGE_META } = require('../../../shared/pageMetaDefaults.json');
 
 const trimToNull = (value) => {
   if (value === null || typeof value === 'undefined') {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { matchPath, useLocation } from "react-router-dom";
 import { DEFAULT_META, PAGE_META } from "../seo/pageMeta.js";
 import { fetchPublicPageMeta } from "../services/pageMetaService.js";
 
@@ -40,10 +40,114 @@ const buildMapFromResponse = ({ defaultMeta, items }) => {
   return map;
 };
 
+const humanizeSlug = (value = "") =>
+  value
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+
+const DYNAMIC_META_RESOLVERS = [
+  {
+    pattern: "/blogs/:slug",
+    resolve: ({ params }) => {
+      const titleSegment = humanizeSlug(params?.slug || "");
+      return {
+        title: titleSegment ? `${titleSegment} | Gradus Blog` : "Gradus Blog Article",
+        description: titleSegment
+          ? `Explore ${titleSegment} on the Gradus blog for expert opinions and practical tips.`
+          : "Read Gradus India's latest blog article covering education, careers, and learning strategies.",
+        keywords: `${titleSegment}, Gradus blog, Gradus article`,
+      };
+    },
+  },
+  {
+    pattern: "/events/:slug",
+    resolve: ({ params }) => {
+      const label = humanizeSlug(params?.slug || "");
+      return {
+        title: label ? `${label} | Gradus Event` : "Gradus Event",
+        description: label
+          ? `Get the agenda, speakers, and highlights for the ${label} event hosted by Gradus India.`
+          : "Explore the details of this Gradus India event including agenda, speakers, and registration.",
+        keywords: `${label}, Gradus events, Gradus webinars`,
+      };
+    },
+  },
+  {
+    pattern: "/event-details/:slug?",
+    resolve: ({ params }) => {
+      const label = humanizeSlug(params?.slug || "Gradus Event");
+      return {
+        title: `${label} | Gradus Event`,
+        description: `Discover how to participate in ${label} and connect with Gradus mentors and peers.`,
+        keywords: `${label}, Gradus events`,
+      };
+    },
+  },
+  {
+    pattern: "/:programme/:course",
+    resolve: ({ params }) => {
+      const programme = humanizeSlug(params?.programme || "Gradus");
+      const course = humanizeSlug(params?.course || "Course");
+      return {
+        title: `${course} | ${programme} | Gradus`,
+        description: `Learn more about the ${course} programme offered through ${programme} at Gradus India.`,
+        keywords: `${course}, ${programme}, Gradus courses`,
+      };
+    },
+  },
+  {
+    pattern: "/:programme/:course/home/:section?/:subSection?",
+    resolve: ({ params }) => {
+      const course = humanizeSlug(params?.course || "Course");
+      const section = humanizeSlug(params?.section || "Overview");
+      return {
+        title: `${course} | ${section} | Gradus`,
+        description: `Continue your ${course} journey inside Gradus Home. You're viewing the ${section} section.`,
+        keywords: `${course}, Gradus dashboard, ${section}`,
+        robots: "noindex, nofollow",
+      };
+    },
+  },
+];
+
+const findMetaEntry = (pathname, metaMap) => {
+  const direct = metaMap[pathname];
+  if (direct) {
+    return { entry: direct, params: {} };
+  }
+
+  const dynamicMatches = Object.entries(metaMap)
+    .filter(([pattern]) => pattern.includes(":") || pattern.includes("*"))
+    .sort(([patternA], [patternB]) => patternA.length - patternB.length);
+
+  for (const [pattern, entry] of dynamicMatches) {
+    const match = matchPath({ path: pattern, end: true }, pathname);
+    if (match) {
+      return { entry, params: match.params || {} };
+    }
+  }
+
+  for (const resolver of DYNAMIC_META_RESOLVERS) {
+    const match = matchPath({ path: resolver.pattern, end: true }, pathname);
+    if (match) {
+      return {
+        entry: resolver.resolve,
+        params: match.params || {},
+      };
+    }
+  }
+
+  return null;
+};
+
 const resolveMeta = (location, metaMap) => {
   const fallback = metaMap.__default || DEFAULT_META;
-  const entry = metaMap[location.pathname] ?? fallback;
-  const meta = typeof entry === "function" ? entry(location) : entry;
+  const found = findMetaEntry(location.pathname, metaMap);
+  const entry = found?.entry ?? fallback;
+  const context = { location, params: found?.params || {} };
+  const meta = typeof entry === "function" ? entry(context) : entry;
 
   return {
     title: meta?.title ?? fallback.title ?? DEFAULT_META.title,
