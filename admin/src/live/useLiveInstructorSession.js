@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { API_BASE_URL, PUBLIC_SITE_BASE } from '../config/env';
+import { API_BASE_URL, PUBLIC_SITE_BASE, SIGNALING_BASE_URL } from '../config/env';
 import { useAuthContext } from '../context/AuthContext';
 import {
   createLiveSession,
@@ -11,7 +11,7 @@ import {
 
 const resolveServerInfo = () => {
   try {
-    const parsed = new URL(API_BASE_URL);
+    const parsed = new URL(SIGNALING_BASE_URL || API_BASE_URL);
     return { protocol: parsed.protocol, host: parsed.host };
   } catch (_) {
     if (typeof window !== 'undefined') {

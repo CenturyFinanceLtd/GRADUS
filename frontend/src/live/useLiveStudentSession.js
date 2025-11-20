@@ -4,8 +4,9 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { fetchLiveSession, joinLiveSession } from "./liveApi";
 
 const resolveServerInfo = () => {
+  const override = import.meta.env.VITE_SIGNALING_BASE_URL;
   try {
-    const parsed = new URL(API_BASE_URL);
+    const parsed = new URL(override || API_BASE_URL);
     return { protocol: parsed.protocol, host: parsed.host };
   } catch (_) {
     if (typeof window !== "undefined") {

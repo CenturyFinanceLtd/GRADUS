@@ -29,5 +29,6 @@ const rawApiBaseUrl = getEnvVar('VITE_API_BASE_URL', { required: true });
 const API_BASE_URL = removeTrailingSlash(rawApiBaseUrl);
 const ASSET_BASE_URL = removeTrailingSlash(API_BASE_URL.replace(/\/api$/i, ''));
 const PUBLIC_SITE_BASE = removeTrailingSlash(getEnvVar('VITE_PUBLIC_SITE_URL') || '');
+const SIGNALING_BASE_URL = removeTrailingSlash(getEnvVar('VITE_SIGNALING_BASE_URL') || API_BASE_URL);
 
-export { API_BASE_URL, ASSET_BASE_URL, PUBLIC_SITE_BASE, getEnvVar };
+export { API_BASE_URL, ASSET_BASE_URL, PUBLIC_SITE_BASE, SIGNALING_BASE_URL, getEnvVar };
