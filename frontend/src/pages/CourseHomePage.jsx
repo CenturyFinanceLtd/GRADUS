@@ -6,8 +6,6 @@ import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
 import { useAuth } from "../context/AuthContext";
 import { API_BASE_URL } from "../services/apiClient";
-import { fetchActiveLiveSession } from "../services/liveSessions";
-import { createLiveSfuClient } from "../services/liveSfuClient";
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker?url";
 
@@ -1171,7 +1169,7 @@ const SectionPlaceholder = ({ title, description }) => (
 );
 
 const CourseHomePage = () => {
-  const { programme, course, section: sectionSlugParam, subSection: sectionDetailParam, liveCode } =
+  const { programme, course, section: sectionSlugParam, subSection: sectionDetailParam } =
     useParams();
   const { token, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -1193,13 +1191,6 @@ const CourseHomePage = () => {
   const [notesState, setNotesState] = useState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
   const [notesReloadToken, setNotesReloadToken] = useState(0);
   const [notesModalOpen, setNotesModalOpen] = useState(false);
-  const [liveState, setLiveState] = useState({ loading: false, session: null, error: null });
-  const [liveJoined, setLiveJoined] = useState(false);
-  const [liveClient, setLiveClient] = useState(null);
-  const [joiningLive, setJoiningLive] = useState(false);
-  const [liveNotice, setLiveNotice] = useState("");
-  const liveVideoRef = useRef(null);
-  const liveAudioRef = useRef(null);
   const notesTarget = currentLectureMeta?.hasNotes ? currentLectureMeta : null;
   const progressUpdateRef = useRef({});
   const moduleIndexFromUrl = useMemo(() => {
@@ -1291,16 +1282,12 @@ const CourseHomePage = () => {
       ? `/${programme}/${course}/home/${expectedSlug}`
       : `/${programme}/${course}/home`;
 
-    if (liveCode) {
-      return;
-    }
-
     if ((expectedSlug === "" && normalizedSlug === "course-info") || sectionSlugParam !== expectedSlug) {
       navigate(targetPath, {
         replace: !sectionSlugParam || !hasValidSlug || normalizedSlug === "course-info",
       });
     }
-  }, [programme, course, sectionSlugParam, sectionFromUrl, navigate, liveCode]);
+  }, [programme, course, sectionSlugParam, sectionFromUrl, navigate]);
 
   useEffect(() => {
     if (sectionFromUrl !== MODULE_SECTION_ID) {
@@ -1427,37 +1414,6 @@ const CourseHomePage = () => {
       cancelled = true;
     };
   }, [programme, course, token]);
-
-  useEffect(() => {
-    let cancelled = false;
-    const loadLiveSession = async () => {
-      const courseId = state.course?._id || state.course?.id;
-      if (!course && !courseId) {
-        setLiveState({ loading: false, session: null, error: null });
-        return;
-      }
-      setLiveState((prev) => ({ ...prev, loading: true, error: null }));
-      try {
-        const session = await fetchActiveLiveSession({ courseSlug: course, courseId, programme });
-        if (!cancelled) {
-          setLiveState({ loading: false, session, error: null });
-          if (!session) {
-            setLiveJoined(false);
-          }
-        }
-      } catch (error) {
-        if (!cancelled) {
-          setLiveState({ loading: false, session: null, error: error?.message || "Unable to load live status." });
-        }
-      }
-    };
-    loadLiveSession();
-    const interval = setInterval(loadLiveSession, 30000);
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, [course, state.course?._id, programme]);
 
   useEffect(() => {
     if (!currentLectureMeta?.lectureId) {
@@ -2634,101 +2590,6 @@ const CourseHomePage = () => {
     }
   };
 
-  const liveAvailable = liveState.session && liveState.session.status === "live";
-  const liveButtonLabel = liveState.loading ? "Checking live..." : "Join live";
-  const liveEmbedUrl = useMemo(() => {
-    const code = liveState.session?.viewerCode;
-    if (typeof window !== "undefined" && code) {
-      return `${window.location.origin}/live/embed/${encodeURIComponent(code)}`;
-    }
-    const url = liveState.session?.playbackUrl || "";
-    if (url.includes("/live/") && !url.includes("/live/embed/")) {
-      return url.replace("/live/", "/live/embed/");
-    }
-    return url;
-  }, [liveState.session]);
-
-  const handleJoinLive = async () => {
-    setLiveNotice("");
-    setJoiningLive(true);
-    try {
-      let session = liveState.session;
-      if (!session) {
-        const latest = await fetchActiveLiveSession({
-          courseSlug: course,
-          courseId: state.course?._id,
-          programme,
-        });
-        session = latest;
-        setLiveState((prev) => ({ ...prev, session: latest, loading: false }));
-      }
-      if (session && session.status === "live" && session.viewerCode) {
-        setLiveJoined(true);
-        navigate(`/${programme}/${course}/home/live/${session.viewerCode}`);
-      } else {
-        setLiveNotice("No live class is active right now.");
-      }
-    } catch (error) {
-      setLiveNotice(error?.message || "Unable to join live right now.");
-    } finally {
-      setJoiningLive(false);
-    }
-  };
-
-  useEffect(() => {
-    if (liveCode && !liveState.loading && !liveAvailable) {
-      navigate(`/${programme}/${course}/home`, { replace: true });
-    }
-    if (!liveJoined && liveCode) {
-      navigate(`/${programme}/${course}/home`, { replace: true });
-    }
-  }, [liveCode, liveAvailable, liveState.loading, liveJoined, programme, course, navigate]);
-  useEffect(() => {
-    if (sectionSlugParam === "course-info") {
-      navigate(`/${programme}/${course}/home`, { replace: true });
-    }
-    let cancelled = false;
-    const startViewer = async () => {
-      if (!liveAvailable || !liveState.session?.viewerCode) {
-        return;
-      }
-      try {
-        const client = createLiveSfuClient({ role: "viewer", roomId: liveState.session.viewerCode });
-        await client.connect();
-        await client.consumeAll((track) => {
-          if (cancelled) return;
-          if (track.kind === "video" && liveVideoRef.current) {
-            const current = liveVideoRef.current.srcObject instanceof MediaStream ? liveVideoRef.current.srcObject : new MediaStream();
-            current.getVideoTracks().forEach((t) => current.removeTrack(t));
-            current.addTrack(track);
-            liveVideoRef.current.srcObject = current;
-            liveVideoRef.current.play().catch(() => {});
-          } else if (track.kind === "audio" && liveAudioRef.current) {
-            const current = liveAudioRef.current.srcObject instanceof MediaStream ? liveAudioRef.current.srcObject : new MediaStream();
-            current.getAudioTracks().forEach((t) => current.removeTrack(t));
-            current.addTrack(track);
-            liveAudioRef.current.srcObject = current;
-            liveAudioRef.current.play().catch(() => {});
-          }
-        });
-        if (!cancelled) {
-          setLiveClient(client);
-        }
-      } catch (error) {
-        console.error("[live] Failed to start viewer", error);
-      }
-    };
-    startViewer();
-    return () => {
-      cancelled = true;
-      if (liveClient) {
-        liveClient.consumers?.forEach((c) => c.close && c.close());
-        liveClient.consumerTransport?.close && liveClient.consumerTransport.close();
-        liveClient.ws?.close();
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [liveAvailable, liveState.session?.viewerCode]);
 
   const renderSidebar = () => (
     <div className='course-home-tabs d-flex align-items-center justify-content-between gap-12 flex-wrap'>
@@ -2751,18 +2612,6 @@ const CourseHomePage = () => {
           );
         })}
       </nav>
-      <div className='d-flex align-items-center gap-8'>
-        {liveNotice ? <span className='text-muted small'>{liveNotice}</span> : null}
-        <button
-          type='button'
-          className={`btn btn-sm ${liveAvailable ? "btn-main" : "btn-outline-primary"}`}
-          onClick={handleJoinLive}
-          disabled={liveState.loading || joiningLive}
-        >
-          <i className='ph-bold ph-broadcast me-2' aria-hidden='true' />
-          {joiningLive ? "Connecting..." : liveButtonLabel}
-        </button>
-      </div>
     </div>
   );
 
@@ -2874,42 +2723,7 @@ const CourseHomePage = () => {
             </div>
           </div>
           <div className='course-home-video mb-20'>
-            {liveJoined && liveAvailable ? (
-              <div className='card p-16 shadow-sm'>
-                <div className='d-flex align-items-center justify-content-between flex-wrap gap-8 mb-12'>
-                  <div>
-                    <p className='text-main-600 fw-semibold mb-4'>Live class in progress</p>
-                    <h4 className='mb-0'>{liveState.session?.title || prettyCourseName}</h4>
-                    <p className='mb-0 text-neutral-600 small'>
-                      {liveState.session?.description || "Stay here to view the instructor broadcast."}
-                    </p>
-                  </div>
-                  <div className='d-flex align-items-center gap-8'>
-                    <span className='badge bg-danger text-white'>Live</span>
-                    <button type='button' className='btn btn-sm btn-outline-secondary' onClick={() => setLiveJoined(false)}>
-                      Leave live
-                    </button>
-                  </div>
-                </div>
-                <div className='ratio ratio-16x9 rounded overflow-hidden bg-black d-flex align-items-center justify-content-center'>
-                  <video
-                    ref={liveVideoRef}
-                    playsInline
-                    autoPlay
-                    muted={false}
-                    controls
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                  <audio ref={liveAudioRef} autoPlay playsInline />
-                  {!liveEmbedUrl && (
-                    <div className='position-absolute text-center text-white px-3'>
-                      <i className='ph-bold ph-broadcast text-primary fs-24 d-block mb-1' />
-                      <p className='mb-0'>Waiting for the instructor stream…</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : activeVideo?.src ? (
+            {activeVideo?.src ? (
               <CourseVideoPlayer
                 src={activeVideo?.src || defaultVideoMeta.src}
                 poster={activeVideo?.poster || defaultVideoMeta.poster}
@@ -2932,6 +2746,7 @@ const CourseHomePage = () => {
             ) : (
               <CourseVideoPlaceholder banner={courseBannerUrl} />
             )}
+
           </div>
           {notesTarget?.hasNotes ? (
             <div className='course-notes-action mb-20'>

@@ -17,7 +17,6 @@ const CoursesAdminPage = lazy(() => import("./pages/CoursesAdmin"));
 const CustomizeCoursesPage = lazy(() => import("./pages/CustomizeCourses"));
 const CourseProgressPage = lazy(() => import("./pages/CourseProgressPage"));
 const CourseEnrollmentsPage = lazy(() => import("./pages/CourseEnrollmentsPage"));
-const GoLivePage = lazy(() => import("./pages/GoLivePage"));
 const CourseDetailDataPage = lazy(() => import("./pages/CourseDetailData"));
 const ButtonPage = lazy(() => import("./pages/ButtonPage"));
 const CalendarMainPage = lazy(() => import("./pages/CalendarMainPage"));
@@ -103,6 +102,7 @@ const EditBlogPage = lazy(() => import("./pages/EditBlogPage"));
 const TestimonialsPage = lazy(() => import("./pages/TestimonialsPage"));
 const ExpertVideosPage = lazy(() => import("./pages/ExpertVideosPage"));
 const WhyGradusVideoPage = lazy(() => import("./pages/WhyGradusVideoPage"));
+const LiveInstructorPage = lazy(() => import("./live/LiveInstructorPage"));
 const BannersPage = lazy(() => import("./pages/BannersPage"));
 const PartnerLogosPage = lazy(() => import("./pages/PartnerLogosPage"));
 const PageMetaPage = lazy(() => import("./pages/PageMetaPage"));
@@ -144,7 +144,6 @@ function App() {
         <Route exact path='/customize-courses' element={<CustomizeCoursesPage />} />
         <Route exact path='/course-progress' element={<CourseProgressPage />} />
         <Route exact path='/course-enrollments' element={<CourseEnrollmentsPage />} />
-        <Route exact path='/go-live' element={<GoLivePage />} />
         <Route
           path='/customize-courses/:courseKey/detailed-course-data'
           element={<CourseDetailDataPage />}
@@ -209,6 +208,7 @@ function App() {
         <Route exact path='/testimonials' element={<TestimonialsPage />} />
         <Route exact path='/expert-videos' element={<ExpertVideosPage />} />
         <Route exact path='/why-gradus-video' element={<WhyGradusVideoPage />} />
+        <Route exact path='/live/classes' element={<LiveInstructorPage />} />
         <Route exact path='/banners' element={<BannersPage />} />
         <Route exact path='/page-meta' element={<PageMetaPage />} />
         <Route exact path='/partner-logos' element={<PartnerLogosPage />} />

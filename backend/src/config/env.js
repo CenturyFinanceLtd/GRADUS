@@ -48,6 +48,51 @@ if (!isProduction) {
 const sessionSecret = process.env.SESSION_SECRET;
 const DEFAULT_SESSION_SECRET = 'gradus_secret';
 
+const ensureLeadingSlash = (value, fallback = '/') => {
+  if (!value || typeof value !== 'string') {
+    return fallback;
+  }
+
+  const normalized = value.startsWith('/') ? value : `/${value}`;
+  return normalized.replace(/\/{2,}/g, '/');
+};
+
+const DEFAULT_LIVE_ICE_SERVERS = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+];
+
+const parseLiveIceServers = (rawValue) => {
+  if (!rawValue || typeof rawValue !== 'string') {
+    return DEFAULT_LIVE_ICE_SERVERS;
+  }
+
+  const trimmed = rawValue.trim();
+  if (!trimmed) {
+    return DEFAULT_LIVE_ICE_SERVERS;
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (Array.isArray(parsed)) {
+      return parsed.length > 0 ? parsed : DEFAULT_LIVE_ICE_SERVERS;
+    }
+  } catch (_) {
+    // Fallback to comma-separated parsing below
+  }
+
+  const parsedServers = trimmed
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0)
+    .map((urls) => ({ urls }));
+
+  return parsedServers.length > 0 ? parsedServers : DEFAULT_LIVE_ICE_SERVERS;
+};
+
+const liveSignalingPath = ensureLeadingSlash(process.env.LIVE_SIGNALING_PATH || '/live-signaling');
+const liveIceServers = parseLiveIceServers(process.env.LIVE_WEBRTC_ICE_SERVERS);
+
 const DEFAULT_ADMIN_INBOXES = [
   { email: 'contact@gradusindia.in', displayName: 'Contact' },
   { email: 'admin@gradusindia.in', displayName: 'Admin' },
@@ -213,6 +258,10 @@ const config = {
   },
   gmail: {
     delegatedInboxes,
+  },
+  live: {
+    signalingPath: liveSignalingPath,
+    iceServers: liveIceServers,
   },
   adminApiBaseUrl,
   sessionSecret: sessionSecret || DEFAULT_SESSION_SECRET,

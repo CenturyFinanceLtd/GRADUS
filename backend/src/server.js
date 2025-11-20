@@ -11,7 +11,7 @@ const app = require('./app');
 const ensureCourseContent = require('./utils/ensureCourseContent');
 const { startEventSpreadsheetSync } = require('./services/eventSpreadsheetSync');
 const { startRegistrationSpreadsheetSync } = require('./services/registrationSpreadsheetSync');
-const startLiveSfu = require('./liveSfu');
+const { attachLiveSignalingServer } = require('./live/signalingServer');
 
 const startServer = async () => {
   await connectDB();
@@ -34,7 +34,7 @@ const startServer = async () => {
 
   // Start HTTP server
   const server = http.createServer(app);
-  startLiveSfu(server);
+  attachLiveSignalingServer(server);
 
   server.listen(config.port, () => {
     console.log(`[server] Listening on port ${config.port}`);
