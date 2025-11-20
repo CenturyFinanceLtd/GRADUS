@@ -171,9 +171,9 @@ const EventsAllOne = () => {
   const gridEvents = showSpotlight ? events.slice(1) : events;
 
   return (
-    <section className='events-list py-50 bg-white'>
+    <section className='events-list py-20 bg-white'>
       <div className='container container--xl'>
-        <header className='events-list__header d-flex flex-wrap gap-20 justify-content-lg-end mb-32'>
+        <header className='events-list__header d-flex flex-wrap gap-20 justify-content-lg-end mb-20'>
           <EventsFilterChips
             categories={EVENT_TYPE_OPTIONS}
             active={eventType}
