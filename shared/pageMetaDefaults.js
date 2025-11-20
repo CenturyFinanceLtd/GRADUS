@@ -268,3 +268,5 @@ module.exports = {
   DEFAULT_META,
   PAGE_META,
 };
+
+module.exports.default = module.exports;
