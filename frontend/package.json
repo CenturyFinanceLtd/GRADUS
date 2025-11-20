@@ -17,7 +17,7 @@
     "aos": "^2.3.4",
     "bootstrap": "^5.3.6",
     "lightgallery": "^2.8.3",
-    "pdfjs-dist": "^3.11.174",
+    "pdfjs-dist": "^5.4.394",
     "react": "^18.2.0",
     "react-countup": "^6.5.3",
     "react-dom": "^18.2.0",

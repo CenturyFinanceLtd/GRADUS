@@ -845,7 +845,6 @@ img {
   }
   .course-card {
     flex: 0 0 70%;
-    max-width: 70%;
     min-height: auto;
     padding: 12px;
     border-radius: 18px;
@@ -19631,7 +19630,7 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
 .courses-results__actions {
   display: flex;
   gap: 12px;
-  align-items: center;
+  align-items: end;
 }
 .courses-sort {
   display: inline-flex;

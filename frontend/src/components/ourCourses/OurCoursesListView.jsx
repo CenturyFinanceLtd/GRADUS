@@ -208,7 +208,7 @@ const OurCoursesListView = () => {
     : "All Courses";
 
   return (
-    <section className='courses-archive'>
+    <section className='courses-archive pb-64'>
       <div
         className={`courses-archive__overlay ${sidebarActive ? "is-visible" : ""}`}
         onClick={() => setSidebarActive(false)}
