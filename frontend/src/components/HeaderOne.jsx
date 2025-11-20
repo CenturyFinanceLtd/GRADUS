@@ -314,7 +314,7 @@ const HeaderOne = () => {
   );
 
   const ourCoursesDropdown = {
-    label: "Our courses",
+    label: "Courses",
     links: [
       { to: "/our-courses", label: "All courses" },
       { to: "/our-courses?programme=gradus-x", label: "Tech Courses" },

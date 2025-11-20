@@ -187,181 +187,244 @@ const OurCoursesListView = () => {
     updateUrl(selectedProgrammes, query, value, flagshipOnly);
   };
 
+  const appliedFilters = useMemo(() => {
+    const tags = [];
+    if (query.trim()) {
+      tags.push(`Search: "${query.trim()}"`);
+    }
+    if (selectedProgrammes.length) {
+      selectedProgrammes.forEach((slug) => tags.push(programmeLabel(slug)));
+    } else {
+      tags.push("All Programmes");
+    }
+    tags.push(flagshipOnly ? "Flagship" : "All Types");
+    return tags;
+  }, [selectedProgrammes, flagshipOnly, query]);
+
+  const headingLabel = query.trim()
+    ? `${query.trim()} Courses`
+    : selectedProgrammes.length === 1
+    ? `${programmeLabel(selectedProgrammes[0])} Courses`
+    : "All Courses";
+
   return (
-    <section className='course-list-view py-64'>
-      <div className={`side-overlay ${sidebarActive ? "show" : ""}`} onClick={() => setSidebarActive(false)} />
-      <div className='container'>
-        <div className='row'>
-          {/* Sidebar (static UI to match layout) */}
-          <div className='col-lg-4'>
-            <div className={`sidebar rounded-12 bg-main-25 p-32 border border-neutral-30 ${sidebarActive ? "active" : ""}`}>
-              <div className='flex-between mb-24'>
-                <h4 className='mb-0'>Filter</h4>
-                <button
-                  type='button'
-                  onClick={sidebarControl}
-                  className='sidebar-close text-xl text-neutral-500 d-lg-none hover-text-main-600'
-                  aria-label='Close filters'
-                  title='Close filters'
-                >
-                  <i className='ph-bold ph-x' />
+    <section className='courses-archive py-64'>
+      <div
+        className={`courses-archive__overlay ${sidebarActive ? "is-visible" : ""}`}
+        onClick={() => setSidebarActive(false)}
+      />
+      <div className='container container--xl'>
+        <div className='courses-archive__searchbar rounded-16'>
+          <div className='courses-archive__select'>
+            <button type='button' className='courses-archive__select-btn'>
+              <span className='label'>Course</span>
+              <span className='value'>{headingLabel}</span>
+              <i className='ph ph-caret-down text-lg' />
+            </button>
+          </div>
+          <div className='courses-archive__input'>
+            <input
+              type='text'
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder='Search for courses'
+            />
+            {query ? (
+              <button type='button' className='clear-btn' onClick={() => setQuery("")} aria-label='Clear search'>
+                <i className='ph-bold ph-x' />
+              </button>
+            ) : null}
+            <button type='button' className='search-btn' aria-label='Search courses'>
+              <i className='ph-bold ph-magnifying-glass' />
+            </button>
+          </div>
+        </div>
+
+        <div className='courses-archive__grid'>
+          <aside className={`courses-filters ${sidebarActive ? "is-open" : ""}`}>
+            <div className='courses-filters__head'>
+              <h4>Filters</h4>
+              <button
+                type='button'
+                className='d-lg-none text-xl text-neutral-500'
+                onClick={sidebarControl}
+                aria-label='Close filters'
+              >
+                <i className='ph-bold ph-x' />
+              </button>
+            </div>
+
+            <div className='courses-filters__section'>
+              <div className='d-flex justify-content-between align-items-center mb-12'>
+                <p className='mb-0 fw-semibold'>Applied Filters</p>
+                <button type='button' className='btn-link text-sm' onClick={resetFilters}>
+                  clear all
                 </button>
               </div>
-              <div className='position-relative'>
-                <input
-                  type='text'
-                  className='common-input pe-48 rounded-pill'
-                  placeholder='Search courses…'
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                />
-                <button
-                  type='button'
-                  className='text-neutral-500 text-xl d-flex position-absolute top-50 translate-middle-y inset-inline-end-0 me-24'
-                  onClick={() => setQuery("")}
-                  title='Clear search'
-                >
-                  <i className='ph-bold ph-magnifying-glass' />
-                </button>
-              </div>
-              <span className='d-block border border-neutral-30 border-dashed my-24' />
-              <h6 className='text-lg mb-12 fw-medium'>Programmes</h6>
-              <div className='d-flex flex-column gap-12'>
+              {appliedFilters.length ? (
+                <div className='filters-tags'>
+                  {appliedFilters.map((tag, index) => (
+                    <span className='filters-tag' key={`${tag}-${index}`}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            <div className='courses-filters__section'>
+              <p className='filters__group-title fw-semibold'>Programmes</p>
+              <div className='filters__list'>
+                <label className='filters__option'>
+                  <div className='d-flex align-items-center gap-8 flex-grow-1'>
+                    <input
+                      type='checkbox'
+                      checked={selectedProgrammes.length === 0}
+                      onChange={() => resetFilters()}
+                    />
+                    <span>All</span>
+                  </div>
+                  <span className='text-neutral-500 text-sm'>{courses.length}</span>
+                </label>
                 {programmeOptions.map((opt) => (
-                  <label key={opt.id} className='flex-between gap-12 cursor-pointer'>
-                    <span className='form-check common-check mb-0'>
+                  <label className='filters__option' key={opt.id}>
+                    <div className='d-flex align-items-center gap-8 flex-grow-1'>
                       <input
-                        className='form-check-input'
                         type='checkbox'
                         checked={selectedProgrammes.includes(opt.id)}
                         onChange={() => toggleProgramme(opt.id)}
                       />
-                      <span className='form-check-label fw-normal flex-grow-1'>
-                        {opt.title}
-                      </span>
-                    </span>
-                    <span className='text-neutral-500'>{opt.count}</span>
+                      <span>{opt.title}</span>
+                    </div>
+                    <span className='text-neutral-500 text-sm'>{opt.count}</span>
                   </label>
                 ))}
-                {selectedProgrammes.length ? (
-                  <button type='button' onClick={clearSelection} className='btn btn-sm btn-outline-main rounded-pill mt-8 align-self-start'>
-                    Clear selection
-                  </button>
-                ) : null}
-                <span className='d-block border border-neutral-30 border-dashed my-24' />
-               
-                <label className='flex-between gap-12 cursor-pointer'>
-                  <span className='form-check common-check mb-0'>
-                    <input
-                      className='form-check-input'
-                      type='checkbox'
-                      checked={flagshipOnly}
-                      onChange={toggleFlagshipOnly}
-                    />
-                    <span className='form-check-label fw-normal flex-grow-1'>
-                      Flagship
-                    </span>
-                  </span>
-                  <span className='text-neutral-500'>{flagshipCount}</span>
-                </label>
-                <span className='d-block border border-neutral-30 border-dashed my-24' />
-                <button
-                  type='button'
-                  onClick={resetFilters}
-                  className='btn btn-outline-main rounded-pill flex-center gap-16 fw-semibold w-100'
-                >
-                  <i className='ph-bold ph-arrow-clockwise d-flex text-lg' />
-                  Reset Filters
-                </button>
               </div>
             </div>
-          </div>
 
-          {/* List view */}
-          <div className='col-lg-8'>
-            <div className='course-list-wrapper'>
-              <div className='flex-between gap-16 flex-wrap mb-40'>
-                <span className='text-neutral-500'>Showing {filteredCourses.length} Results</span>
-                <div className='flex-align gap-16'>
-                  <div className='flex-align gap-8'>
-                    <span className='text-neutral-500 flex-shrink-0'>Sort By :</span>
-                    <select
-                      className='form-select ps-20 pe-28 py-8 fw-medium rounded-pill bg-main-25 border border-neutral-30 text-neutral-700'
-                      value={sort}
-                      onChange={handleSortChange}
-                    >
-                      <option value='alpha'>Alphabetical (A–Z)</option>
-                      <option value='new'>New to Old</option>
-                      <option value='old'>Old to New</option>
-                    </select>
+            <div className='courses-filters__section'>
+              <p className='filters__group-title fw-semibold'>Category</p>
+              <div className='filters__list'>
+                <label className='filters__option'>
+                  <div className='d-flex align-items-center gap-8 flex-grow-1'>
+                    <input type='checkbox' checked={!flagshipOnly} onChange={toggleFlagshipOnly} />
+                    <span>All</span>
                   </div>
-                  <button
-                    type='button'
-                    onClick={sidebarControl}
-                    className='list-bar-btn text-xl w-40 h-40 bg-main-600 text-white rounded-8 flex-center d-lg-none'
-                    aria-label='Open filters'
-                    title='Open filters'
-                  >
-                    <i className='ph-bold ph-funnel' />
-                  </button>
+                  <span className='text-neutral-500 text-sm'>{courses.length}</span>
+                </label>
+                <label className='filters__option'>
+                  <div className='d-flex align-items-center gap-8 flex-grow-1'>
+                    <input type='checkbox' checked={flagshipOnly} onChange={toggleFlagshipOnly} />
+                    <span>Flagship</span>
+                  </div>
+                  <span className='text-neutral-500 text-sm'>{flagshipCount}</span>
+                </label>
+              </div>
+            </div>
+
+            <button type='button' className='btn btn-outline-main w-100 rounded-pill' onClick={resetFilters}>
+              Reset Filters
+            </button>
+          </aside>
+
+          <div className='courses-results'>
+            <div className='courses-results__head'>
+              <div>
+                <nav className='courses-breadcrumb'>
+                  <Link to='/'>Home</Link>
+                  <span>/</span>
+                  <span>Search</span>
+                  <span>/</span>
+                  <strong>{headingLabel}</strong>
+                </nav>
+                <div className='d-flex flex-wrap align-items-center gap-12'>
+                  <h2 className='mb-0'>{headingLabel}</h2>
+                  <span className='text-neutral-500'>{filteredCourses.length} Results</span>
                 </div>
               </div>
+              <div className='courses-results__actions'>
+                <button
+                  type='button'
+                  className='btn btn-outline-main d-lg-none'
+                  onClick={sidebarControl}
+                >
+                  <i className='ph-bold ph-funnel' /> Filters
+                </button>
+                <label className='courses-sort'>
+                  <span className='text-sm text-neutral-500'>Sort by</span>
+                  <select value={sort} onChange={handleSortChange}>
+                    <option value='alpha'>Alphabetical (A–Z)</option>
+                    <option value='new'>New to Old</option>
+                    <option value='old'>Old to New</option>
+                  </select>
+                </label>
+              </div>
+            </div>
 
-              <div className='row gy-4'>
-                {filteredCourses.map((course, idx) => {
-                  const priceValue = Number(course.priceINR) || 0;
-                  const isFlagship = priceValue === FLAGSHIP_PRICE_INR;
-                  const priceLabel = priceValue > 0 ? INR_CURRENCY_FORMATTER.format(priceValue) : "Free";
+            <div className='courses-card-grid'>
+              {filteredCourses.map((course, idx) => {
+                const priceValue = Number(course.priceINR) || 0;
+                const isFlagship = priceValue === FLAGSHIP_PRICE_INR;
+                const priceLabel = priceValue > 0 ? INR_CURRENCY_FORMATTER.format(priceValue) : "Free";
+                const durationLabel =
+                  course.duration || (course.modulesCount ? `${course.modulesCount} Modules` : "12 Weeks");
+                const levelLabel = course.level || "Beginner";
+                const ratingLabel = course.ratingLabel || "5.0 (10 Reviews)";
 
-                  return (
-                    <div className='col-12' key={`${course.programme}-${course.name}-${idx}`}>
-                      <div className={`course-item bg-main-25 rounded-16 p-12 h-100 border border-neutral-30 list-view ${isFlagship ? "course-item--flagship" : ""}`}>
-                        {isFlagship && <span className='course-item__flagship-badge'>Flagship</span>}
-                      <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
-                        <Link to={course.url} className='w-100 h-100'>
-                          <img src={course.imageUrl || '/assets/images/thumbs/course-img1.png'} alt={course.name} className='course-item__img rounded-12 cover-img transition-2' />
-                        </Link>
-                        <div className='flex-align gap-8 bg-main-600 rounded-pill px-24 py-12 text-white position-absolute inset-block-start-0 inset-inline-start-0 mt-20 ms-20 z-1'>
-                          <span className='text-2xl d-flex'><i className='ph ph-clock' /></span>
-                          <span className='text-lg fw-medium'>{course.mode || 'Self-paced'}</span>
-                        </div>
-                        <button type='button' className='wishlist-btn w-48 h-48 bg-white text-main-two-600 flex-center position-absolute inset-block-start-0 inset-inline-end-0 mt-20 me-20 z-1 text-2xl rounded-circle transition-2'>
-                          <i className='ph ph-heart' />
-                        </button>
+                return (
+                  <article
+                    key={`${course.programme}-${course.name}-${idx}`}
+                    className={`course-card ${isFlagship ? "is-flagship" : ""}`}
+                  >
+                    <div className='course-card__thumb'>
+                      <Link to={course.url}>
+                        <img
+                          src={course.imageUrl || "/assets/images/thumbs/course-img1.png"}
+                          alt={course.name}
+                        />
+                      </Link>
+                      <div className='course-card__thumb-meta'>
+                        <span>{course.programme || "Programme"}</span>
+                        {isFlagship ? <span className='badge'>Flagship</span> : null}
                       </div>
-                      <div className='course-item__content flex-grow-1'>
+                      <button type='button' className='wishlist-btn' aria-label='Save course'>
+                        <i className='ph ph-heart' />
+                      </button>
+                    </div>
+                    <div className='course-card__body'>
+                      {/* <p className='course-card__duration'>{durationLabel}</p> */}
+                      <h3 className='course-card__title'>
+                        <Link to={course.url}>{course.name}</Link>
+                      </h3>
+                      <div className='course-card__meta'>
+                        <span>
+                          <i className='ph-bold ph-clock' /> {durationLabel}
+                        </span>
+                        <span>
+                          <i className='ph-bold ph-star' /> {ratingLabel}
+                        </span>
+                        <span>
+                          <i className='ph-bold ph-chart-bar' /> {levelLabel}
+                        </span>
+                      </div>
+                      <div className='course-card__price-row'>
                         <div>
-                          <h4 className='mb-28'>
-                            <Link to={course.url} className='link text-line-2'>
-                              {course.name}
-                            </Link>
-                          </h4>
-                          <div className='flex-between gap-8 flex-wrap mb-16'>
-                            <div className='flex-align gap-8'>
-                              <span className='text-neutral-700 text-2xl d-flex'><i className='ph-bold ph-clock' /></span>
-                              <span className='text-neutral-700 text-lg fw-medium'>{course.duration || (course.modulesCount ? `${course.modulesCount} Modules` : '—')}</span>
-                            </div>
-                            <div className='flex-align gap-8'>
-                              <span className='text-neutral-700 text-2xl d-flex'><i className='ph-bold ph-chart-bar' /></span>
-                              <span className='text-neutral-700 text-lg fw-medium'>{course.level || '—'}</span>
-                            </div>
-                          </div>
+                          <p className='course-card__price mb-0'>{priceLabel}</p>
+                          <small className='text-neutral-500'>(+18% GST)</small>
                         </div>
-                        <div className='flex-between gap-8 pt-24 border-top border-neutral-50 mt-28 border-dashed border-0'>
-                          <h4 className='mb-0 text-main-two-600'>
-                            {priceLabel}
-                          </h4>
-                          <Link to={course.url} className='flex-align gap-8 text-main-600 hover-text-decoration-underline transition-1 fw-semibold' tabIndex={0}>
-                            Explore
-                            <i className='ph ph-arrow-right' />
+                        <div className='course-card__actions'>
+                          <Link to={course.url} className='btn btn-main'>
+                            Enroll Now
                           </Link>
+                          <button type='button' className='btn-icon' aria-label='Save course'>
+                            <i className='ph ph-heart' />
+                          </button>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </article>
                 );
-                })}
-              </div>
+              })}
             </div>
           </div>
         </div>

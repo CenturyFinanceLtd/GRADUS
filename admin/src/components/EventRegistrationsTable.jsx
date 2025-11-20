@@ -7,6 +7,7 @@ import {
   deleteEventRegistration,
   sendEventRegistrationJoinLinks,
   resendEventRegistrationConfirmation,
+  resendEventRegistrationConfirmationsBulk,
   syncEventRegistrationsToSheet,
 } from "../services/adminInquiries";
 
@@ -89,6 +90,7 @@ const EventRegistrationsTable = () => {
   const [pendingActionId, setPendingActionId] = useState(null);
   const [resendingId, setResendingId] = useState(null);
   const [sheetSyncing, setSheetSyncing] = useState(false);
+  const [bulkResending, setBulkResending] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [joinLink, setJoinLink] = useState("");
   const [sendingLinks, setSendingLinks] = useState(false);
@@ -321,6 +323,53 @@ const EventRegistrationsTable = () => {
     }
   };
 
+  const handleResendConfirmationsBulk = async () => {
+    if (!token) {
+      return;
+    }
+
+    const targetIds = selectedIds.length ? selectedIds : filteredItems.map((item) => item.id);
+
+    if (!targetIds.length) {
+      setActionMessage({
+        type: "danger",
+        text: "No registrations available to resend confirmation.",
+      });
+      return;
+    }
+
+    if (!selectedIds.length) {
+      const confirmed = window.confirm(
+        "Resend confirmation emails to all loaded registrations?"
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    setBulkResending(true);
+    setActionMessage(null);
+
+    try {
+      const response = await resendEventRegistrationConfirmationsBulk({
+        token,
+        registrationIds: targetIds,
+      });
+      const sent = typeof response?.sent === "number" ? response.sent : targetIds.length;
+      setActionMessage({
+        type: "success",
+        text: response?.message || `Confirmation emails resent to ${sent} registration(s).`,
+      });
+    } catch (err) {
+      setActionMessage({
+        type: "danger",
+        text: err?.message || "Failed to resend confirmation emails.",
+      });
+    } finally {
+      setBulkResending(false);
+    }
+  };
+
 
   const toggleSelectAll = () => {
     const visibleIds = filteredItems.map((item) => item.id);
@@ -471,6 +520,23 @@ const EventRegistrationsTable = () => {
                 : selectedIds.length
                 ? `Sync Sheets (${selectedIds.length})`
                 : "Sync Sheets (All)"}
+            </button>
+            <button
+              type='button'
+              className='btn btn-outline-warning'
+              onClick={handleResendConfirmationsBulk}
+              disabled={bulkResending || (!selectedIds.length && filteredItems.length === 0)}
+              title={
+                selectedIds.length
+                  ? "Resend confirmation emails to selected registrations"
+                  : "Resend confirmation emails to all loaded registrations"
+              }
+            >
+              {bulkResending
+                ? "Resending..."
+                : selectedIds.length
+                ? `Resend Confirmations (${selectedIds.length})`
+                : "Resend Confirmations (All)"}
             </button>
             <button type='button' className='btn btn-primary' onClick={openCreateEditor}>
               Add Registration

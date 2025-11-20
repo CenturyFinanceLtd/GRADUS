@@ -190,12 +190,14 @@ const sendEventConfirmation = async (registration, eventDetails) => {
       joinUrl: details.joinUrl,
       hostName: details.hostName,
     });
+    return true;
   } catch (error) {
     console.error('[event-registration] Failed to send event confirmation email', {
       error: error?.message,
       email: registration.email,
       course: registration.course,
     });
+    return false;
   }
 };
 
@@ -470,11 +472,50 @@ const resendEventConfirmationEmail = asyncHandler(async (req, res) => {
     throw new Error('Event registration not found');
   }
 
-  await sendEventConfirmation(registration, registration.eventDetails || {});
+  const sent = await sendEventConfirmation(registration, registration.eventDetails || {});
+  if (!sent) {
+    res.status(500);
+    throw new Error('Unable to resend confirmation email. Please try again later.');
+  }
 
   res.json({
     message: 'Confirmation email resent successfully',
     item: serializeRegistration(registration),
+  });
+});
+
+const resendEventConfirmationsBulk = asyncHandler(async (req, res) => {
+  const { registrationIds } = req.body || {};
+  const ids = Array.isArray(registrationIds) ? registrationIds.filter(Boolean) : [];
+
+  const filter = ids.length ? { _id: { $in: ids } } : {};
+  const registrations = await EventRegistration.find(filter);
+
+  if (!registrations.length) {
+    res.status(404);
+    throw new Error(ids.length ? 'No registrations found for the provided IDs' : 'No event registrations found to resend');
+  }
+
+  let sentCount = 0;
+  const failures = [];
+
+  for (const registration of registrations) {
+    const ok = await sendEventConfirmation(registration, registration.eventDetails || {});
+    if (ok) {
+      sentCount += 1;
+    } else {
+      failures.push({
+        id: registration._id.toString(),
+        email: registration.email,
+      });
+    }
+  }
+
+  res.json({
+    message: `Confirmation emails processed for ${registrations.length} registration(s)`,
+    total: registrations.length,
+    sent: sentCount,
+    failed: failures,
   });
 });
 
@@ -547,5 +588,6 @@ module.exports = {
   createEventRegistrationEntry,
   sendJoinLinkEmails,
   resendEventConfirmationEmail,
+  resendEventConfirmationsBulk,
   syncEventRegistrationSheetBulk,
 };
