@@ -36,27 +36,6 @@ const SocialPortfolioPage = () => {
       icon: "ph ph-instagram-logo",
       color: "#E4405F",
     },
-    {
-      name: "Reddit",
-      handle: "u/GradusIndia",
-      url: "https://www.reddit.com/user/GradusIndia/",
-      icon: "ph ph-reddit-logo",
-      color: "#FF4500",
-    },
-    {
-      name: "Quora",
-      handle: "Marketing Team",
-      url: "https://www.quora.com/profile/Marketing-Team-615",
-      imgSrc: "/assets/icons/quora.svg",
-      color: "#B92B27",
-    },
-    {
-      name: "Discord",
-      handle: "Community Channel",
-      url: "https://discord.com/channels/1432018650558238884/1432019463347114035",
-      icon: "ph ph-discord-logo",
-      color: "#5865F2",
-    },
   ];
 
   const handleCopy = async (text) => {

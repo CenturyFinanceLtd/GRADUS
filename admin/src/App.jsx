@@ -105,6 +105,7 @@ const ExpertVideosPage = lazy(() => import("./pages/ExpertVideosPage"));
 const WhyGradusVideoPage = lazy(() => import("./pages/WhyGradusVideoPage"));
 const BannersPage = lazy(() => import("./pages/BannersPage"));
 const PartnerLogosPage = lazy(() => import("./pages/PartnerLogosPage"));
+const PageMetaPage = lazy(() => import("./pages/PageMetaPage"));
 const EventsAdminPage = lazy(() => import("./pages/EventsAdminPage"));
 const ComingSoonPage = lazy(() => import("./pages/ComingSoonPage"));
 const AccessDeniedPage = lazy(() => import("./pages/AccessDeniedPage"));
@@ -209,6 +210,7 @@ function App() {
         <Route exact path='/expert-videos' element={<ExpertVideosPage />} />
         <Route exact path='/why-gradus-video' element={<WhyGradusVideoPage />} />
         <Route exact path='/banners' element={<BannersPage />} />
+        <Route exact path='/page-meta' element={<PageMetaPage />} />
         <Route exact path='/partner-logos' element={<PartnerLogosPage />} />
         <Route exact path='/events-admin' element={<EventsAdminPage />} />
         <Route exact path='/coming-soon' element={<ComingSoonPage />} />

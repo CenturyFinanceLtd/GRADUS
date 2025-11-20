@@ -34,6 +34,7 @@ const ADMIN_PAGE_DEFINITIONS = [
     { key: 'testimonials', label: 'Testimonials', path: '/testimonials', category: 'Content & Media' },
     { key: 'expert_videos', label: 'Expert Videos', path: '/expert-videos', category: 'Content & Media' },
     { key: 'banners', label: 'Banners', path: '/banners', category: 'Content & Media' },
+    { key: 'page_meta', label: 'Page Meta', path: '/page-meta', category: 'Content & Media' },
     { key: 'video_generator', label: 'Video Generator', path: '/video-generator', category: 'Content & Media' },
     { key: 'videos', label: 'Videos', path: '/videos', category: 'Content & Media' },
     { key: 'voice_generator', label: 'Voice Generator', path: '/voice-generator', category: 'Content & Media' },

@@ -37,6 +37,7 @@ const adminEmailTemplateRoutes = require('./routes/adminEmailTemplateRoutes');
 const adminEmailRoutes = require('./routes/adminEmailRoutes');
 const adminPartnerRoutes = require('./routes/adminPartnerRoutes');
 const adminLiveSessionRoutes = require('./routes/adminLiveSessionRoutes');
+const adminPageMetaRoutes = require('./routes/adminPageMetaRoutes');
 const liveSessionRoutes = require('./routes/liveSessionRoutes');
 const chatbotRoutes = require('./routes/chatbotRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
@@ -49,6 +50,7 @@ const bannerRoutes = require('./routes/bannerRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const eventRegistrationRoutes = require('./routes/eventRegistrationRoutes');
 const partnerRoutes = require('./routes/partnerRoutes');
+const pageMetaRoutes = require('./routes/pageMetaRoutes');
 const { blogImagesDirectory } = require('./middleware/uploadMiddleware');
 
 const app = express();
@@ -146,6 +148,7 @@ app.use('/api/admin/email-templates', adminEmailTemplateRoutes);
 app.use('/api/admin/email', adminEmailRoutes);
 app.use('/api/admin/partners', adminPartnerRoutes);
 app.use('/api/admin/live-sessions', adminLiveSessionRoutes);
+app.use('/api/admin/page-meta', adminPageMetaRoutes);
 // Public content + services
 app.use('/api/blogs', blogRoutes);
 app.use('/api/courses', courseRoutes);
@@ -162,6 +165,7 @@ app.use('/api/inquiries', contactRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/tickets', ticketRoutes);
+app.use('/api/page-meta', pageMetaRoutes);
 
 // 404 and error handling (must be last)
 app.use(notFound);
