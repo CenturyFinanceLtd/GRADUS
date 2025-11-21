@@ -167,6 +167,23 @@ const sendEmail = async ({ from, to, subject, text, html, mailbox = 'default' })
 
   const auth = await buildMailAuth(mailbox);
   const info = await transporter.sendMail({ ...mailOptions, auth });
+  const rejected = Array.isArray(info?.rejected) ? info.rejected : [];
+  const pending = Array.isArray(info?.pending) ? info.pending : [];
+  if (rejected.length || pending.length) {
+    console.error('[email] provider rejected recipients', {
+      to,
+      rejected,
+      pending,
+      response: info?.response,
+    });
+    throw new Error(`Provider rejected recipients: ${[...rejected, ...pending].join(', ') || 'unknown'}`);
+  }
+  console.log('[email] sent', {
+    to,
+    messageId: info?.messageId,
+    response: info?.response,
+    accepted: info?.accepted,
+  });
   return { mocked: false, info };
 };
 
@@ -351,7 +368,7 @@ const sendEventRegistrationEmail = async ({
   const timeDisplay = timeLabel
     ? `${timeLabel}${timezoneLabel ? ` (${timezoneLabel})` : ''}`
     : timezoneLabel || 'To be announced';
-  const locationText = joinUrl ? joinUrl : 'We will send the joining link soon.';
+  const locationText = joinUrl ? joinUrl : 'https://us05web.zoom.us/j/83735186475?pwd=wbf7yhVplwb5ZSpqHwx2sO0480UxKj.1';
   const friendlyHostName = hostName?.trim() || 'Team Gradus';
 
   const templatePayload = {

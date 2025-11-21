@@ -96,6 +96,7 @@ const EventRegistrationsTable = () => {
   const [selectedIds, setSelectedIds] = useState([]);
   const [joinLink, setJoinLink] = useState("");
   const [sendingLinks, setSendingLinks] = useState(false);
+  const [batchStartIndex, setBatchStartIndex] = useState(0);
   const [editorState, setEditorState] = useState({
     open: false,
     mode: "create",
@@ -168,6 +169,13 @@ const EventRegistrationsTable = () => {
       );
     });
   }, [items, search]);
+
+  useEffect(() => {
+    if (batchStartIndex >= filteredItems.length) {
+      setBatchStartIndex(0);
+      setSelectedIds([]);
+    }
+  }, [filteredItems.length, batchStartIndex]);
 
   const openCreateEditor = () => {
     setEditorState({
@@ -427,6 +435,28 @@ const EventRegistrationsTable = () => {
     );
   };
 
+  const selectBatch = (startIndex = 0) => {
+    if (!filteredItems.length) return;
+    const size = 5;
+    const safeStart = Math.max(0, Math.min(startIndex, filteredItems.length - 1));
+    const windowItems = filteredItems.slice(safeStart, safeStart + size);
+    setSelectedIds(windowItems.map((item) => item.id));
+    setBatchStartIndex(safeStart);
+    setActionMessage(null);
+  };
+
+  const selectNextBatch = () => {
+    if (!filteredItems.length) return;
+    const size = 5;
+    const nextStart = batchStartIndex + size;
+    if (nextStart >= filteredItems.length) {
+      window.alert("Reached the end of the list.");
+      selectBatch(0);
+      return;
+    }
+    selectBatch(nextStart);
+  };
+
   const handleSendJoinLinks = async () => {
     const url = joinLink.trim();
     if (!token || !selectedIds.length || !url) {
@@ -445,10 +475,29 @@ const EventRegistrationsTable = () => {
       });
       const sentCount = response?.sent ?? selectedIds.length;
       const total = response?.total ?? selectedIds.length;
-      setActionMessage({
-        type: "success",
-        text: `Join link sent to ${sentCount} of ${total} registration(s).`,
-      });
+      const failures = Array.isArray(response?.failed) ? response.failed : [];
+      const failedCount = failures.length;
+      if (failedCount === 0) {
+        setActionMessage({
+          type: "success",
+          text: `Join link sent to ${sentCount} of ${total} registration(s).`,
+        });
+      } else if (failedCount < total) {
+        const failedList = failures
+          .slice(0, 5)
+          .map((f) => f.email || f.id)
+          .filter(Boolean)
+          .join(", ");
+        setActionMessage({
+          type: "warning",
+          text: `Sent ${sentCount}/${total}. Failed for ${failedCount} registration(s)${failedList ? `: ${failedList}` : ""}.`,
+        });
+      } else {
+        setActionMessage({
+          type: "danger",
+          text: failures[0]?.error || "Failed to send join links.",
+        });
+      }
     } catch (err) {
       setActionMessage({
         type: "danger",
@@ -510,7 +559,16 @@ const EventRegistrationsTable = () => {
 
   return (
     <div className='card mt-24'>
-      <div className='card-header border-0 pb-0'>
+      <div
+        className='card-header border-0 pb-0'
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
+          background: "#fff",
+          boxShadow: "0 2px 6px rgba(0, 0, 0, 0.06)",
+        }}
+      >
         <div className='d-flex flex-wrap gap-12 justify-content-between align-items-center'>
           <div>
             <h5 className='mb-1'>Event Registrations</h5>
@@ -527,6 +585,32 @@ const EventRegistrationsTable = () => {
               onChange={(event) => setSearch(event.target.value)}
               style={{ minWidth: 240 }}
             />
+            <div className='d-flex gap-8'>
+              <button
+                type='button'
+                className='btn btn-outline-dark'
+                onClick={() => selectBatch(0)}
+                disabled={!filteredItems.length}
+              >
+                Select 5
+              </button>
+              <button
+                type='button'
+                className='btn btn-outline-dark'
+                onClick={selectNextBatch}
+                disabled={!filteredItems.length}
+              >
+                Next 5
+              </button>
+              <button
+                type='button'
+                className='btn btn-outline-secondary'
+                onClick={() => setSelectedIds([])}
+                disabled={!selectedIds.length}
+              >
+                Clear Selection
+              </button>
+            </div>
             <input
               type='url'
               className='form-control'
@@ -633,12 +717,17 @@ const EventRegistrationsTable = () => {
                   const derivedState = item.state || extractStateFromMessage(item.message);
 
                   return (
-                    <tr key={item.id}>
+                    <tr
+                      key={item.id}
+                      onClick={() => toggleSelectOne(item.id)}
+                      style={{ cursor: "pointer" }}
+                    >
                       <td>
                         <input
                           type='checkbox'
                           className='form-check-input'
                           checked={selectedIds.includes(item.id)}
+                          onClick={(event) => event.stopPropagation()}
                           onChange={() => toggleSelectOne(item.id)}
                         />
                       </td>
@@ -659,27 +748,36 @@ const EventRegistrationsTable = () => {
                       <td>{formatDateTime(item.createdAt)}</td>
                       <td>
                         <div className='d-flex gap-2 flex-wrap'>
-                          <button
-                            type='button'
-                            className='btn btn-sm btn-outline-primary'
-                            onClick={() => openEditEditor(item)}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            type='button'
-                            className='btn btn-sm btn-outline-success'
-                            onClick={() => handleResendConfirmation(item)}
-                            disabled={resendingId === item.id}
-                          >
-                            {resendingId === item.id ? "Resending..." : "Resend confirmation"}
-                          </button>
-                          <button
-                            type='button'
-                            className='btn btn-sm btn-outline-danger'
-                            onClick={() => handleDelete(item)}
-                            disabled={pendingActionId === item.id}
-                          >
+                           <button
+                             type='button'
+                             className='btn btn-sm btn-outline-primary'
+                             onClick={(event) => {
+                               event.stopPropagation();
+                               openEditEditor(item);
+                             }}
+                           >
+                             Edit
+                           </button>
+                           <button
+                             type='button'
+                             className='btn btn-sm btn-outline-success'
+                             onClick={(event) => {
+                               event.stopPropagation();
+                               handleResendConfirmation(item);
+                             }}
+                             disabled={resendingId === item.id}
+                           >
+                             {resendingId === item.id ? "Resending..." : "Resend confirmation"}
+                           </button>
+                           <button
+                             type='button'
+                             className='btn btn-sm btn-outline-danger'
+                             onClick={(event) => {
+                               event.stopPropagation();
+                               handleDelete(item);
+                             }}
+                             disabled={pendingActionId === item.id}
+                           >
                             {pendingActionId === item.id ? "Deleting..." : "Delete"}
                           </button>
                         </div>

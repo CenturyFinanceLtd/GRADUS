@@ -459,30 +459,54 @@ const sendJoinLinkEmails = asyncHandler(async (req, res) => {
   let sentCount = 0;
   const failures = [];
 
-  await Promise.all(
-    registrations.map(async (registration) => {
+  await runWithConcurrency(
+    registrations,
+    async (registration) => {
       const displayName = registration.name || 'Learner';
-      const displayCourse = registration.course || 'your webinar';
       const textLines = [
-        `Hi ${displayName},`,
+        `Dear ${displayName},`,
         '',
-        `Here is the join link for ${displayCourse}:`,
+        'Thank you for registering for the "Future-Ready Careers: Explore Jobs & Courses that matter" webinar!',
+        '',
+        'As promised, here is your joining link for the session happening today.',
+        '',
+        'Webinar Details:',
+        'Topic: Future-Ready Careers: Explore Jobs & Courses that matter',
+        'Date: Friday, November 21, 2025',
+        'Time: 5:00 PM IST',
+        'Agenda: In-demand career paths, AI, Data Science & Cloud Computing roles, upskilling strategies, placement roadmap, and live Q&A with experts',
+        '',
+        'Joining Link:',
         normalizedJoinUrl,
         '',
+        'Click the link above to join the webinar at the scheduled time from any device. If you have questions or need technical assistance, please reply to this email.',
         note ? note : null,
-        'See you there!',
+        '',
+        'Looking forward to your participation!',
+        'Best Regards,',
         'Team Gradus',
       ].filter(Boolean);
 
       const html = `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1F2937;">
-          <p style="margin: 0 0 12px;">Hi ${displayName},</p>
-          <p style="margin: 0 0 12px;">Here is the join link for <strong>${displayCourse}</strong>:</p>
+          <p style="margin: 0 0 12px;">Dear ${displayName},</p>
+          <p style="margin: 0 0 12px;">Thank you for registering for the "<strong>Future-Ready Careers: Explore Jobs & Courses that matter</strong>" webinar!</p>
+          <p style="margin: 0 0 12px;">As promised, here is your joining link for the session happening today.</p>
+          <p style="margin: 0 0 12px;"><strong>Webinar Details:</strong></p>
+          <ul style="margin: 0 0 12px 20px; padding: 0; color: #1F2937;">
+            <li style="margin-bottom: 4px;"><strong>Topic:</strong> Future-Ready Careers: Explore Jobs & Courses that matter</li>
+            <li style="margin-bottom: 4px;"><strong>Date:</strong> Friday, November 21, 2025</li>
+            <li style="margin-bottom: 4px;"><strong>Time:</strong> 5:00 PM IST</li>
+            <li style="margin-bottom: 4px;"><strong>Agenda:</strong> In-demand career paths, AI, Data Science & Cloud Computing roles, upskilling strategies, placement roadmap, and live Q&A with experts</li>
+          </ul>
+          <p style="margin: 0 0 8px;"><strong>Joining Link:</strong></p>
           <p style="margin: 0 0 16px;">
             <a href="${normalizedJoinUrl}" style="color: #0B5394;">${normalizedJoinUrl}</a>
           </p>
+          <p style="margin: 0 0 12px;">Click the link above to join the webinar at the scheduled time from any device. If you have questions or need technical assistance, please reply to this email.</p>
           ${note ? `<p style="margin: 0 0 12px;">${note}</p>` : ''}
-          <p style="margin: 0 0 12px;">See you there!</p>
+          <p style="margin: 0 0 12px;">Looking forward to your participation!</p>
+          <p style="margin: 0 0 4px;">Best Regards,</p>
           <p style="margin: 0;">Team Gradus</p>
         </div>
       `;
@@ -509,7 +533,8 @@ const sendJoinLinkEmails = asyncHandler(async (req, res) => {
           error: error?.message,
         });
       }
-    })
+    },
+    { delayMs: 1000 }
   );
 
   res.json({
@@ -556,17 +581,21 @@ const resendEventConfirmationsBulk = asyncHandler(async (req, res) => {
   let sentCount = 0;
   const failures = [];
 
-  await runWithConcurrency(registrations, async (registration) => {
-    const ok = await sendEventConfirmation(registration, registration.eventDetails || {});
-    if (ok) {
-      sentCount += 1;
-      return;
-    }
-    failures.push({
-      id: registration._id.toString(),
-      email: registration.email,
-    });
-  });
+  await runWithConcurrency(
+    registrations,
+    async (registration) => {
+      const ok = await sendEventConfirmation(registration, registration.eventDetails || {});
+      if (ok) {
+        sentCount += 1;
+        return;
+      }
+      failures.push({
+        id: registration._id.toString(),
+        email: registration.email,
+      });
+    },
+    { delayMs: 1000 }
+  );
 
   res.json({
     message: `Confirmation emails processed for ${registrations.length} registration(s)`,
