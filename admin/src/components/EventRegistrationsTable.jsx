@@ -7,7 +7,6 @@ import {
   deleteEventRegistration,
   sendEventRegistrationJoinLinks,
   resendEventRegistrationConfirmation,
-  resendEventRegistrationConfirmationsBulk,
   syncEventRegistrationsToSheet,
 } from "../services/adminInquiries";
 
@@ -78,6 +77,9 @@ const EMPTY_FORM = {
   course: "",
   message: "",
 };
+
+const CLIENT_RESEND_DELAY_MS = 2000;
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const EventRegistrationsTable = () => {
   const { token } = useAuth();
@@ -348,26 +350,64 @@ const EventRegistrationsTable = () => {
     }
 
     setBulkResending(true);
-    setActionMessage(null);
+    setActionMessage({
+      type: "info",
+      text: `Resent confirmations 0/${targetIds.length}.`,
+    });
 
-    try {
-      const response = await resendEventRegistrationConfirmationsBulk({
-        token,
-        registrationIds: targetIds,
-      });
-      const sent = typeof response?.sent === "number" ? response.sent : targetIds.length;
+    let sentCount = 0;
+    let failureCount = 0;
+    let lastError = null;
+
+    for (let index = 0; index < targetIds.length; index += 1) {
+      const id = targetIds[index];
+      const registration = items.find((item) => item.id === id);
+      try {
+        await resendEventRegistrationConfirmation({
+          token,
+          registrationId: id,
+        });
+        sentCount += 1;
+        setActionMessage({
+          type: "info",
+          text: `Resent confirmations ${sentCount}/${targetIds.length}.`,
+        });
+      } catch (err) {
+        failureCount += 1;
+        lastError =
+          err?.message ||
+          `Failed to resend confirmation for ${registration?.email || registration?.name || id}.`;
+        setActionMessage({
+          type: "danger",
+          text: lastError,
+        });
+      }
+
+      const isLast = index === targetIds.length - 1;
+      if (!isLast && CLIENT_RESEND_DELAY_MS > 0) {
+        // eslint-disable-next-line no-await-in-loop
+        await sleep(CLIENT_RESEND_DELAY_MS);
+      }
+    }
+
+    if (failureCount === 0) {
       setActionMessage({
         type: "success",
-        text: response?.message || `Confirmation emails resent to ${sent} registration(s).`,
+        text: `Confirmation emails resent to ${sentCount} registration(s).`,
       });
-    } catch (err) {
+    } else if (sentCount > 0) {
+      setActionMessage({
+        type: "warning",
+        text: `Sent ${sentCount}/${targetIds.length} confirmations. Last error: ${lastError}`,
+      });
+    } else {
       setActionMessage({
         type: "danger",
-        text: err?.message || "Failed to resend confirmation emails.",
+        text: lastError || "Failed to resend confirmation emails.",
       });
-    } finally {
-      setBulkResending(false);
     }
+
+    setBulkResending(false);
   };
 
 

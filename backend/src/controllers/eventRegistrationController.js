@@ -16,8 +16,65 @@ const {
 } = require('../services/registrationSpreadsheetSync');
 
 const SHEETS_SYNC_DELAY_MS = Number(process.env.GOOGLE_SHEETS_SYNC_DELAY_MS) || 2000;
+const DEFAULT_BULK_EMAIL_CONCURRENCY = 1; // Send sequentially to reduce provider throttling
+const BULK_EMAIL_CONCURRENCY = (() => {
+  const parsed = Number(process.env.EVENT_CONFIRMATION_CONCURRENCY);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return Math.min(Math.floor(parsed), 25);
+  }
+  return DEFAULT_BULK_EMAIL_CONCURRENCY;
+})();
+const DEFAULT_BULK_EMAIL_DELAY_MS = 2000;
+const BULK_EMAIL_DELAY_MS = (() => {
+  const parsed = Number(process.env.EVENT_CONFIRMATION_DELAY_MS);
+  if (Number.isFinite(parsed) && parsed >= 0) {
+    return parsed;
+  }
+  return DEFAULT_BULK_EMAIL_DELAY_MS;
+})();
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const shouldManuallySyncRegistration = () => !isRegistrationSheetWatcherEnabled();
+
+const runWithConcurrency = async (
+  items,
+  handler,
+  { limit = BULK_EMAIL_CONCURRENCY, delayMs = BULK_EMAIL_DELAY_MS } = {}
+) => {
+  if (!Array.isArray(items) || !items.length) {
+    return;
+  }
+
+  const workerCount = Math.max(1, Math.min(limit, items.length));
+  let cursor = 0;
+
+  const getNextIndex = () => {
+    if (cursor >= items.length) {
+      return null;
+    }
+    const next = cursor;
+    cursor += 1;
+    return next;
+  };
+
+  const workers = Array.from({ length: workerCount }, () =>
+    (async function worker() {
+      while (true) {
+        const index = getNextIndex();
+        if (index === null) {
+          break;
+        }
+        // eslint-disable-next-line no-await-in-loop
+        await handler(items[index], index);
+        if (delayMs > 0) {
+          // eslint-disable-next-line no-await-in-loop
+          await delay(delayMs);
+        }
+      }
+    })()
+  );
+
+  await Promise.all(workers);
+};
 
 const serializeRegistration = (registration) => ({
   id: registration._id.toString(),
@@ -499,17 +556,17 @@ const resendEventConfirmationsBulk = asyncHandler(async (req, res) => {
   let sentCount = 0;
   const failures = [];
 
-  for (const registration of registrations) {
+  await runWithConcurrency(registrations, async (registration) => {
     const ok = await sendEventConfirmation(registration, registration.eventDetails || {});
     if (ok) {
       sentCount += 1;
-    } else {
-      failures.push({
-        id: registration._id.toString(),
-        email: registration.email,
-      });
+      return;
     }
-  }
+    failures.push({
+      id: registration._id.toString(),
+      email: registration.email,
+    });
+  });
 
   res.json({
     message: `Confirmation emails processed for ${registrations.length} registration(s)`,

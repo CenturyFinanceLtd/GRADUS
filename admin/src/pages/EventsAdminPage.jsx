@@ -35,7 +35,7 @@ const defaultForm = {
   isFree: true,
   ctaLabel: "Join us live",
   ctaUrl: "",
-  status: "draft",
+  status: "published",
   isFeatured: false,
   tags: "",
   highlights: "",
