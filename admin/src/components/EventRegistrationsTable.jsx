@@ -97,6 +97,7 @@ const EventRegistrationsTable = () => {
   const [joinLink, setJoinLink] = useState("");
   const [sendingLinks, setSendingLinks] = useState(false);
   const [batchStartIndex, setBatchStartIndex] = useState(0);
+  const [filterMode, setFilterMode] = useState("all");
   const [editorState, setEditorState] = useState({
     open: false,
     mode: "create",
@@ -147,28 +148,52 @@ const EventRegistrationsTable = () => {
     };
   }, [token, reloadKey]);
 
+  const isRegistrationLive = (item) => {
+    const details = item.eventDetails || {};
+    const startValue =
+      details.start ||
+      details.startsAt ||
+      details.eventDate ||
+      (details.schedule && details.schedule.start);
+
+    if (!startValue) return false;
+    const start = new Date(startValue);
+    if (Number.isNaN(start.getTime())) return false;
+
+    const now = Date.now();
+    const startMs = start.getTime();
+    const leadMs = 0; // live starts at scheduled time
+    const trailMs = 30 * 60 * 1000; // 30 minutes after start
+    return now >= startMs - leadMs && now <= startMs + trailMs;
+  };
+
   const filteredItems = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) {
-      return items;
+
+    const bySearch = term
+      ? items.filter((item) => {
+          const fields = [
+            item.name,
+            item.email,
+            item.phone,
+            item.state,
+            item.qualification,
+            item.course,
+            item.message,
+          ];
+
+          return fields.some((field) =>
+            typeof field === "string" ? field.toLowerCase().includes(term) : false
+          );
+        })
+      : items;
+
+    if (filterMode === "live") {
+      return bySearch.filter(isRegistrationLive);
     }
 
-    return items.filter((item) => {
-      const fields = [
-        item.name,
-        item.email,
-        item.phone,
-        item.state,
-        item.qualification,
-        item.course,
-        item.message,
-      ];
-
-      return fields.some((field) =>
-        typeof field === "string" ? field.toLowerCase().includes(term) : false
-      );
-    });
-  }, [items, search]);
+    return bySearch;
+  }, [items, search, filterMode]);
 
   useEffect(() => {
     if (batchStartIndex >= filteredItems.length) {
@@ -575,6 +600,22 @@ const EventRegistrationsTable = () => {
             <p className='text-muted mb-0'>
               View the latest sign-ups coming from the public event CTA form.
             </p>
+            <div className='d-flex gap-2 mt-2'>
+              <button
+                type='button'
+                className={`btn btn-sm ${filterMode === "all" ? "btn-primary" : "btn-outline-primary"}`}
+                onClick={() => setFilterMode("all")}
+              >
+                All
+              </button>
+              <button
+                type='button'
+                className={`btn btn-sm ${filterMode === "live" ? "btn-primary" : "btn-outline-primary"}`}
+                onClick={() => setFilterMode("live")}
+              >
+                Live
+              </button>
+            </div>
           </div>
           <div className='d-flex flex-wrap gap-12 ms-auto align-items-center'>
             <input

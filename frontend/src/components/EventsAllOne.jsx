@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchEvents } from "../services/eventService";
 
 const EVENT_LIMIT = 24;
-const EVENT_TYPE_OPTIONS = ["All", "Seminar", "Webinar", "Job fair", "Corporate Initiatives"];
+const EVENT_TYPE_OPTIONS = ["All", "Live now", "Seminar", "Webinar", "Job fair", "Corporate Initiatives"];
 
 const formatSchedule = (schedule) => {
   if (!schedule?.start) {
@@ -30,6 +30,18 @@ const formatSchedule = (schedule) => {
   };
 };
 
+const isEventLive = (event) => {
+  const startValue = event?.schedule?.start || null;
+  if (!startValue) return false;
+  const start = new Date(startValue);
+  if (Number.isNaN(start.getTime())) return false;
+
+  const now = Date.now();
+  const startMs = start.getTime();
+  const windowAfterMs = 30 * 60 * 1000;
+  return now >= startMs && now <= startMs + windowAfterMs;
+};
+
 const EventsFilterChips = ({ categories, active, onSelect }) => (
   <div className='events-chips d-flex flex-wrap gap-12 justify-content-lg-end'>
     {categories.map((cat) => (
@@ -54,6 +66,8 @@ const MasterclassCard = ({ event }) => {
       ? rawLabel || `Rs ${event.price.amount}`
       : null;
 
+  const liveNow = isEventLive(event);
+
   return (
     <article className='masterclass-card h-100'>
       <Link
@@ -66,7 +80,15 @@ const MasterclassCard = ({ event }) => {
           alt={event?.heroImage?.alt || event?.title || "Event thumbnail"}
           loading='lazy'
         />
-        {event?.badge ? <span className='masterclass-card__badge'>{event.badge}</span> : null}
+        {liveNow ? (
+          <span
+            className='masterclass-card__badge'
+            style={{ background: "#d6293e", color: "#fff" }}
+          >
+            Live now
+          </span>
+        ) : null}
+        {!liveNow && event?.badge ? <span className='masterclass-card__badge'>{event.badge}</span> : null}
       </Link>
       <div className='masterclass-card__body'>
         <div className='masterclass-card__head flex-between gap-8'>
@@ -114,15 +136,16 @@ const LoadingState = () => (
   </div>
 );
 
-const EmptyState = () => (
+const EmptyState = ({
+  title = "Nothing scheduled yet",
+  description = "We’re curating the next wave of events. Check back shortly or subscribe to updates.",
+}) => (
   <div className='empty-state text-center py-80'>
     <div className='empty-state__illustration mb-24'>
       <i className='ph ph-calendar-x text-3xl text-main-600' />
     </div>
-    <h4 className='mb-8'>Nothing scheduled yet</h4>
-    <p className='text-neutral-600 mb-0'>
-      We’re curating the next wave of events. Check back shortly or subscribe to updates.
-    </p>
+    <h4 className='mb-8'>{title}</h4>
+    <p className='text-neutral-600 mb-0'>{description}</p>
   </div>
 );
 
@@ -140,10 +163,11 @@ const EventsAllOne = () => {
       setLoading(true);
       setError(null);
       try {
+        const isLiveFilter = eventType === "Live now";
         const response = await fetchEvents({
           limit: EVENT_LIMIT,
-          timeframe: "upcoming",
-          eventType: eventType === "All" ? undefined : eventType,
+          timeframe: isLiveFilter ? "all" : "upcoming",
+          eventType: eventType === "All" || isLiveFilter ? undefined : eventType,
           signal: controller.signal,
         });
         if (!isMounted) return;
@@ -166,9 +190,17 @@ const EventsAllOne = () => {
     };
   }, [eventType]);
 
-  const showSpotlight = events.length > 2;
-  const featuredEvent = showSpotlight ? events[0] : null;
-  const gridEvents = showSpotlight ? events.slice(1) : events;
+  const visibleEvents = useMemo(() => {
+    if (eventType === "Live now") {
+      return events.filter(isEventLive);
+    }
+    return events;
+  }, [events, eventType]);
+
+  const liveBannerEvent = eventType === "Live now" && visibleEvents.length ? visibleEvents[0] : null;
+  const showSpotlight = eventType !== "Live now" && visibleEvents.length > 2;
+  const featuredEvent = showSpotlight ? visibleEvents[0] : null;
+  const gridEvents = showSpotlight ? visibleEvents.slice(1) : visibleEvents;
 
   return (
     <section className='events-list py-20 bg-white'>
@@ -181,12 +213,37 @@ const EventsAllOne = () => {
           />
         </header>
 
+        {liveBannerEvent ? (
+          <div className='alert alert-info d-flex flex-wrap align-items-center justify-content-between rounded-16 p-16 mb-20'>
+            <div className='d-flex flex-column gap-4'>
+              <span className='badge bg-danger text-white align-self-start'>Live now</span>
+              <h5 className='mb-0'>{liveBannerEvent.title || "Live webinar"}</h5>
+              <p className='mb-0 text-neutral-600'>
+                Join this webinar happening now (available until 30 minutes after the start time).
+              </p>
+            </div>
+            <Link
+              to={`/events/${liveBannerEvent.slug || ""}`}
+              className='btn btn-primary rounded-pill px-24'
+            >
+              Join now
+            </Link>
+          </div>
+        ) : null}
+
         {error ? (
           <div className='alert alert-danger rounded-16'>{error}</div>
         ) : loading ? (
           <LoadingState />
-        ) : events.length === 0 ? (
-          <EmptyState />
+        ) : visibleEvents.length === 0 ? (
+          <EmptyState
+            title={eventType === "Live now" ? "No live webinars right now" : undefined}
+            description={
+              eventType === "Live now"
+                ? "Live webinars show here from their start time until 30 minutes after. Please check back soon."
+                : undefined
+            }
+          />
         ) : (
           <>
             {showSpotlight && featuredEvent ? (

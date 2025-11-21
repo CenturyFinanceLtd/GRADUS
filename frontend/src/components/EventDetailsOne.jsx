@@ -174,6 +174,17 @@ const HelpTab = () => (
   </div>
 );
 
+const isWithinJoinWindow = (event) => {
+  const startValue = event?.schedule?.start || null;
+  if (!startValue) return false;
+  const start = new Date(startValue);
+  if (Number.isNaN(start.getTime())) return false;
+  const now = Date.now();
+  const startMs = start.getTime();
+  const windowAfterMs = 30 * 60 * 1000; // 30 minutes after start
+  return now >= startMs && now <= startMs + windowAfterMs;
+};
+
 const RegistrationCard = ({ event }) => {
   const [form, setForm] = useState({
     name: "",
@@ -194,14 +205,55 @@ const RegistrationCard = ({ event }) => {
     [event?.schedule?.start, event?.schedule?.timezone]
   );
 
+  const joinUrl = event?.cta?.url?.trim();
+  const liveWindow = isWithinJoinWindow(event);
+
+  const isFormComplete = () =>
+    form.name && form.email && form.phone && form.state && form.qualification && form.consent;
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
+  const submitRegistration = async () => {
+    await submitEventRegistration({
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      state: form.state,
+      course: event?.title || "Event",
+      message: `Interested in ${event?.title || "event"} event`,
+      qualification: form.qualification,
+      consent: form.consent,
+      eventDetails: {
+        id: event?.id || event?._id || null,
+        slug: event?.slug || "",
+        title: event?.title || "",
+        schedule: {
+          start: event?.schedule?.start || null,
+          timezone: event?.schedule?.timezone || "",
+        },
+        hostName: event?.host?.name || "",
+        ctaUrl: event?.cta?.url || "",
+      },
+    });
+  };
+
+  const resetForm = () => {
+    setForm({
+      name: "",
+      email: "",
+      phone: "",
+      state: "",
+      qualification: "",
+      consent: false,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.phone || !form.state || !form.qualification || !form.consent) {
+    if (!isFormComplete()) {
       setStatus((prev) => ({ ...prev, error: "Please complete all required fields." }));
       return;
     }
@@ -209,42 +261,39 @@ const RegistrationCard = ({ event }) => {
     try {
       setStatus({ submitting: true, success: false, error: null });
       setShowSuccessModal(false);
-      await submitEventRegistration({
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        state: form.state,
-        course: event?.title || "Event",
-        message: `Interested in ${event?.title || "event"} event`,
-        qualification: form.qualification,
-        consent: form.consent,
-        eventDetails: {
-          id: event?.id || event?._id || null,
-          slug: event?.slug || "",
-          title: event?.title || "",
-          schedule: {
-            start: event?.schedule?.start || null,
-            timezone: event?.schedule?.timezone || "",
-          },
-          hostName: event?.host?.name || "",
-          ctaUrl: event?.cta?.url || "",
-        },
-      });
+      await submitRegistration();
       setStatus({ submitting: false, success: true, error: null });
-      setForm({
-        name: "",
-        email: "",
-        phone: "",
-        state: "",
-        qualification: "",
-        consent: false,
-      });
+      resetForm();
       setShowSuccessModal(true);
     } catch (err) {
       setStatus({
         submitting: false,
         success: false,
         error: err?.message || "Failed to register interest",
+      });
+    }
+  };
+
+  const handleJoinNow = async () => {
+    if (!isFormComplete()) {
+      setStatus((prev) => ({ ...prev, error: "Please complete all required fields to join." }));
+      return;
+    }
+    if (!joinUrl) {
+      setStatus((prev) => ({ ...prev, error: "Join link is unavailable right now." }));
+      return;
+    }
+    try {
+      setStatus({ submitting: true, success: false, error: null });
+      await submitRegistration();
+      resetForm();
+      setStatus({ submitting: false, success: true, error: null });
+      window.open(joinUrl, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      setStatus({
+        submitting: false,
+        success: false,
+        error: err?.message || "Unable to join right now. Please try again.",
       });
     }
   };
@@ -338,13 +387,24 @@ const RegistrationCard = ({ event }) => {
             Email, SMS, WhatsApp and RCS.
           </label>
         </div>
-        <button
-          type='submit'
-          className='btn btn-main w-100 rounded-pill mt-20'
-          disabled={status.submitting}
-        >
-          {status.submitting ? "Registering..." : "Register for free"}
-        </button>
+        {liveWindow && joinUrl ? (
+          <button
+            type='button'
+            className='btn btn-main w-100 rounded-pill mt-20'
+            onClick={handleJoinNow}
+            disabled={status.submitting}
+          >
+            {status.submitting ? "Please wait..." : "Join now"}
+          </button>
+        ) : (
+          <button
+            type='submit'
+            className='btn btn-main w-100 rounded-pill mt-20'
+            disabled={status.submitting}
+          >
+            {status.submitting ? "Registering..." : "Register for free"}
+          </button>
+        )}
         {status.success ? (
           <p className='text-success-600 text-sm mt-12 mb-0'>
             You’re in! Our team will reach out with joining details.

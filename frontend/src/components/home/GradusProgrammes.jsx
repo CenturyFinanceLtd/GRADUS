@@ -44,17 +44,14 @@ const GradusProgrammes = () => {
       programmeSlug: "gradus-finlit",
       courses: [
         {
-          slug: "complete-trading-and-investment-mastery-program",
-          title: "Complete Trading & Investment Mastery Program",
+          slug: "finance-and-market-excellence-programme",
+          title: "Finance and Market Excellence Programme",
           flagship: true,
           flagshipTone: "finlit",
         },
-        { slug: "technical-analysis", title: "Technical analysis" },
-        { slug: "swing-trading-investing", title: "Swing trading & investing" },
-        { slug: "scalping-intraday", title: "Scalping & Intraday" },
-        { slug: "futures-options", title: "Futures and options" },
-        { slug: "commodity-trading", title: "Commodity trading" },
-        { slug: "mutual-funds-sips", title: "Mutual funds and SIPs" },
+        { slug: "derivatives-mastery", title: "Derivatives Mastery" },
+        { slug: "forex-trading-mastery", title: "Forex Trading Mastery" },
+        { slug: "technical-analysis", title: "Technical Analysis" },
       ],
     },
     {

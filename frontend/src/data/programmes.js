@@ -36,17 +36,14 @@ export const PROGRAMMES = [
     anchor: "/our-courses?programme=gradus-finlit",
     courses: [
       {
-        name: "Complete Trading & Investment Mastery Program",
-        slug: "complete-trading-and-investment-mastery-program",
+        name: "Finance and Market Excellence Programme",
+        slug: "finance-and-market-excellence-programme",
         flagship: true,
         flagshipTone: "finlit",
       },
-      "Technical analysis",
-      "Swing trading & investing",
-      "Scalping & Intraday",
-      "Futures and options",
-      "Commodity trading",
-      "Mutual funds and SIPs",
+      "Derivatives Mastery",
+      "Forex Trading Mastery",
+      "Technical Analysis",
     ],
   },
   {
