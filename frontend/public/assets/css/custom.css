@@ -5139,8 +5139,10 @@ button:focus {
 
 /* ================================= Padding Css End =========================== */
 /* ================================= Classes Css Start =========================== */
-.container--lg {
-  max-width: 1140px !important;
+@media (max-width: 1299px) {
+  .container--lg {
+    max-width: 1140px !important;
+  }
 }
 .container--xl {
   max-width: 1760px !important;

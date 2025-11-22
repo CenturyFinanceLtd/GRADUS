@@ -6387,9 +6387,7 @@ button:focus {
     padding-block-end: 60px !important;
   }
 } /* ================================= Padding Css End =========================== */ /* ================================= Classes Css Start =========================== */
-.container--lg {
-  max-width: 1140px !important;
-}
+
 .container--xl {
   max-width: 1760px !important;
 }
@@ -10904,7 +10902,24 @@ button:focus {
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-} /* ================================= preload Css End ===========================  */ /* ====================== Section Heading ==================== */
+}
+.preloader__spinner {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 5px solid #e2e8f0;
+  border-top-color: #0f172a;
+  animation: preloader-spin 0.8s linear infinite;
+}
+@keyframes preloader-spin {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* ================================= preload Css End ===========================  */ /* ====================== Section Heading ==================== */
 .section-heading {
   margin-bottom: clamp(2rem, -0.13rem + 4.437vw, 3.75rem);
   max-width: 640px;
