@@ -177,7 +177,7 @@ const WhyGradusVideo = () => {
                       zIndex: 2,
                       width: "100%",
                       height: "100%",
-                      objectFit: "cover",
+                      objectFit: "contain",
                       opacity: videoLoaded ? 1 : 0.05,
                       transition: "opacity 0.3s ease",
                       backgroundColor: "#0f172a",

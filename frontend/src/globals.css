@@ -6388,7 +6388,7 @@ button:focus {
   }
 } /* ================================= Padding Css End =========================== */ /* ================================= Classes Css Start =========================== */
 .container--lg {
-  max-width: 1600px !important;
+  max-width: 1140px !important;
 }
 .container--xl {
   max-width: 1760px !important;
@@ -11054,7 +11054,7 @@ button:focus {
 @media (min-width: 992px) {
   .header .header-inner {
     /* header-content-wrapper will handle internal layout */
-    min-height: 96px;
+    min-height: 80px;
   }
   .header-content-wrapper {
     display: grid;
@@ -11226,7 +11226,7 @@ button:focus {
 @media screen and (max-width: 1399px) {
   .logo img {
     max-width: 100% !important;
-    width: 190px !important;
+    width: 140px !important;
   }
 }
 @media screen and (max-width: 767px) {
@@ -19861,3 +19861,43 @@ li.breadcrumb__item{
 }
 
 /* Google sign-in prompt */
+
+/* Keep videos letterboxed when entering fullscreen to avoid cropped zoom */
+video:fullscreen,
+video:-webkit-full-screen,
+video:-moz-full-screen,
+video:-ms-fullscreen {
+  object-fit: contain !important;
+  background-color: #000;
+}
+
+
+
+
+/* Responsive */
+@media (min-width:1399px) {
+  .header .header-inner{
+    min-height: 96px;
+  }
+}
+@media (max-width:1399px) {
+  .nav-menu__badge{
+    top: -7px;
+    right: -12px;
+    padding: 1px 2px;
+    font-size: 0.325rem;
+    font-weight: 500;
+  }
+.account-pill__icon{
+    width: 28px;
+    height: 28px;
+  }
+  .account-pill__label{
+    font-size: 0.675rem;
+  }
+  .account-pill{
+    padding: 0px 6px 0px 6px;
+    gap: 5px;
+    height: 45px;
+  }
+}
