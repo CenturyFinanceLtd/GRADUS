@@ -117,8 +117,9 @@ const getActiveLiveSessionForCourse = asyncHandler(async (req, res) => {
   const courseKey = req.params.courseKey || req.params.courseSlug || req.params.courseId;
   const session = liveService.findActiveSessionByCourse({ courseKey });
   if (!session) {
-    res.status(404);
-    throw new Error('No live class is currently in progress for this course.');
+    // Return a 200 with a null payload to avoid noisy 404s when polling for availability.
+    res.json({ session: null });
+    return;
   }
   res.json({ session });
 });

@@ -45,6 +45,9 @@ const createSessionRecord = ({
     courseName: courseName || null,
     courseSlug: courseSlug || null,
     participants: new Map(),
+    allowStudentAudio: true,
+    allowStudentVideo: true,
+    allowStudentScreenShare: true,
   };
 
   sessions.set(session.id, session);
@@ -75,6 +78,18 @@ const updateSessionRecord = (sessionId, updates = {}) => {
 
   if (updates.courseSlug !== undefined) {
     session.courseSlug = updates.courseSlug;
+  }
+
+  if (typeof updates.allowStudentAudio === 'boolean') {
+    session.allowStudentAudio = updates.allowStudentAudio;
+  }
+
+  if (typeof updates.allowStudentVideo === 'boolean') {
+    session.allowStudentVideo = updates.allowStudentVideo;
+  }
+
+  if (typeof updates.allowStudentScreenShare === 'boolean') {
+    session.allowStudentScreenShare = updates.allowStudentScreenShare;
   }
 
   if (updates.status && LIVE_SESSION_STATUSES.includes(updates.status)) {
@@ -142,6 +157,9 @@ const toSessionSnapshot = (session, options = {}) => {
     activeParticipantCount: participants.filter((participant) => participant.connected).length,
     isLive: session.status === 'live',
     isJoinable: session.status !== 'ended',
+    allowStudentAudio: session.allowStudentAudio,
+    allowStudentVideo: session.allowStudentVideo,
+    allowStudentScreenShare: session.allowStudentScreenShare,
   };
 
   if (includeParticipants) {

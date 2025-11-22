@@ -3,6 +3,7 @@
   - Encapsulates validation and derives sanitized responses for controllers
 */
 const { LiveSessionError } = require('./errors');
+const liveEvents = require('./liveEvents');
 const {
   LIVE_SESSION_STATUSES,
   createSessionRecord,
@@ -13,6 +14,28 @@ const {
   addParticipantRecord,
   getSessionRecord,
 } = require('./liveStore');
+
+const normalizeKey = (value) => {
+  if (value === undefined || value === null) {
+    return '';
+  }
+  return String(value).trim().toLowerCase();
+};
+
+const buildCourseKeyVariants = (rawKey) => {
+  const normalized = normalizeKey(rawKey);
+  if (!normalized) {
+    return [];
+  }
+
+  const variants = new Set([normalized]);
+  const parts = normalized.split(/[\\/]+/).filter(Boolean);
+  if (parts.length > 1) {
+    variants.add(parts[parts.length - 1]);
+  }
+
+  return Array.from(variants);
+};
 
 const normalizeIsoDate = (value) => {
   if (!value) {
@@ -135,10 +158,24 @@ const updateSession = (sessionId, payload = {}) => {
     updates.courseSlug = payload.courseSlug ? payload.courseSlug.trim() : null;
   }
 
+  if (payload.allowStudentAudio !== undefined) {
+    updates.allowStudentAudio = Boolean(payload.allowStudentAudio);
+  }
+
+  if (payload.allowStudentVideo !== undefined) {
+    updates.allowStudentVideo = Boolean(payload.allowStudentVideo);
+  }
+
+  if (payload.allowStudentScreenShare !== undefined) {
+    updates.allowStudentScreenShare = Boolean(payload.allowStudentScreenShare);
+  }
+
   const session = updateSessionRecord(sessionId, updates);
   if (!session) {
     throw new LiveSessionError('Live session not found.', 404);
   }
+
+  liveEvents.emit('session-updated', session.id);
 
   return toSessionSnapshot(session, { includeParticipants: true });
 };
@@ -192,12 +229,8 @@ const registerInstructorParticipant = ({ sessionId, admin, hostSecret }) => {
 };
 
 const findActiveSessionByCourse = ({ courseKey }) => {
-  if (!courseKey) {
-    return null;
-  }
-
-  const normalized = String(courseKey).trim().toLowerCase();
-  if (!normalized) {
+  const candidates = buildCourseKeyVariants(courseKey);
+  if (!candidates.length) {
     return null;
   }
 
@@ -207,11 +240,9 @@ const findActiveSessionByCourse = ({ courseKey }) => {
       if (session.status !== 'live') {
         return false;
       }
-      const courseIdMatch =
-        session.courseId && String(session.courseId).trim().toLowerCase() === normalized;
-      const courseSlugMatch =
-        session.courseSlug && String(session.courseSlug).trim().toLowerCase() === normalized;
-      return courseIdMatch || courseSlugMatch;
+      const courseId = normalizeKey(session.courseId);
+      const courseSlug = normalizeKey(session.courseSlug);
+      return candidates.some((key) => key === courseId || key === courseSlug);
     }) || null
   );
 };

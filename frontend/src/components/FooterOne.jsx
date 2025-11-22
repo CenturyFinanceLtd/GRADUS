@@ -152,9 +152,11 @@ const FooterOne = () => {
       } catch (error) {
         console.error("Failed to load footer courses", error);
         if (isMounted) {
+          const initial = {};
           PROGRAMMES.forEach(({ slug }) => {
-            grouped[slug] = [];
+            initial[slug] = [];
           });
+          setProgrammeCourses(initial);
         }
       } finally {
         if (isMounted) {

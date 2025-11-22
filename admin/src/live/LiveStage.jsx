@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 const EMPTY_ARRAY = [];
@@ -15,7 +15,7 @@ const RemoteParticipantTile = ({ participant }) => {
   return (
     <div className='live-participant'>
       {participant.stream ? (
-        <video ref={videoRef} autoPlay playsInline />
+        <video ref={videoRef} autoPlay playsInline className='live-participant-video' />
       ) : (
         <div className='live-participant-placeholder'>
           <span>{participant.displayName?.[0] || '?'}</span>
@@ -52,8 +52,16 @@ const LiveStage = ({
   onLeave,
   onEnd,
   publicJoinLink,
+  onToggleStudentAudio,
+  onToggleStudentVideo,
+  onToggleStudentScreenShare,
+  onStartScreenShare,
+  onStopScreenShare,
+  screenShareActive,
 }) => {
   const localVideoRef = useRef(null);
+  const [showParticipants, setShowParticipants] = useState(false);
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     if (localVideoRef.current && localStream) {
@@ -72,76 +80,192 @@ const LiveStage = ({
     }
   };
 
+  const statusBadgeClass =
+    stageStatus === 'live' ? 'bg-success text-white' : stageStatus === 'error' ? 'bg-danger text-white' : 'bg-warning';
+
+  const participantsList = remoteParticipants.filter((participant) => participant.connected);
+  const showSidePanels = showParticipants || showChat;
+  const allowStudentAudio = session?.allowStudentAudio !== false;
+  const allowStudentVideo = session?.allowStudentVideo !== false;
+  const allowStudentScreenShare = session?.allowStudentScreenShare !== false;
+
   return (
-    <div className='live-stage card'>
-      <div className='card-body live-stage-body'>
-        <div className='live-stage-header'>
+    <div className='card host-live-card'>
+      <div className='card-body host-live-body'>
+        <div className='host-live-header'>
           <div>
-            <h4 className='card-title mb-1'>{session?.title || 'Live classroom'}</h4>
+            <p className='text-uppercase text-muted small mb-1'>Live classroom</p>
+            <h4 className='card-title mb-1 d-flex align-items-center gap-2 flex-wrap'>
+              {session?.title || 'Live session'}
+              <span className={`badge ${statusBadgeClass}`}>{stageStatus}</span>
+            </h4>
             {session?.courseName && (
               <p className='text-muted mb-0'>
-                Course:&nbsp;
-                <strong>{session.courseName}</strong>
+                {session.courseName}
                 {session.courseSlug ? <span className='ms-1 text-lowercase'>({session.courseSlug})</span> : null}
               </p>
             )}
-            <p className='text-muted mb-0 mt-1'>
-              Status:&nbsp;
-              <strong className={`text-${stageStatus === 'live' ? 'success' : stageStatus === 'error' ? 'danger' : 'warning'}`}>
-                {stageStatus}
-              </strong>
-            </p>
           </div>
-          <div className='live-stage-actions'>
-            {publicJoinLink && (
-              <button className='btn btn-outline-secondary btn-sm' type='button' onClick={copyJoinLink}>
-                Copy student link
-              </button>
-            )}
-            <button className='btn btn-outline-danger btn-sm' type='button' onClick={onEnd}>
-              End session
-            </button>
-            <button className='btn btn-outline-secondary btn-sm' type='button' onClick={onLeave}>
+          <div className='d-flex align-items-center gap-2 flex-wrap'>
+            <button className='btn btn-outline-warning btn-sm' type='button' onClick={onLeave}>
               Leave stage
             </button>
+            <button className='btn btn-danger btn-sm' type='button' onClick={onEnd}>
+              End session
+            </button>
           </div>
         </div>
 
-        {stageError && <div className='alert alert-danger mt-3'>{stageError}</div>}
+        {stageError && <div className='alert alert-danger mb-3'>{stageError}</div>}
 
-        <div className='live-stage-video-grid'>
-          <div className='live-participant local-stream'>
+        <div className='host-live-perms'>
+          <div className='perm-item'>
+            <span className='label'>Student audio</span>
+            <button
+              type='button'
+              className={`perm-btn ${allowStudentAudio ? 'is-on' : 'is-off'}`}
+              onClick={() => onToggleStudentAudio?.(!allowStudentAudio)}
+            >
+              {allowStudentAudio ? 'Allowed' : 'Muted'}
+            </button>
+          </div>
+          <div className='perm-item'>
+            <span className='label'>Student video</span>
+            <button
+              type='button'
+              className={`perm-btn ${allowStudentVideo ? 'is-on' : 'is-off'}`}
+              onClick={() => onToggleStudentVideo?.(!allowStudentVideo)}
+            >
+              {allowStudentVideo ? 'Allowed' : 'Disabled'}
+            </button>
+          </div>
+          <div className='perm-item'>
+            <span className='label'>Student screen share</span>
+            <button
+              type='button'
+              className={`perm-btn ${allowStudentScreenShare ? 'is-on' : 'is-off'}`}
+              onClick={() => onToggleStudentScreenShare?.(!allowStudentScreenShare)}
+            >
+              {allowStudentScreenShare ? 'Allowed' : 'Blocked'}
+            </button>
+          </div>
+        </div>
+
+        <div className={`host-live-grid ${showSidePanels ? 'with-side' : 'single'}`}>
+          <div className='host-live-main'>
             {localStream ? (
-              <video ref={localVideoRef} autoPlay playsInline muted />
+              <video
+                ref={localVideoRef}
+                autoPlay
+                playsInline
+                muted
+                className={`host-live-video ${screenShareActive ? 'no-mirror' : 'mirror'}`}
+              />
             ) : (
-              <div className='live-participant-placeholder'>
-                <span>You</span>
+              <div className='host-live-placeholder'>
+                <p className='mb-0 text-muted'>Camera is off</p>
               </div>
             )}
-            <div className='live-participant-meta'>
-              <strong>Instructor</strong>
-              <span>{localStream ? 'Camera on' : 'Camera disabled'}</span>
+            <div className='host-live-overlay d-flex align-items-center gap-3'>
+              <span className='badge bg-success'>You • Instructor</span>
+              <span className='badge bg-dark'>{participantsList.length + 1} participants</span>
             </div>
           </div>
-          {remoteParticipants.map((participant) => (
-            <RemoteParticipantTile key={participant.id} participant={participant} />
-          ))}
+          {showSidePanels ? (
+            <div className='host-live-side'>
+              {showParticipants ? (
+                <div className='host-live-panel'>
+                  <div className='d-flex align-items-center justify-content-between mb-2'>
+                    <span className='text-uppercase small text-muted'>Participants</span>
+                    <button
+                      type='button'
+                      className='btn btn-sm btn-outline-light'
+                      onClick={() => setShowParticipants(false)}
+                    >
+                      Hide
+                    </button>
+                  </div>
+                <ul className='host-live-participants'>
+                  <li className='is-online'>
+                    <span className='dot' />
+                    <span className='name'>You (Instructor)</span>
+                    <span className='role'>Host</span>
+                  </li>
+                  {participantsList.map((p) => {
+                    const name = p.role === 'instructor' ? 'Instructor' : p.displayName || 'Participant';
+                    return (
+                      <li key={p.id} className={p.connected ? 'is-online' : ''}>
+                        <span className='dot' />
+                        <span className='name'>{name}</span>
+                        <span className='role'>{p.role === 'instructor' ? 'Host' : 'Attendee'}</span>
+                      </li>
+                    );
+                  })}
+                  {participantsList.length === 0 ? (
+                    <li className='text-muted small'>No students connected yet.</li>
+                  ) : null}
+                </ul>
+                </div>
+              ) : null}
+
+              {showChat ? (
+                <div className='host-live-panel'>
+                  <div className='d-flex align-items-center justify-content-between mb-2'>
+                    <span className='text-uppercase small text-muted'>Chat</span>
+                    <button
+                      type='button'
+                      className='btn btn-sm btn-outline-light'
+                      onClick={() => setShowChat(false)}
+                    >
+                      Hide
+                    </button>
+                  </div>
+                  <div className='host-live-chat placeholder'>
+                    <p className='text-muted small mb-2'>Chat coming soon.</p>
+                    <button className='btn btn-sm btn-outline-light w-100' type='button' disabled>
+                      Type a message
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </div>
 
-        <div className='live-stage-controls'>
+        <div className='host-live-toolbar'>
           <button
             type='button'
-            className={`btn btn-${localMediaState.video ? 'primary' : 'outline-secondary'}`}
-            onClick={() => toggleMediaTrack('video', !localMediaState.video)}
+            className={`tbtn ${localMediaState.audio ? '' : 'is-off'}`}
+            onClick={() => toggleMediaTrack('audio', !localMediaState.audio)}
           >
-            {localMediaState.video ? 'Camera on' : 'Camera off'}
+            {localMediaState.audio ? 'Mute' : 'Unmute'}
           </button>
           <button
             type='button'
-            className={`btn btn-${localMediaState.audio ? 'primary' : 'outline-secondary'}`}
-            onClick={() => toggleMediaTrack('audio', !localMediaState.audio)}
+            className={`tbtn ${localMediaState.video ? '' : 'is-off'}`}
+            onClick={() => toggleMediaTrack('video', !localMediaState.video)}
           >
-            {localMediaState.audio ? 'Mic on' : 'Mic muted'}
+            {localMediaState.video ? 'Stop Video' : 'Start Video'}
+          </button>
+          <button type='button' className='tbtn' onClick={() => setShowParticipants((prev) => !prev)}>
+            Participants
+          </button>
+          <button type='button' className='tbtn' onClick={() => setShowChat((prev) => !prev)}>
+            Chat
+          </button>
+          <button
+            type='button'
+            className='tbtn'
+            onClick={() => (screenShareActive ? onStopScreenShare?.() : onStartScreenShare?.())}
+            disabled={!onStartScreenShare}
+          >
+            {screenShareActive ? 'Stop Share' : 'Share Screen'}
+          </button>
+          <button type='button' className='tbtn' onClick={() => alert('Reactions coming soon')}>
+            Reactions
+          </button>
+          <button type='button' className='tbtn end' onClick={onEnd}>
+            End
           </button>
         </div>
       </div>
@@ -163,6 +287,12 @@ LiveStage.propTypes = {
   onLeave: PropTypes.func.isRequired,
   onEnd: PropTypes.func.isRequired,
   publicJoinLink: PropTypes.string,
+  onToggleStudentAudio: PropTypes.func,
+  onToggleStudentVideo: PropTypes.func,
+  onToggleStudentScreenShare: PropTypes.func,
+  onStartScreenShare: PropTypes.func,
+  onStopScreenShare: PropTypes.func,
+  screenShareActive: PropTypes.bool,
 };
 
 export default LiveStage;

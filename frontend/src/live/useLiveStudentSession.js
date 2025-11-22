@@ -38,11 +38,14 @@ const useLiveStudentSession = (sessionId) => {
   const [instructorStream, setInstructorStream] = useState(null);
   const [localStream, setLocalStream] = useState(null);
   const [localMediaState, setLocalMediaState] = useState({ audio: true, video: true });
+  const [screenShareActive, setScreenShareActive] = useState(false);
 
   const participantRef = useRef(null);
   const hostParticipantRef = useRef(null);
   const peerConnectionRef = useRef(null);
   const localStreamRef = useRef(null);
+  const cameraStreamRef = useRef(null);
+  const screenStreamRef = useRef(null);
   const signalingRef = useRef({ socket: null, hostId: null });
   const sessionSnapshotRef = useRef(null);
 
@@ -69,9 +72,9 @@ const useLiveStudentSession = (sessionId) => {
     loadSession();
   }, [loadSession]);
 
-  const ensureLocalMedia = useCallback(async () => {
-    if (localStreamRef.current) {
-      return localStreamRef.current;
+  const ensureCameraStream = useCallback(async () => {
+    if (cameraStreamRef.current) {
+      return cameraStreamRef.current;
     }
 
     if (!navigator.mediaDevices?.getUserMedia) {
@@ -82,21 +85,41 @@ const useLiveStudentSession = (sessionId) => {
       audio: true,
       video: true,
     });
-    localStreamRef.current = stream;
-    setLocalStream(stream);
+    cameraStreamRef.current = stream;
+    if (!screenShareActive) {
+      localStreamRef.current = stream;
+      setLocalStream(stream);
+    }
     return stream;
-  }, []);
+  }, [screenShareActive]);
 
   const toggleMediaTrack = useCallback((kind, enabled) => {
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach((track) => {
+    const snapshot = sessionSnapshotRef.current;
+    if (enabled) {
+      if (kind === "audio" && snapshot?.allowStudentAudio === false) {
+        setStageError("Instructor has muted student microphones.");
+        return;
+      }
+      if (kind === "video" && snapshot?.allowStudentVideo === false) {
+        setStageError("Instructor has disabled student cameras.");
+        return;
+      }
+      if (kind === "video" && screenShareActive && snapshot?.allowStudentScreenShare === false) {
+        setStageError("Instructor has disabled student screen sharing.");
+        return;
+      }
+    }
+    const targetStream = localStreamRef.current || cameraStreamRef.current;
+    if (targetStream) {
+      targetStream.getTracks().forEach((track) => {
         if (track.kind === kind) {
           track.enabled = enabled;
         }
       });
     }
     setLocalMediaState((prev) => ({ ...prev, [kind === "video" ? "video" : "audio"]: enabled }));
-  }, []);
+    setStageError(null);
+  }, [screenShareActive]);
 
   const teardownConnection = useCallback(() => {
     if (peerConnectionRef.current) {
@@ -124,16 +147,24 @@ const useLiveStudentSession = (sessionId) => {
   const leaveSession = useCallback(() => {
     disconnectSignaling();
     teardownConnection();
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach((track) => {
+    const stopTracks = (stream) => {
+      if (!stream) return;
+      stream.getTracks().forEach((track) => {
         try {
           track.stop();
         } catch (_) {
           // ignore
         }
       });
-      localStreamRef.current = null;
-    }
+    };
+    stopTracks(localStreamRef.current);
+    stopTracks(cameraStreamRef.current);
+    stopTracks(screenStreamRef.current);
+
+    localStreamRef.current = null;
+    cameraStreamRef.current = null;
+    screenStreamRef.current = null;
+    setScreenShareActive(false);
     setLocalStream(null);
     participantRef.current = null;
     hostParticipantRef.current = null;
@@ -201,7 +232,7 @@ const useLiveStudentSession = (sessionId) => {
     }
 
     try {
-      await ensureLocalMedia();
+      await ensureCameraStream();
       const pc = createPeerConnection(instructor.id);
       if (!pc) {
         return;
@@ -216,7 +247,7 @@ const useLiveStudentSession = (sessionId) => {
     } catch (error) {
       console.warn("[live] Failed to start negotiation", error);
     }
-  }, [createPeerConnection, ensureLocalMedia, sendSignal]);
+  }, [createPeerConnection, ensureCameraStream, sendSignal]);
 
   const handleSessionUpdate = useCallback(
     (sessionPayload) => {
@@ -259,7 +290,7 @@ const useLiveStudentSession = (sessionId) => {
       if (!payload?.data || !payload?.from) {
         return;
       }
-      await ensureLocalMedia();
+      await ensureCameraStream();
       let pc = peerConnectionRef.current;
       if (!pc) {
         pc = createPeerConnection(payload.from);
@@ -273,7 +304,7 @@ const useLiveStudentSession = (sessionId) => {
         data: answer,
       });
     },
-    [createPeerConnection, ensureLocalMedia, sendSignal]
+    [createPeerConnection, ensureCameraStream, sendSignal]
   );
 
   const handleIceCandidate = useCallback((payload) => {
@@ -310,6 +341,107 @@ const useLiveStudentSession = (sessionId) => {
     },
     [handleSessionUpdate, handleAnswer, handleOfferResponse, handleIceCandidate]
   );
+
+  const replaceVideoTrackForHost = useCallback((nextTrack) => {
+    const pc = peerConnectionRef.current;
+    if (!pc || !nextTrack) {
+      return;
+    }
+    const sender = pc.getSenders().find((s) => s.track && s.track.kind === "video");
+    if (sender) {
+      sender.replaceTrack(nextTrack).catch((error) => {
+        console.warn("[live] Failed to replace track", error?.message);
+      });
+    } else {
+      pc.addTrack(nextTrack, localStreamRef.current || cameraStreamRef.current || new MediaStream([nextTrack]));
+    }
+  }, []);
+
+  const stopScreenShare = useCallback(
+    async ({ silent } = {}) => {
+      if (screenStreamRef.current) {
+        screenStreamRef.current.getTracks().forEach((track) => {
+          try {
+            track.stop();
+          } catch (_) {
+            // ignore
+          }
+        });
+        screenStreamRef.current = null;
+      }
+
+      const cameraStream = cameraStreamRef.current || (await ensureCameraStream());
+      const cameraVideoTrack = cameraStream?.getVideoTracks()?.[0] || null;
+      if (cameraVideoTrack) {
+        replaceVideoTrackForHost(cameraVideoTrack);
+      }
+
+      localStreamRef.current = cameraStream;
+      setLocalStream(cameraStream || null);
+      setScreenShareActive(false);
+
+      if (!silent && !cameraVideoTrack) {
+        setStageError("Unable to restore camera after screen sharing.");
+      }
+    },
+    [ensureCameraStream, replaceVideoTrackForHost]
+  );
+
+  const startScreenShare = useCallback(async () => {
+    const snapshot = sessionSnapshotRef.current;
+    if (snapshot?.allowStudentScreenShare === false) {
+      setStageError("Instructor has disabled student screen sharing.");
+      return;
+    }
+    if (screenShareActive) {
+      return;
+    }
+    if (!navigator.mediaDevices?.getDisplayMedia) {
+      setStageError("Your browser does not support screen sharing.");
+      return;
+    }
+
+    const cameraStream = await ensureCameraStream();
+    const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+    const [screenTrack] = screenStream.getVideoTracks();
+    if (!screenTrack) {
+      setStageError("Screen share did not provide a video track.");
+      return;
+    }
+
+    const audioTracks = cameraStream?.getAudioTracks ? cameraStream.getAudioTracks() : [];
+    const combined = new MediaStream([...audioTracks, screenTrack]);
+
+    screenTrack.onended = () => stopScreenShare({ silent: true });
+
+    localStreamRef.current = combined;
+    setLocalStream(combined);
+    screenStreamRef.current = screenStream;
+    setScreenShareActive(true);
+
+    replaceVideoTrackForHost(screenTrack);
+  }, [ensureCameraStream, replaceVideoTrackForHost, screenShareActive, stopScreenShare]);
+
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+    if (session.allowStudentAudio === false && localStreamRef.current) {
+      localStreamRef.current.getAudioTracks().forEach((track) => {
+        track.enabled = false;
+      });
+      setLocalMediaState((prev) => (prev.audio ? { ...prev, audio: false } : prev));
+    }
+    if (session.allowStudentVideo === false && localStreamRef.current) {
+      localStreamRef.current.getVideoTracks().forEach((track) => {
+        track.enabled = false;
+      });
+      setLocalMediaState((prev) => (prev.video ? { ...prev, video: false } : prev));
+    }
+    if (session.allowStudentScreenShare === false && screenShareActive) {
+      stopScreenShare({ silent: true });
+    }
+  }, [session?.allowStudentAudio, session?.allowStudentVideo, session?.allowStudentScreenShare, screenShareActive, stopScreenShare]);
 
   const connectSignaling = useCallback(
     (signaling, participant) => {
@@ -365,20 +497,35 @@ const useLiveStudentSession = (sessionId) => {
       setStageStatus("joining");
       setStageError(null);
 
-      const response = await joinLiveSession(
-        sessionId,
-        { displayName: displayName || user?.firstName || user?.personalDetails?.studentName },
-        { token }
-      );
+      try {
+        const response = await joinLiveSession(
+          sessionId,
+          { displayName: displayName || user?.firstName || user?.personalDetails?.studentName },
+          { token }
+        );
 
-      participantRef.current = response?.participant || null;
-      setSession(response?.session || null);
-      sessionSnapshotRef.current = response?.session || null;
+        if (!response?.participant || !response?.session || !response?.signaling) {
+          throw new Error("Unable to join this live session.");
+        }
 
-      await ensureLocalMedia();
-      connectSignaling(response?.signaling, response?.participant);
+        participantRef.current = response.participant;
+        setSession(response.session);
+        sessionSnapshotRef.current = response.session;
+
+        await ensureCameraStream();
+        connectSignaling(response.signaling, response.participant);
+      } catch (error) {
+        const status = error?.status;
+        const message =
+          status === 404
+            ? "This live session is no longer available. Please refresh or rejoin from the course page."
+            : error?.message || "Unable to join this live session.";
+        setStageStatus("error");
+        setStageError(message);
+        return null;
+      }
     },
-    [connectSignaling, ensureLocalMedia, sessionId, token, user]
+    [connectSignaling, ensureCameraStream, sessionId, token, user]
   );
 
   const statusLabel = useMemo(() => {
@@ -406,6 +553,9 @@ const useLiveStudentSession = (sessionId) => {
     joinClass,
     leaveSession,
     toggleMediaTrack,
+    startScreenShare,
+    stopScreenShare,
+    screenShareActive,
     user,
   };
 };

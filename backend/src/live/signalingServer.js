@@ -6,6 +6,7 @@
 const { WebSocketServer } = require('ws');
 const { URL } = require('url');
 const config = require('../config/env');
+const liveEvents = require('./liveEvents');
 const {
   verifyParticipantKey,
   setParticipantConnectionState,
@@ -223,6 +224,11 @@ const attachLiveSignalingServer = (httpServer) => {
   });
 
   console.log(`[live-signaling] WebSocket signaling mounted on ${config.serverUrl}${signalingPath}`);
+
+  liveEvents.on('session-updated', (sessionId) => {
+    broadcastSessionState(connections, sessionId);
+  });
+
   return wss;
 };
 

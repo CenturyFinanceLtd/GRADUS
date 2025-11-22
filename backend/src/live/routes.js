@@ -24,6 +24,6 @@ router.post('/sessions/:sessionId/instructor/join', protectAdmin, joinInstructor
 // Student endpoints
 router.get('/sessions/:sessionId/public', protect, getSessionForParticipant);
 router.post('/sessions/:sessionId/join', protect, joinStudentSession);
-router.get('/sessions/course/:courseKey/active', protect, getActiveLiveSessionForCourse);
+router.get('/sessions/course/*courseKey/active', protect, getActiveLiveSessionForCourse);
 
 module.exports = router;

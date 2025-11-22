@@ -22,6 +22,9 @@ const LiveStudentPage = () => {
     joinClass,
     leaveSession,
     toggleMediaTrack,
+    startScreenShare,
+    stopScreenShare,
+    screenShareActive,
     user,
   } = useLiveStudentSession(sessionId);
 
@@ -62,6 +65,16 @@ const LiveStudentPage = () => {
     return date.toLocaleString();
   }, [session?.scheduledFor]);
 
+  const shareAllowed = session?.allowStudentScreenShare !== false;
+  const handleShareToggle = () => {
+    if (screenShareActive) {
+      stopScreenShare();
+    } else {
+      startScreenShare();
+    }
+  };
+  const mainLabel = instructorStream ? "Instructor" : null;
+
   return (
     <>
       <Preloader />
@@ -90,7 +103,10 @@ const LiveStudentPage = () => {
                 {stageError && <div className='alert alert-danger mt-3'>{stageError}</div>}
                 <div className='live-stage-video'>
                   {instructorStream ? (
-                    <video ref={instructorVideoRef} autoPlay playsInline />
+                    <>
+                      <div className='live-embed-main__label'>{mainLabel}</div>
+                      <video ref={instructorVideoRef} autoPlay playsInline className='live-video live-video--instructor' />
+                    </>
                   ) : (
                     <div className='live-video-placeholder'>
                       <p>{connected ? "Waiting for instructor video..." : "Click join when your instructor goes live."}</p>
@@ -114,6 +130,14 @@ const LiveStudentPage = () => {
                   >
                     {localMediaState.audio ? "Mic on" : "Mic muted"}
                   </button>
+                  <button
+                    type='button'
+                    className={`btn btn-${screenShareActive ? "primary" : "outline-secondary"}`}
+                    onClick={handleShareToggle}
+                    disabled={!connected || !shareAllowed}
+                  >
+                    {screenShareActive ? "Stop share" : "Share screen"}
+                  </button>
                   <div className='spacer' />
                   {connected ? (
                     <button className='btn btn-outline-danger' type='button' onClick={leaveSession}>
@@ -131,7 +155,13 @@ const LiveStudentPage = () => {
                 <h4>Your preview</h4>
                 <div className='live-preview'>
                   {localStream ? (
-                    <video ref={localVideoRef} autoPlay playsInline muted />
+                    <video
+                      ref={localVideoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      className={`live-video ${screenShareActive ? "live-video--no-mirror" : "live-video--self"}`}
+                    />
                   ) : (
                     <div className='live-video-placeholder'>
                       <p>Enable camera/mic after joining.</p>

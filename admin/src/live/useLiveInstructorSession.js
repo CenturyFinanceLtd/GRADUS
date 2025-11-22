@@ -66,11 +66,14 @@ const useLiveInstructorSession = () => {
   const [remoteParticipants, setRemoteParticipants] = useState(emptyArray);
   const [localStream, setLocalStream] = useState(null);
   const [localMediaState, setLocalMediaState] = useState({ audio: true, video: true });
+  const [screenShareActive, setScreenShareActive] = useState(false);
 
   const sessionSecretsRef = useRef(new Map());
   const peerConnectionsRef = useRef(new Map());
   const remoteStreamsRef = useRef(new Map());
   const localStreamRef = useRef(null);
+  const cameraStreamRef = useRef(null);
+  const screenStreamRef = useRef(null);
   const signalingRef = useRef({ socket: null, sessionId: null, participantId: null, iceServers: [] });
   const sessionSnapshotRef = useRef(null);
   const instructorParticipantRef = useRef(null);
@@ -115,8 +118,8 @@ const useLiveInstructorSession = () => {
   }, [loadSessions]);
 
   const ensureLocalMedia = useCallback(async () => {
-    if (localStreamRef.current) {
-      return localStreamRef.current;
+    if (cameraStreamRef.current) {
+      return cameraStreamRef.current;
     }
 
     if (!navigator.mediaDevices?.getUserMedia) {
@@ -128,14 +131,18 @@ const useLiveInstructorSession = () => {
       video: true,
     });
 
-    localStreamRef.current = stream;
-    setLocalStream(stream);
+    cameraStreamRef.current = stream;
+    if (!screenShareActive) {
+      localStreamRef.current = stream;
+      setLocalStream(stream);
+    }
     return stream;
-  }, []);
+  }, [screenShareActive]);
 
   const toggleMediaTrack = useCallback((kind, enabled) => {
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach((track) => {
+    const targetStream = localStreamRef.current || cameraStreamRef.current;
+    if (targetStream) {
+      targetStream.getTracks().forEach((track) => {
         if (track.kind === kind) {
           track.enabled = enabled;
         }
@@ -149,16 +156,25 @@ const useLiveInstructorSession = () => {
   }, []);
 
   const teardownLocalMedia = useCallback(() => {
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach((track) => {
+    const stopTracks = (stream) => {
+      if (!stream) return;
+      stream.getTracks().forEach((track) => {
         try {
           track.stop();
         } catch (_) {
           // ignore
         }
       });
-      localStreamRef.current = null;
-    }
+    };
+
+    stopTracks(localStreamRef.current);
+    stopTracks(cameraStreamRef.current);
+    stopTracks(screenStreamRef.current);
+
+    localStreamRef.current = null;
+    cameraStreamRef.current = null;
+    screenStreamRef.current = null;
+    setScreenShareActive(false);
     setLocalStream(null);
   }, []);
 
@@ -334,6 +350,79 @@ const useLiveInstructorSession = () => {
     },
     [sendSignal, buildRemoteParticipantSnapshot]
   );
+
+  const replaceVideoTrackForAll = useCallback((nextTrack) => {
+    peerConnectionsRef.current.forEach((pc) => {
+      const sender = pc.getSenders().find((s) => s.track && s.track.kind === 'video');
+      if (sender) {
+        sender.replaceTrack(nextTrack).catch((error) => {
+          console.warn('[live] Failed to replace track', error?.message);
+        });
+      } else if (nextTrack) {
+        pc.addTrack(nextTrack, localStreamRef.current || cameraStreamRef.current || nextTrack);
+      }
+    });
+  }, []);
+
+  const stopScreenShare = useCallback(
+    async ({ silent } = {}) => {
+      if (screenStreamRef.current) {
+        screenStreamRef.current.getTracks().forEach((track) => {
+          try {
+            track.stop();
+          } catch (_) {
+            // ignore
+          }
+        });
+        screenStreamRef.current = null;
+      }
+
+      const cameraStream = cameraStreamRef.current || (await ensureLocalMedia());
+      const cameraVideoTrack = cameraStream?.getVideoTracks()?.[0] || null;
+
+      if (cameraVideoTrack) {
+        replaceVideoTrackForAll(cameraVideoTrack);
+      }
+
+      localStreamRef.current = cameraStream;
+      setLocalStream(cameraStream || null);
+      setScreenShareActive(false);
+
+      if (!silent && !cameraVideoTrack) {
+        setStageError('Unable to restore camera after screen sharing.');
+      }
+    },
+    [ensureLocalMedia, replaceVideoTrackForAll]
+  );
+
+  const startScreenShare = useCallback(async () => {
+    if (screenShareActive) {
+      return;
+    }
+
+    if (!navigator.mediaDevices?.getDisplayMedia) {
+      throw new Error('Screen sharing is not supported in this browser.');
+    }
+
+    const cameraStream = await ensureLocalMedia();
+    const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+    const [screenTrack] = screenStream.getVideoTracks();
+    if (!screenTrack) {
+      throw new Error('Screen share did not provide a video track.');
+    }
+
+    const audioTracks = cameraStream?.getAudioTracks ? cameraStream.getAudioTracks() : [];
+    const combined = new MediaStream([...audioTracks, screenTrack]);
+
+    screenTrack.onended = () => stopScreenShare({ silent: true });
+
+    localStreamRef.current = combined;
+    setLocalStream(combined);
+    screenStreamRef.current = screenStream;
+    setScreenShareActive(true);
+
+    replaceVideoTrackForAll(screenTrack);
+  }, [ensureLocalMedia, replaceVideoTrackForAll, screenShareActive, stopScreenShare]);
 
   const handleRemoteOffer = useCallback(
     async (payload) => {
@@ -554,6 +643,27 @@ const useLiveInstructorSession = () => {
           setActiveSession(session);
           sessionSnapshotRef.current = session;
         }
+        if (status === 'ended') {
+          stopScreenShare({ silent: true });
+        }
+      }
+      return session;
+    },
+    [token, activeSession?.id, mergeSessionIntoList, stopScreenShare]
+  );
+
+  const updateStudentMediaPermissions = useCallback(
+    async (sessionId, changes) => {
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+      const session = await updateLiveSession(sessionId, changes, token);
+      if (session) {
+        mergeSessionIntoList(session);
+        if (activeSession?.id === session.id) {
+          setActiveSession(session);
+          sessionSnapshotRef.current = session;
+        }
       }
       return session;
     },
@@ -594,6 +704,10 @@ const useLiveInstructorSession = () => {
     localMediaState,
     localStream,
     buildStudentLink,
+    updateStudentMediaPermissions,
+    startScreenShare,
+    stopScreenShare,
+    screenShareActive,
   };
 };
 

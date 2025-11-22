@@ -7,6 +7,7 @@ import Preloader from "../helper/Preloader";
 import { useAuth } from "../context/AuthContext";
 import { API_BASE_URL } from "../services/apiClient";
 import { fetchActiveLiveSessionForCourse } from "../live/liveApi";
+import useLiveStudentSession from "../live/useLiveStudentSession";
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker?url";
 
@@ -1172,7 +1173,7 @@ const SectionPlaceholder = ({ title, description }) => (
 const CourseHomePage = () => {
   const { programme, course, section: sectionSlugParam, subSection: sectionDetailParam } =
     useParams();
-  const { token, loading: authLoading } = useAuth();
+  const { token, loading: authLoading, user: authUser } = useAuth();
   const navigate = useNavigate();
   const sectionFromUrl = useMemo(
     () => resolveSectionFromSlug(sectionSlugParam),
@@ -1271,6 +1272,10 @@ const CourseHomePage = () => {
 
   useEffect(() => {
     if (!programme || !course || sectionFromUrl === MODULE_SECTION_ID) {
+      return;
+    }
+    // Allow live embed route to bypass canonical slug enforcement
+    if (sectionSlugParam === "live") {
       return;
     }
     const expectedSlug =
@@ -1694,6 +1699,50 @@ const CourseHomePage = () => {
     }
     return [...new Set(keys.filter(Boolean).map((key) => String(key).trim()))];
   }, [state.course?.slug, state.course?.id, state.course?._id, course]);
+  const isLiveSection = sectionSlugParam === "live";
+  const liveSessionIdFromRoute = isLiveSection ? sectionDetailParam : null;
+  const liveInstructorVideoRef = useRef(null);
+  const liveInstructorPreviewVideoRef = useRef(null);
+  const liveLocalVideoRef = useRef(null);
+  const [selfViewPrimary, setSelfViewPrimary] = useState(false);
+  const [showParticipantsPanel, setShowParticipantsPanel] = useState(false);
+  const [showChatPanel, setShowChatPanel] = useState(false);
+  const {
+    session: embeddedLiveSession,
+    stageStatus: embeddedStageStatus,
+    stageError: embeddedStageError,
+    instructorStream,
+    localStream,
+    joinClass,
+    toggleMediaTrack,
+    leaveSession: leaveEmbeddedSession,
+    localMediaState,
+    startScreenShare,
+    stopScreenShare,
+    screenShareActive,
+  } = useLiveStudentSession(liveSessionIdFromRoute || undefined);
+
+  useEffect(() => {
+    if (liveInstructorVideoRef.current) {
+      liveInstructorVideoRef.current.srcObject = instructorStream || null;
+    }
+    if (liveInstructorPreviewVideoRef.current) {
+      liveInstructorPreviewVideoRef.current.srcObject = instructorStream || null;
+    }
+  }, [instructorStream]);
+
+  useEffect(() => {
+    if (liveLocalVideoRef.current) {
+      liveLocalVideoRef.current.srcObject = localStream || null;
+    }
+  }, [localStream]);
+
+  useEffect(() => {
+    // Reset side panels when entering a new/matching live session
+    setShowParticipantsPanel(false);
+    setShowChatPanel(false);
+    setSelfViewPrimary(false);
+  }, [liveSessionIdFromRoute]);
   const handleSectionChange = (nextSectionId) => {
     const normalizedSection =
       NAV_SECTIONS.find((section) => section.id === nextSectionId)?.id || DEFAULT_SECTION_ID;
@@ -1730,8 +1779,11 @@ const CourseHomePage = () => {
     for (const key of courseLookupKeys) {
       try {
         const response = await fetchActiveLiveSessionForCourse(key, { token });
-        setLiveSessionState({ checking: false, session: response?.session || null, error: null });
-        return;
+        if (response?.session) {
+          setLiveSessionState({ checking: false, session: response.session, error: null });
+          return;
+        }
+        continue;
       } catch (error) {
         if (error?.status === 404) {
           continue;
@@ -1769,6 +1821,31 @@ const CourseHomePage = () => {
       clearInterval(intervalId);
     };
   }, [checkActiveLiveSession, courseLookupKeys, isEnrolled, token]);
+
+  useEffect(() => {
+    if (!isLiveSection || !liveSessionIdFromRoute || !isEnrolled) {
+      return;
+    }
+    if (embeddedStageStatus === "idle") {
+      const displayName =
+        state.course?.studentName ||
+        authUser?.personalDetails?.studentName ||
+        [authUser?.firstName, authUser?.lastName].filter(Boolean).join(" ") ||
+        authUser?.email;
+      joinClass({ displayName });
+    }
+  }, [
+    embeddedStageStatus,
+    isEnrolled,
+    isLiveSection,
+    joinClass,
+    liveSessionIdFromRoute,
+    authUser?.email,
+    authUser?.firstName,
+    authUser?.lastName,
+    authUser?.personalDetails?.studentName,
+    state.course?.studentName,
+  ]);
   const syncProgressWithServer = useCallback(
     async ({ lectureId, moduleId, sectionId, lectureTitle, videoUrl, currentTime, duration }) => {
       if (!token || !programme || !course || !lectureId) {
@@ -2657,6 +2734,267 @@ const CourseHomePage = () => {
     }
   };
 
+  const liveStatusText = useMemo(() => {
+    if (embeddedStageStatus === "live") {
+      return "Connected";
+    }
+    if (embeddedStageStatus === "joining" || embeddedStageStatus === "connecting") {
+      return "Connecting…";
+    }
+    if (embeddedStageStatus === "error") {
+      return "Connection error";
+    }
+    return "Not connected";
+  }, [embeddedStageStatus]);
+
+  const handleLeaveLiveView = () => {
+    leaveEmbeddedSession();
+    navigate(`/${programme}/${course}/home`);
+  };
+
+  const renderHeroMedia = () => {
+    if (isLiveSection && liveSessionIdFromRoute && isEnrolled) {
+      const connected = embeddedStageStatus === "live";
+      const audioAllowed = embeddedLiveSession?.allowStudentAudio !== false;
+      const videoAllowed = embeddedLiveSession?.allowStudentVideo !== false;
+      const screenShareAllowed = embeddedLiveSession?.allowStudentScreenShare !== false;
+      const participantList = (() => {
+        const rawList = Array.isArray(embeddedLiveSession?.participants)
+          ? embeddedLiveSession.participants.filter((participant) => participant.connected)
+          : [];
+        const seen = new Set();
+        return rawList.filter((participant) => {
+          const key = `${participant.role}-${participant.displayName || participant.id}`;
+          if (seen.has(key)) {
+            return false;
+          }
+          seen.add(key);
+          return true;
+        });
+      })();
+      const hasLocalVideo = Boolean(localStream && localMediaState.video);
+      const hasInstructorVideo = Boolean(instructorStream);
+      const showSelfPrimary = selfViewPrimary && hasLocalVideo;
+      const mainVideoLabel = showSelfPrimary ? "You" : hasInstructorVideo ? "Instructor" : null;
+      return (
+        <div className='course-home-video mb-20 live-embed-card'>
+          <div className='d-flex align-items-center justify-content-between flex-wrap gap-2 mb-12'>
+            <div>
+              <p className='course-home-panel__eyebrow mb-4 text-danger-600'>Live classroom</p>
+              <h3 className='course-home-panel__title mb-0'>
+                {embeddedLiveSession?.courseName || prettyCourseName || "Live class"}{" "}
+                <span className={`badge ms-2 ${connected ? "bg-success" : "bg-secondary"}`}>
+                  {liveStatusText}
+                </span>
+              </h3>
+              <p className='text-neutral-600 mb-0 small'>Session ID: {liveSessionIdFromRoute}</p>
+            </div>
+            <div />
+          </div>
+          {embeddedStageError ? (
+            <div className='alert alert-danger mb-3'>{embeddedStageError}</div>
+          ) : null}
+          <div className={`live-embed-grid ${showParticipantsPanel || showChatPanel ? "with-aside" : "single"}`}>
+            <div className='live-embed-main'>
+              {mainVideoLabel ? <div className='live-embed-main__label'>{mainVideoLabel}</div> : null}
+              {showSelfPrimary && hasLocalVideo ? (
+                <video
+                  ref={liveLocalVideoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className={`live-video ${screenShareActive ? "live-video--no-mirror" : "live-video--self"}`}
+                />
+              ) : hasInstructorVideo ? (
+                <video
+                  ref={liveInstructorVideoRef}
+                  autoPlay
+                  playsInline
+                  className={`live-video ${screenShareActive ? "live-video--no-mirror" : "live-video--instructor"}`}
+                />
+              ) : (
+                <div className='live-embed-placeholder'>
+                  <p className='text-neutral-700 mb-2'>
+                    {connected ? "Waiting for instructor video..." : "Connecting to live class..."}
+                  </p>
+                  <p className='text-neutral-500 small mb-0'>
+                    Check camera/mic permissions if it takes longer than expected.
+                  </p>
+                </div>
+              )}
+              {showSelfPrimary ? (
+                hasInstructorVideo ? (
+                  <div className='live-embed-pip live-embed-pip--instructor'>
+                    <div className='live-embed-pip__label'>Instructor</div>
+                    <video
+                      ref={liveInstructorPreviewVideoRef}
+                      autoPlay
+                      playsInline
+                      className={`live-video ${screenShareActive ? "live-video--no-mirror" : "live-video--instructor"}`}
+                    />
+                  </div>
+                ) : null
+              ) : hasLocalVideo ? (
+                <div className='live-embed-pip live-embed-pip--self'>
+                  <div className='live-embed-pip__label'>You</div>
+                  <video
+                    ref={liveLocalVideoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className={`live-video ${screenShareActive ? "live-video--no-mirror" : "live-video--self"}`}
+                  />
+                </div>
+              ) : null}
+            </div>
+            {showParticipantsPanel || showChatPanel ? (
+              <div className='live-embed-side'>
+                {showParticipantsPanel ? (
+                  <div className='live-embed-sidecard'>
+                    <div className='d-flex align-items-center justify-content-between mb-2'>
+                      <span className='course-home-panel__eyebrow mb-0'>Participants</span>
+                      <button
+                        type='button'
+                        className='btn btn-sm btn-outline-primary'
+                        onClick={() => setShowParticipantsPanel(false)}
+                      >
+                        Hide
+                      </button>
+                    </div>
+                    <ul className='live-embed-participants'>
+                      {participantList.length === 0 ? (
+                        <li className='text-neutral-400 small'>No one connected yet.</li>
+                      ) : (
+                        participantList.map((p) => {
+                          const name = p.role === "instructor" ? "Instructor" : p.displayName || "Participant";
+                          return (
+                            <li key={p.id} className={p.connected ? "is-online" : ""}>
+                              <span className='dot' />
+                              <span className='name'>{name}</span>
+                              <span className='role'>{p.role === "instructor" ? "Host" : "Attendee"}</span>
+                            </li>
+                          );
+                        })
+                      )}
+                    </ul>
+                  </div>
+                ) : null}
+                {showChatPanel ? (
+                  <div className='live-embed-sidecard'>
+                    <div className='d-flex align-items-center justify-content-between mb-2'>
+                      <span className='course-home-panel__eyebrow mb-0'>Chat</span>
+                      <button
+                        type='button'
+                        className='btn btn-sm btn-outline-primary'
+                        onClick={() => setShowChatPanel(false)}
+                      >
+                        Hide
+                      </button>
+                    </div>
+                    <div className='live-embed-chat'>
+                      <p className='text-neutral-500 small mb-2'>Chat coming soon.</p>
+                      <button type='button' className='btn btn-sm btn-outline-primary w-100' disabled>
+                        Type a message
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+          <div className='live-embed-toolbar'>
+            <button
+              type='button'
+              className={`toolbar-btn ${localMediaState.audio ? "" : "is-off"}`}
+              onClick={() => toggleMediaTrack("audio", !localMediaState.audio)}
+              disabled={!audioAllowed}
+            >
+              {audioAllowed ? (localMediaState.audio ? "Mute" : "Unmute") : "Audio blocked"}
+            </button>
+            <button
+              type='button'
+              className={`toolbar-btn ${localMediaState.video ? "" : "is-off"}`}
+              onClick={() => toggleMediaTrack("video", !localMediaState.video)}
+              disabled={!videoAllowed}
+            >
+              {videoAllowed ? (localMediaState.video ? "Stop Video" : "Start Video") : "Video blocked"}
+            </button>
+            <button
+              type='button'
+              className='toolbar-btn'
+              onClick={() => (screenShareActive ? stopScreenShare() : startScreenShare())}
+              disabled={!screenShareAllowed || embeddedStageStatus !== "live"}
+            >
+              {screenShareActive ? "Stop Share" : "Share Screen"}
+            </button>
+            <button
+              type='button'
+              className='toolbar-btn'
+              onClick={() => setSelfViewPrimary((prev) => !prev)}
+              disabled={!hasLocalVideo}
+            >
+              {selfViewPrimary ? "View instructor" : "View yourself"}
+            </button>
+            <button
+              type='button'
+              className='toolbar-btn'
+              onClick={() => setShowParticipantsPanel((prev) => !prev)}
+            >
+              {showParticipantsPanel ? "Hide participants" : "Participants"}
+            </button>
+            <button
+              type='button'
+              className='toolbar-btn'
+              onClick={() => setShowChatPanel((prev) => !prev)}
+            >
+              {showChatPanel ? "Hide chat" : "Chat"}
+            </button>
+            <button
+              type='button'
+              className='toolbar-btn'
+              onClick={() => alert("Screen share coming soon")}
+            >
+              Share Screen
+            </button>
+            <button type='button' className='toolbar-btn' onClick={() => alert("Reactions coming soon")}>
+              Reactions
+            </button>
+            <button type='button' className='toolbar-btn leave-btn' onClick={handleLeaveLiveView}>
+              Leave
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className='course-home-video mb-20'>
+        {activeVideo?.src ? (
+          <CourseVideoPlayer
+            src={activeVideo?.src || defaultVideoMeta.src}
+            poster={activeVideo?.poster || defaultVideoMeta.poster}
+            title={activeVideo?.title || defaultVideoMeta.title}
+            subtitle={activeVideo?.subtitle || defaultVideoMeta.subtitle}
+            autoPlayToken={videoAutoPlayToken}
+            onClose={handlePlayerClose}
+            autoPlayEnabled={autoPlayEnabled}
+            onToggleAutoplay={handleAutoplayToggle}
+            qualityOptions={derivedQualityOptions}
+            qualityPreference={qualityPreference}
+            onQualityChange={setQualityPreference}
+            subtitleOptions={subtitleOptions}
+            subtitlePreference={subtitlePreference}
+            onSubtitleChange={setSubtitlePreference}
+            lectureMeta={currentLectureMeta}
+            resumePositionSeconds={resumePositionSeconds}
+            onProgress={handlePlayerProgress}
+          />
+        ) : (
+          <CourseVideoPlaceholder banner={courseBannerUrl} />
+        )}
+      </div>
+    );
+  };
 
   const renderSidebar = () => (
     <div className='course-home-tabs d-flex align-items-center justify-content-between gap-12 flex-wrap'>
@@ -2683,7 +3021,11 @@ const CourseHomePage = () => {
         <button
           type='button'
           className='btn btn-main rounded-pill course-live-cta'
-          onClick={() => navigate(`/live/${liveSessionState.session.id}`)}
+          onClick={() =>
+            navigate(`/${programme}/${course}/home/live/${liveSessionState.session.id}`, {
+              replace: false,
+            })
+          }
         >
           Join live class
         </button>
@@ -2798,32 +3140,7 @@ const CourseHomePage = () => {
               </div>
             </div>
           </div>
-          <div className='course-home-video mb-20'>
-            {activeVideo?.src ? (
-              <CourseVideoPlayer
-                src={activeVideo?.src || defaultVideoMeta.src}
-                poster={activeVideo?.poster || defaultVideoMeta.poster}
-                title={activeVideo?.title || defaultVideoMeta.title}
-                subtitle={activeVideo?.subtitle || defaultVideoMeta.subtitle}
-                autoPlayToken={videoAutoPlayToken}
-                onClose={handlePlayerClose}
-                autoPlayEnabled={autoPlayEnabled}
-                onToggleAutoplay={handleAutoplayToggle}
-                qualityOptions={derivedQualityOptions}
-                qualityPreference={qualityPreference}
-                onQualityChange={setQualityPreference}
-                subtitleOptions={subtitleOptions}
-                subtitlePreference={subtitlePreference}
-                onSubtitleChange={setSubtitlePreference}
-                lectureMeta={currentLectureMeta}
-                resumePositionSeconds={resumePositionSeconds}
-                onProgress={handlePlayerProgress}
-              />
-            ) : (
-              <CourseVideoPlaceholder banner={courseBannerUrl} />
-            )}
-
-          </div>
+          {renderHeroMedia()}
           {notesTarget?.hasNotes ? (
             <div className='course-notes-action mb-20'>
               <div className='course-notes-action__text'>

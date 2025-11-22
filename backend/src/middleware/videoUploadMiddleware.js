@@ -1,8 +1,13 @@
 /*
-  Multer memory storage for video uploads
+  Multer disk storage for video uploads
+  - Streams uploads to disk (not memory) to support very large files
   - Validates common video mime types
-  - Size limit default 200MB (adjust via env VIDEO_MAX_SIZE_MB)
+  - Default size limit: 2GB (override via VIDEO_MAX_SIZE_MB)
 */
+const crypto = require('crypto');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 const multer = require('multer');
 
 const VIDEO_TYPES = new Set([
@@ -20,13 +25,27 @@ const videoFileFilter = (req, file, cb) => {
   cb(null, true);
 };
 
-const maxSizeMb = Number(process.env.VIDEO_MAX_SIZE_MB || 200);
+const DEFAULT_MAX_SIZE_MB = 2048; // 2GB
+const parsedMaxSize = Number(process.env.VIDEO_MAX_SIZE_MB);
+const maxSizeMb = Number.isFinite(parsedMaxSize) && parsedMaxSize > 0 ? parsedMaxSize : DEFAULT_MAX_SIZE_MB;
+const maxSizeBytes = maxSizeMb * 1024 * 1024;
+
+const uploadDir = path.join(os.tmpdir(), 'gradus-video-uploads');
+fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, uploadDir),
+  filename: (_req, file, cb) => {
+    const safeExt = path.extname(file.originalname || '') || '.mp4';
+    const uniqueName = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}${safeExt}`;
+    cb(null, uniqueName);
+  },
+});
 
 const videoUpload = multer({
-  storage: multer.memoryStorage(),
+  storage,
   fileFilter: videoFileFilter,
-  limits: { fileSize: maxSizeMb * 1024 * 1024 },
+  limits: { fileSize: maxSizeBytes, files: 1 },
 });
 
 module.exports = { videoUpload };
-

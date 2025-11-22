@@ -3,8 +3,14 @@
   - Handles Cloudinary-backed uploads for the hero "Why Gradus" section
 */
 const asyncHandler = require('express-async-handler');
+const fs = require('fs');
 const { cloudinary, whyGradusVideoFolder } = require('../config/cloudinary');
 const WhyGradusVideo = require('../models/WhyGradusVideo');
+
+const VIDEO_LIMIT_MB = Number.isFinite(Number(process.env.VIDEO_MAX_SIZE_MB))
+  ? Number(process.env.VIDEO_MAX_SIZE_MB)
+  : 2048;
+const CLOUDINARY_CHUNK_BYTES = 20 * 1024 * 1024; // 20MB chunks to support large files
 
 const mapItem = (doc) => ({
   id: doc._id,
@@ -30,39 +36,68 @@ const listAdminWhyGradusVideo = asyncHandler(async (req, res) => {
   res.json({ items });
 });
 
-const uploadToCloudinary = (buffer) =>
+const cleanupTempFile = async (filePath) => {
+  if (!filePath) return;
+  try {
+    await fs.promises.unlink(filePath);
+  } catch (_) {
+    // ignore cleanup errors
+  }
+};
+
+const uploadToCloudinary = (filePath) =>
   new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
+    let settled = false;
+    const finish = (err, result) => {
+      if (settled) return;
+      settled = true;
+      if (err) return reject(err);
+      resolve(result);
+    };
+
+    const uploadStream = cloudinary.uploader.upload_stream(
       {
         resource_type: 'video',
         folder: whyGradusVideoFolder,
-        chunk_size: 6 * 1024 * 1024,
+        chunk_size: CLOUDINARY_CHUNK_BYTES,
       },
-      (error, result) => {
-        if (error) return reject(error);
-        resolve(result);
-      }
+      (error, result) => finish(error, result)
     );
-    stream.end(buffer);
+
+    const fileStream = fs.createReadStream(filePath);
+    const handleError = (err) => {
+      if (settled) return;
+      settled = true;
+      uploadStream.destroy?.();
+      fileStream.destroy?.();
+      reject(err);
+    };
+
+    fileStream.on('error', handleError);
+    uploadStream.on('error', handleError);
+    fileStream.pipe(uploadStream);
   });
 
 const createWhyGradusVideo = asyncHandler(async (req, res) => {
   const { title, subtitle, description, ctaLabel, ctaHref, active, order } = req.body || {};
-  if (!req.file || !req.file.buffer) {
+  if (!req.file || !req.file.path) {
     res.status(400);
     throw new Error('Video file is required');
   }
 
   let uploadResult;
   try {
-    uploadResult = await uploadToCloudinary(req.file.buffer);
+    uploadResult = await uploadToCloudinary(req.file.path);
   } catch (error) {
     const status = error?.http_code || error?.status || error?.statusCode;
     if (status === 413) {
       res.status(413);
-      throw new Error('Video is too large for the current plan. Please upload a smaller file.');
+      const limitText = Number.isFinite(VIDEO_LIMIT_MB) ? `${VIDEO_LIMIT_MB} MB` : 'the configured maximum size';
+      throw new Error(`Video is too large. Maximum allowed size is ${limitText}. If the file is within the limit, your Cloudinary plan or reverse proxy may need a higher cap.`);
     }
     throw error;
+  } finally {
+    await cleanupTempFile(req.file?.path);
   }
 
   const posterUrl = cloudinary.url(uploadResult.public_id + '.jpg', {
@@ -142,4 +177,3 @@ module.exports = {
   updateWhyGradusVideo,
   deleteWhyGradusVideo,
 };
-
