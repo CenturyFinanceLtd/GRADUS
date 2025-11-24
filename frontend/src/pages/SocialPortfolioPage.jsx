@@ -36,6 +36,20 @@ const SocialPortfolioPage = () => {
       icon: "ph ph-instagram-logo",
       color: "#E4405F",
     },
+    {
+      name: "LinkedIn",
+      handle: "Gradus India",
+      url: "https://www.linkedin.com/company/gradusindia/",
+      icon: "ph ph-linkedin-logo",
+      color: "#0A66C2",
+    },
+    {
+      name: "YouTube",
+      handle: "@gradusindia",
+      url: "https://www.youtube.com/@gradusindia",
+      icon: "ph ph-youtube-logo",
+      color: "#FF0000",
+    },
   ];
 
   const handleCopy = async (text) => {
