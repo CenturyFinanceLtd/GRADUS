@@ -10,13 +10,13 @@
 */
 @font-face {
   font-family: "remixicon";
-  src: url("remixicon.eot?t=1718271040674"); /* IE9*/
-  src: url("remixicon.eot?t=1718271040674#iefix") format("embedded-opentype"),
-    /* IE6-IE8 */ url("remixicon.woff2?t=1718271040674") format("woff2"),
-    url("remixicon.woff?t=1718271040674") format("woff"),
-    url("remixicon.ttf?t=1718271040674") format("truetype"),
-    /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
-      url("remixicon.svg?t=1718271040674#remixicon") format("svg"); /* iOS 4.1- */
+  /* Use CDN-hosted fonts to avoid missing local assets in dev */
+  src: url("https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.eot");
+  src: url("https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.eot?#iefix") format("embedded-opentype"),
+    url("https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.ttf") format("truetype"),
+    url("https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.svg#remixicon") format("svg");
   font-display: swap;
 }
 

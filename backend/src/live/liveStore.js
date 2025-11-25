@@ -1,111 +1,18 @@
 /*
-  In-memory store for live session metadata
-  - Persists live classes and participant state until the process restarts
-  - Shared between REST controllers and the WebSocket signaling gateway
+  Mongo-backed store for live session metadata and participants
+  - Replaces the previous in-memory Maps so live classes survive restarts
 */
 const { v4: uuidv4 } = require('uuid');
+const { LiveSession, LIVE_SESSION_STATUSES } = require('../models/LiveSession');
+const { LiveParticipant } = require('../models/LiveParticipant');
+const { LiveRoom } = require('../models/LiveRoom');
+const { LiveEvent } = require('../models/LiveEvent');
 
-const LIVE_SESSION_STATUSES = ['scheduled', 'live', 'ended'];
-
-const sessions = new Map();
-
-const nowIso = () => new Date().toISOString();
-
-const requireSession = (sessionId) => {
-  if (!sessionId) {
+const toPlain = (doc) => {
+  if (!doc) {
     return null;
   }
-
-  return sessions.get(sessionId) || null;
-};
-
-const createSessionRecord = ({
-  title,
-  scheduledFor,
-  hostAdminId,
-  hostDisplayName,
-  courseId,
-  courseName,
-  courseSlug,
-}) => {
-  const timestamp = nowIso();
-  const session = {
-    id: uuidv4(),
-    title: title?.trim() || 'Untitled live class',
-    status: 'scheduled',
-    createdAt: timestamp,
-    updatedAt: timestamp,
-    startedAt: null,
-    endedAt: null,
-    scheduledFor: scheduledFor || null,
-    hostAdminId,
-    hostDisplayName,
-    hostSecret: uuidv4(),
-    courseId: courseId || null,
-    courseName: courseName || null,
-    courseSlug: courseSlug || null,
-    participants: new Map(),
-    allowStudentAudio: true,
-    allowStudentVideo: true,
-    allowStudentScreenShare: true,
-  };
-
-  sessions.set(session.id, session);
-  return session;
-};
-
-const updateSessionRecord = (sessionId, updates = {}) => {
-  const session = requireSession(sessionId);
-  if (!session) {
-    return null;
-  }
-
-  if (typeof updates.title === 'string') {
-    session.title = updates.title;
-  }
-
-  if (updates.scheduledFor !== undefined) {
-    session.scheduledFor = updates.scheduledFor;
-  }
-
-  if (updates.courseId !== undefined) {
-    session.courseId = updates.courseId;
-  }
-
-  if (updates.courseName !== undefined) {
-    session.courseName = updates.courseName;
-  }
-
-  if (updates.courseSlug !== undefined) {
-    session.courseSlug = updates.courseSlug;
-  }
-
-  if (typeof updates.allowStudentAudio === 'boolean') {
-    session.allowStudentAudio = updates.allowStudentAudio;
-  }
-
-  if (typeof updates.allowStudentVideo === 'boolean') {
-    session.allowStudentVideo = updates.allowStudentVideo;
-  }
-
-  if (typeof updates.allowStudentScreenShare === 'boolean') {
-    session.allowStudentScreenShare = updates.allowStudentScreenShare;
-  }
-
-  if (updates.status && LIVE_SESSION_STATUSES.includes(updates.status)) {
-    if (session.status !== updates.status) {
-      session.status = updates.status;
-      if (updates.status === 'live') {
-        session.startedAt = session.startedAt || nowIso();
-        session.endedAt = null;
-      } else if (updates.status === 'ended') {
-        session.endedAt = nowIso();
-      }
-    }
-  }
-
-  session.updatedAt = nowIso();
-  return session;
+  return doc.toObject ? doc.toObject() : doc;
 };
 
 const toParticipantSnapshot = (participant, { includeSignalingKey = false } = {}) => {
@@ -114,15 +21,17 @@ const toParticipantSnapshot = (participant, { includeSignalingKey = false } = {}
   }
 
   const snapshot = {
-    id: participant.id,
-    sessionId: participant.sessionId,
+    id: String(participant._id || participant.id),
+    sessionId: String(participant.session),
     displayName: participant.displayName,
     role: participant.role,
-    userId: participant.userId,
-    adminId: participant.adminId,
+    userId: participant.userId ? String(participant.userId) : null,
+    adminId: participant.adminId ? String(participant.adminId) : null,
     joinedAt: participant.joinedAt,
     lastSeenAt: participant.lastSeenAt,
     connected: Boolean(participant.connected),
+    waiting: Boolean(participant.waiting),
+    roomId: participant.roomId ? String(participant.roomId) : null,
   };
 
   if (includeSignalingKey) {
@@ -132,63 +41,196 @@ const toParticipantSnapshot = (participant, { includeSignalingKey = false } = {}
   return snapshot;
 };
 
-const toSessionSnapshot = (session, options = {}) => {
+const toSessionSnapshot = async (session, options = {}) => {
   if (!session) {
     return null;
   }
 
-  const { includeParticipants = false, includeHostSecret = false } = options;
-  const participants = Array.from(session.participants.values());
+  const { includeParticipants = false, includeHostSecret = false, participants = null } = options;
+  const sessionObj = toPlain(session);
+  const participantList =
+    includeParticipants && !participants
+      ? await LiveParticipant.find({ session: sessionObj._id }).lean()
+      : participants || [];
+
   const snapshot = {
-    id: session.id,
-    title: session.title,
-    status: session.status,
-    scheduledFor: session.scheduledFor,
-    createdAt: session.createdAt,
-    updatedAt: session.updatedAt,
-    startedAt: session.startedAt,
-    endedAt: session.endedAt,
-    hostAdminId: session.hostAdminId,
-    hostDisplayName: session.hostDisplayName,
-    courseId: session.courseId,
-    courseName: session.courseName,
-    courseSlug: session.courseSlug,
-    totalParticipantCount: participants.length,
-    activeParticipantCount: participants.filter((participant) => participant.connected).length,
-    isLive: session.status === 'live',
-    isJoinable: session.status !== 'ended',
-    allowStudentAudio: session.allowStudentAudio,
-    allowStudentVideo: session.allowStudentVideo,
-    allowStudentScreenShare: session.allowStudentScreenShare,
+    id: String(sessionObj._id || sessionObj.id),
+    title: sessionObj.title,
+    status: sessionObj.status,
+    scheduledFor: sessionObj.scheduledFor,
+    createdAt: sessionObj.createdAt,
+    updatedAt: sessionObj.updatedAt,
+    startedAt: sessionObj.startedAt,
+    endedAt: sessionObj.endedAt,
+    hostAdminId: sessionObj.hostAdminId ? String(sessionObj.hostAdminId) : null,
+    hostDisplayName: sessionObj.hostDisplayName,
+    courseId: sessionObj.courseId,
+    courseName: sessionObj.courseName,
+    courseSlug: sessionObj.courseSlug,
+    totalParticipantCount: participantList.length,
+    activeParticipantCount: participantList.filter((participant) => participant.connected).length,
+    isLive: sessionObj.status === 'live',
+    isJoinable: sessionObj.status !== 'ended',
+    allowStudentAudio: sessionObj.allowStudentAudio,
+    allowStudentVideo: sessionObj.allowStudentVideo,
+    allowStudentScreenShare: sessionObj.allowStudentScreenShare,
+    screenShareOwner: sessionObj.screenShareOwner ? String(sessionObj.screenShareOwner) : null,
+    waitingRoomEnabled: sessionObj.waitingRoomEnabled || false,
+    locked: sessionObj.locked || false,
+    requiresPasscode: Boolean(sessionObj.passcodeHash),
   };
 
   if (includeParticipants) {
-    snapshot.participants = participants.map((participant) => toParticipantSnapshot(participant));
+    snapshot.participants = participantList.map((participant) => toParticipantSnapshot(participant));
+  }
+
+  if (options.includeRooms) {
+    const rooms = await LiveRoom.find({ session: sessionObj._id }).lean();
+    snapshot.rooms = rooms.map((room) => ({
+      id: String(room._id),
+      name: room.name,
+      slug: room.slug,
+    }));
   }
 
   if (includeHostSecret) {
-    snapshot.hostSecret = session.hostSecret;
+    snapshot.hostSecret = sessionObj.hostSecret;
+    snapshot.meetingToken = sessionObj.meetingToken;
   }
 
   return snapshot;
 };
 
-const listSessionSnapshots = (options = {}) => {
-  return Array.from(sessions.values())
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .map((session) => toSessionSnapshot(session, options));
+const listSessionSnapshots = async (options = {}) => {
+  const sessions = await LiveSession.find({}).sort({ createdAt: -1 }).lean();
+  if (!options.includeParticipants) {
+    return Promise.all(sessions.map((session) => toSessionSnapshot(session, options)));
+  }
+
+  const sessionIds = sessions.map((session) => session._id);
+  const participants = await LiveParticipant.find({ session: { $in: sessionIds } }).lean();
+  const rooms = options.includeRooms ? await LiveRoom.find({ session: { $in: sessionIds } }).lean() : [];
+  const participantsBySession = new Map();
+  participants.forEach((participant) => {
+    const key = String(participant.session);
+    if (!participantsBySession.has(key)) {
+      participantsBySession.set(key, []);
+    }
+    participantsBySession.get(key).push(participant);
+  });
+
+  return Promise.all(
+    sessions.map((session) =>
+      toSessionSnapshot(session, {
+        ...options,
+        participants: participantsBySession.get(String(session._id)) || [],
+        rooms: rooms.filter((room) => String(room.session) === String(session._id)),
+      })
+    )
+  );
 };
 
-const addParticipantRecord = (sessionId, payload) => {
-  const session = requireSession(sessionId);
+const createSessionRecord = async ({
+  title,
+  scheduledFor,
+  hostAdminId,
+  hostDisplayName,
+  courseId,
+  courseName,
+  courseSlug,
+  passcodeHash = null,
+  waitingRoomEnabled = false,
+  locked = false,
+}) => {
+  const session = await LiveSession.create({
+    title: title?.trim() || 'Untitled live class',
+    status: 'scheduled',
+    scheduledFor: scheduledFor || null,
+    hostAdminId,
+    hostDisplayName,
+    hostSecret: uuidv4(),
+    meetingToken: uuidv4(),
+    courseId: courseId || null,
+    courseName: courseName || null,
+    courseSlug: courseSlug || null,
+    allowStudentAudio: true,
+    allowStudentVideo: true,
+    allowStudentScreenShare: true,
+    waitingRoomEnabled,
+    locked,
+    passcodeHash,
+    lastActivityAt: new Date(),
+  });
+
+  return toPlain(session);
+};
+
+const updateSessionRecord = async (sessionId, updates = {}) => {
+  if (!sessionId) {
+    return null;
+  }
+
+  const normalizedUpdates = { ...updates, lastActivityAt: new Date() };
+  const session = await LiveSession.findByIdAndUpdate(sessionId, normalizedUpdates, { new: true }).lean();
+  return session || null;
+};
+
+const setScreenShareOwner = async (sessionId, participantId) => {
+  if (!sessionId) {
+    return null;
+  }
+
+  const normalized = participantId ? String(participantId) : null;
+  return LiveSession.findByIdAndUpdate(
+    sessionId,
+    { $set: { screenShareOwner: normalized, lastActivityAt: new Date() } },
+    { new: true }
+  ).lean();
+};
+
+const clearScreenShareOwnerIfMatches = async (sessionId, participantId) => {
+  if (!sessionId || !participantId) {
+    return null;
+  }
+  return LiveSession.findOneAndUpdate(
+    { _id: sessionId, screenShareOwner: String(participantId) },
+    { $set: { screenShareOwner: null, lastActivityAt: new Date() } },
+    { new: true }
+  ).lean();
+};
+
+const getSessionRecord = async (sessionId) => {
+  if (!sessionId) {
+    return null;
+  }
+  return LiveSession.findById(sessionId).lean();
+};
+
+const getSessionSnapshot = async (sessionId, options = {}) => {
+  const session = await getSessionRecord(sessionId);
+  return toSessionSnapshot(session, options);
+};
+
+const getParticipantsForSession = async (sessionId) => {
+  if (!sessionId) {
+    return [];
+  }
+  return LiveParticipant.find({ session: sessionId }).lean();
+};
+
+const addParticipantRecord = async (sessionId, payload) => {
+  if (!sessionId) {
+    return null;
+  }
+
+  const session = await LiveSession.findById(sessionId);
   if (!session) {
     return null;
   }
 
-  const timestamp = nowIso();
-  const participant = {
-    id: uuidv4(),
-    sessionId,
+  const timestamp = new Date();
+  const participant = await LiveParticipant.create({
+    session: session._id,
     role: payload.role,
     displayName: payload.displayName || 'Participant',
     userId: payload.userId || null,
@@ -197,71 +239,174 @@ const addParticipantRecord = (sessionId, payload) => {
     lastSeenAt: timestamp,
     signalingKey: uuidv4(),
     connected: false,
+    waiting: Boolean(payload.waiting),
+    roomId: payload.roomId || null,
     metadata: payload.metadata || {},
-  };
+  });
 
-  session.participants.set(participant.id, participant);
-  session.updatedAt = timestamp;
-  return { session, participant };
+  await LiveSession.updateOne({ _id: sessionId }, { $set: { updatedAt: timestamp, lastActivityAt: timestamp } });
+
+  const freshSession = await LiveSession.findById(sessionId).lean();
+  return { session: freshSession || toPlain(session), participant: toPlain(participant) };
 };
 
-const getParticipantRecord = (sessionId, participantId) => {
-  const session = requireSession(sessionId);
-  if (!session) {
+const getParticipantRecord = async (sessionId, participantId) => {
+  if (!sessionId || !participantId) {
     return null;
   }
 
-  return session.participants.get(participantId) || null;
+  return LiveParticipant.findOne({ _id: participantId, session: sessionId }).lean();
 };
 
-const removeParticipantRecord = (sessionId, participantId) => {
-  const session = requireSession(sessionId);
-  if (!session) {
-    return null;
+const removeParticipantRecord = async (sessionId, participantId) => {
+  if (!sessionId || !participantId) {
+    return false;
   }
 
-  const existed = session.participants.delete(participantId);
-  if (existed) {
-    session.updatedAt = nowIso();
+  const result = await LiveParticipant.deleteOne({ _id: participantId, session: sessionId });
+  if (result.deletedCount > 0) {
+    await clearScreenShareOwnerIfMatches(sessionId, participantId);
   }
-
-  return existed;
+  return result.deletedCount > 0;
 };
 
-const setParticipantConnectionState = (sessionId, participantId, connected) => {
-  const participant = getParticipantRecord(sessionId, participantId);
-  if (!participant) {
+const setParticipantConnectionState = async (sessionId, participantId, connected) => {
+  if (!sessionId || !participantId) {
     return null;
   }
+  const timestamp = new Date();
+  const participant = await LiveParticipant.findOneAndUpdate(
+    { _id: participantId, session: sessionId },
+    { $set: { connected: Boolean(connected), lastSeenAt: timestamp } },
+    { new: true }
+  ).lean();
 
-  participant.connected = connected;
-  participant.lastSeenAt = nowIso();
+  if (participant) {
+    await LiveSession.updateOne({ _id: sessionId }, { $set: { updatedAt: timestamp, lastActivityAt: timestamp } });
+    if (!connected) {
+      await clearScreenShareOwnerIfMatches(sessionId, participantId);
+    }
+  }
+
   return participant;
 };
 
-const touchParticipant = (sessionId, participantId) => {
-  const participant = getParticipantRecord(sessionId, participantId);
-  if (!participant) {
+const setParticipantWaitingState = async (sessionId, participantId, waiting) => {
+  if (!sessionId || !participantId) {
     return null;
   }
+  const timestamp = new Date();
+  const participant = await LiveParticipant.findOneAndUpdate(
+    { _id: participantId, session: sessionId },
+    { $set: { waiting: Boolean(waiting), updatedAt: timestamp, lastSeenAt: timestamp } },
+    { new: true }
+  ).lean();
 
-  participant.lastSeenAt = nowIso();
+  if (participant) {
+    await LiveSession.updateOne({ _id: sessionId }, { $set: { lastActivityAt: timestamp } });
+    if (!waiting) {
+      await clearScreenShareOwnerIfMatches(sessionId, participantId);
+    }
+  }
+
   return participant;
 };
 
-const verifyParticipantKey = (sessionId, participantId, key) => {
-  const session = requireSession(sessionId);
-  if (!session) {
+const createRoomRecord = async (sessionId, { name, slug }) => {
+  if (!sessionId || !name || !slug) return null;
+  const room = await LiveRoom.create({
+    session: sessionId,
+    name,
+    slug,
+  });
+  return room.toObject ? room.toObject() : room;
+};
+
+const listRoomsForSession = async (sessionId) => {
+  if (!sessionId) return [];
+  const rooms = await LiveRoom.find({ session: sessionId }).lean();
+  return rooms.map((room) => ({
+    id: String(room._id),
+    name: room.name,
+    slug: room.slug,
+  }));
+};
+
+const setParticipantRoom = async (sessionId, participantId, roomId) => {
+  if (!sessionId || !participantId) return null;
+  const timestamp = new Date();
+  const participant = await LiveParticipant.findOneAndUpdate(
+    { _id: participantId, session: sessionId },
+    { $set: { roomId: roomId || null, updatedAt: timestamp, lastSeenAt: timestamp } },
+    { new: true }
+  ).lean();
+  if (participant) {
+    await LiveSession.updateOne({ _id: sessionId }, { $set: { lastActivityAt: timestamp } });
+  }
+  return participant;
+};
+
+const logLiveEvent = async ({ sessionId, participantId, role, kind, data }) => {
+  if (!sessionId || !kind) return null;
+  return LiveEvent.create({
+    session: sessionId,
+    participantId: participantId ? String(participantId) : null,
+    role: role || null,
+    kind,
+    data: data || {},
+    createdAt: new Date(),
+  });
+};
+
+const listLiveEvents = async (sessionId, { limit = 500 } = {}) => {
+  if (!sessionId) return [];
+  const events = await LiveEvent.find({ session: sessionId }).sort({ createdAt: -1 }).limit(limit).lean();
+  return events.map((e) => ({
+    id: String(e._id),
+    participantId: e.participantId || null,
+    role: e.role || null,
+    kind: e.kind,
+    data: e.data || {},
+    createdAt: e.createdAt,
+  }));
+};
+
+const touchParticipant = async (sessionId, participantId) => {
+  if (!sessionId || !participantId) {
+    return null;
+  }
+  const timestamp = new Date();
+  const participant = await LiveParticipant.findOneAndUpdate(
+    { _id: participantId, session: sessionId },
+    { $set: { lastSeenAt: timestamp } },
+    { new: true }
+  ).lean();
+
+  if (participant) {
+    await LiveSession.updateOne({ _id: sessionId }, { $set: { lastActivityAt: timestamp } });
+  }
+
+  return participant;
+};
+
+const verifyParticipantKey = async (sessionId, participantId, key) => {
+  if (!sessionId || !participantId || !key) {
     return { valid: false };
   }
 
-  const participant = session.participants.get(participantId);
+  const participant = await LiveParticipant.findOne({
+    _id: participantId,
+    session: sessionId,
+    signalingKey: key,
+  }).lean();
+
   if (!participant) {
     return { valid: false };
   }
 
+  const session = await LiveSession.findById(sessionId).lean();
   return {
-    valid: participant.signalingKey === key,
+    valid: Boolean(session),
     session,
     participant,
   };
@@ -280,5 +425,15 @@ module.exports = {
   setParticipantConnectionState,
   touchParticipant,
   verifyParticipantKey,
-  getSessionRecord: requireSession,
+  getSessionRecord,
+  getSessionSnapshot,
+  getParticipantsForSession,
+  setScreenShareOwner,
+  clearScreenShareOwnerIfMatches,
+  setParticipantWaitingState,
+  createRoomRecord,
+  listRoomsForSession,
+  setParticipantRoom,
+  logLiveEvent,
+  listLiveEvents,
 };

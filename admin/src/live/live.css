@@ -13,56 +13,117 @@
 
 /* Host live stage (Zoom-like) */
 .host-live-card {
-  background: #f8fbff;
+  --host-surface: #ffffff;
+  --host-border: #dfe7ff;
+  --host-shadow: 0 26px 60px rgba(15, 23, 42, 0.12);
   color: #0f172a;
-  border: 1px solid #dfe9ff;
-  border-radius: 16px;
-  box-shadow: 0 22px 48px -18px rgba(15, 23, 42, 0.18);
+  background: radial-gradient(circle at 18% 18%, #f4f7ff 0%, #eef3ff 52%, #f9fbff 100%);
+  border: 1px solid var(--host-border);
+  border-radius: 20px;
+  box-shadow: var(--host-shadow);
+  padding: 6px;
 }
 
 .host-live-body {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+  padding: 16px 18px 18px;
 }
 
 .host-live-perms {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
+  --perm-min: 220px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--perm-min), 1fr));
+  gap: 14px;
+  align-items: stretch;
 }
 
 .host-live-perms .perm-item {
-  background: #f1f5ff;
+  background: #ffffff;
   border: 1px solid #dbe6ff;
-  border-radius: 12px;
-  padding: 8px 12px;
+  border-radius: 16px;
+  padding: 14px 18px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+  min-height: 86px;
+  backdrop-filter: blur(6px);
 }
 
 .host-live-perms .perm-item .label {
-  font-size: 13px;
+  font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   color: #4c5d82;
+  font-weight: 700;
+}
+
+.host-live-perms .perm-item--stack {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.host-live-perms .perm-item--wide {
+  grid-column: span 2;
+}
+
+.host-live-perms .perm-meta {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.host-live-perms .perm-action {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
 }
 
 .host-live-perms .perm-btn {
-  border: 0;
+  position: relative;
+  width: 78px;
+  height: 34px;
   border-radius: 999px;
-  padding: 6px 14px;
-  font-weight: 600;
+  border: 1px solid #dbe6ff;
+  background: #e7edf9;
+  transition: all 0.2s ease;
+  padding: 2px;
   cursor: pointer;
-  color: #fff;
-  background: #0ea5e9;
-  transition: opacity 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.host-live-perms .perm-btn .knob {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  transition: all 0.2s ease;
+  transform: translateX(0);
+  display: inline-block;
+}
+
+.host-live-perms .perm-btn.is-on {
+  background: linear-gradient(135deg, #34d399, #22c55e);
+  border-color: #22c55e;
+}
+
+.host-live-perms .perm-btn.is-on .knob {
+  transform: translateX(44px);
 }
 
 .host-live-perms .perm-btn.is-off {
-  background: #f87171;
+  background: linear-gradient(135deg, #fef2f2, #ffe4e6);
+  border-color: #fca5a5;
+}
+
+.host-live-perms .perm-btn.is-off .knob {
+  transform: translateX(0);
 }
 
 .host-live-perms .perm-btn:disabled {
@@ -75,13 +136,14 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 12px 18px;
 }
 
 .host-live-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
   gap: 12px;
+  align-items: flex-start;
 }
 
 .host-live-grid.single {
@@ -90,15 +152,16 @@
 
 .host-live-main {
   position: relative;
-  background: #e9f1ff;
+  background: radial-gradient(circle at 16% 18%, #eef3ff 0%, #e4ecff 44%, #eaf1ff 100%);
   border: 1px solid #dfe9ff;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   min-height: 320px;
   display: flex;
   align-items: center;
   justify-content: center;
   aspect-ratio: 16 / 9;
+  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.12);
 }
 
 .host-live-main video {
@@ -108,31 +171,61 @@
 }
 
 .host-live-placeholder {
-  padding: 48px 24px;
+  padding: 52px 28px;
   text-align: center;
+  color: #6b7280;
 }
 
 .host-live-overlay {
   position: absolute;
   bottom: 12px;
   left: 12px;
+  display: flex;
+  gap: 8px;
 }
 
 .host-live-side {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  align-self: flex-start;
+  width: 100%;
 }
 
 .host-live-panel {
   background: #ffffff;
   border: 1px solid #dbe6ff;
-  border-radius: 12px;
-  padding: 10px 12px;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
-  max-height: 320px;
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.1);
+  max-height: 340px;
   display: flex;
   flex-direction: column;
+  gap: 6px;
+}
+
+.host-live-panel--remote {
+  max-height: none;
+}
+
+.host-live-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.host-live-chat-messages {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #f8fbff 0%, #f3f6fb 100%);
+}
+
+.host-live-chat .chat-line {
+  font-size: 13px;
+  margin-bottom: 4px;
 }
 
 .host-live-participants {
@@ -151,6 +244,12 @@
   gap: 8px;
   color: #000000;
   font-size: 14px;
+  padding: 6px 4px;
+  border-radius: 10px;
+}
+
+.host-live-participants li.is-online {
+  background: rgba(46, 204, 139, 0.08);
 }
 
 .host-live-participants .dot {
@@ -168,6 +267,12 @@
   margin-left: auto;
   color: #4b5563;
   font-size: 12px;
+}
+
+.host-live-remote-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
 }
 
 .live-participant video {
@@ -196,20 +301,89 @@
 
 .host-live-toolbar {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 8px;
-  margin-top: 8px;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(52px, auto);
+  gap: 6px;
+  margin: 8px auto 0;
+  width: fit-content;
+  justify-content: center;
+  position: sticky;
+  bottom: 12px;
+  padding: 10px 12px;
+  background: rgba(248, 251, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12);
+}
+
+.host-live-participant-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.host-live-participant-actions .icon-btn {
+  padding: 6px 8px;
+  min-width: 34px;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: #f8fbff;
+  border: 1px solid #dbe6ff;
+  color: #0b1c33;
+  box-shadow: 0 6px 12px rgba(15, 23, 42, 0.08);
+}
+
+.host-live-participant-actions .icon-btn i {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.host-live-participant-actions .icon-btn.is-off {
+  background: #ffe4e6;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.host-live-participant-actions .icon-btn.is-on {
+  background: #e0f2fe;
+  border-color: #93c5fd;
+}
+
+.host-live-participant-actions .btn-outline-danger.icon-btn {
+  background: #fff5f5;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.host-live-participant-actions .icon-btn:hover {
+  background: #e7efff;
+  border-color: #c7d7ff;
+  color: #0b1c33;
+}
+
+.host-live-participant-actions .icon-btn:active {
+  background: #d7e4ff;
+  transform: scale(0.97);
 }
 
 .tbtn {
-  background: #ffffff;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f6ff 100%);
   border: 1px solid #dfe9ff;
   border-radius: 12px;
   color: #0b1c33;
-  padding: 10px;
+  padding: 8px;
   font-weight: 600;
   transition: all 0.15s ease;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+  min-width: 52px;
+  max-width: 60px;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tbtn:hover {
@@ -232,11 +406,48 @@
   background: #dc2626;
 }
 
+.tbtn i {
+  font-size: 18px;
+  line-height: 1;
+}
+
+@media (min-width: 1200px) {
+  .host-live-perms {
+    --perm-min: 260px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 992px) {
   .host-live-grid {
     grid-template-columns: 1fr;
   }
   .host-live-main {
     min-height: 240px;
+  }
+  .host-live-perms {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    --perm-min: 180px;
+  }
+  .host-live-perms .perm-item--wide {
+    grid-column: span 1;
+  }
+  .host-live-toolbar {
+    position: static;
+    background: transparent;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .host-live-perms {
+    grid-template-columns: 1fr;
+  }
+  .host-live-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .host-live-panel {
+    max-height: none;
   }
 }

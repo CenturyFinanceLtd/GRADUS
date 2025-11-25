@@ -43,6 +43,7 @@ const {
   CLOUDINARY_LECTURE_VIDEOS_FOLDER,
   CLOUDINARY_LECTURE_NOTES_FOLDER,
   CLOUDINARY_PARTNER_LOGOS_FOLDER,
+  CLOUDINARY_LIVE_RECORDINGS_FOLDER,
 } = process.env;
 
 // Configure from env; do not proceed if missing in production
@@ -62,6 +63,7 @@ const defaultBannerImagesFolder = CLOUDINARY_BANNER_IMAGES_FOLDER || 'banners';
 const defaultLectureVideosFolder = CLOUDINARY_LECTURE_VIDEOS_FOLDER || 'gradus/lectures';
 const defaultLectureNotesFolder = CLOUDINARY_LECTURE_NOTES_FOLDER || 'gradus/lecture-notes';
 const defaultPartnerLogosFolder = CLOUDINARY_PARTNER_LOGOS_FOLDER || 'partner-logos';
+const defaultLiveRecordingsFolder = CLOUDINARY_LIVE_RECORDINGS_FOLDER || 'gradus/live-recordings';
 
 module.exports = {
   cloudinary,
@@ -74,4 +76,5 @@ module.exports = {
   lectureVideosFolder: defaultLectureVideosFolder,
   lectureNotesFolder: defaultLectureNotesFolder,
   partnerLogosFolder: defaultPartnerLogosFolder,
+  liveRecordingsFolder: defaultLiveRecordingsFolder,
 };
