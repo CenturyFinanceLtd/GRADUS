@@ -11637,10 +11637,10 @@ button:focus {
   gap: 10px;
 }
 .nav-menu--mobile .nav-menu__badge {
-  position: static;
-  margin-inline-start: 8px;
-  top: auto;
-  right: auto;
+    position: absolute;
+    margin-inline-start: 8px;
+    top: 12px;
+    right: 300px;
 }
 .nav-menu--mobile .nav-submenu {
   position: static;
