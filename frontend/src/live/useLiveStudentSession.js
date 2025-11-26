@@ -35,6 +35,7 @@ const useLiveStudentSession = (sessionId) => {
   const [loading, setLoading] = useState(true);
   const [stageStatus, setStageStatus] = useState("idle");
   const [stageError, setStageError] = useState(null);
+  const [endedNoticeVisible, setEndedNoticeVisible] = useState(false);
   const [instructorStream, setInstructorStream] = useState(null);
   const [instructorIsScreen, setInstructorIsScreen] = useState(false);
   const [localStream, setLocalStream] = useState(null);
@@ -60,6 +61,7 @@ const useLiveStudentSession = (sessionId) => {
   const [chatMessages, setChatMessages] = useState([]);
   const [lastReaction, setLastReaction] = useState(null);
   const [spotlightParticipantId, setSpotlightParticipantId] = useState(null);
+  const redirectTimeoutRef = useRef(null);
   const signalingConfigRef = useRef(null);
   const addChatMessage = useCallback((msg) => {
     setChatMessages((prev) => [...prev, msg].slice(-200));
@@ -80,6 +82,21 @@ const useLiveStudentSession = (sessionId) => {
     },
     []
   );
+
+  const redirectToHome = useCallback(() => {
+    const fromPath = typeof window !== "undefined" ? window.location.pathname : "";
+    const targetPath =
+      fromPath && fromPath.includes("/live/")
+        ? fromPath.replace(/\/live\/.*$/, "")
+        : "/";
+    const targetUrl =
+      typeof window !== "undefined"
+        ? `${window.location.origin}${targetPath.startsWith("/") ? targetPath : `/${targetPath}`}`
+        : targetPath;
+    if (typeof window !== "undefined") {
+      window.location.replace(targetUrl);
+    }
+  }, []);
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -108,6 +125,16 @@ const useLiveStudentSession = (sessionId) => {
       const sessionData = response?.session || null;
       setSession(sessionData);
       sessionSnapshotRef.current = sessionData;
+
+      if (sessionData?.status === "ended") {
+        setStageStatus("ended");
+        setStageError(null);
+        setEndedNoticeVisible(true);
+        if (redirectTimeoutRef.current) {
+          clearTimeout(redirectTimeoutRef.current);
+        }
+        redirectTimeoutRef.current = setTimeout(() => redirectToHome(), 5000);
+      }
     } catch (error) {
       setStageError(error?.message || "Unable to load class details.");
     } finally {
@@ -308,6 +335,19 @@ const useLiveStudentSession = (sessionId) => {
   const handleSessionUpdate = useCallback(
     (sessionPayload) => {
       if (!sessionPayload) {
+        return;
+      }
+
+      if (sessionPayload.status === "ended") {
+        leaveSession();
+        setSession(sessionPayload);
+        setStageStatus("ended");
+        setStageError("This live class has ended.");
+        setEndedNoticeVisible(true);
+        if (redirectTimeoutRef.current) {
+          clearTimeout(redirectTimeoutRef.current);
+        }
+        redirectTimeoutRef.current = setTimeout(() => redirectToHome(), 5000);
         return;
       }
 
@@ -626,6 +666,14 @@ const useLiveStudentSession = (sessionId) => {
     }
   }, [session?.allowStudentAudio, session?.allowStudentVideo, session?.allowStudentScreenShare, screenShareActive, stopScreenShare]);
 
+  useEffect(() => {
+    return () => {
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const connectSignaling = useCallback(
     (signaling, participant) => {
       if (!signaling?.path || !signaling?.key || !participant?.id) {
@@ -658,8 +706,14 @@ const useLiveStudentSession = (sessionId) => {
       };
 
       socket.onclose = () => {
-        setStageStatus("idle");
-        setStageError("Connection closed.");
+        if (sessionSnapshotRef.current?.status === "ended") {
+          setStageStatus("ended");
+          setStageError(null);
+          setEndedNoticeVisible(true);
+        } else {
+          setStageStatus("idle");
+          setStageError("Connection closed.");
+        }
         teardownConnection();
       };
 
@@ -758,8 +812,15 @@ const useLiveStudentSession = (sessionId) => {
           status === 404
             ? "This live session is no longer available. Please refresh or rejoin from the course page."
             : error?.message || "Unable to join this live session.";
-        setStageStatus("error");
-        setStageError(message);
+
+        // If the session is gone/ended, surface a clean ended state instead of an error banner.
+        if (status === 410 || /ended/i.test(message || "")) {
+          setStageStatus("ended");
+          setStageError(null);
+        } else {
+          setStageStatus("error");
+          setStageError(message);
+        }
         return null;
       }
     },
@@ -779,14 +840,25 @@ const useLiveStudentSession = (sessionId) => {
     if (stageStatus === "error") {
       return "Connection error";
     }
+    if (stageStatus === "ended" || session?.status === "ended") {
+      return "Ended";
+    }
     return "Not connected";
-  }, [stageStatus]);
+  }, [stageStatus, session?.status]);
 
   return {
     session,
     loading,
     stageStatus,
     stageError,
+    endedNoticeVisible,
+    dismissEndedNotice: () => {
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+      }
+      setEndedNoticeVisible(false);
+      redirectToHome();
+    },
     statusLabel,
     instructorStream,
     instructorIsScreen,
@@ -834,4 +906,3 @@ const useLiveStudentSession = (sessionId) => {
 };
 
 export default useLiveStudentSession;
-

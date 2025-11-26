@@ -251,13 +251,22 @@ const LiveSessionList = ({
                   {sortedSessions.map((session, idx) => {
                     const rowKey =
                       session.id || session._id || session.meetingToken || `${session.title || 'session'}-${idx}`;
+                    const isEnded = session.status === 'ended';
                     return (
                       <tr key={rowKey}>
                       <td>{session.courseName || '-'}</td>
                       <td>{session.title}</td>
                       <td>{formatDateTime(session.scheduledFor)}</td>
                       <td>
-                        <span className={`badge badge-soft-${session.status === 'live' ? 'success' : session.status === 'ended' ? 'danger' : 'info'}`}>
+                        <span
+                          className={`badge ${
+                            session.status === 'live'
+                              ? 'bg-success text-white'
+                              : session.status === 'ended'
+                              ? 'bg-danger text-white'
+                              : 'bg-secondary text-white'
+                          }`}
+                        >
                           {session.status || 'scheduled'}
                         </span>
                       </td>
@@ -278,18 +287,20 @@ const LiveSessionList = ({
                         <button
                           className='btn btn-sm btn-primary'
                           type='button'
-                          onClick={() => onJoin(session.id)}
+                          onClick={() => !isEnded && onJoin(session.id)}
+                          disabled={isEnded}
                         >
                           Go live
                         </button>
                         <button
                           className='btn btn-sm btn-outline-secondary'
                           type='button'
-                          onClick={() => copyJoinLink(session)}
+                          onClick={() => !isEnded && copyJoinLink(session)}
+                          disabled={isEnded}
                         >
                           Copy student link
                         </button>
-                        {session.status !== 'ended' && (
+                        {!isEnded && (
                           <button
                             className='btn btn-sm btn-outline-danger'
                             type='button'

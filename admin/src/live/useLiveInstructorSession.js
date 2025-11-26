@@ -608,6 +608,14 @@ const useLiveInstructorSession = () => {
         return;
       }
 
+      if (session.status === 'ended') {
+        mergeSessionIntoList(session);
+        leaveStage();
+        setStageStatus('ended');
+        setStageError('Session has ended.');
+        return;
+      }
+
       sessionSnapshotRef.current = session;
       setActiveSession(session);
       setRemoteParticipants(buildRemoteParticipantSnapshot(session));
@@ -633,7 +641,7 @@ const useLiveInstructorSession = () => {
 
       setRemoteParticipants(buildRemoteParticipantSnapshot(session));
     },
-    [buildRemoteParticipantSnapshot, mergeSessionIntoList]
+    [buildRemoteParticipantSnapshot, mergeSessionIntoList, leaveStage]
   );
 
   const handleSignalingPayload = useCallback(
@@ -876,8 +884,15 @@ const useLiveInstructorSession = () => {
     if (!activeSession?.id) {
       return;
     }
-    await updateSessionStatus(activeSession.id, 'ended');
-    leaveStage();
+    setStageStatus('ending');
+    try {
+      await updateSessionStatus(activeSession.id, 'ended');
+    } catch (error) {
+      setStageError(error?.message || 'Unable to end session.');
+    } finally {
+      leaveStage();
+      setStageStatus('ended');
+    }
   }, [activeSession?.id, leaveStage, updateSessionStatus]);
 
   const publicJoinLink = useMemo(() => {

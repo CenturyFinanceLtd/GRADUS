@@ -91,6 +91,9 @@ const LiveStage = ({
   const [chatInput, setChatInput] = useState('');
   const [controlStates, setControlStates] = useState({});
   const hasLocalVideo = !!localStream?.getVideoTracks?.()?.length;
+  const allowStudentAudio = session?.allowStudentAudio !== false;
+  const allowStudentVideo = session?.allowStudentVideo !== false;
+  const allowStudentScreenShare = session?.allowStudentScreenShare !== false;
 
   useEffect(() => {
     if (localVideoRef.current && localStream) {
@@ -219,17 +222,51 @@ const LiveStage = ({
   };
 
   useEffect(() => {
-    // Initialize control states for participants if not present
+    // Initialize control states for participants if not present; default all off until manually enabled.
     setControlStates((prev) => {
       const next = { ...prev };
       remoteParticipants.forEach((p) => {
         if (!next[p.id]) {
-          next[p.id] = { audio: true, video: true, share: true };
+          next[p.id] = { audio: false, video: false, share: false };
         }
       });
       return next;
     });
   }, [remoteParticipants]);
+
+  // When a global default flips off, force all per-participant states off and disable controls.
+  useEffect(() => {
+    if (allowStudentAudio) return;
+    setControlStates((prev) => {
+      const next = {};
+      Object.entries(prev).forEach(([id, val]) => {
+        next[id] = { ...val, audio: false };
+      });
+      return next;
+    });
+  }, [allowStudentAudio]);
+
+  useEffect(() => {
+    if (allowStudentVideo) return;
+    setControlStates((prev) => {
+      const next = {};
+      Object.entries(prev).forEach(([id, val]) => {
+        next[id] = { ...val, video: false };
+      });
+      return next;
+    });
+  }, [allowStudentVideo]);
+
+  useEffect(() => {
+    if (allowStudentScreenShare) return;
+    setControlStates((prev) => {
+      const next = {};
+      Object.entries(prev).forEach(([id, val]) => {
+        next[id] = { ...val, share: false };
+      });
+      return next;
+    });
+  }, [allowStudentScreenShare]);
 
   const updateControlState = (participantId, key, value) => {
     setControlStates((prev) => ({
@@ -255,11 +292,44 @@ const LiveStage = ({
   const participantsList = remoteParticipants.filter((participant) => participant.connected);
   const waitingList = remoteParticipants.filter((participant) => participant.waiting);
   const showSidePanels = showParticipants || showChat;
-  const allowStudentAudio = session?.allowStudentAudio !== false;
-  const allowStudentVideo = session?.allowStudentVideo !== false;
-  const allowStudentScreenShare = session?.allowStudentScreenShare !== false;
   const waitingRoomEnabled = session?.waitingRoomEnabled || false;
   const locked = session?.locked || false;
+  // Per-participant controls can be turned on even when global defaults are off; global toggles remain unchanged.
+
+  const toggleParticipantMedia = async (participantId, key, nextValue) => {
+    const payloadKey =
+      key === 'audio' ? 'audio' : key === 'video' ? 'video' : key === 'share' ? 'screenShare' : null;
+    if (!payloadKey) return;
+
+    // Respect global blocks: if the global toggle is off, do not allow enabling per-user.
+    if (
+      (key === 'audio' && !allowStudentAudio && nextValue) ||
+      (key === 'video' && !allowStudentVideo && nextValue) ||
+      (key === 'share' && !allowStudentScreenShare && nextValue)
+    ) {
+      return;
+    }
+
+    // Update UI immediately
+    updateControlState(participantId, key, nextValue);
+
+    // If global default is off, lift it so the backend accepts the command (UI global toggle may show on).
+    const needsAudioLift = key === 'audio' && nextValue && !allowStudentAudio;
+    const needsVideoLift = key === 'video' && nextValue && !allowStudentVideo;
+    const needsShareLift = key === 'share' && nextValue && !allowStudentScreenShare;
+
+    try {
+      if (needsAudioLift) await Promise.resolve(onToggleStudentAudio?.(true));
+      if (needsVideoLift) await Promise.resolve(onToggleStudentVideo?.(true));
+      if (needsShareLift) await Promise.resolve(onToggleStudentScreenShare?.(true));
+
+      await Promise.resolve(onCommandParticipantMedia?.(session?.id, participantId, { [payloadKey]: nextValue }));
+    } catch (error) {
+      console.warn('Failed to update participant media', error);
+      // rollback UI if command failed
+      updateControlState(participantId, key, !nextValue);
+    }
+  };
 
   return (
     <div className='card host-live-card'>
@@ -283,7 +353,7 @@ const LiveStage = ({
               {locked ? <span className='badge bg-danger'>Locked</span> : null}
             </div>
           </div>
-            <div className='d-flex align-items-center gap-2 flex-wrap'>
+          <div className='d-flex align-items-center gap-2 flex-wrap'>
             <button className='btn btn-outline-warning btn-sm' type='button' onClick={onLeave}>
               Leave stage
             </button>
@@ -293,9 +363,9 @@ const LiveStage = ({
           </div>
         </div>
 
-          {stageError && <div className='alert alert-danger mb-3'>{stageError}</div>}
+        {stageError && <div className='alert alert-danger mb-3'>{stageError}</div>}
 
-          <div className='host-live-perms'>
+        <div className='host-live-perms'>
           <div className='perm-item perm-item--stack'>
             <span className='label'>Students</span>
             <div className='d-flex align-items-center gap-2 flex-wrap'>
@@ -305,7 +375,7 @@ const LiveStage = ({
                   type='button'
                   className={`perm-btn ${allowStudentAudio ? 'is-on' : 'is-off'}`}
                   onClick={() => onToggleStudentAudio?.(!allowStudentAudio)}
-                  aria-label={allowStudentAudio ? 'Mute students' : 'Unmute students'}
+                  aria-label={allowStudentAudio ? 'Mute students (defaults)' : 'Allow student audio (defaults)'}
                 >
                   <span className='knob' />
                 </button>
@@ -316,7 +386,7 @@ const LiveStage = ({
                   type='button'
                   className={`perm-btn ${allowStudentVideo ? 'is-on' : 'is-off'}`}
                   onClick={() => onToggleStudentVideo?.(!allowStudentVideo)}
-                  aria-label={allowStudentVideo ? 'Disable student video' : 'Enable student video'}
+                  aria-label={allowStudentVideo ? 'Disable student video (defaults)' : 'Enable student video (defaults)'}
                 >
                   <span className='knob' />
                 </button>
@@ -327,48 +397,17 @@ const LiveStage = ({
                   type='button'
                   className={`perm-btn ${allowStudentScreenShare ? 'is-on' : 'is-off'}`}
                   onClick={() => onToggleStudentScreenShare?.(!allowStudentScreenShare)}
-                  aria-label={allowStudentScreenShare ? 'Disable student screen share' : 'Enable student screen share'}
+                  aria-label={
+                    allowStudentScreenShare
+                      ? 'Disable student screen share (defaults)'
+                      : 'Enable student screen share (defaults)'
+                  }
                 >
                   <span className='knob' />
                 </button>
               </div>
             </div>
-          </div>
-          <div className='perm-item'>
-            <span className='label'>Recording</span>
-            <div className='d-flex align-items-center gap-2 flex-wrap'>
-              <button
-                type='button'
-                className='btn btn-sm btn-primary'
-                onClick={isRecording ? handleStopRecording : handleStartRecording}
-                disabled={isSavingRecording}
-              >
-                {isRecording ? 'Stop recording' : 'Start recording'}
-              </button>
-              {isSavingRecording ? <span className='small text-muted'>Saving locally…</span> : null}
-              {isRecording ? <span className='small text-danger'>Recording…</span> : null}
-              {lastRecordingUrl ? (
-                <a href={lastRecordingUrl} target='_blank' rel='noreferrer' className='small'>
-                  Last recording
-                </a>
-              ) : null}
-              {recordingError ? <span className='small text-danger'>{recordingError}</span> : null}
-            </div>
-          </div>
-          <div className='perm-item'>
-            <span className='label'>Attendance</span>
-            <div className='d-flex align-items-center gap-2 flex-wrap'>
-              <button
-                type='button'
-                className='btn btn-sm btn-secondary'
-                onClick={handleDownloadAttendance}
-                disabled={isDownloadingAttendance}
-              >
-                {isDownloadingAttendance ? 'Preparing…' : 'Download CSV'}
-              </button>
-            </div>
-          </div>
-          <div className='perm-item'>
+          </div><div className='perm-item'>
             <span className='label'>Waiting room</span>
             <div className='perm-action'>
               <button
@@ -394,6 +433,55 @@ const LiveStage = ({
               </button>
             </div>
           </div>
+          <div className='perm-item'>
+            <span className='label'>Recording</span>
+            <div className='d-flex align-items-center gap-2 flex-wrap'>
+              <button
+                type='button'
+                className='btn btn-sm btn-primary d-inline-flex align-items-center gap-1'
+                onClick={isRecording ? handleStopRecording : handleStartRecording}
+                disabled={isSavingRecording}
+                title={isRecording ? 'Stop recording' : 'Start recording'}
+                aria-label={isRecording ? 'Stop recording' : 'Start recording'}
+              >
+                <i className={`ri-${isRecording ? 'pause-circle-line' : 'record-circle-line'}`} />
+              </button>
+              {isSavingRecording ? (
+                <span className='small text-muted d-inline-flex align-items-center gap-1'>
+                  <i className='ri-save-3-line' />
+                  Saving locally...
+                </span>
+              ) : null}
+              {isRecording ? (
+                <span className='small text-danger d-inline-flex align-items-center gap-1'>
+                  <i className='ri-record-circle-line' />
+                  Recording...
+                </span>
+              ) : null}
+              {lastRecordingUrl ? (
+                <a href={lastRecordingUrl} target='_blank' rel='noreferrer' className='small'>
+                  Last recording
+                </a>
+              ) : null}
+              {recordingError ? <span className='small text-danger'>{recordingError}</span> : null}
+            </div>
+          </div>
+          <div className='perm-item'>
+            <span className='label'>Attendance</span>
+            <div className='d-flex align-items-center gap-2 flex-wrap'>
+              <button
+                type='button'
+                className='btn btn-sm btn-secondary d-inline-flex align-items-center gap-1'
+                onClick={handleDownloadAttendance}
+                disabled={isDownloadingAttendance}
+                title={isDownloadingAttendance ? 'Preparing CSV' : 'Download attendance CSV'}
+                aria-label={isDownloadingAttendance ? 'Preparing CSV' : 'Download attendance CSV'}
+              >
+                <i className='ri-download-2-line' />
+              </button>
+            </div>
+          </div>
+          
           <div className='perm-item perm-item--wide'>
             <span className='label'>Passcode</span>
             <div className='d-flex gap-2 flex-wrap align-items-center'>
@@ -475,18 +563,18 @@ const LiveStage = ({
           </div>
           {showSidePanels ? (
             <div className='host-live-side'>
-                {showParticipants ? (
+              {showParticipants ? (
                 <div className='host-live-panel'>
                   <div className='d-flex align-items-center justify-content-between mb-2'>
                     <span className='text-uppercase small text-muted'>Participants</span>
                     <button
                       type='button'
-                        className='btn btn-sm btn-outline-light'
-                        onClick={() => setShowParticipants(false)}
-                      >
-                        Hide
-                      </button>
-                    </div>
+                      className='btn btn-sm btn-outline-light'
+                      onClick={() => setShowParticipants(false)}
+                    >
+                      Hide
+                    </button>
+                  </div>
                   {waitingList.length ? (
                     <div className='mb-3'>
                       <div className='d-flex align-items-center justify-content-between mb-2'>
@@ -530,9 +618,9 @@ const LiveStage = ({
                       const name = p.role === 'instructor' ? 'Instructor' : p.displayName || 'Participant';
                       const isHost = p.role === 'instructor';
                       const controls = controlStates[p.id] || { audio: true, video: true, share: true };
-                      const audioAllowed = allowStudentAudio && controls.audio;
-                      const videoAllowed = allowStudentVideo && controls.video;
-                      const shareAllowed = allowStudentScreenShare && controls.share;
+                      const audioAllowed = controls.audio;
+                      const videoAllowed = controls.video;
+                      const shareAllowed = controls.share;
                       return (
                         <li key={p.id} className={p.connected ? 'is-online' : ''}>
                           <span className='dot' />
@@ -543,12 +631,8 @@ const LiveStage = ({
                               <button
                                 type='button'
                                 className={`btn btn-xs icon-btn ${audioAllowed ? 'is-on' : 'is-off'}`}
-                                onClick={() => {
-                                  if (!allowStudentAudio) return;
-                                  const next = !controls.audio;
-                                  updateControlState(p.id, 'audio', next);
-                                  onCommandParticipantMedia?.(session?.id, p.id, { audio: next });
-                                }}
+                                onClick={() => toggleParticipantMedia(p.id, 'audio', !controls.audio)}
+                                disabled={!allowStudentAudio}
                                 title={controls.audio ? 'Mute mic' : 'Unmute mic'}
                               >
                                 <i className={`ri-${controls.audio ? 'mic-line' : 'mic-off-line'}`} />
@@ -556,12 +640,8 @@ const LiveStage = ({
                               <button
                                 type='button'
                                 className={`btn btn-xs icon-btn ${videoAllowed ? 'is-on' : 'is-off'}`}
-                                onClick={() => {
-                                  if (!allowStudentVideo) return;
-                                  const next = !controls.video;
-                                  updateControlState(p.id, 'video', next);
-                                  onCommandParticipantMedia?.(session?.id, p.id, { video: next });
-                                }}
+                                onClick={() => toggleParticipantMedia(p.id, 'video', !controls.video)}
+                                disabled={!allowStudentVideo}
                                 title={videoAllowed ? 'Stop camera' : 'Start camera'}
                               >
                                 <i className={`ri-${controls.video ? 'video-line' : 'video-off-line'}`} />
@@ -569,12 +649,8 @@ const LiveStage = ({
                               <button
                                 type='button'
                                 className={`btn btn-xs icon-btn ${shareAllowed ? 'is-on' : 'is-off'}`}
-                                onClick={() => {
-                                  if (!allowStudentScreenShare) return;
-                                  const next = !controls.share;
-                                  updateControlState(p.id, 'share', next);
-                                  onCommandParticipantMedia?.(session?.id, p.id, { screenShare: next });
-                                }}
+                                onClick={() => toggleParticipantMedia(p.id, 'share', !controls.share)}
+                                disabled={!allowStudentScreenShare}
                                 title={shareAllowed ? 'Stop screen share' : 'Allow screen share'}
                               >
                                 <i className={`ri-computer-line`} />
@@ -618,7 +694,7 @@ const LiveStage = ({
                     >
                       Hide
                     </button>
-                    </div>
+                  </div>
                   <div className='host-live-chat'>
                     <div className='host-live-chat-messages'>
                       {chatMessages?.length ? (
@@ -627,8 +703,8 @@ const LiveStage = ({
                           const name = isSelf
                             ? 'You'
                             : msg.senderRole === 'instructor'
-                            ? 'Instructor'
-                            : msg.displayName || 'Participant';
+                              ? 'Instructor'
+                              : msg.displayName || 'Participant';
                           return (
                             <div key={`${msg.timestamp}-${msg.id || msg.from || Math.random()}`} className='chat-line'>
                               <strong>{name}:</strong> {msg.text}

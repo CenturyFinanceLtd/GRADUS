@@ -35,6 +35,8 @@ const LiveStudentPage = () => {
     participantId: selfParticipantId,
     spotlightParticipantId,
     user,
+    endedNoticeVisible,
+    dismissEndedNotice,
   } = useLiveStudentSession(sessionId);
   const [passcode, setPasscode] = useState("");
   const [chatInput, setChatInput] = useState("");
@@ -82,6 +84,8 @@ const LiveStudentPage = () => {
     }
   };
   const mainLabel = instructorStream ? (instructorIsScreen ? "Screen share" : "Instructor") : null;
+  const isEnded = stageStatus === "ended" || session?.status === "ended" || endedNoticeVisible;
+  const statusBadge = isEnded ? "Ended" : statusLabel;
 
   useEffect(() => {
     if (instructorVideoRef.current && instructorStream) {
@@ -95,6 +99,20 @@ const LiveStudentPage = () => {
       <Animation />
       <HeaderOne />
       <Breadcrumb title={"Live Classroom"} />
+      {endedNoticeVisible ? (
+        <div
+          className='position-fixed top-0 start-50 translate-middle-x mt-3'
+          style={{ zIndex: 1050, minWidth: 260 }}
+        >
+          <div className='alert alert-warning d-flex align-items-center justify-content-between shadow'>
+            <div className='me-3'>
+              <strong>Live class ended</strong>
+              <div className='small mb-0'>You are being redirected to the course home.</div>
+            </div>
+            <button type='button' className='btn-close' aria-label='Close' onClick={dismissEndedNotice} />
+          </div>
+        </div>
+      ) : null}
       <section className='live-student-section section-padding'>
         <div className='container'>
           {loading ? (
@@ -112,9 +130,9 @@ const LiveStudentPage = () => {
                       {formattedSchedule ? `Scheduled for ${formattedSchedule}` : "Join to get started"}
                     </p>
                   </div>
-                  <div className='status-pill'>{statusLabel}</div>
+                  <div className='status-pill'>{statusBadge}</div>
                 </div>
-                {stageError && <div className='alert alert-danger mt-3'>{stageError}</div>}
+                {stageError && !isEnded && <div className='alert alert-danger mt-3'>{stageError}</div>}
                 {session?.requiresPasscode ? (
                   <div className='mb-3'>
                     <label className='form-label'>Passcode</label>
@@ -141,7 +159,18 @@ const LiveStudentPage = () => {
                     </>
                   ) : (
                     <div className='live-video-placeholder'>
-                      <p>{connected ? "Waiting for instructor video..." : "Click join when your instructor goes live."}</p>
+                      <p className='mb-1'>
+                        {isEnded
+                          ? "Live class has ended."
+                          : connected
+                          ? "Waiting for instructor video..."
+                          : "Click join when your instructor goes live."}
+                      </p>
+                      <p className='text-muted mb-0'>
+                        {isEnded
+                          ? "You will be redirected to the course page."
+                          : "Check camera/mic permissions if it takes longer than expected."}
+                      </p>
                     </div>
                   )}
                 </div>
