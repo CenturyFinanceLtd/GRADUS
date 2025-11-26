@@ -26,8 +26,9 @@ const LiveStudentPage = () => {
     startScreenShare,
     stopScreenShare,
     screenShareActive,
-    participantShareAllowed,
-    participantMediaAllowed,
+    uiAudioAllowed,
+    uiVideoAllowed,
+    uiShareAllowed,
     chatMessages,
     sendChatMessage,
     sendHandRaise,
@@ -72,9 +73,13 @@ const LiveStudentPage = () => {
     return date.toLocaleString();
   }, [session?.scheduledFor]);
 
-  const shareAllowed = session?.allowStudentScreenShare !== false && participantShareAllowed !== false;
-  const audioAllowed = session?.allowStudentAudio !== false && participantMediaAllowed?.audio !== false;
-  const videoAllowed = session?.allowStudentVideo !== false && participantMediaAllowed?.video !== false;
+  const audioAllowed = uiAudioAllowed;
+  const videoAllowed = uiVideoAllowed;
+  const shareAllowed = uiShareAllowed;
+  const showAudioControl = audioAllowed;
+  const showVideoControl = videoAllowed;
+  const showShareControl = shareAllowed;
+  const hasMediaControls = showAudioControl || showVideoControl || showShareControl;
   const participantId = selfParticipantId;
   const handleShareToggle = () => {
     if (screenShareActive) {
@@ -175,40 +180,50 @@ const LiveStudentPage = () => {
                   )}
                 </div>
                 <div className='live-stage-controls'>
-                  <button
-                    type='button'
-                    className={`btn btn-${localMediaState.video ? "primary" : "outline-secondary"}`}
-                    onClick={() => toggleMediaTrack("video", !localMediaState.video)}
-                    disabled={!connected && !localStream || !videoAllowed}
-                    title={localMediaState.video ? "Stop video" : "Start video"}
-                  >
-                    <i
-                      className={`ri-video-line ${!videoAllowed || !localMediaState.video ? "text-danger" : ""}`}
-                    />
-                  </button>
-                  <button
-                    type='button'
-                    className={`btn btn-${localMediaState.audio ? "primary" : "outline-secondary"} ${
-                      !audioAllowed ? "btn-danger" : ""
-                    }`}
-                    onClick={() => toggleMediaTrack("audio", !localMediaState.audio)}
-                    disabled={!connected && !localStream || !audioAllowed}
-                    title={localMediaState.audio ? "Mute" : "Unmute"}
-                  >
-                    <i className={`ri-${localMediaState.audio ? "mic-line" : "mic-off-line"}`} />
-                  </button>
-                  <button
-                    type='button'
-                    className={`btn btn-${screenShareActive ? "primary" : "outline-secondary"} ${
-                      !shareAllowed ? "btn-danger" : ""
-                    }`}
-                    onClick={handleShareToggle}
-                    disabled={!connected || !shareAllowed}
-                    title={screenShareActive ? "Stop share" : "Share screen"}
-                  >
-                    <i className='ri-computer-line' />
-                  </button>
-                  <div className='spacer' />
+                  {hasMediaControls ? (
+                    <>
+                      {showVideoControl ? (
+                        <button
+                          type='button'
+                          className={`btn btn-${localMediaState.video ? "primary" : "outline-secondary"}`}
+                          onClick={() => toggleMediaTrack("video", !localMediaState.video)}
+                          disabled={!connected && !localStream || !videoAllowed}
+                          title={localMediaState.video ? "Stop video" : "Start video"}
+                        >
+                          <i
+                            className={`ri-video-line ${!videoAllowed || !localMediaState.video ? "text-danger" : ""}`}
+                          />
+                        </button>
+                      ) : null}
+                      {showAudioControl ? (
+                        <button
+                          type='button'
+                          className={`btn btn-${localMediaState.audio ? "primary" : "outline-secondary"} ${
+                            !audioAllowed ? "btn-danger" : ""
+                          }`}
+                          onClick={() => toggleMediaTrack("audio", !localMediaState.audio)}
+                          disabled={!connected && !localStream || !audioAllowed}
+                          title={localMediaState.audio ? "Mute" : "Unmute"}
+                        >
+                          <i className={`ri-${localMediaState.audio ? "mic-line" : "mic-off-line"}`} />
+                        </button>
+                      ) : null}
+                      {showShareControl ? (
+                        <button
+                          type='button'
+                          className={`btn btn-${screenShareActive ? "primary" : "outline-secondary"} ${
+                            !shareAllowed ? "btn-danger" : ""
+                          }`}
+                          onClick={handleShareToggle}
+                          disabled={!connected || !shareAllowed}
+                          title={screenShareActive ? "Stop share" : "Share screen"}
+                        >
+                          <i className='ri-computer-line' />
+                        </button>
+                      ) : null}
+                      <div className='spacer' />
+                    </>
+                  ) : null}
                   {connected ? (
                     <button className='btn btn-outline-danger' type='button' onClick={leaveSession} title='Leave'>
                       <i className='ri-logout-box-r-line' />

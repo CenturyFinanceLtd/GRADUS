@@ -39,7 +39,7 @@ const useLiveStudentSession = (sessionId) => {
   const [instructorStream, setInstructorStream] = useState(null);
   const [instructorIsScreen, setInstructorIsScreen] = useState(false);
   const [localStream, setLocalStream] = useState(null);
-  const [localMediaState, setLocalMediaState] = useState({ audio: true, video: true });
+  const [localMediaState, setLocalMediaState] = useState({ audio: false, video: false });
   const [screenShareActive, setScreenShareActive] = useState(false);
 
   const participantRef = useRef(null);
@@ -54,10 +54,10 @@ const useLiveStudentSession = (sessionId) => {
     typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("mt") : null
   );
   const pendingIceCandidatesRef = useRef([]);
-  const participantShareAllowedRef = useRef(true);
-  const [participantShareAllowed, setParticipantShareAllowed] = useState(true);
-  const participantMediaAllowedRef = useRef({ audio: true, video: true });
-  const [participantMediaAllowed, setParticipantMediaAllowed] = useState({ audio: true, video: true });
+  const participantShareAllowedRef = useRef(false);
+  const [participantShareAllowed, setParticipantShareAllowed] = useState(false);
+  const participantMediaAllowedRef = useRef({ audio: false, video: false });
+  const [participantMediaAllowed, setParticipantMediaAllowed] = useState({ audio: false, video: false });
   const [chatMessages, setChatMessages] = useState([]);
   const [lastReaction, setLastReaction] = useState(null);
   const [spotlightParticipantId, setSpotlightParticipantId] = useState(null);
@@ -353,6 +353,29 @@ const useLiveStudentSession = (sessionId) => {
 
       sessionSnapshotRef.current = sessionPayload;
       setSession(sessionPayload);
+      if (sessionPayload.allowStudentAudio === false) {
+        participantMediaAllowedRef.current.audio = false;
+        setParticipantMediaAllowed((prev) => ({ ...prev, audio: false }));
+        if (localStreamRef.current) {
+          localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = false));
+        }
+        setLocalMediaState((prev) => ({ ...prev, audio: false }));
+      }
+      if (sessionPayload.allowStudentVideo === false) {
+        participantMediaAllowedRef.current.video = false;
+        setParticipantMediaAllowed((prev) => ({ ...prev, video: false }));
+        if (localStreamRef.current) {
+          localStreamRef.current.getVideoTracks().forEach((t) => (t.enabled = false));
+        }
+        setLocalMediaState((prev) => ({ ...prev, video: false }));
+      }
+      if (sessionPayload.allowStudentScreenShare === false) {
+        participantShareAllowedRef.current = false;
+        setParticipantShareAllowed(false);
+        if (screenShareActive) {
+          stopScreenShare({ silent: true });
+        }
+      }
       if (sessionPayload.waitingRoomEnabled && sessionPayload.status !== "live") {
         setStageStatus("waiting");
         setStageError("Waiting for instructor to start the class.");
@@ -497,28 +520,33 @@ const useLiveStudentSession = (sessionId) => {
             if (audio === false && localStreamRef.current) {
               localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = false));
               setLocalMediaState((prev) => ({ ...prev, audio: false }));
-              setStageError("Host muted your microphone.");
               participantMediaAllowedRef.current.audio = false;
               setParticipantMediaAllowed((prev) => ({ ...prev, audio: false }));
             }
             if (audio === true) {
               participantMediaAllowedRef.current.audio = true;
               setParticipantMediaAllowed((prev) => ({ ...prev, audio: true }));
+              if (localStreamRef.current) {
+                localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = true));
+              }
+              setLocalMediaState((prev) => ({ ...prev, audio: true }));
             }
             if (video === false && localStreamRef.current) {
               localStreamRef.current.getVideoTracks().forEach((t) => (t.enabled = false));
               setLocalMediaState((prev) => ({ ...prev, video: false }));
-              setStageError("Host stopped your camera.");
               participantMediaAllowedRef.current.video = false;
               setParticipantMediaAllowed((prev) => ({ ...prev, video: false }));
             }
             if (video === true) {
               participantMediaAllowedRef.current.video = true;
               setParticipantMediaAllowed((prev) => ({ ...prev, video: true }));
+              if (localStreamRef.current) {
+                localStreamRef.current.getVideoTracks().forEach((t) => (t.enabled = true));
+              }
+              setLocalMediaState((prev) => ({ ...prev, video: true }));
             }
             if (screenShare === false && screenShareActive) {
               stopScreenShare({ silent: true });
-              setStageError("Host stopped your screen share.");
             }
             if (screenShare !== undefined) {
               const allowed = screenShare !== false;
@@ -629,42 +657,7 @@ const useLiveStudentSession = (sessionId) => {
     sendShareState(true);
   }, [ensureCameraStream, replaceVideoTrackForHost, screenShareActive, stopScreenShare, sendShareState]);
 
-  useEffect(() => {
-    if (!session) {
-      return;
-    }
-    if (session.allowStudentAudio === false && localStreamRef.current) {
-      localStreamRef.current.getAudioTracks().forEach((track) => {
-        track.enabled = false;
-      });
-      setLocalMediaState((prev) => (prev.audio ? { ...prev, audio: false } : prev));
-      participantMediaAllowedRef.current.audio = false;
-      setParticipantMediaAllowed((prev) => ({ ...prev, audio: false }));
-    }
-    if (session.allowStudentVideo === false && localStreamRef.current) {
-      localStreamRef.current.getVideoTracks().forEach((track) => {
-        track.enabled = false;
-      });
-      setLocalMediaState((prev) => (prev.video ? { ...prev, video: false } : prev));
-      participantMediaAllowedRef.current.video = false;
-      setParticipantMediaAllowed((prev) => ({ ...prev, video: false }));
-    }
-    if (session.allowStudentScreenShare === false) {
-      participantShareAllowedRef.current = false;
-      setParticipantShareAllowed(false);
-    } else {
-      participantShareAllowedRef.current = true;
-      setParticipantShareAllowed(true);
-    }
-    if (session.allowStudentScreenShare === false && screenShareActive) {
-      stopScreenShare({ silent: true });
-    }
-    if (session.allowStudentAudio !== false && session.allowStudentVideo !== false) {
-      // restore allowed flags when globally enabled
-      participantMediaAllowedRef.current = { audio: true, video: true };
-      setParticipantMediaAllowed({ audio: true, video: true });
-    }
-  }, [session?.allowStudentAudio, session?.allowStudentVideo, session?.allowStudentScreenShare, screenShareActive, stopScreenShare]);
+  // Per-user allow is controlled via media-state; do not force-enable via session defaults.
 
   useEffect(() => {
     return () => {
@@ -712,7 +705,16 @@ const useLiveStudentSession = (sessionId) => {
           setEndedNoticeVisible(true);
         } else {
           setStageStatus("idle");
-          setStageError("Connection closed.");
+          // apply a media block to keep controls hidden until instructor re-admits/enables
+          participantMediaAllowedRef.current = { audio: false, video: false };
+          participantShareAllowedRef.current = false;
+          setParticipantMediaAllowed({ audio: false, video: false });
+          setParticipantShareAllowed(false);
+          setStageError("Connection closed or media disabled by instructor.");
+          if (localStreamRef.current) {
+            localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = false));
+            localStreamRef.current.getVideoTracks().forEach((t) => (t.enabled = false));
+          }
         }
         teardownConnection();
       };
@@ -798,6 +800,20 @@ const useLiveStudentSession = (sessionId) => {
         sessionSnapshotRef.current = response.session;
         signalingConfigRef.current = response.signaling || null;
 
+        // Default student media to disabled until instructor explicitly allows per-user
+        participantMediaAllowedRef.current = { audio: false, video: false };
+        participantShareAllowedRef.current = false;
+        setParticipantMediaAllowed({ audio: false, video: false });
+        setParticipantShareAllowed(false);
+        if (localStreamRef.current) {
+          localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = false));
+          localStreamRef.current.getVideoTracks().forEach((t) => (t.enabled = false));
+          setLocalMediaState((prev) => ({ ...prev, audio: false, video: false }));
+        }
+        if (screenShareActive) {
+          stopScreenShare({ silent: true });
+        }
+
         if (response.participant.waiting) {
           setStageStatus("waiting-room");
           setStageError("Waiting for instructor to admit you.");
@@ -872,6 +888,9 @@ const useLiveStudentSession = (sessionId) => {
     screenShareActive,
     participantShareAllowed,
     participantMediaAllowed,
+    uiAudioAllowed: participantMediaAllowed.audio === true,
+    uiVideoAllowed: participantMediaAllowed.video === true,
+    uiShareAllowed: participantShareAllowed === true,
     chatMessages,
     sendChatMessage: useCallback(
       (text) => {

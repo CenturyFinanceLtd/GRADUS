@@ -90,6 +90,8 @@ const LiveStage = ({
   const [newPasscode, setNewPasscode] = useState('');
   const [chatInput, setChatInput] = useState('');
   const [controlStates, setControlStates] = useState({});
+  const initializedParticipantsRef = useRef(new Set());
+  const defaultsInitializedRef = useRef(false);
   const hasLocalVideo = !!localStream?.getVideoTracks?.()?.length;
   const allowStudentAudio = session?.allowStudentAudio !== false;
   const allowStudentVideo = session?.allowStudentVideo !== false;
@@ -103,6 +105,16 @@ const LiveStage = ({
       });
     }
   }, [localStream]);
+
+  useEffect(() => {
+    // Ensure student media defaults start disabled until explicitly enabled
+    if (defaultsInitializedRef.current) return;
+    if (!session?.id) return;
+    onToggleStudentAudio?.(false);
+    onToggleStudentVideo?.(false);
+    onToggleStudentScreenShare?.(false);
+    defaultsInitializedRef.current = true;
+  }, [session?.id, onToggleStudentAudio, onToggleStudentVideo, onToggleStudentScreenShare]);
 
   const handleStartRecording = () => {
     const fallbackStream = localStream;
@@ -223,14 +235,19 @@ const LiveStage = ({
 
   useEffect(() => {
     // Initialize control states for participants if not present; default all off until manually enabled.
+    // Also prune entries for participants who left.
+    const presentIds = new Set(remoteParticipants.map((p) => p.id));
     setControlStates((prev) => {
-      const next = { ...prev };
+      const next = {};
       remoteParticipants.forEach((p) => {
-        if (!next[p.id]) {
-          next[p.id] = { audio: false, video: false, share: false };
-        }
+        next[p.id] = prev[p.id] || { audio: false, video: false, share: false };
       });
       return next;
+    });
+    initializedParticipantsRef.current.forEach((id) => {
+      if (!presentIds.has(id)) {
+        initializedParticipantsRef.current.delete(id);
+      }
     });
   }, [remoteParticipants]);
 
@@ -289,7 +306,13 @@ const LiveStage = ({
   const statusBadgeClass =
     stageStatus === 'live' ? 'bg-success text-white' : stageStatus === 'error' ? 'bg-danger text-white' : 'bg-warning';
 
-  const participantsList = remoteParticipants.filter((participant) => participant.connected);
+  const participantsList = Array.from(
+    new Map(
+      remoteParticipants
+        .filter((participant) => participant.connected)
+        .map((p) => [p.id, p])
+    ).values()
+  );
   const waitingList = remoteParticipants.filter((participant) => participant.waiting);
   const showSidePanels = showParticipants || showChat;
   const waitingRoomEnabled = session?.waitingRoomEnabled || false;
@@ -300,15 +323,6 @@ const LiveStage = ({
     const payloadKey =
       key === 'audio' ? 'audio' : key === 'video' ? 'video' : key === 'share' ? 'screenShare' : null;
     if (!payloadKey) return;
-
-    // Respect global blocks: if the global toggle is off, do not allow enabling per-user.
-    if (
-      (key === 'audio' && !allowStudentAudio && nextValue) ||
-      (key === 'video' && !allowStudentVideo && nextValue) ||
-      (key === 'share' && !allowStudentScreenShare && nextValue)
-    ) {
-      return;
-    }
 
     // Update UI immediately
     updateControlState(participantId, key, nextValue);
@@ -330,6 +344,63 @@ const LiveStage = ({
       updateControlState(participantId, key, !nextValue);
     }
   };
+
+  const bulkToggleParticipantMedia = async (key) => {
+    const payloadKey =
+      key === 'audio' ? 'audio' : key === 'video' ? 'video' : key === 'share' ? 'screenShare' : null;
+    if (!payloadKey) return;
+
+    const targetParticipants = participantsList.filter((p) => p.role !== 'instructor');
+    const allOn = targetParticipants.every((p) => (controlStates[p.id] || {})[key]);
+    const nextValue = !allOn;
+
+    // update UI first
+    setControlStates((prev) => {
+      const next = { ...prev };
+      targetParticipants.forEach((p) => {
+        next[p.id] = { ...(prev[p.id] || { audio: false, video: false, share: false }), [key]: nextValue };
+      });
+      return next;
+    });
+
+    // send commands best-effort
+    try {
+      await Promise.all(
+        targetParticipants.map((p) =>
+          Promise.resolve(onCommandParticipantMedia?.(session?.id, p.id, { [payloadKey]: nextValue }))
+        )
+      );
+    } catch (error) {
+      console.warn('Failed bulk toggle', error);
+    }
+  };
+
+  // Apply default "all off" policy to new participants and push it to the backend once.
+  useEffect(() => {
+    const currentIds = new Set(remoteParticipants.map((p) => p.id));
+
+    remoteParticipants.forEach((p) => {
+      if (!p.id || p.role === 'instructor') return;
+      if (initializedParticipantsRef.current.has(p.id)) return;
+      initializedParticipantsRef.current.add(p.id);
+
+      // ensure local state reflects disabled controls
+      setControlStates((prev) => ({
+        ...prev,
+        [p.id]: { ...(prev[p.id] || {}), audio: false, video: false, share: false },
+      }));
+
+      // push the command to backend (best effort)
+      onCommandParticipantMedia?.(session?.id, p.id, { audio: false, video: false, screenShare: false });
+    });
+
+    // cleanup removed participants
+    initializedParticipantsRef.current.forEach((id) => {
+      if (!currentIds.has(id)) {
+        initializedParticipantsRef.current.delete(id);
+      }
+    });
+  }, [remoteParticipants, session?.id, onCommandParticipantMedia]);
 
   return (
     <div className='card host-live-card'>
@@ -565,8 +636,36 @@ const LiveStage = ({
             <div className='host-live-side'>
               {showParticipants ? (
                 <div className='host-live-panel'>
-                  <div className='d-flex align-items-center justify-content-between mb-2'>
-                    <span className='text-uppercase small text-muted'>Participants</span>
+                  <div className='d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2'>
+                    <div className='d-flex align-items-center gap-2'>
+                      <span className='text-uppercase small text-muted'>Participants</span>
+                      <div className='btn-group btn-group-sm' role='group' aria-label='Bulk media toggles'>
+                        <button
+                          type='button'
+                          className={`btn btn-outline-secondary`}
+                          onClick={() => bulkToggleParticipantMedia('audio')}
+                          title='Toggle mic for all students'
+                        >
+                          <i className='ri-mic-line' />
+                        </button>
+                        <button
+                          type='button'
+                          className={`btn btn-outline-secondary`}
+                          onClick={() => bulkToggleParticipantMedia('video')}
+                          title='Toggle camera for all students'
+                        >
+                          <i className='ri-video-line' />
+                        </button>
+                        <button
+                          type='button'
+                          className={`btn btn-outline-secondary`}
+                          onClick={() => bulkToggleParticipantMedia('share')}
+                          title='Toggle screen share for all students'
+                        >
+                          <i className='ri-computer-line' />
+                        </button>
+                      </div>
+                    </div>
                     <button
                       type='button'
                       className='btn btn-sm btn-outline-light'
@@ -632,7 +731,6 @@ const LiveStage = ({
                                 type='button'
                                 className={`btn btn-xs icon-btn ${audioAllowed ? 'is-on' : 'is-off'}`}
                                 onClick={() => toggleParticipantMedia(p.id, 'audio', !controls.audio)}
-                                disabled={!allowStudentAudio}
                                 title={controls.audio ? 'Mute mic' : 'Unmute mic'}
                               >
                                 <i className={`ri-${controls.audio ? 'mic-line' : 'mic-off-line'}`} />
@@ -641,7 +739,6 @@ const LiveStage = ({
                                 type='button'
                                 className={`btn btn-xs icon-btn ${videoAllowed ? 'is-on' : 'is-off'}`}
                                 onClick={() => toggleParticipantMedia(p.id, 'video', !controls.video)}
-                                disabled={!allowStudentVideo}
                                 title={videoAllowed ? 'Stop camera' : 'Start camera'}
                               >
                                 <i className={`ri-${controls.video ? 'video-line' : 'video-off-line'}`} />
@@ -650,7 +747,6 @@ const LiveStage = ({
                                 type='button'
                                 className={`btn btn-xs icon-btn ${shareAllowed ? 'is-on' : 'is-off'}`}
                                 onClick={() => toggleParticipantMedia(p.id, 'share', !controls.share)}
-                                disabled={!allowStudentScreenShare}
                                 title={shareAllowed ? 'Stop screen share' : 'Allow screen share'}
                               >
                                 <i className={`ri-computer-line`} />

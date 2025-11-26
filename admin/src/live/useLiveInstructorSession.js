@@ -168,6 +168,15 @@ const useLiveInstructorSession = () => {
     }));
   }, []);
 
+  // If we are joining/connecting/live but somehow don't have a local stream, re-request camera/mic.
+  useEffect(() => {
+    const needLocal = ['joining', 'connecting', 'live'].includes(stageStatus) && !localStream;
+    if (!needLocal) return;
+    ensureLocalMedia().catch((err) => {
+      setStageError(err?.message || 'Unable to access camera/mic.');
+    });
+  }, [stageStatus, localStream, ensureLocalMedia]);
+
   const teardownLocalMedia = useCallback(() => {
     const stopTracks = (stream) => {
       if (!stream) return;
