@@ -86,3 +86,28 @@
 .live-sidebar-info li {
   margin-bottom: 0.5rem;
 }
+
+.live-chat-box {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.live-chat-messages {
+  max-height: 180px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.live-chat-message {
+  margin-bottom: 6px;
+  color: #fff;
+}
+
+.live-chat-input input {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}

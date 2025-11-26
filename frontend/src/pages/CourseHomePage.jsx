@@ -1705,8 +1705,12 @@ const CourseHomePage = () => {
   const liveInstructorPreviewVideoRef = useRef(null);
   const liveLocalVideoRef = useRef(null);
   const [selfViewPrimary, setSelfViewPrimary] = useState(false);
+  const [pinnedRemoteId, setPinnedRemoteId] = useState(null);
   const [showParticipantsPanel, setShowParticipantsPanel] = useState(false);
   const [showChatPanel, setShowChatPanel] = useState(false);
+  const [livePasscode, setLivePasscode] = useState("");
+  const [passcodeAttempted, setPasscodeAttempted] = useState(false);
+  const [embedChatInput, setEmbedChatInput] = useState("");
   const {
     session: embeddedLiveSession,
     stageStatus: embeddedStageStatus,
@@ -1720,6 +1724,15 @@ const CourseHomePage = () => {
     startScreenShare,
     stopScreenShare,
     screenShareActive,
+    instructorIsScreen,
+    participantShareAllowed,
+    participantMediaAllowed,
+    chatMessages: embedChatMessages,
+    sendChatMessage: sendEmbedChatMessage,
+    sendReaction: sendEmbedReaction,
+    sendHandRaise: sendEmbedHandRaise,
+    participantId: embedParticipantId,
+    spotlightParticipantId: embedSpotlightId,
   } = useLiveStudentSession(liveSessionIdFromRoute || undefined);
 
   useEffect(() => {
@@ -1738,10 +1751,17 @@ const CourseHomePage = () => {
   }, [localStream]);
 
   useEffect(() => {
-    // Reset side panels when entering a new/matching live session
+    // Reset side panels and passcode when entering a new/matching live session
     setShowParticipantsPanel(false);
     setShowChatPanel(false);
     setSelfViewPrimary(false);
+    setPasscodeAttempted(false);
+    if (liveSessionIdFromRoute) {
+      const cached = localStorage.getItem(`live-passcode-${liveSessionIdFromRoute}`) || "";
+      setLivePasscode(cached);
+    } else {
+      setLivePasscode("");
+    }
   }, [liveSessionIdFromRoute]);
   const handleSectionChange = (nextSectionId) => {
     const normalizedSection =
@@ -1823,16 +1843,22 @@ const CourseHomePage = () => {
   }, [checkActiveLiveSession, courseLookupKeys, isEnrolled, token]);
 
   useEffect(() => {
-    if (!isLiveSection || !liveSessionIdFromRoute || !isEnrolled) {
+    if (!isLiveSection || !liveSessionIdFromRoute || !isEnrolled || !token) {
       return;
     }
+    // Auto-join when no passcode is required, or when a cached passcode exists.
     if (embeddedStageStatus === "idle") {
       const displayName =
         state.course?.studentName ||
         authUser?.personalDetails?.studentName ||
         [authUser?.firstName, authUser?.lastName].filter(Boolean).join(" ") ||
         authUser?.email;
-      joinClass({ displayName });
+      if (!embeddedLiveSession?.requiresPasscode) {
+        joinClass({ displayName });
+      } else if (embeddedLiveSession?.requiresPasscode && livePasscode) {
+        setPasscodeAttempted(true);
+        joinClass({ displayName, passcode: livePasscode });
+      }
     }
   }, [
     embeddedStageStatus,
@@ -1840,11 +1866,14 @@ const CourseHomePage = () => {
     isLiveSection,
     joinClass,
     liveSessionIdFromRoute,
+    embeddedLiveSession?.requiresPasscode,
+    livePasscode,
     authUser?.email,
     authUser?.firstName,
     authUser?.lastName,
     authUser?.personalDetails?.studentName,
     state.course?.studentName,
+    token,
   ]);
   const syncProgressWithServer = useCallback(
     async ({ lectureId, moduleId, sectionId, lectureTitle, videoUrl, currentTime, duration }) => {
@@ -2734,11 +2763,14 @@ const CourseHomePage = () => {
     }
   };
 
-  const liveStatusText = useMemo(() => {
-    if (embeddedStageStatus === "live") {
-      return "Connected";
-    }
-    if (embeddedStageStatus === "joining" || embeddedStageStatus === "connecting") {
+const liveStatusText = useMemo(() => {
+  if (embeddedStageStatus === "live") {
+    return "Connected";
+  }
+  if (embeddedStageStatus === "waiting-room") {
+    return "Waiting for host";
+  }
+  if (embeddedStageStatus === "joining" || embeddedStageStatus === "connecting") {
       return "Connecting…";
     }
     if (embeddedStageStatus === "error") {
@@ -2752,12 +2784,42 @@ const CourseHomePage = () => {
     navigate(`/${programme}/${course}/home`);
   };
 
+  const startClass = useCallback(async () => {
+    if (!token) {
+      setPasscodeAttempted(true);
+      return;
+    }
+    const displayName =
+      state.course?.studentName ||
+      authUser?.personalDetails?.studentName ||
+      [authUser?.firstName, authUser?.lastName].filter(Boolean).join(" ") ||
+      authUser?.email;
+    if (liveSessionIdFromRoute) {
+      localStorage.setItem(`live-passcode-${liveSessionIdFromRoute}`, livePasscode || "");
+    }
+    setPasscodeAttempted(true);
+    await joinClass({ displayName, passcode: livePasscode || undefined });
+  }, [
+    authUser?.email,
+    authUser?.firstName,
+    authUser?.lastName,
+    authUser?.personalDetails?.studentName,
+    joinClass,
+    livePasscode,
+    liveSessionIdFromRoute,
+    state.course?.studentName,
+    token,
+  ]);
+
   const renderHeroMedia = () => {
     if (isLiveSection && liveSessionIdFromRoute && isEnrolled) {
       const connected = embeddedStageStatus === "live";
-      const audioAllowed = embeddedLiveSession?.allowStudentAudio !== false;
-      const videoAllowed = embeddedLiveSession?.allowStudentVideo !== false;
-      const screenShareAllowed = embeddedLiveSession?.allowStudentScreenShare !== false;
+      const audioAllowed =
+        embeddedLiveSession?.allowStudentAudio !== false && participantMediaAllowed?.audio !== false;
+      const videoAllowed =
+        embeddedLiveSession?.allowStudentVideo !== false && participantMediaAllowed?.video !== false;
+      const screenShareAllowed =
+        embeddedLiveSession?.allowStudentScreenShare !== false && participantShareAllowed !== false;
       const participantList = (() => {
         const rawList = Array.isArray(embeddedLiveSession?.participants)
           ? embeddedLiveSession.participants.filter((participant) => participant.connected)
@@ -2772,10 +2834,16 @@ const CourseHomePage = () => {
           return true;
         });
       })();
-      const hasLocalVideo = Boolean(localStream && localMediaState.video);
+      const hasLocalVideo = Boolean(localStream);
       const hasInstructorVideo = Boolean(instructorStream);
       const showSelfPrimary = selfViewPrimary && hasLocalVideo;
-      const mainVideoLabel = showSelfPrimary ? "You" : hasInstructorVideo ? "Instructor" : null;
+      const mainVideoLabel = showSelfPrimary
+        ? "You"
+        : hasInstructorVideo
+        ? instructorIsScreen
+          ? "Screen share"
+          : "Instructor"
+        : null;
       return (
         <div className='course-home-video mb-20 live-embed-card'>
           <div className='d-flex align-items-center justify-content-between flex-wrap gap-2 mb-12'>
@@ -2791,8 +2859,33 @@ const CourseHomePage = () => {
             </div>
             <div />
           </div>
-          {embeddedStageError ? (
+          {embeddedStageError && (!embeddedLiveSession?.requiresPasscode || passcodeAttempted) ? (
             <div className='alert alert-danger mb-3'>{embeddedStageError}</div>
+          ) : null}
+          {embeddedLiveSession?.requiresPasscode ? (
+            <div className='mb-3 d-flex flex-column flex-sm-row align-items-sm-end gap-2'>
+              <div className='flex-grow-1'>
+                <label className='course-home-panel__eyebrow mb-2'>Passcode</label>
+                <input
+                  type='text'
+                  className='form-control'
+                  placeholder='Enter passcode shared by your instructor'
+                  value={livePasscode}
+                  onChange={(e) => setLivePasscode(e.target.value)}
+                  disabled={embeddedStageStatus === "live"}
+                />
+              </div>
+              <button
+                type='button'
+                className='btn btn-primary'
+                onClick={startClass}
+                disabled={embeddedStageStatus === "live" || !livePasscode}
+              >
+                {embeddedStageStatus === "joining" || embeddedStageStatus === "connecting"
+                  ? "Joining…"
+                  : "Join with passcode"}
+              </button>
+            </div>
           ) : null}
           <div className={`live-embed-grid ${showParticipantsPanel || showChatPanel ? "with-aside" : "single"}`}>
             <div className='live-embed-main'>
@@ -2810,7 +2903,7 @@ const CourseHomePage = () => {
                   ref={liveInstructorVideoRef}
                   autoPlay
                   playsInline
-                  className={`live-video ${screenShareActive ? "live-video--no-mirror" : "live-video--instructor"}`}
+                  className={`live-video ${instructorIsScreen ? "live-video--no-mirror" : "live-video--instructor"}`}
                 />
               ) : (
                 <div className='live-embed-placeholder'>
@@ -2822,21 +2915,29 @@ const CourseHomePage = () => {
                   </p>
                 </div>
               )}
-              {showSelfPrimary ? (
+            {showSelfPrimary ? (
                 hasInstructorVideo ? (
                   <div className='live-embed-pip live-embed-pip--instructor'>
-                    <div className='live-embed-pip__label'>Instructor</div>
+                    <div className='live-embed-pip__label'>{instructorIsScreen ? "Screen share" : "Instructor"}</div>
                     <video
                       ref={liveInstructorPreviewVideoRef}
                       autoPlay
                       playsInline
-                      className={`live-video ${screenShareActive ? "live-video--no-mirror" : "live-video--instructor"}`}
+                      className={`live-video ${instructorIsScreen ? "live-video--no-mirror" : "live-video--instructor"}`}
                     />
+                    <button
+                      type='button'
+                      className='live-embed-pip__action'
+                      onClick={() => setSelfViewPrimary(false)}
+                      title='Maximize instructor video'
+                    >
+                      Maximize
+                    </button>
                   </div>
                 ) : null
               ) : hasLocalVideo ? (
                 <div className='live-embed-pip live-embed-pip--self'>
-                  <div className='live-embed-pip__label'>You</div>
+                  <div className='live-embed-pip__label'>Me</div>
                   <video
                     ref={liveLocalVideoRef}
                     autoPlay
@@ -2844,6 +2945,14 @@ const CourseHomePage = () => {
                     muted
                     className={`live-video ${screenShareActive ? "live-video--no-mirror" : "live-video--self"}`}
                   />
+                  <button
+                    type='button'
+                    className='live-embed-pip__action'
+                    onClick={() => setSelfViewPrimary(true)}
+                    title='Maximize your video'
+                  >
+                    Maximize
+                  </button>
                 </div>
               ) : null}
             </div>
@@ -2892,10 +3001,62 @@ const CourseHomePage = () => {
                       </button>
                     </div>
                     <div className='live-embed-chat'>
-                      <p className='text-neutral-500 small mb-2'>Chat coming soon.</p>
-                      <button type='button' className='btn btn-sm btn-outline-primary w-100' disabled>
-                        Type a message
-                      </button>
+                      <div className='live-embed-chat__messages'>
+                        {embedChatMessages?.length ? (
+                          embedChatMessages.map((msg, idx) => {
+                            const isSelf = embedParticipantId && msg.from && msg.from === embedParticipantId;
+                            const baseName =
+                              msg.senderRole === "instructor" ? "Instructor" : msg.displayName || "Participant";
+                            const name = isSelf ? `${baseName} (You)` : baseName;
+                            return (
+                              <div key={`${msg.timestamp}-${idx}`} className='live-embed-chat__message'>
+                                <strong>{name}:</strong> {msg.text}
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <p className='text-neutral-500 small mb-2'>No messages yet.</p>
+                        )}
+                      </div>
+                      <div className='d-flex gap-2 mt-2 flex-wrap'>
+                        <input
+                          type='text'
+                          className='form-control form-control-sm flex-grow-1'
+                          placeholder='Type a message'
+                          value={embedChatInput}
+                          onChange={(e) => setEmbedChatInput(e.target.value)}
+                        />
+                        <button
+                          type='button'
+                          className='btn btn-sm btn-primary'
+                          disabled={!embedChatInput.trim()}
+                          onClick={() => {
+                            sendEmbedChatMessage(embedChatInput);
+                            setEmbedChatInput("");
+                          }}
+                        >
+                          Send
+                        </button>
+                        <button
+                          type='button'
+                          className='btn btn-sm btn-outline-secondary'
+                          title='Raise hand'
+                          onClick={() => sendEmbedHandRaise()}
+                        >
+                          ✋
+                        </button>
+                        <div className='d-flex gap-1'>
+                          <button type='button' className='btn btn-xs btn-outline-secondary' onClick={() => sendEmbedReaction("👍")}>
+                            👍
+                          </button>
+                          <button type='button' className='btn btn-xs btn-outline-secondary' onClick={() => sendEmbedReaction("🎉")}>
+                            🎉
+                          </button>
+                          <button type='button' className='btn btn-xs btn-outline-secondary' onClick={() => sendEmbedReaction("🙌")}>
+                            🙌
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ) : null}
@@ -2905,62 +3066,63 @@ const CourseHomePage = () => {
           <div className='live-embed-toolbar'>
             <button
               type='button'
-              className={`toolbar-btn ${localMediaState.audio ? "" : "is-off"}`}
+              className={`toolbar-btn ${!audioAllowed || !localMediaState.audio ? "is-off" : ""}`}
               onClick={() => toggleMediaTrack("audio", !localMediaState.audio)}
               disabled={!audioAllowed}
+              title={audioAllowed ? (localMediaState.audio ? "Mute" : "Unmute") : "Audio blocked"}
             >
-              {audioAllowed ? (localMediaState.audio ? "Mute" : "Unmute") : "Audio blocked"}
+              <i className={`ri-${localMediaState.audio ? "mic-line" : "mic-off-line"}`} />
             </button>
             <button
               type='button'
-              className={`toolbar-btn ${localMediaState.video ? "" : "is-off"}`}
+              className={`toolbar-btn ${!videoAllowed || !localMediaState.video ? "is-off" : ""}`}
               onClick={() => toggleMediaTrack("video", !localMediaState.video)}
               disabled={!videoAllowed}
+              title={videoAllowed ? (localMediaState.video ? "Stop video" : "Start video") : "Video blocked"}
             >
-              {videoAllowed ? (localMediaState.video ? "Stop Video" : "Start Video") : "Video blocked"}
+              <i className={`ri-video-line ${!videoAllowed || !localMediaState.video ? "blocked" : ""}`} />
             </button>
             <button
               type='button'
-              className='toolbar-btn'
+              className={`toolbar-btn ${!screenShareAllowed ? "is-off" : ""}`}
               onClick={() => (screenShareActive ? stopScreenShare() : startScreenShare())}
               disabled={!screenShareAllowed || embeddedStageStatus !== "live"}
+              title={
+                !screenShareAllowed
+                  ? "Screen share blocked by instructor"
+                  : screenShareActive
+                  ? "Stop share"
+                  : "Share screen"
+              }
             >
-              {screenShareActive ? "Stop Share" : "Share Screen"}
-            </button>
-            <button
-              type='button'
-              className='toolbar-btn'
-              onClick={() => setSelfViewPrimary((prev) => !prev)}
-              disabled={!hasLocalVideo}
-            >
-              {selfViewPrimary ? "View instructor" : "View yourself"}
+              <i className={`ri-computer-line${!screenShareAllowed ? ' blocked' : ''}`} />
             </button>
             <button
               type='button'
               className='toolbar-btn'
               onClick={() => setShowParticipantsPanel((prev) => !prev)}
+              title={showParticipantsPanel ? "Hide participants" : "Participants"}
             >
-              {showParticipantsPanel ? "Hide participants" : "Participants"}
+              <i className='ri-user-3-line' />
             </button>
             <button
               type='button'
               className='toolbar-btn'
               onClick={() => setShowChatPanel((prev) => !prev)}
+              title={showChatPanel ? "Hide chat" : "Chat"}
             >
-              {showChatPanel ? "Hide chat" : "Chat"}
+              <i className='ri-chat-3-line' />
             </button>
             <button
               type='button'
               className='toolbar-btn'
-              onClick={() => alert("Screen share coming soon")}
+              onClick={() => alert("Reactions coming soon")}
+              title='Reactions'
             >
-              Share Screen
-            </button>
-            <button type='button' className='toolbar-btn' onClick={() => alert("Reactions coming soon")}>
-              Reactions
+              <i className='ri-emotion-line' />
             </button>
             <button type='button' className='toolbar-btn leave-btn' onClick={handleLeaveLiveView}>
-              Leave
+              <i className='ri-logout-box-r-line' title='Leave' />
             </button>
           </div>
         </div>

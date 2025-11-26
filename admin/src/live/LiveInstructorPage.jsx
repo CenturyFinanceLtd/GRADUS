@@ -32,9 +32,23 @@ const LiveInstructorPage = () => {
     localStream,
     buildStudentLink,
     updateStudentMediaPermissions,
+    updateSessionSecurity,
     startScreenShare,
     stopScreenShare,
     screenShareActive,
+    sendParticipantMediaCommand,
+    removeParticipant,
+    chatMessages,
+    sendChatMessage,
+    sendReaction,
+    sendHandRaise,
+    instructorParticipantId,
+    sendSpotlight,
+    spotlightParticipantId,
+    admitWaitingParticipant,
+    denyWaitingParticipant,
+    uploadRecording,
+    fetchAttendance,
   } = useLiveInstructorSession();
   const showLiveStage = Boolean(activeSession);
 
@@ -96,6 +110,34 @@ const LiveInstructorPage = () => {
     await updateStudentMediaPermissions(activeSession.id, { allowStudentScreenShare: nextValue });
   };
 
+  const handleWaitingRoomToggle = async (nextValue) => {
+    if (!activeSession?.id) {
+      return;
+    }
+    await updateSessionSecurity(activeSession.id, { waitingRoomEnabled: nextValue });
+  };
+
+  const handleLockToggle = async (nextValue) => {
+    if (!activeSession?.id) {
+      return;
+    }
+    await updateSessionSecurity(activeSession.id, { locked: nextValue });
+  };
+
+  const handlePasscodeUpdate = async (nextValue) => {
+    if (!activeSession?.id) {
+      return;
+    }
+    await updateSessionSecurity(activeSession.id, { passcode: nextValue });
+  };
+
+  const handleRotateMeetingToken = async () => {
+    if (!activeSession?.id) {
+      return;
+    }
+    await updateSessionSecurity(activeSession.id, { rotateMeetingToken: true });
+  };
+
   return (
     <MasterLayout>
       <div className='container-fluid live-classroom-page'>
@@ -120,6 +162,23 @@ const LiveInstructorPage = () => {
                 onStartScreenShare={startScreenShare}
                 onStopScreenShare={stopScreenShare}
                 screenShareActive={screenShareActive}
+                onToggleWaitingRoom={handleWaitingRoomToggle}
+                onToggleLocked={handleLockToggle}
+                onUpdatePasscode={handlePasscodeUpdate}
+                onRotateMeetingToken={handleRotateMeetingToken}
+                onCommandParticipantMedia={sendParticipantMediaCommand}
+                onRemoveParticipant={removeParticipant}
+                chatMessages={chatMessages}
+                onSendChat={sendChatMessage}
+                onSendReaction={sendReaction}
+                onSendHandRaise={sendHandRaise}
+                instructorParticipantId={instructorParticipantId}
+                onSendSpotlight={sendSpotlight}
+                spotlightParticipantId={spotlightParticipantId}
+                onAdmitWaiting={admitWaitingParticipant}
+                onDenyWaiting={denyWaitingParticipant}
+                onUploadRecording={uploadRecording}
+                onDownloadAttendance={fetchAttendance}
               />
             </div>
           </div>

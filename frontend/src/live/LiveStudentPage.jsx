@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import Breadcrumb from "../components/Breadcrumb";
 import FooterOne from "../components/FooterOne";
@@ -17,6 +17,7 @@ const LiveStudentPage = () => {
     stageError,
     statusLabel,
     instructorStream,
+    instructorIsScreen,
     localStream,
     localMediaState,
     joinClass,
@@ -25,17 +26,21 @@ const LiveStudentPage = () => {
     startScreenShare,
     stopScreenShare,
     screenShareActive,
+    participantShareAllowed,
+    participantMediaAllowed,
+    chatMessages,
+    sendChatMessage,
+    sendHandRaise,
+    sendReaction,
+    participantId: selfParticipantId,
+    spotlightParticipantId,
     user,
   } = useLiveStudentSession(sessionId);
+  const [passcode, setPasscode] = useState("");
+  const [chatInput, setChatInput] = useState("");
 
   const instructorVideoRef = useRef(null);
   const localVideoRef = useRef(null);
-
-  useEffect(() => {
-    if (instructorVideoRef.current && instructorStream) {
-      instructorVideoRef.current.srcObject = instructorStream;
-    }
-  }, [instructorStream]);
 
   useEffect(() => {
     if (localVideoRef.current && localStream) {
@@ -51,7 +56,7 @@ const LiveStudentPage = () => {
       user?.personalDetails?.studentName ||
       [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
       user?.email;
-    await joinClass({ displayName });
+    await joinClass({ displayName, passcode });
   };
 
   const formattedSchedule = useMemo(() => {
@@ -65,7 +70,10 @@ const LiveStudentPage = () => {
     return date.toLocaleString();
   }, [session?.scheduledFor]);
 
-  const shareAllowed = session?.allowStudentScreenShare !== false;
+  const shareAllowed = session?.allowStudentScreenShare !== false && participantShareAllowed !== false;
+  const audioAllowed = session?.allowStudentAudio !== false && participantMediaAllowed?.audio !== false;
+  const videoAllowed = session?.allowStudentVideo !== false && participantMediaAllowed?.video !== false;
+  const participantId = selfParticipantId;
   const handleShareToggle = () => {
     if (screenShareActive) {
       stopScreenShare();
@@ -73,7 +81,13 @@ const LiveStudentPage = () => {
       startScreenShare();
     }
   };
-  const mainLabel = instructorStream ? "Instructor" : null;
+  const mainLabel = instructorStream ? (instructorIsScreen ? "Screen share" : "Instructor") : null;
+
+  useEffect(() => {
+    if (instructorVideoRef.current && instructorStream) {
+      instructorVideoRef.current.srcObject = instructorStream;
+    }
+  }, [instructorStream]);
 
   return (
     <>
@@ -101,11 +115,29 @@ const LiveStudentPage = () => {
                   <div className='status-pill'>{statusLabel}</div>
                 </div>
                 {stageError && <div className='alert alert-danger mt-3'>{stageError}</div>}
+                {session?.requiresPasscode ? (
+                  <div className='mb-3'>
+                    <label className='form-label'>Passcode</label>
+                    <input
+                      type='text'
+                      className='form-control'
+                      placeholder='Enter the passcode shared by your instructor'
+                      value={passcode}
+                      onChange={(e) => setPasscode(e.target.value)}
+                      disabled={connected}
+                    />
+                  </div>
+                ) : null}
                 <div className='live-stage-video'>
                   {instructorStream ? (
                     <>
                       <div className='live-embed-main__label'>{mainLabel}</div>
-                      <video ref={instructorVideoRef} autoPlay playsInline className='live-video live-video--instructor' />
+                      <video
+                        ref={instructorVideoRef}
+                        autoPlay
+                        playsInline
+                        className={`live-video ${instructorIsScreen ? "live-video--no-mirror" : "live-video--instructor"}`}
+                      />
                     </>
                   ) : (
                     <div className='live-video-placeholder'>
@@ -118,34 +150,43 @@ const LiveStudentPage = () => {
                     type='button'
                     className={`btn btn-${localMediaState.video ? "primary" : "outline-secondary"}`}
                     onClick={() => toggleMediaTrack("video", !localMediaState.video)}
-                    disabled={!connected && !localStream}
+                    disabled={!connected && !localStream || !videoAllowed}
+                    title={localMediaState.video ? "Stop video" : "Start video"}
                   >
-                    {localMediaState.video ? "Camera on" : "Camera off"}
+                    <i
+                      className={`ri-video-line ${!videoAllowed || !localMediaState.video ? "text-danger" : ""}`}
+                    />
                   </button>
                   <button
                     type='button'
-                    className={`btn btn-${localMediaState.audio ? "primary" : "outline-secondary"}`}
+                    className={`btn btn-${localMediaState.audio ? "primary" : "outline-secondary"} ${
+                      !audioAllowed ? "btn-danger" : ""
+                    }`}
                     onClick={() => toggleMediaTrack("audio", !localMediaState.audio)}
-                    disabled={!connected && !localStream}
+                    disabled={!connected && !localStream || !audioAllowed}
+                    title={localMediaState.audio ? "Mute" : "Unmute"}
                   >
-                    {localMediaState.audio ? "Mic on" : "Mic muted"}
+                    <i className={`ri-${localMediaState.audio ? "mic-line" : "mic-off-line"}`} />
                   </button>
                   <button
                     type='button'
-                    className={`btn btn-${screenShareActive ? "primary" : "outline-secondary"}`}
+                    className={`btn btn-${screenShareActive ? "primary" : "outline-secondary"} ${
+                      !shareAllowed ? "btn-danger" : ""
+                    }`}
                     onClick={handleShareToggle}
                     disabled={!connected || !shareAllowed}
+                    title={screenShareActive ? "Stop share" : "Share screen"}
                   >
-                    {screenShareActive ? "Stop share" : "Share screen"}
+                    <i className='ri-computer-line' />
                   </button>
                   <div className='spacer' />
                   {connected ? (
-                    <button className='btn btn-outline-danger' type='button' onClick={leaveSession}>
-                      Leave class
+                    <button className='btn btn-outline-danger' type='button' onClick={leaveSession} title='Leave'>
+                      <i className='ri-logout-box-r-line' />
                     </button>
                   ) : (
                     <button className='btn btn-primary' type='button' onClick={startClass} disabled={disabled}>
-                      {disabled ? "Joining..." : "Join class"}
+                      {disabled ? "Joining..." : "Join"}
                     </button>
                   )}
                 </div>
@@ -169,13 +210,65 @@ const LiveStudentPage = () => {
                   )}
                 </div>
                 <div className='live-sidebar-info'>
-                  <h5>How it works</h5>
-                  <ul>
-                    <li>Join the class when your instructor shares the session link.</li>
-                    <li>Allow browser permissions for camera and microphone.</li>
-                    <li>Mute your mic when you are not speaking to keep the session crisp.</li>
-                    <li>Use the leave button if you need to step out.</li>
-                  </ul>
+                  <h5>Class chat</h5>
+                  <div className='live-chat-box'>
+                    <div className='live-chat-messages'>
+                      {chatMessages.length === 0 ? (
+                        <p className='text-muted small mb-2'>No messages yet.</p>
+                      ) : (
+                        chatMessages.map((msg, idx) => {
+                          const isSelf = participantId && msg.from && msg.from === participantId;
+                          const baseName =
+                            msg.senderRole === "instructor" ? "Instructor" : msg.displayName || "Participant";
+                          const name = isSelf ? `${baseName} (You)` : baseName;
+                          return (
+                            <div key={`${msg.timestamp}-${idx}`} className='live-chat-message'>
+                              <strong>{name}:</strong> {msg.text}
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                    <div className='live-chat-input d-flex gap-2 mt-2'>
+                      <input
+                        type='text'
+                        className='form-control form-control-sm'
+                        placeholder='Type a message'
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                      />
+                      <button
+                        type='button'
+                        className='btn btn-sm btn-primary'
+                        onClick={() => {
+                          sendChatMessage(chatInput);
+                          setChatInput("");
+                        }}
+                        disabled={!chatInput.trim()}
+                      >
+                        Send
+                      </button>
+                      <button
+                        type='button'
+                        className='btn btn-sm btn-outline-secondary'
+                        title='Raise hand'
+                        onClick={() => sendHandRaise()}
+                      >
+                        ✋
+                      </button>
+                    </div>
+                    <div className='d-flex gap-2 mt-2 flex-wrap'>
+                      <button type='button' className='btn btn-xs btn-outline-secondary' onClick={() => sendReaction("👍")}>
+                        👍
+                      </button>
+                      <button type='button' className='btn btn-xs btn-outline-secondary' onClick={() => sendReaction("🎉")}>
+                        🎉
+                      </button>
+                      <button type='button' className='btn btn-xs btn-outline-secondary' onClick={() => sendReaction("🙌")}>
+                        🙌
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

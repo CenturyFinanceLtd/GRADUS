@@ -7,6 +7,14 @@ import {
   fetchLiveSession,
   updateLiveSession,
   joinLiveSessionAsInstructor,
+  updateParticipantMediaState,
+  kickParticipant,
+  fetchLiveChatMessages,
+  admitParticipant,
+  denyParticipant,
+  uploadLiveRecording,
+  fetchAttendance as fetchAttendanceApi,
+  fetchSessionEvents as fetchSessionEventsApi,
 } from './liveApi';
 
 const resolveServerInfo = () => {
@@ -50,7 +58,8 @@ const buildWebSocketUrl = (path, sessionId, participantId, key) => {
   return `${wsProtocol}//${SERVER_INFO.host}${normalizedPath}?${searchParams}`;
 };
 
-const buildStudentLink = (sessionId) => `${DEFAULT_PUBLIC_BASE}/live/${sessionId}`;
+const buildStudentLink = (sessionId, meetingToken) =>
+  `${DEFAULT_PUBLIC_BASE}/live/${sessionId}${meetingToken ? `?mt=${encodeURIComponent(meetingToken)}` : ''}`;
 
 const emptyArray = [];
 
@@ -67,6 +76,9 @@ const useLiveInstructorSession = () => {
   const [localStream, setLocalStream] = useState(null);
   const [localMediaState, setLocalMediaState] = useState({ audio: true, video: true });
   const [screenShareActive, setScreenShareActive] = useState(false);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [lastReaction, setLastReaction] = useState(null);
+  const [spotlightParticipantId, setSpotlightParticipantId] = useState(null);
 
   const sessionSecretsRef = useRef(new Map());
   const peerConnectionsRef = useRef(new Map());
@@ -74,6 +86,7 @@ const useLiveInstructorSession = () => {
   const localStreamRef = useRef(null);
   const cameraStreamRef = useRef(null);
   const screenStreamRef = useRef(null);
+  const cameraEnabledBeforeShareRef = useRef(true);
   const signalingRef = useRef({ socket: null, sessionId: null, participantId: null, iceServers: [] });
   const sessionSnapshotRef = useRef(null);
   const instructorParticipantRef = useRef(null);
@@ -174,6 +187,7 @@ const useLiveInstructorSession = () => {
     localStreamRef.current = null;
     cameraStreamRef.current = null;
     screenStreamRef.current = null;
+    cameraEnabledBeforeShareRef.current = true;
     setScreenShareActive(false);
     setLocalStream(null);
   }, []);
@@ -206,6 +220,24 @@ const useLiveInstructorSession = () => {
     signalingRef.current = { socket: null, sessionId: null, participantId: null, iceServers: [] };
   }, []);
 
+  const addChatMessage = useCallback((msg) => {
+    setChatMessages((prev) => [...prev, msg].slice(-200));
+  }, []);
+
+  const loadChatHistory = useCallback(
+    async (sessionId) => {
+      if (!token || !sessionId) return;
+      try {
+        const resp = await fetchLiveChatMessages(sessionId, token, { limit: 200 });
+        const messages = Array.isArray(resp?.messages) ? resp.messages : [];
+        setChatMessages(messages);
+      } catch (_) {
+        // ignore history fetch errors
+      }
+    },
+    [token]
+  );
+
   const leaveStage = useCallback(() => {
     disconnectSignaling();
     cleanupPeerConnections();
@@ -218,7 +250,7 @@ const useLiveInstructorSession = () => {
   }, [cleanupPeerConnections, disconnectSignaling, teardownLocalMedia]);
 
   const createSessionHandler = useCallback(
-    async ({ title, scheduledFor, course }) => {
+    async ({ title, scheduledFor, course, passcode, waitingRoomEnabled, locked }) => {
       if (!token) {
         throw new Error('Authentication required');
       }
@@ -232,6 +264,9 @@ const useLiveInstructorSession = () => {
         courseId: courseIdentifier,
         courseName: course.name || course.slug || 'Course',
         courseSlug: course.slug || null,
+        passcode: passcode || '',
+        waitingRoomEnabled: Boolean(waitingRoomEnabled),
+        locked: Boolean(locked),
       };
       const response = await createLiveSession(payload, token);
 
@@ -293,6 +328,67 @@ const useLiveInstructorSession = () => {
       socket.send(JSON.stringify(message));
     }
   }, []);
+
+  const sendChatMessage = useCallback(
+    (text) => {
+      const socket = signalingRef.current.socket;
+      const trimmed = (text || '').trim();
+      if (!trimmed || !socket || socket.readyState !== WebSocket.OPEN) {
+        return;
+      }
+      socket.send(JSON.stringify({ type: 'chat:message', data: { text: trimmed } }));
+    },
+    []
+  );
+
+  const sendReaction = useCallback((emoji) => {
+    const socket = signalingRef.current.socket;
+    if (!emoji || !socket || socket.readyState !== WebSocket.OPEN) {
+      return;
+    }
+    socket.send(JSON.stringify({ type: 'reaction', data: { emoji } }));
+  }, []);
+
+  const sendHandRaise = useCallback(() => {
+    const socket = signalingRef.current.socket;
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+      return;
+    }
+    socket.send(JSON.stringify({ type: 'hand-raise', data: { state: 'raised' } }));
+  }, []);
+
+  const sendSpotlight = useCallback(
+    (participantId) => {
+      const socket = signalingRef.current.socket;
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        return;
+      }
+      setSpotlightParticipantId(participantId || null);
+      socket.send(
+        JSON.stringify({
+          type: 'spotlight',
+          data: { participantId: participantId || null },
+        })
+      );
+    },
+    []
+  );
+
+  const sendShareState = useCallback(
+    (active) => {
+      const socket = signalingRef.current.socket;
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        return;
+      }
+      socket.send(
+        JSON.stringify({
+          type: 'share:state',
+          data: { active: Boolean(active) },
+        })
+      );
+    },
+    []
+  );
 
   const createPeerConnection = useCallback(
     (remoteParticipantId) => {
@@ -366,6 +462,7 @@ const useLiveInstructorSession = () => {
 
   const stopScreenShare = useCallback(
     async ({ silent } = {}) => {
+      const shouldRestoreCamera = cameraEnabledBeforeShareRef.current;
       if (screenStreamRef.current) {
         screenStreamRef.current.getTracks().forEach((track) => {
           try {
@@ -378,21 +475,27 @@ const useLiveInstructorSession = () => {
       }
 
       const cameraStream = cameraStreamRef.current || (await ensureLocalMedia());
-      const cameraVideoTrack = cameraStream?.getVideoTracks()?.[0] || null;
+      const cameraVideoTrack = shouldRestoreCamera
+        ? cameraStream?.getVideoTracks()?.[0] || null
+        : null;
 
       if (cameraVideoTrack) {
         replaceVideoTrackForAll(cameraVideoTrack);
       }
 
-      localStreamRef.current = cameraStream;
-      setLocalStream(cameraStream || null);
+      localStreamRef.current = cameraVideoTrack ? cameraStream : null;
+      setLocalStream(cameraVideoTrack ? cameraStream : null);
       setScreenShareActive(false);
+      if (!shouldRestoreCamera) {
+        setLocalMediaState((prev) => ({ ...prev, video: false }));
+      }
+      sendShareState(false);
 
       if (!silent && !cameraVideoTrack) {
         setStageError('Unable to restore camera after screen sharing.');
       }
     },
-    [ensureLocalMedia, replaceVideoTrackForAll]
+    [ensureLocalMedia, replaceVideoTrackForAll, sendShareState]
   );
 
   const startScreenShare = useCallback(async () => {
@@ -404,25 +507,39 @@ const useLiveInstructorSession = () => {
       throw new Error('Screen sharing is not supported in this browser.');
     }
 
-    const cameraStream = await ensureLocalMedia();
-    const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
-    const [screenTrack] = screenStream.getVideoTracks();
-    if (!screenTrack) {
-      throw new Error('Screen share did not provide a video track.');
+    try {
+      const cameraStream = await ensureLocalMedia();
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+      const [screenTrack] = screenStream.getVideoTracks();
+      if (!screenTrack) {
+        throw new Error('Screen share did not provide a video track.');
+      }
+
+      screenTrack.onended = () => stopScreenShare({ silent: true });
+
+      // Send the screen stream (with camera audio) as the active outbound stream
+      const audioTracks = cameraStream?.getAudioTracks ? cameraStream.getAudioTracks() : [];
+      const combined = new MediaStream([...audioTracks, screenTrack]);
+
+      // Remember camera state and turn video off while sharing
+      cameraEnabledBeforeShareRef.current = localMediaState.video;
+      if (cameraStream && !localMediaState.video) {
+        cameraStream.getVideoTracks().forEach((track) => {
+          track.enabled = false;
+        });
+      }
+
+      screenStreamRef.current = screenStream;
+      setScreenShareActive(true);
+      localStreamRef.current = combined;
+      setLocalStream(combined);
+      replaceVideoTrackForAll(screenTrack);
+      sendShareState(true);
+    } catch (error) {
+      setStageError(error?.message || 'Screen sharing was blocked.');
+      setStageStatus((prev) => (prev === 'connecting' ? 'idle' : prev));
     }
-
-    const audioTracks = cameraStream?.getAudioTracks ? cameraStream.getAudioTracks() : [];
-    const combined = new MediaStream([...audioTracks, screenTrack]);
-
-    screenTrack.onended = () => stopScreenShare({ silent: true });
-
-    localStreamRef.current = combined;
-    setLocalStream(combined);
-    screenStreamRef.current = screenStream;
-    setScreenShareActive(true);
-
-    replaceVideoTrackForAll(screenTrack);
-  }, [ensureLocalMedia, replaceVideoTrackForAll, screenShareActive, stopScreenShare]);
+  }, [ensureLocalMedia, replaceVideoTrackForAll, screenShareActive, stopScreenShare, localMediaState.video, sendShareState]);
 
   const handleRemoteOffer = useCallback(
     async (payload) => {
@@ -513,6 +630,8 @@ const useLiveInstructorSession = () => {
           remoteStreamsRef.current.delete(participantId);
         }
       });
+
+      setRemoteParticipants(buildRemoteParticipantSnapshot(session));
     },
     [buildRemoteParticipantSnapshot, mergeSessionIntoList]
   );
@@ -535,6 +654,38 @@ const useLiveInstructorSession = () => {
           break;
         case 'webrtc-ice-candidate':
           handleRemoteIceCandidate(payload);
+          break;
+        case 'chat:message':
+          addChatMessage({
+            from: payload.from,
+            displayName: payload.displayName || 'Participant',
+            text: payload.text || payload.data?.text || '',
+            timestamp: payload.timestamp || Date.now(),
+          });
+          break;
+        case 'reaction':
+          setLastReaction({ from: payload.from, data: payload.data || {}, timestamp: payload.timestamp || Date.now() });
+          break;
+        case 'hand-raise':
+          setLastReaction({
+            from: payload.from,
+            data: { type: 'hand-raise', ...(payload.data || {}) },
+            timestamp: payload.timestamp || Date.now(),
+          });
+          break;
+        case 'spotlight':
+          setSpotlightParticipantId(payload.data?.participantId || null);
+          break;
+        case 'share:owner': {
+          const ownerId = payload.participantId || null;
+          sessionSnapshotRef.current = sessionSnapshotRef.current
+            ? { ...sessionSnapshotRef.current, screenShareOwner: ownerId }
+            : sessionSnapshotRef.current;
+          setActiveSession((prev) => (prev ? { ...prev, screenShareOwner: ownerId } : prev));
+          break;
+        }
+        case 'share:denied':
+          setStageError('Screen share unavailable right now.');
           break;
         case 'target-unavailable':
           console.warn('[live] Target unavailable', payload.target);
@@ -627,32 +778,12 @@ const useLiveInstructorSession = () => {
       await ensureLocalMedia();
       connectSignaling(response.signaling, sessionId, response.participant);
       await updateLiveSession(sessionId, { status: 'live' }, token);
+      loadChatHistory(sessionId);
     },
-    [token, getHostSecret, ensureLocalMedia, connectSignaling, mergeSessionIntoList]
+    [token, getHostSecret, ensureLocalMedia, connectSignaling, mergeSessionIntoList, loadChatHistory, updateLiveSession]
   );
 
-  const updateSessionStatus = useCallback(
-    async (sessionId, status) => {
-      if (!token) {
-        throw new Error('Authentication required');
-      }
-      const session = await updateLiveSession(sessionId, { status }, token);
-      if (session) {
-        mergeSessionIntoList(session);
-        if (activeSession?.id === session.id) {
-          setActiveSession(session);
-          sessionSnapshotRef.current = session;
-        }
-        if (status === 'ended') {
-          stopScreenShare({ silent: true });
-        }
-      }
-      return session;
-    },
-    [token, activeSession?.id, mergeSessionIntoList, stopScreenShare]
-  );
-
-  const updateStudentMediaPermissions = useCallback(
+  const applySessionUpdate = useCallback(
     async (sessionId, changes) => {
       if (!token) {
         throw new Error('Authentication required');
@@ -670,6 +801,77 @@ const useLiveInstructorSession = () => {
     [token, activeSession?.id, mergeSessionIntoList]
   );
 
+  const updateSessionStatus = useCallback(
+    async (sessionId, status) => {
+      const session = await applySessionUpdate(sessionId, { status });
+      if (session && status === 'ended') {
+        stopScreenShare({ silent: true });
+      }
+      return session;
+    },
+    [applySessionUpdate, stopScreenShare]
+  );
+
+  const updateStudentMediaPermissions = useCallback(
+    async (sessionId, changes) => applySessionUpdate(sessionId, changes),
+    [applySessionUpdate]
+  );
+
+  const updateSessionSecurity = useCallback(
+    async (sessionId, changes) => applySessionUpdate(sessionId, changes),
+    [applySessionUpdate]
+  );
+
+  const sendParticipantMediaCommand = useCallback(
+    async (sessionId, participantId, changes) => {
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+      return updateParticipantMediaState(sessionId, participantId, changes, token);
+    },
+    [token]
+  );
+
+  const removeParticipant = useCallback(
+    async (sessionId, participantId, options = {}) => {
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+      return kickParticipant(sessionId, participantId, options, token);
+    },
+    [token]
+  );
+
+  const admitWaitingParticipant = useCallback(
+    async (sessionId, participantId) => {
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+      return admitParticipant(sessionId, participantId, token);
+    },
+    [token]
+  );
+
+  const denyWaitingParticipant = useCallback(
+    async (sessionId, participantId) => {
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+      return denyParticipant(sessionId, participantId, token);
+    },
+    [token]
+  );
+
+  const uploadRecording = useCallback(
+    async ({ sessionId, file, durationMs, participantId }) => {
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+      return uploadLiveRecording(sessionId, file, { durationMs, participantId }, token);
+    },
+    [token]
+  );
+
   const endActiveSession = useCallback(async () => {
     if (!activeSession?.id) {
       return;
@@ -682,8 +884,8 @@ const useLiveInstructorSession = () => {
     if (!activeSession?.id) {
       return '';
     }
-    return buildStudentLink(activeSession.id);
-  }, [activeSession?.id]);
+    return buildStudentLink(activeSession.id, activeSession.meetingToken);
+  }, [activeSession?.id, activeSession?.meetingToken]);
 
   return {
     sessions,
@@ -705,9 +907,33 @@ const useLiveInstructorSession = () => {
     localStream,
     buildStudentLink,
     updateStudentMediaPermissions,
+    updateSessionSecurity,
+    sendParticipantMediaCommand,
+    removeParticipant,
     startScreenShare,
     stopScreenShare,
     screenShareActive,
+    chatMessages,
+    sendChatMessage,
+    sendReaction,
+    sendHandRaise,
+    lastReaction,
+    sendSpotlight,
+    spotlightParticipantId,
+    instructorParticipantId: instructorParticipantRef.current ? instructorParticipantRef.current.id : null,
+    admitWaitingParticipant,
+    denyWaitingParticipant,
+    uploadRecording,
+    fetchAttendance: async () => {
+      if (!token || !activeSession?.id) throw new Error('Authentication required');
+      const resp = await fetchAttendanceApi(activeSession.id, token);
+      return resp?.attendance || [];
+    },
+    fetchSessionEvents: async ({ limit = 500 } = {}) => {
+      if (!token || !activeSession?.id) throw new Error('Authentication required');
+      const resp = await fetchSessionEventsApi(activeSession.id, token, { limit });
+      return resp?.events || [];
+    },
   };
 };
 

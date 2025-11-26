@@ -26,7 +26,14 @@ const LiveSessionList = ({
   courses = [],
   coursesLoading = false,
 }) => {
-  const [formState, setFormState] = useState({ title: '', scheduledFor: '', courseId: '' });
+  const [formState, setFormState] = useState({
+    title: '',
+    scheduledFor: '',
+    courseId: '',
+    passcode: '',
+    waitingRoomEnabled: false,
+    locked: false,
+  });
   const [creating, setCreating] = useState(false);
   const [formError, setFormError] = useState('');
   const sortedSessions = useMemo(
@@ -76,14 +83,21 @@ const LiveSessionList = ({
         ...formState,
         course: selectedCourse,
       });
-      setFormState({ title: '', scheduledFor: '', courseId: '' });
+      setFormState({
+        title: '',
+        scheduledFor: '',
+        courseId: '',
+        passcode: '',
+        waitingRoomEnabled: false,
+        locked: false,
+      });
     } finally {
       setCreating(false);
     }
   };
 
-  const copyJoinLink = async (sessionId) => {
-    const link = buildStudentLink(sessionId);
+  const copyJoinLink = async (session) => {
+    const link = buildStudentLink(session.id, session.meetingToken);
     try {
       await navigator.clipboard.writeText(link);
     } catch (_) {
@@ -149,6 +163,51 @@ const LiveSessionList = ({
                 disabled={creating}
               />
             </div>
+            <div className='form-group'>
+              <label htmlFor='live-passcode'>Passcode (optional)</label>
+              <input
+                id='live-passcode'
+                type='text'
+                className='form-control'
+                placeholder='Set a passcode for students'
+                value={formState.passcode}
+                onChange={(event) =>
+                  setFormState((prev) => ({ ...prev, passcode: event.target.value }))
+                }
+                disabled={creating}
+              />
+              <small className='text-muted'>Share this only with invited students.</small>
+            </div>
+            <div className='form-check form-switch mb-2'>
+              <input
+                className='form-check-input'
+                type='checkbox'
+                id='live-waiting-room'
+                checked={formState.waitingRoomEnabled}
+                onChange={(event) =>
+                  setFormState((prev) => ({ ...prev, waitingRoomEnabled: event.target.checked }))
+                }
+                disabled={creating}
+              />
+              <label className='form-check-label' htmlFor='live-waiting-room'>
+                Enable waiting room
+              </label>
+            </div>
+            <div className='form-check form-switch mb-3'>
+              <input
+                className='form-check-input'
+                type='checkbox'
+                id='live-lock-meeting'
+                checked={formState.locked}
+                onChange={(event) =>
+                  setFormState((prev) => ({ ...prev, locked: event.target.checked }))
+                }
+                disabled={creating}
+              />
+              <label className='form-check-label' htmlFor='live-lock-meeting'>
+                Lock meeting (block new joins)
+              </label>
+            </div>
             {formError && <div className='text-danger small'>{formError}</div>}
             <button className='btn btn-primary mt-2' type='submit' disabled={creating}>
               {creating ? 'Creating…' : 'Create session'}
@@ -184,19 +243,36 @@ const LiveSessionList = ({
                     <th>Title</th>
                     <th>Schedule</th>
                     <th>Status</th>
+                    <th>Security</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedSessions.map((session) => (
-                    <tr key={session.id}>
-                      <td>{session.courseName || '—'}</td>
+                  {sortedSessions.map((session, idx) => {
+                    const rowKey =
+                      session.id || session._id || session.meetingToken || `${session.title || 'session'}-${idx}`;
+                    return (
+                      <tr key={rowKey}>
+                      <td>{session.courseName || '-'}</td>
                       <td>{session.title}</td>
                       <td>{formatDateTime(session.scheduledFor)}</td>
                       <td>
                         <span className={`badge badge-soft-${session.status === 'live' ? 'success' : session.status === 'ended' ? 'danger' : 'info'}`}>
                           {session.status || 'scheduled'}
                         </span>
+                      </td>
+                      <td>
+                        <div className='d-flex flex-column gap-1'>
+                          {session.requiresPasscode ? (
+                            <span className='badge bg-secondary text-white'>Passcode</span>
+                          ) : (
+                            <span className='badge bg-light text-dark'>Open</span>
+                          )}
+                          {session.waitingRoomEnabled ? (
+                            <span className='badge bg-warning text-dark'>Waiting room</span>
+                          ) : null}
+                          {session.locked ? <span className='badge bg-danger'>Locked</span> : null}
+                        </div>
                       </td>
                       <td className='live-session-actions'>
                         <button
@@ -209,7 +285,7 @@ const LiveSessionList = ({
                         <button
                           className='btn btn-sm btn-outline-secondary'
                           type='button'
-                          onClick={() => copyJoinLink(session.id)}
+                          onClick={() => copyJoinLink(session)}
                         >
                           Copy student link
                         </button>
@@ -223,8 +299,9 @@ const LiveSessionList = ({
                           </button>
                         )}
                       </td>
-                    </tr>
-                  ))}
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
