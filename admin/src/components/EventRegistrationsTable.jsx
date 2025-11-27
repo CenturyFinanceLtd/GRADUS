@@ -92,12 +92,14 @@ const EventRegistrationsTable = () => {
   const [pendingActionId, setPendingActionId] = useState(null);
   const [resendingId, setResendingId] = useState(null);
   const [sheetSyncing, setSheetSyncing] = useState(false);
+  const [sheetSyncingAll, setSheetSyncingAll] = useState(false);
   const [bulkResending, setBulkResending] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [joinLink, setJoinLink] = useState("");
   const [sendingLinks, setSendingLinks] = useState(false);
   const [batchStartIndex, setBatchStartIndex] = useState(0);
   const [filterMode, setFilterMode] = useState("all");
+  const [eventFilter, setEventFilter] = useState("all");
   const [editorState, setEditorState] = useState({
     open: false,
     mode: "create",
@@ -148,6 +150,16 @@ const EventRegistrationsTable = () => {
     };
   }, [token, reloadKey]);
 
+  const eventOptions = useMemo(() => {
+    const names = new Set();
+    items.forEach((item) => {
+      if (item.course) {
+        names.add(item.course);
+      }
+    });
+    return Array.from(names).sort((a, b) => a.localeCompare(b));
+  }, [items]);
+
   const isRegistrationLive = (item) => {
     const details = item.eventDetails || {};
     const startValue =
@@ -170,23 +182,20 @@ const EventRegistrationsTable = () => {
   const filteredItems = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    const bySearch = term
-      ? items.filter((item) => {
-          const fields = [
-            item.name,
-            item.email,
-            item.phone,
-            item.state,
-            item.qualification,
-            item.course,
-            item.message,
-          ];
-
-          return fields.some((field) =>
-            typeof field === "string" ? field.toLowerCase().includes(term) : false
+    const byEvent =
+      eventFilter === "all"
+        ? items
+        : items.filter(
+            (item) => typeof item.course === "string" && item.course.toLowerCase() === eventFilter.toLowerCase()
           );
+
+    const bySearch = term
+      ? byEvent.filter((item) => {
+          const fields = [item.name, item.email, item.phone, item.state, item.qualification, item.course, item.message];
+
+          return fields.some((field) => (typeof field === "string" ? field.toLowerCase().includes(term) : false));
         })
-      : items;
+      : byEvent;
 
     if (filterMode === "live") {
       return bySearch.filter(isRegistrationLive);
@@ -201,6 +210,8 @@ const EventRegistrationsTable = () => {
       setSelectedIds([]);
     }
   }, [filteredItems.length, batchStartIndex]);
+
+  const totalRegistrations = items.length;
 
   const openCreateEditor = () => {
     setEditorState({
@@ -538,25 +549,14 @@ const EventRegistrationsTable = () => {
       return;
     }
 
-    const targetIds = selectedIds.length
-      ? selectedIds
-      : filteredItems.map((item) => item.id);
+    const targetIds = selectedIds.length ? selectedIds : [];
 
     if (!targetIds.length) {
       setActionMessage({
         type: "danger",
-        text: "No registrations available to sync.",
+        text: "Select at least one registration to sync.",
       });
       return;
-    }
-
-    if (!selectedIds.length) {
-      const confirmed = window.confirm(
-        "Sync all loaded registrations to Google Sheets?"
-      );
-      if (!confirmed) {
-        return;
-      }
     }
 
     setSheetSyncing(true);
@@ -570,7 +570,9 @@ const EventRegistrationsTable = () => {
       const synced = typeof response?.synced === "number" ? response.synced : targetIds.length;
       setActionMessage({
         type: "success",
-        text: response?.message || `Synced ${synced} registration(s) to Google Sheets.`,
+        text:
+          response?.message ||
+          `Synced ${synced} registration(s) to Google Sheets. Each sheet uses the event name.`,
       });
     } catch (err) {
       setActionMessage({
@@ -579,6 +581,51 @@ const EventRegistrationsTable = () => {
       });
     } finally {
       setSheetSyncing(false);
+    }
+  };
+
+  const handleSyncSheetsAll = async () => {
+    if (!token) {
+      return;
+    }
+
+    if (!filteredItems.length) {
+      setActionMessage({
+        type: "danger",
+        text: "No registrations available to sync.",
+      });
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Sync ALL registrations to Google Sheets? Each sheet tab will be named after the event."
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    setSheetSyncingAll(true);
+    setActionMessage(null);
+
+    try {
+      const response = await syncEventRegistrationsToSheet({
+        token,
+        registrationIds: [], // empty means sync everything server-side
+      });
+      const synced = typeof response?.synced === "number" ? response.synced : filteredItems.length;
+      setActionMessage({
+        type: "success",
+        text:
+          response?.message ||
+          `Synced ${synced} registration(s) to Google Sheets. Each sheet uses the event name.`,
+      });
+    } catch (err) {
+      setActionMessage({
+        type: "danger",
+        text: err?.message || "Failed to sync registrations to Google Sheets.",
+      });
+    } finally {
+      setSheetSyncingAll(false);
     }
   };
 
@@ -600,6 +647,9 @@ const EventRegistrationsTable = () => {
             <p className='text-muted mb-0'>
               View the latest sign-ups coming from the public event CTA form.
             </p>
+            <div className='badge bg-primary-subtle text-primary fw-semibold mt-2'>
+              Total registrations: {totalRegistrations}
+            </div>
             <div className='d-flex gap-2 mt-2'>
               <button
                 type='button'
@@ -617,20 +667,34 @@ const EventRegistrationsTable = () => {
               </button>
             </div>
           </div>
-          <div className='d-flex flex-wrap gap-12 ms-auto align-items-center'>
-            <input
-              type='search'
-              className='form-control'
-              placeholder='Search by name, email, or course'
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              style={{ minWidth: 240 }}
-            />
-            <div className='d-flex gap-8'>
-              <button
-                type='button'
-                className='btn btn-outline-dark'
-                onClick={() => selectBatch(0)}
+            <div className='d-flex flex-wrap gap-12 ms-auto align-items-center'>
+              <input
+                type='search'
+                className='form-control'
+                placeholder='Search by name, email, or course'
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                style={{ minWidth: 240 }}
+              />
+              <select
+                className='form-select'
+                value={eventFilter}
+                onChange={(event) => setEventFilter(event.target.value)}
+                style={{ minWidth: 200 }}
+                title='Filter by event'
+              >
+                <option value='all'>All events</option>
+                {eventOptions.map((eventName) => (
+                  <option key={eventName} value={eventName}>
+                    {eventName}
+                  </option>
+                ))}
+              </select>
+              <div className='d-flex gap-8'>
+                <button
+                  type='button'
+                  className='btn btn-outline-dark'
+                  onClick={() => selectBatch(0)}
                 disabled={!filteredItems.length}
               >
                 Select 5
@@ -673,18 +737,21 @@ const EventRegistrationsTable = () => {
               type='button'
               className='btn btn-outline-secondary'
               onClick={handleSyncSheetsBulk}
-              disabled={sheetSyncing || (!selectedIds.length && filteredItems.length === 0)}
-              title={
-                selectedIds.length
-                  ? "Sync selected registrations to Google Sheets"
-                  : "Sync all loaded registrations to Google Sheets"
-              }
+              disabled={sheetSyncing || sheetSyncingAll || selectedIds.length === 0}
+              title="Sync selected registrations to Google Sheets (sheet tab = event name)"
             >
               {sheetSyncing
                 ? "Syncing..."
-                : selectedIds.length
-                ? `Sync Sheets (${selectedIds.length})`
-                : "Sync Sheets (All)"}
+                : `Sync Sheets (${selectedIds.length || 0})`}
+            </button>
+            <button
+              type='button'
+              className='btn btn-outline-secondary'
+              onClick={handleSyncSheetsAll}
+              disabled={sheetSyncingAll || sheetSyncing || filteredItems.length === 0}
+              title="Sync all registrations to Google Sheets (sheet tab = event name)"
+            >
+              {sheetSyncingAll ? "Syncing all..." : "Sync Sheets (All)"}
             </button>
             <button
               type='button'

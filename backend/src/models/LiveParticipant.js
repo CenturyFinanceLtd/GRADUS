@@ -12,7 +12,7 @@ const participantSchema = new mongoose.Schema(
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null, index: true },
     adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminUser', default: null, index: true },
     joinedAt: { type: Date, default: Date.now, index: true },
-    lastSeenAt: { type: Date, default: Date.now, index: true },
+    lastSeenAt: { type: Date, default: Date.now },
     signalingKey: { type: String, required: true, index: true },
     connected: { type: Boolean, default: false, index: true },
     waiting: { type: Boolean, default: false, index: true },

@@ -7,7 +7,6 @@ const asyncHandler = require('express-async-handler');
 const mongoose = require('mongoose');
 const Event = require('../models/Event');
 const slugify = require('../utils/slugify');
-const { ensureEventSpreadsheet } = require('../services/googleSheetsRegistrationSync');
 
 const allowedStatuses = new Set(['draft', 'published', 'archived']);
 const allowedModes = new Set(['online', 'in-person', 'hybrid']);
@@ -662,16 +661,6 @@ const createEvent = asyncHandler(async (req, res) => {
   }
 
   const event = await Event.create(payload);
-  if (event) {
-    const eventPayload = event.toObject ? event.toObject() : event;
-    ensureEventSpreadsheet(eventPayload).catch((error) => {
-      console.warn('[events] Failed to ensure spreadsheet during create', {
-        id: event._id,
-        title: event.title,
-        error: error?.message,
-      });
-    });
-  }
 
   res.status(201).json(serializeEvent(event));
 });
@@ -696,16 +685,6 @@ const updateEvent = asyncHandler(async (req, res) => {
 
   applyPayloadToEvent(event, payload);
   await event.save();
-  if (event) {
-    const eventPayload = event.toObject ? event.toObject() : event;
-    ensureEventSpreadsheet(eventPayload).catch((error) => {
-      console.warn('[events] Failed to ensure spreadsheet during update', {
-        id: event._id,
-        title: event.title,
-        error: error?.message,
-      });
-    });
-  }
 
   res.json(serializeEvent(event));
 });

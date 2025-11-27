@@ -82,29 +82,29 @@ const DEGREE_OPTIONS = [
 
 const SOCIAL_LINKS = [
   {
-    href: "https://www.quora.com/profile/Marketing-Team-615",
-    label: "Quora",
-    icon: "/assets/social/Quora.svg",
+    href: "https://www.facebook.com/people/Gradus/61583093960559/?sk=about",
+    label: "Facebook",
+    icon: "/assets/social/facebook.svg",
   },
   {
-    href: "https://www.reddit.com/user/GradusIndia/",
-    label: "Reddit",
-    icon: "/assets/social/reddit.svg",
-  },
-  {
-    href: "https://discord.com/channels/1432018650558238884/1432019463347114035",
-    label: "Discord",
-    icon: "/assets/social/discord.svg",
-  },
-  {
-    href: "https://www.instagram.com/gradusindiaofficial?igsh=MWdhdjJhZWp6NDI1aA==",
+    href: "https://www.instagram.com/gradusindiaofficial",
     label: "Instagram",
     icon: "/assets/social/instagram.svg",
   },
   {
-    href: "https://www.facebook.com/people/Gradus/61583093960559/?sk=about",
-    label: "Facebook",
-    icon: "/assets/social/facebook.svg",
+    href: "https://linkedin.com/company/gradusindia",
+    label: "linkedIn",
+    icon: "/assets/social/linkedin.svg",
+  },
+  {
+    href: "https://www.youtube.com/@gradusindia/",
+    label: "YouTube",
+    icon: "/assets/social/youtube.svg",
+  },
+  {
+    href: "https://wa.me/+918448429040",
+    label: "WhatsApp",
+    icon: "/assets/social/whatsapp.svg",
   },
 ];
 

@@ -94,6 +94,12 @@ const boolToText = (value) => {
   return value ? 'Yes' : 'No';
 };
 
+const deriveStateFromMessage = (message) => {
+  if (!message || typeof message !== 'string') return '';
+  const match = message.match(/state:\s*([^|]+)/i);
+  return match ? match[1].trim() : '';
+};
+
 const joinList = (list, separator = ', ') => {
   if (!Array.isArray(list) || list.length === 0) return '';
   return list
@@ -476,12 +482,13 @@ const formatSubmissionTime = (value) => {
 
 const formatRegistrationRow = (registration) => {
   const submittedAt = registration.createdAt || registration.updatedAt || Date.now();
+  const derivedState = registration.state || deriveStateFromMessage(registration.message);
 
   return [
     registration.name || '',
     registration.email || '',
     registration.phone || '',
-    registration.state || '',
+    derivedState || '',
     registration.qualification || '',
     registration.course || '',
     formatSubmissionTime(submittedAt),

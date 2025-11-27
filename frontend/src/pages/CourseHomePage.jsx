@@ -4,6 +4,7 @@ import HeaderOne from "../components/HeaderOne";
 import FooterOne from "../components/FooterOne";
 import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
+import AssessmentPanel from "../components/AssessmentPanel";
 import { useAuth } from "../context/AuthContext";
 import { API_BASE_URL } from "../services/apiClient";
 import { fetchActiveLiveSessionForCourse } from "../live/liveApi";
@@ -2841,9 +2842,11 @@ const CourseHomePage = () => {
         );
       case "assessments":
         return (
-          <SectionPlaceholder
-            title='Assessments'
-            description='Assessments unlock as you progress through modules. Keep learning to access your first checkpoint.'
+          <AssessmentPanel
+            courseSlug={course}
+            programmeSlug={programme}
+            courseName={prettyCourseName}
+            modules={modules}
           />
         );
       case "messages":

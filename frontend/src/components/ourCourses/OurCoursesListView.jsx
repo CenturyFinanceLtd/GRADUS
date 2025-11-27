@@ -308,8 +308,6 @@ const OurCoursesListView = () => {
                 <nav className='courses-breadcrumb'>
                   <Link to='/'>Home</Link>
                   <span>/</span>
-                  <span>Search</span>
-                  <span>/</span>
                   <strong>{headingLabel}</strong>
                 </nav>
                 <div className='d-flex flex-wrap align-items-center gap-12'>

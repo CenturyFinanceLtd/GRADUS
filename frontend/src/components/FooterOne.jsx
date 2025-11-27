@@ -32,34 +32,29 @@ const COURSE_PREVIEW_LIMIT = 9;
 
 const socialLinks = [
   {
-    href: "https://www.quora.com/profile/Marketing-Team-615",
-    label: "Quora",
-    icon: "/assets/social/Quora.svg",
-    color: "#b92b27",
-  },
-  {
-    href: "https://www.reddit.com/user/GradusIndia/",
-    label: "Reddit",
-    icon: "/assets/social/reddit.svg",
-    color: "#ff4500",
-  },
-  {
-    href: "https://discord.com/channels/1432018650558238884/1432019463347114035",
-    label: "Discord",
-    icon: "/assets/social/discord.svg",
-    color: "#5b66f6",
-  },
-  {
-    href: "https://www.instagram.com/gradusindiaofficial?igsh=MWdhdjJhZWp6NDI1aA==",
-    label: "Instagram",
-    icon: "/assets/social/instagram.svg",
-    color: "#e1306c",
-  },
-  {
     href: "https://www.facebook.com/people/Gradus/61583093960559/?sk=about",
     label: "Facebook",
     icon: "/assets/social/facebook.svg",
-    color: "#0080ff",
+  },
+  {
+    href: "https://www.instagram.com/gradusindiaofficial",
+    label: "Instagram",
+    icon: "/assets/social/instagram.svg",
+  },
+  {
+    href: "https://linkedin.com/company/gradusindia",
+    label: "linkedIn",
+    icon: "/assets/social/linkedin.svg",
+  },
+  {
+    href: "https://www.youtube.com/@gradusindia/",
+    label: "YouTube",
+    icon: "/assets/social/youtube.svg",
+  },
+  {
+    href: "https://wa.me/+918448429040",
+    label: "WhatsApp",
+    icon: "/assets/social/whatsapp.svg",
   },
 ];
 

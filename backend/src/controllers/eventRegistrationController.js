@@ -9,13 +9,7 @@ const Event = require('../models/Event');
 const { sendEmail, sendEventRegistrationEmail } = require('../utils/email');
 const config = require('../config/env');
 const { syncRegistrationToGoogleDoc } = require('../services/googleDocsRegistrationSync');
-const { syncRegistrationToGoogleSheet } = require('../services/googleSheetsRegistrationSync');
-const {
-  resyncEventRegistrationsForEvent,
-  isRegistrationSheetWatcherEnabled,
-} = require('../services/registrationSpreadsheetSync');
-
-const SHEETS_SYNC_DELAY_MS = Number(process.env.GOOGLE_SHEETS_SYNC_DELAY_MS) || 2000;
+const { resyncEventRegistrationsForEvent } = require('../services/registrationSpreadsheetSync');
 const DEFAULT_BULK_EMAIL_CONCURRENCY = 1; // Send sequentially to reduce provider throttling
 const BULK_EMAIL_CONCURRENCY = (() => {
   const parsed = Number(process.env.EVENT_CONFIRMATION_CONCURRENCY);
@@ -33,7 +27,7 @@ const BULK_EMAIL_DELAY_MS = (() => {
   return DEFAULT_BULK_EMAIL_DELAY_MS;
 })();
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-const shouldManuallySyncRegistration = () => !isRegistrationSheetWatcherEnabled();
+const SHEETS_SYNC_DELAY_MS = Number(process.env.GOOGLE_SHEETS_SYNC_DELAY_MS) || 2000;
 
 const runWithConcurrency = async (
   items,
@@ -265,20 +259,6 @@ const createEventRegistrationEntry = async (payload = {}) => {
   const registration = await EventRegistration.create(normalized);
   await sendEventConfirmation(registration, normalized.eventDetails);
   await syncRegistrationToGoogleDoc(registration, { mode: 'create' });
-  if (shouldManuallySyncRegistration()) {
-    const sheetRow = await syncRegistrationToGoogleSheet(registration);
-    if (Number.isFinite(sheetRow)) {
-      try {
-        await EventRegistration.updateOne(
-          { _id: registration._id },
-          { sheetRowIndex: sheetRow }
-        );
-        registration.sheetRowIndex = sheetRow;
-      } catch (error) {
-        console.warn('[event-registration] Failed to store sheetRowIndex', error?.message);
-      }
-    }
-  }
   return registration;
 };
 
@@ -388,20 +368,6 @@ const updateEventRegistration = asyncHandler(async (req, res) => {
 
   await registration.save();
   await syncRegistrationToGoogleDoc(registration, { mode: 'update' });
-  if (shouldManuallySyncRegistration()) {
-    const sheetRow = await syncRegistrationToGoogleSheet(registration);
-    if (Number.isFinite(sheetRow)) {
-      try {
-        await EventRegistration.updateOne(
-          { _id: registration._id },
-          { sheetRowIndex: sheetRow }
-        );
-        registration.sheetRowIndex = sheetRow;
-      } catch (error) {
-        console.warn('[event-registration] Failed to store sheetRowIndex', error?.message);
-      }
-    }
-  }
 
   res.json({
     message: 'Event registration updated successfully',
@@ -418,18 +384,6 @@ const deleteEventRegistration = asyncHandler(async (req, res) => {
   }
 
   await registration.deleteOne();
-  const eventName =
-    registration.course ||
-    (registration.eventDetails && registration.eventDetails.title) ||
-    '';
-  if (eventName) {
-    resyncEventRegistrationsForEvent(eventName).catch((error) => {
-      console.warn('[event-registration] Failed to resync sheet after delete', {
-        event: eventName,
-        error: error?.message,
-      });
-    });
-  }
   res.json({ success: true });
 });
 
@@ -651,12 +605,14 @@ const syncEventRegistrationSheetBulk = asyncHandler(async (req, res) => {
       failures.push(`event:${eventName}`);
     }
     if (SHEETS_SYNC_DELAY_MS > 0) {
+      // Avoid hammering the Sheets API for multiple events
+      // eslint-disable-next-line no-await-in-loop
       await delay(SHEETS_SYNC_DELAY_MS);
     }
   }
 
   res.json({
-    message: `Sheet sync processed for ${eventsSynced}/${eventStats.size} event(s)`,
+    message: `Sheet sync processed for ${eventsSynced}/${eventStats.size} event(s). Tabs are named after each event.`,
     total: registrations.length,
     synced: syncedRegistrations,
     failed: failures,
