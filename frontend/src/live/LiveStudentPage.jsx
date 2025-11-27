@@ -51,6 +51,14 @@ const LiveStudentPage = () => {
     }
   }, [localStream]);
 
+  const showLocalVideo = useMemo(() => {
+    if (!localStream) {
+      return false;
+    }
+    const tracks = localStream.getVideoTracks ? localStream.getVideoTracks() : [];
+    return tracks.some((track) => track.enabled && track.readyState !== "ended");
+  }, [localStream, localMediaState?.video]);
+
   const disabled = useMemo(() => stageStatus === "joining" || stageStatus === "connecting", [stageStatus]);
   const connected = stageStatus === "live";
 
@@ -239,7 +247,7 @@ const LiveStudentPage = () => {
               <div className='live-sidebar-card'>
                 <h4>Your preview</h4>
                 <div className='live-preview'>
-                  {localStream ? (
+                  {showLocalVideo ? (
                     <video
                       ref={localVideoRef}
                       autoPlay
@@ -249,7 +257,7 @@ const LiveStudentPage = () => {
                     />
                   ) : (
                     <div className='live-video-placeholder'>
-                      <p>Enable camera/mic after joining.</p>
+                      <p>{localStream ? "Camera is off. Turn it on to preview." : "Enable camera/mic after joining."}</p>
                     </div>
                   )}
                 </div>

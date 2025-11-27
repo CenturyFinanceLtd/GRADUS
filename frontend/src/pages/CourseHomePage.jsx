@@ -1735,6 +1735,14 @@ const CourseHomePage = () => {
     spotlightParticipantId: embedSpotlightId,
   } = useLiveStudentSession(liveSessionIdFromRoute || undefined);
 
+  const hasActiveLocalVideo = useMemo(() => {
+    if (!localStream) {
+      return false;
+    }
+    const videoTracks = localStream.getVideoTracks ? localStream.getVideoTracks() : [];
+    return videoTracks.some((track) => track.enabled && track.readyState !== "ended");
+  }, [localStream, localMediaState?.video]);
+
   useEffect(() => {
     if (liveInstructorVideoRef.current) {
       liveInstructorVideoRef.current.srcObject = instructorStream || null;
@@ -2834,7 +2842,7 @@ const liveStatusText = useMemo(() => {
           return true;
         });
       })();
-      const hasLocalVideo = Boolean(localStream);
+      const hasLocalVideo = hasActiveLocalVideo;
       const hasInstructorVideo = Boolean(instructorStream);
       const showSelfPrimary = selfViewPrimary && hasLocalVideo;
       const mainVideoLabel = showSelfPrimary

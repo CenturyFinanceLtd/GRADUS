@@ -232,6 +232,9 @@ const ProgrammesAndCourses = () => {
   }, []);
 
   const tabbedCourses = useMemo(() => {
+    const priceMatches = courses.filter((course) => course.priceAmount === POPULAR_PRICE_TARGET);
+    const priceMatchIds = new Set(priceMatches.map((course) => course.id));
+
     if (activeTab === "popular") {
       const aliasMatches = courses.reduce((acc, course) => {
         const canonical = POPULAR_COURSE_ALIAS_MAP[course.courseSlug];
@@ -244,13 +247,24 @@ const ProgrammesAndCourses = () => {
         const entry = aliasMatches.find((item) => item.canonical === canonical);
         return entry?.course || null;
       }).filter(Boolean);
+
       const prioritizedIds = new Set(prioritized.map((course) => course.id));
-      const priceMatches = courses.filter(
-        (course) => course.priceAmount === POPULAR_PRICE_TARGET && !prioritizedIds.has(course.id)
+      const prioritizedWithoutPriceHits = prioritized.filter((course) => !priceMatchIds.has(course.id));
+      const fillers = courses.filter(
+        (course) => !priceMatchIds.has(course.id) && !prioritizedIds.has(course.id)
       );
-      return [...prioritized, ...priceMatches];
+
+      // Keep 46000-price courses right at the top, then our hand-picked ones, then any remaining.
+      return [...priceMatches, ...prioritizedWithoutPriceHits, ...fillers];
     }
-    return courses.filter((course) => course.programmeSlug === activeTab);
+
+    const filtered = courses.filter((course) => course.programmeSlug === activeTab);
+    return filtered.sort((a, b) => {
+      const aIsTarget = priceMatchIds.has(a.id);
+      const bIsTarget = priceMatchIds.has(b.id);
+      if (aIsTarget === bIsTarget) return 0;
+      return aIsTarget ? -1 : 1;
+    });
   }, [courses, activeTab]);
 
   const sliderSettings = useMemo(() => {
@@ -361,11 +375,11 @@ const ProgrammesAndCourses = () => {
                       <div className='programme-card'>
                         <div className='programme-card__thumb' style={{ position: "relative", overflow: "hidden" }}>
                           {isFlagship ? (
-                            <div className='programme-card__flagship' aria-label='Flagship programme'>
+                            <div className='programme-card__flagship' aria-label='Job Gurrantee programme'>
                               <span className='programme-card__flagship-icon' aria-hidden='true'>
                                 <img src='/assets/images/logo/favicon.png' alt='Gradus logo' loading='lazy' />
                               </span>
-                              <span className='programme-card__flagship-text'>Flagship</span>
+                              <span className='programme-card__flagship-text'>Job Gurrantee</span>
                             </div>
                           ) : null}
                           {course.thumbnail ? (
