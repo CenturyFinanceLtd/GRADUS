@@ -16289,6 +16289,7 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   width: 100%;
   max-width: 520px;
   margin-bottom: 12px;
+  position: relative;
 }
 
 .course-module-selector__trigger {
