@@ -197,7 +197,7 @@ const OurCoursesListView = () => {
     } else {
       tags.push("All Programmes");
     }
-    tags.push(flagshipOnly ? "Job Guarante" : "All Types");
+    tags.push(flagshipOnly ? "Job Guarantee" : "All Types");
     return tags;
   }, [selectedProgrammes, flagshipOnly, query]);
 
