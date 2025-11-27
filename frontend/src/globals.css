@@ -17387,6 +17387,7 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .course-video-player__media video {
@@ -17409,26 +17410,7 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.85);
-  color: #1d4ed8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
-}
-
-.course-video-player__play:hover {
-  transform: scale(1.05);
-  background: #1d4ed8;
-  color: #fff;
-}
-
-.course-video-player__play.is-hidden {
-  opacity: 0;
-  pointer-events: none;
+  display: none;
 }
 
 .course-video-player__close {
@@ -17503,11 +17485,11 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   color: #fff;
   border-radius: 0 0 24px 24px;
   flex-wrap: wrap;
-  opacity: 0;
-  transform: translateY(12px);
-  pointer-events: none;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
   transition: opacity 0.2s ease, transform 0.2s ease;
-  z-index: 2;
+  z-index: 3;
 }
 
 .course-video-player__control-btn {

@@ -197,7 +197,7 @@ const OurCoursesListView = () => {
     } else {
       tags.push("All Programmes");
     }
-    tags.push(flagshipOnly ? "Job Gurrantee" : "All Types");
+    tags.push(flagshipOnly ? "Job Guarante" : "All Types");
     return tags;
   }, [selectedProgrammes, flagshipOnly, query]);
 
@@ -290,7 +290,7 @@ const OurCoursesListView = () => {
                 <label className='filters__option'>
                   <div className='d-flex align-items-center gap-8 flex-grow-1'>
                     <input type='checkbox' checked={flagshipOnly} onChange={toggleFlagshipOnly} />
-                    <span>Job Gurrantee</span>
+                    <span>Job Guarante</span>
                   </div>
                   <span className='text-neutral-500 text-sm'>{flagshipCount}</span>
                 </label>
@@ -360,7 +360,7 @@ const OurCoursesListView = () => {
                       </Link>
                       <div className='course-card__thumb-meta'>
                         <span>{course.programme || "Programme"}</span>
-                        {isFlagship ? <span className='badge'>Job Gurrantee</span> : null}
+                        {isFlagship ? <span className='badge'>Job Guarante</span> : null}
                       </div>
                     </div>
                     <div className='course-card__body'>

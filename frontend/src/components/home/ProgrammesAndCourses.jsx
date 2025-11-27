@@ -375,11 +375,11 @@ const ProgrammesAndCourses = () => {
                       <div className='programme-card'>
                         <div className='programme-card__thumb' style={{ position: "relative", overflow: "hidden" }}>
                           {isFlagship ? (
-                            <div className='programme-card__flagship' aria-label='Job Gurrantee programme'>
+                            <div className='programme-card__flagship' aria-label='Job Guarante programme'>
                               <span className='programme-card__flagship-icon' aria-hidden='true'>
                                 <img src='/assets/images/logo/favicon.png' alt='Gradus logo' loading='lazy' />
                               </span>
-                              <span className='programme-card__flagship-text'>Job Gurrantee</span>
+                              <span className='programme-card__flagship-text'>Job Guarante</span>
                             </div>
                           ) : null}
                           {course.thumbnail ? (

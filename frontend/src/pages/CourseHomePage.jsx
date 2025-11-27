@@ -591,6 +591,11 @@ const CourseVideoPlayer = ({
     if (!video) {
       return;
     }
+    // Restart from the beginning when replaying a finished lecture.
+    if (video.ended) {
+      video.currentTime = 0;
+    }
+    applyResumePosition();
     const playPromise = video.play();
     if (playPromise?.then) {
       playPromise
@@ -1186,10 +1191,42 @@ const CourseHomePage = () => {
   const [isModuleDropdownOpen, setModuleDropdownOpen] = useState(false);
   const baseModules = useMemo(() => normalizeModules(state.course), [state.course]);
   const modules = detailState.modules.length ? detailState.modules : baseModules;
+  const availableNotes = useMemo(() => {
+    const collected = [];
+    modules.forEach((module, moduleIdx) => {
+      const moduleId = module.moduleId || module.id || `module-${moduleIdx + 1}`;
+      const moduleTitle = module.title || module.moduleLabel || `Module ${moduleIdx + 1}`;
+      const weeklyStructure = Array.isArray(module.weeklyStructure) ? module.weeklyStructure : [];
+      weeklyStructure.forEach((week, weekIdx) => {
+        const sectionId = week.sectionId || week.id || `${moduleId}-section-${weekIdx + 1}`;
+        const weekTitle = week.title || `Week ${weekIdx + 1}`;
+        const lectures = Array.isArray(week.lectures) ? week.lectures : [];
+        lectures.forEach((lecture, lectureIdx) => {
+          if (!lecture?.notes?.hasFile) {
+            return;
+          }
+          const lectureId = lecture.lectureId || lecture.id || `${sectionId}-lecture-${lectureIdx + 1}`;
+          collected.push({
+            lectureId,
+            lectureTitle: lecture.title || `Lecture ${lectureIdx + 1}`,
+            moduleId,
+            moduleTitle,
+            sectionId,
+            weekTitle,
+            notesMeta: lecture.notes,
+            videoUrl: lecture.videoUrl || "",
+            poster: lecture.poster || "",
+          });
+        });
+      });
+    });
+    return collected;
+  }, [modules]);
   const moduleSelectorRef = useRef(null);
   const [progressState, setProgressState] = useState({ loading: false, data: {} });
   const [currentLectureMeta, setCurrentLectureMeta] = useState(null);
   const [resumePositionSeconds, setResumePositionSeconds] = useState(0);
+  const playerContainerRef = useRef(null);
   const [notesState, setNotesState] = useState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
   const [notesReloadToken, setNotesReloadToken] = useState(0);
   const [notesModalOpen, setNotesModalOpen] = useState(false);
@@ -1958,6 +1995,15 @@ const CourseHomePage = () => {
     );
   };
 
+  const scrollToPlayer = () => {
+    if (typeof window === "undefined" || !playerContainerRef.current) {
+      return;
+    }
+    const rect = playerContainerRef.current.getBoundingClientRect();
+    const offset = rect.top + window.scrollY - 90; // offset for sticky header
+    window.scrollTo({ top: offset, behavior: "smooth" });
+  };
+
   const handleLecturePlay = (lecture, meta = {}) => {
     if (!lecture?.videoUrl) {
       return;
@@ -1996,19 +2042,26 @@ const CourseHomePage = () => {
       hasNotes: Boolean(lecture.notes?.hasFile),
       notesMeta: lecture.notes || null,
     });
-    const resumeSeconds =
-      lectureId && progressState.data[lectureId]
-        ? progressState.data[lectureId].lastPositionSeconds || 0
-        : 0;
+    const lectureProgress = lectureId ? progressState.data[lectureId] : null;
+    const isCompleted =
+      Boolean(lectureProgress?.completedAt) ||
+      (lectureProgress?.completionRatio || 0) >= VIDEO_COMPLETION_THRESHOLD;
+    const resumeSeconds = isCompleted ? 0 : lectureProgress?.lastPositionSeconds || 0;
     setResumePositionSeconds(resumeSeconds);
-    if (autoPlayEnabled) {
-      setVideoAutoPlayToken((token) => token + 1);
-    }
+    // Always attempt to start playback when a lecture is explicitly selected.
+    setVideoAutoPlayToken((token) => token + 1);
+    scrollToPlayer();
   };
   const handleNotesRetry = () => setNotesReloadToken((value) => value + 1);
-  const openNotesModal = () => {
-    if (!notesTarget?.hasNotes) return;
-    setNotesModalOpen(true);
+  const openNotesModal = (metaOverride) => {
+    const meta = metaOverride || notesTarget;
+    if (!meta?.hasNotes || !meta?.lectureId) {
+      return;
+    }
+    const endpoint = `${API_BASE_URL}/courses/${encodeURIComponent(programme)}/${encodeURIComponent(
+      course
+    )}/lectures/${encodeURIComponent(meta.lectureId)}/notes`;
+    window.open(endpoint, "_blank", "noopener,noreferrer");
   };
   const closeNotesModal = () => {
     setNotesModalOpen(false);
@@ -2730,15 +2783,60 @@ const CourseHomePage = () => {
                 <i className='ph-bold ph-caret-down d-inline-flex text-md' />
               </button>
             </div>
-            <div className='course-home-empty text-center'>
-              <NotesIllustration />
-              <p className='text-neutral-700 fw-semibold mb-8'>
-                You have not added any notes yet.
-              </p>
-              <p className='text-neutral-600 mb-0'>
-                Notes can be created from video pages and will appear here automatically.
-              </p>
-            </div>
+            {availableNotes.length ? (
+              <div className='d-flex flex-column gap-3'>
+                {availableNotes.map((note) => (
+                  <div
+                    key={note.lectureId}
+                    className='border rounded-4 p-16 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-12'
+                  >
+                    <div>
+                      <p className='course-home-panel__eyebrow mb-4'>
+                        {note.moduleTitle} · {note.weekTitle}
+                      </p>
+                      <h4 className='mb-4'>{note.lectureTitle}</h4>
+                      <p className='text-neutral-600 mb-0 small'>
+                        {note.notesMeta?.pages ? `${note.notesMeta.pages} pages` : "Lecture notes available"}
+                      </p>
+                    </div>
+                    <div className='d-flex align-items-center gap-2 flex-wrap'>
+                      {note.notesMeta?.pages ? (
+                        <span className='badge bg-light text-dark'>{note.notesMeta.pages} pages</span>
+                      ) : null}
+                      <button
+                        type='button'
+                        className='btn btn-sm btn-outline-primary'
+                        onClick={() =>
+                          openNotesModal({
+                            lectureId: note.lectureId,
+                            moduleId: note.moduleId,
+                            sectionId: note.sectionId,
+                            lectureTitle: note.lectureTitle,
+                            moduleTitle: note.moduleTitle,
+                            weekTitle: note.weekTitle,
+                            videoUrl: note.videoUrl,
+                            hasNotes: true,
+                            notesMeta: note.notesMeta,
+                          })
+                        }
+                      >
+                        View notes
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className='course-home-empty text-center'>
+                <NotesIllustration />
+                <p className='text-neutral-700 fw-semibold mb-8'>
+                  You have not added any notes yet.
+                </p>
+                <p className='text-neutral-600 mb-0'>
+                  Notes can be created from video pages and will appear here automatically.
+                </p>
+              </div>
+            )}
           </div>
         );
       case "assessments":
@@ -2853,7 +2951,7 @@ const liveStatusText = useMemo(() => {
           : "Instructor"
         : null;
       return (
-        <div className='course-home-video mb-20 live-embed-card'>
+        <div className='course-home-video mb-20 live-embed-card' ref={playerContainerRef}>
           <div className='d-flex align-items-center justify-content-between flex-wrap gap-2 mb-12'>
             <div>
               <p className='course-home-panel__eyebrow mb-4 text-danger-600'>Live classroom</p>
@@ -3138,7 +3236,7 @@ const liveStatusText = useMemo(() => {
     }
 
     return (
-      <div className='course-home-video mb-20'>
+      <div className='course-home-video mb-20' ref={playerContainerRef}>
         {activeVideo?.src ? (
           <CourseVideoPlayer
             src={activeVideo?.src || defaultVideoMeta.src}
@@ -3311,24 +3409,12 @@ const liveStatusText = useMemo(() => {
             </div>
           </div>
           {renderHeroMedia()}
-          {notesTarget?.hasNotes ? (
-            <div className='course-notes-action mb-20'>
-              <div className='course-notes-action__text'>
-                <strong>{notesTarget.lectureTitle || "Lecture"} notes ready</strong>
-                <p className='mb-0 text-neutral-600 small'>Preview the PDF notes for this lecture.</p>
-              </div>
-              <button type='button' className='btn btn-outline-primary' onClick={openNotesModal}>
-                View notes
-              </button>
-            </div>
-          ) : null}
           <div className='course-home-grid'>
             {renderSidebar()}
             <div className='course-home-content'>{renderMainContent()}</div>
           </div>
         </div>
       </section>
-      {renderNotesModal()}
       <FooterOne />
     </>
   );
