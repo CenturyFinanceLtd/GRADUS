@@ -42,6 +42,48 @@ RemoteParticipantTile.propTypes = {
   }).isRequired,
 };
 
+const RemoteAudioSink = ({ participant }) => {
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    const node = audioRef.current;
+    if (!node) return;
+
+    try {
+      const nextStream = participant?.stream || null;
+      if (node.srcObject !== nextStream) {
+        node.srcObject = nextStream;
+      }
+      if (nextStream) {
+        const playPromise = node.play?.();
+        if (playPromise?.catch) {
+          playPromise.catch(() => {});
+        }
+      }
+    } catch (error) {
+      console.warn('[live] Failed to start participant audio', error);
+    }
+  }, [participant?.stream]);
+
+  return (
+    <audio
+      ref={audioRef}
+      autoPlay
+      playsInline
+      aria-hidden='true'
+      data-participant-id={participant?.id || ''}
+      style={{ position: 'absolute', width: 1, height: 1, opacity: 0, pointerEvents: 'none' }}
+    />
+  );
+};
+
+RemoteAudioSink.propTypes = {
+  participant: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    stream: PropTypes.object,
+  }).isRequired,
+};
+
 const LiveStage = ({
   stageStatus,
   stageError,
@@ -400,11 +442,26 @@ const LiveStage = ({
         initializedParticipantsRef.current.delete(id);
       }
     });
-  }, [remoteParticipants, session?.id, onCommandParticipantMedia]);
+  }, [
+    remoteParticipants,
+    session?.id,
+    onCommandParticipantMedia,
+  ]);
 
   return (
     <div className='card host-live-card'>
       <div className='card-body host-live-body'>
+        {/* Hidden audio sinks so the instructor hears connected students */}
+        <div
+          aria-hidden='true'
+          style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', opacity: 0, pointerEvents: 'none' }}
+        >
+          {remoteParticipants
+            .filter((p) => p.connected && p.stream)
+            .map((p) => (
+              <RemoteAudioSink key={`audio-${p.id}`} participant={p} />
+            ))}
+        </div>
         <div className='host-live-header'>
           <div>
             <p className='text-uppercase text-muted small mb-1'>Live classroom</p>
