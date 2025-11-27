@@ -16520,7 +16520,7 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
     0 12px 24px rgba(15, 23, 42, 0.04);
 }
 
-.course-module-week::before {
+/* .course-module-week::before {
   content: "";
   position: absolute;
   left: 26px;
@@ -16540,7 +16540,7 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   border-radius: 50%;
   background: #2563eb;
   box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.12);
-}
+} */
 
 .course-module-week__header {
   display: flex;
