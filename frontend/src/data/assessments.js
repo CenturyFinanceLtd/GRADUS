@@ -1,6 +1,6 @@
 /*
   Assessment question bank (front-end only)
-  - Mirrors the lightweight, instant-feedback style of W3Schools quizzes
+  - Lightweight, instant-feedback quizzes
   - Extend `courseAssessmentBank` to provide course-specific sets
 */
 
@@ -92,7 +92,7 @@ export const defaultAssessmentSets = [
     title: "HTML & CSS Foundations",
     level: "Starter",
     summary: "Semantics, selectors, and layout primitives for the web.",
-    tags: ["Hands-on", "W3Schools style"],
+    tags: ["Hands-on", "Quick checks"],
     questions: [
       {
         id: "markup-root",

@@ -24,6 +24,10 @@ const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules =
   const [activeQuizId, setActiveQuizId] = useState(assessments[0]?.id || null);
   const [session, setSession] = useState(() => buildSession(assessments[0]?.id));
   const [flashMessage, setFlashMessage] = useState("");
+  const [tryItOpen, setTryItOpen] = useState(false);
+  const [tryItCode, setTryItCode] = useState("");
+  const [tryItTitle, setTryItTitle] = useState("Try it");
+  const [tryItRunToken, setTryItRunToken] = useState(0);
 
   useEffect(() => {
     const firstId = assessments[0]?.id || null;
@@ -171,6 +175,37 @@ const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules =
     setFlashMessage("");
   };
 
+  const openTryIt = () => {
+    if (!activeQuestion?.tryItTemplate) {
+      return;
+    }
+    setTryItCode(activeQuestion.tryItTemplate);
+    setTryItTitle(activeQuestion.prompt || "Try it");
+    setTryItOpen(true);
+    setTryItRunToken((t) => t + 1);
+  };
+
+  const buildSrcDoc = (code) => {
+    return `<!doctype html>
+<html>
+  <head>
+    <style>body{font-family: Arial, sans-serif; padding:12px;}</style>
+  </head>
+  <body>
+    <pre id="output"></pre>
+    <script>
+      try {
+        ${code}
+      } catch (err) {
+        document.getElementById('output').textContent = 'Error: ' + err.message;
+      }
+    <\/script>
+  </body>
+</html>`;
+  };
+
+  const tryItSrcDoc = useMemo(() => buildSrcDoc(tryItCode), [tryItCode, tryItRunToken]);
+
   if (!assessments.length) {
     return (
       <div className='course-home-panel'>
@@ -183,7 +218,7 @@ const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules =
         <div className='course-home-empty text-center'>
           <p className='text-neutral-700 fw-semibold mb-8'>No assessments yet for this course.</p>
           <p className='text-neutral-600 mb-0'>
-            Add question sets to <code>frontend/src/data/assessments.js</code> to enable W3Schools-style quizzes.
+            Add question sets to <code>frontend/src/data/assessments.js</code> to enable the quizzes.
           </p>
         </div>
       </div>
@@ -197,7 +232,7 @@ const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules =
           <p className='course-home-panel__eyebrow mb-8'>Assessments</p>
           <h2 className='course-home-panel__title mb-4'>Practice checkpoints</h2>
           <p className='text-neutral-600 mb-0'>
-            Auto-graded multiple choice inspired by W3Schools quizzes. Instant feedback, no external dependencies.
+            Auto-graded multiple choice with instant feedback. No external dependencies.
           </p>
         </div>
         <div className='assessment-chip-row'>
@@ -324,6 +359,13 @@ const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules =
                 <p className='mb-0 text-neutral-700'>{activeQuestion.explanation}</p>
               </div>
             ) : null}
+            {activeQuestion?.tryItTemplate ? (
+              <div className='d-flex justify-content-start mb-12'>
+                <button type='button' className='btn btn-outline-secondary btn-sm' onClick={openTryIt}>
+                  Try it
+                </button>
+              </div>
+            ) : null}
 
             <div className='assessment-actions'>
               <div className='d-flex flex-wrap gap-10'>
@@ -442,6 +484,59 @@ const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules =
           </div>
         </aside>
       </div>
+      {tryItOpen ? (
+        <div className='assessment-tryit-modal' role='dialog' aria-modal='true' aria-label='Try code'>
+          <div className='assessment-tryit-backdrop' onClick={() => setTryItOpen(false)} />
+          <div className='assessment-tryit-body'>
+            <div className='d-flex justify-content-between align-items-center mb-12'>
+              <div>
+                <p className='assessment-runner__eyebrow mb-2'>Interactive</p>
+                <h5 className='mb-0'>{tryItTitle}</h5>
+              </div>
+              <button type='button' className='btn btn-sm btn-outline-secondary' onClick={() => setTryItOpen(false)}>
+                Close
+              </button>
+            </div>
+            <div className='assessment-tryit-grid'>
+              <div className='assessment-tryit-editor'>
+                <label className='form-label text-sm'>Code</label>
+                <textarea
+                  value={tryItCode}
+                  onChange={(e) => setTryItCode(e.target.value)}
+                  spellCheck='false'
+                  className='form-control'
+                  style={{ minHeight: 160, fontFamily: '"JetBrains Mono","Fira Code", monospace' }}
+                />
+                <div className='d-flex gap-8 mt-8'>
+                  <button type='button' className='btn btn-main btn-sm' onClick={() => setTryItRunToken((t) => t + 1)}>
+                    Run
+                  </button>
+                  <button
+                    type='button'
+                    className='btn btn-outline-secondary btn-sm'
+                    onClick={() => {
+                      setTryItCode(activeQuestion?.tryItTemplate || "");
+                      setTryItRunToken((t) => t + 1);
+                    }}
+                  >
+                    Reset to template
+                  </button>
+                </div>
+              </div>
+              <div className='assessment-tryit-preview'>
+                <div className='assessment-tryit-preview-title'>Preview</div>
+                <iframe
+                  key={tryItRunToken}
+                  title='Try it preview'
+                  srcDoc={tryItSrcDoc}
+                  sandbox='allow-scripts'
+                  className='assessment-tryit-iframe'
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };

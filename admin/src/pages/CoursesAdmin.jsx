@@ -36,6 +36,7 @@ const defaultForm = {
   toolsText: '',
   imageUrl: '',
   imageAlt: '',
+  assessmentMaxAttempts: 3,
 };
 
 const programmeOptions = ['Gradus X', 'Gradus Finlit', 'Gradus Lead'];
@@ -197,6 +198,7 @@ const CoursesAdmin = () => {
           capstonePoints: parseLines(form.capstoneText),
           careerOutcomes: parseLines(form.careerText),
           toolsFrameworks: parseLines(form.toolsText),
+          assessmentMaxAttempts: Number(form.assessmentMaxAttempts) || 3,
           weeks: weeksFromModules,
           partners: partners.map(p => ({ name: p.name.trim(), logo: p.logo.trim(), website: p.website.trim() })).filter(p => p.name),
         certifications: certifications.map(c => ({ level: c.level.trim(), certificateName: c.certificateName.trim(), coverage: parseLines(c.coverageText), outcome: c.outcome.trim() })).filter(c => c.certificateName),
@@ -256,6 +258,7 @@ const CoursesAdmin = () => {
         capstoneText: (item.capstonePoints || []).join('\n'),
         careerText: (item.careerOutcomes || []).join('\n'),
         toolsText: (item.toolsFrameworks || []).join('\n'),
+        assessmentMaxAttempts: item.assessmentMaxAttempts ?? 3,
       });
       setModules(modState);
       setPartners(Array.isArray(item.partners) && item.partners.length ? item.partners.map(p => ({ ...p })) : [{ name: '', logo: '', website: '' }]);
@@ -344,6 +347,19 @@ const CoursesAdmin = () => {
             <div className='col-md-3'>
               <label className='form-label'>Mode</label>
               <input name='mode' value={form.mode} onChange={onChange} className='form-control' placeholder='Self-paced' />
+            </div>
+            <div className='col-md-3'>
+              <label className='form-label'>Assessment max attempts</label>
+              <input
+                type='number'
+                min='1'
+                name='assessmentMaxAttempts'
+                value={form.assessmentMaxAttempts}
+                onChange={onChange}
+                className='form-control'
+                placeholder='e.g., 3'
+              />
+              <div className='form-text'>Limit per learner per assessment.</div>
             </div>
             <div className='col-md-4'>
               <label className='form-label'>Course Image</label>

@@ -32,6 +32,7 @@ router.get('/', protectAdmin, async (req, res, next) => {
       programme: c.programme || 'Gradus X',
       price: c.price || '',
       imageUrl: (c?.image && c.image.url) || '',
+      assessmentMaxAttempts: c.assessmentMaxAttempts ?? 3,
       updatedAt: c.updatedAt,
     })) });
   } catch (err) {

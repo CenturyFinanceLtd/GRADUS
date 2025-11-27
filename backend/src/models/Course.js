@@ -208,6 +208,9 @@ const courseSchema = new mongoose.Schema(
       },
     },
 
+    // Assessment settings
+    assessmentMaxAttempts: { type: Number, default: 3 },
+
     order: { type: Number },
   },
   { timestamps: true }

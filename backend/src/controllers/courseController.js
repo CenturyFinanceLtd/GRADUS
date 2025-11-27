@@ -226,6 +226,13 @@ const buildCoursePayload = (body, existingCourse) => {
     publicId: imagePublicId || (existingCourse?.image?.publicId || ''),
   };
 
+  const maxAttemptsInput = Number(body?.assessmentMaxAttempts);
+  const assessmentMaxAttempts = Number.isFinite(maxAttemptsInput)
+    ? Math.max(1, Math.floor(maxAttemptsInput))
+    : Number.isFinite(existingCourse?.assessmentMaxAttempts)
+    ? existingCourse.assessmentMaxAttempts
+    : 3;
+
   return {
     name,
     slug,
@@ -256,6 +263,7 @@ const buildCoursePayload = (body, existingCourse) => {
     certifications: normalizeCertificationInput(body?.certifications),
     image: nextImage,
     order,
+    assessmentMaxAttempts,
   };
 };
 

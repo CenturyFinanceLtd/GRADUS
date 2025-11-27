@@ -196,6 +196,7 @@ const MyCoursesInner = () => {
             visibleItems.map((enrollment) => {
               const course = enrollment.course || {};
               const courseName = normalizeText(course.name);
+              const courseUrl = enrollment?.course?.slug ? `/${enrollment.course.slug}` : '/our-courses';
               const paymentStatus = toTitleCase(enrollment.paymentStatus);
               const enrollmentStatus = toTitleCase(enrollment.status);
               const enrolledAt = formatDate(enrollment.enrolledAt);
@@ -216,18 +217,24 @@ const MyCoursesInner = () => {
                   <div className='rounded-24 border border-neutral-40 bg-white p-24 h-100 box-shadow-md'>
                     <div className='d-flex justify-content-center mb-12'>
                       {imageUrl ? (
-                        <div className='rounded-24 overflow-hidden'>
+                        <Link to={courseUrl} className='rounded-24 overflow-hidden d-inline-block' aria-label={`Open ${courseName}`}>
                           <img
                             src={imageUrl}
                             alt={`${courseName} thumbnail`}
                             style={{ display: 'block', height: 'auto', maxWidth: '100%' }}
                           />
-                        </div>
+                        </Link>
                       ) : (
-                        <div className='px-16 py-8 rounded-pill bg-main-25 text-main-700 fw-semibold'>{initials}</div>
+                        <Link to={courseUrl} className='px-16 py-8 rounded-pill bg-main-25 text-main-700 fw-semibold text-decoration-none' aria-label={`Open ${courseName}`}>
+                          {initials}
+                        </Link>
                       )}
                     </div>
-                    <h4 className='mb-8 text-neutral-900'>{courseName}</h4>
+                    <h4 className='mb-8 text-neutral-900'>
+                      <Link to={courseUrl} className='text-neutral-900 text-decoration-none hover-text-decoration-underline'>
+                        {courseName}
+                      </Link>
+                    </h4>
                     {enrolledAt ? (
                       <div className='text-neutral-600 d-flex align-items-center gap-8 mb-12'>
                         <i className='ph-bold ph-calendar-blank text-main-600' />

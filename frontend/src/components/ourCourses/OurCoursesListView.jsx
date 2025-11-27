@@ -290,7 +290,7 @@ const OurCoursesListView = () => {
                 <label className='filters__option'>
                   <div className='d-flex align-items-center gap-8 flex-grow-1'>
                     <input type='checkbox' checked={flagshipOnly} onChange={toggleFlagshipOnly} />
-                    <span>Job Guarante</span>
+                    <span>Job Guarantee</span>
                   </div>
                   <span className='text-neutral-500 text-sm'>{flagshipCount}</span>
                 </label>
@@ -358,7 +358,7 @@ const OurCoursesListView = () => {
                       </Link>
                       <div className='course-card__thumb-meta'>
                         <span>{course.programme || "Programme"}</span>
-                        {isFlagship ? <span className='badge'>Job Guarante</span> : null}
+                        {isFlagship ? <span className='badge'>Job Guarantee</span> : null}
                       </div>
                     </div>
                     <div className='course-card__body'>
@@ -379,16 +379,13 @@ const OurCoursesListView = () => {
                       </div>
                       <div className='course-card__price-row'>
                         <div>
-                          <p className='course-card__price mb-0'>{priceLabel}</p>
-                          <small className='text-neutral-500'>(+18% GST)</small>
+                          <p className='course-card__price mb-0'>{priceLabel} &nbsp;<small className='text-neutral-500 text-xs'>(+18% GST)</small></p>
+                          
                         </div>
                         <div className='course-card__actions'>
                           <Link to={course.url} className='btn btn-main'>
                             Enroll Now
                           </Link>
-                          <button type='button' className='btn-icon' aria-label='Save course'>
-                            <i className='ph ph-heart' />
-                          </button>
                         </div>
                       </div>
                     </div>
