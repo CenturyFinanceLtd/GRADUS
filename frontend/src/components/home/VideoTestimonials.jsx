@@ -22,12 +22,11 @@ const cardStyles = {
 };
 
 const VideoTestimonials = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [videoSrc, setVideoSrc] = useState("");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const hoverTimersRef = useRef({});
+  const [activeId, setActiveId] = useState(null);
+  const videoRefs = useRef({});
 
   // Fetch testimonials from backend (Cloudinary-backed)
   useEffect(() => {
@@ -50,29 +49,28 @@ const VideoTestimonials = () => {
     };
   }, []);
 
-  const disablePlayback = false;
+  useEffect(() => {
+    Object.entries(videoRefs.current).forEach(([id, el]) => {
+      if (!el) return;
+      if (id !== String(activeId)) {
+        el.pause();
+        el.currentTime = 0;
+      }
+    });
+  }, [activeId]);
 
-  const openVideo = (src) => {
-    if (isOpen && videoSrc === src) return;
-    setVideoSrc(src);
-    setIsOpen(true);
-  };
-
-  const handleHoverStart = (id, src) => {
-    clearTimeout(hoverTimersRef.current[id]);
-    hoverTimersRef.current[id] = setTimeout(() => {
-      hoverTimersRef.current[id] = null;
-      openVideo(src);
-    }, 500); // only open if cursor stays for 500ms
-  };
-
-  const handleHoverEnd = (id) => {
-    const timer = hoverTimersRef.current[id];
-    if (timer) {
-      clearTimeout(timer);
-      hoverTimersRef.current[id] = null;
-    }
-  };
+  useEffect(
+    () => () => {
+      Object.values(videoRefs.current).forEach((el) => {
+        try {
+          el?.pause();
+        } catch (e) {
+          /* ignore */
+        }
+      });
+    },
+    []
+  );
 
   const ArrowBtn = ({ className, style, onClick }) => {
     const isPrev = className?.includes("prev");
@@ -191,31 +189,24 @@ const VideoTestimonials = () => {
               {items.map((item, idx) => {
                 const thumb = item.thumbnailUrl || undefined;
                 const key = item.id || idx;
+                const altText = item.name ? `${item.name}'s testimonial` : "Student testimonial";
+                const isActive = activeId === key;
                 return (
                   <div className="px-12" key={key}>
                     <div
-                      style={cardStyles.wrapper}
+                      style={{ ...cardStyles.wrapper, cursor: "pointer" }}
                       className="video-testimonial-card"
-                      onMouseEnter={() => handleHoverStart(key, item.playbackUrl)}
-                      onMouseLeave={() => handleHoverEnd(key)}
-                      onFocus={() => openVideo(item.playbackUrl)}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setActiveId((prev) => (prev === key ? null : key))}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setActiveId((prev) => (prev === key ? null : key));
+                        }
+                      }}
+                      aria-pressed={isActive}
                     >
-                      <button
-                        type="button"
-                        aria-label={disablePlayback ? "Playback disabled" : "Play testimonial"}
-                        onClick={disablePlayback ? undefined : () => openVideo(item.playbackUrl)}
-                        aria-disabled={disablePlayback}
-                        tabIndex={disablePlayback ? -1 : 0}
-                        style={{
-                          position: "absolute",
-                          inset: 0,
-                          zIndex: 3,
-                          cursor: disablePlayback ? "not-allowed" : "pointer",
-                          pointerEvents: disablePlayback ? "none" : "auto",
-                          background: "transparent",
-                          border: 0,
-                        }}
-                      />
                       <div
                         style={{
                           position: "relative",
@@ -226,22 +217,62 @@ const VideoTestimonials = () => {
                           overflow: "hidden",
                         }}
                       >
-                        <video
-                          playsInline
-                          muted
-                          preload="metadata"
-                          poster={thumb}
-                          src={item.playbackUrl}
-                          crossOrigin="anonymous"
-                          style={{
-                            position: "absolute",
-                            inset: 0,
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            backgroundColor: "#0b1120",
-                          }}
-                        />
+                        {isActive ? (
+                          <video
+                            ref={(node) => {
+                              if (node) {
+                                videoRefs.current[key] = node;
+                              } else {
+                                delete videoRefs.current[key];
+                              }
+                            }}
+                            playsInline
+                            controls
+                            autoPlay
+                            preload="metadata"
+                            poster={thumb}
+                            src={item.playbackUrl}
+                            crossOrigin="anonymous"
+                            style={{
+                              position: "absolute",
+                              inset: 0,
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                              backgroundColor: "#0b1120",
+                            }}
+                          />
+                        ) : thumb ? (
+                          <img
+                            src={thumb}
+                            alt={altText}
+                            style={{
+                              position: "absolute",
+                              inset: 0,
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                              backgroundColor: "#0b1120",
+                            }}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              position: "absolute",
+                              inset: 0,
+                              background: "#0b1120",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: "#fff",
+                              fontSize: 14,
+                              letterSpacing: 0.2,
+                            }}
+                          >
+                            Tap to play
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -251,83 +282,8 @@ const VideoTestimonials = () => {
           )}
         </div>
       </div>
-
-      {/* Simple HTML5 video modal for Cloudinary playback */}
-      {isOpen ? (
-        <div
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setIsOpen(false)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,.65)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999,
-            padding: "20px",
-          }}
-        >
-          <div
-            style={{
-              position: "relative",
-              width: "min(480px, 92vw)",
-              borderRadius: 16,
-              overflow: "hidden",
-              background: "#000",
-              transform: "scale(0.96)",
-              opacity: 0,
-              animation: "videoModalIn 180ms ease-out forwards",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              aria-label="Close video"
-              onClick={() => setIsOpen(false)}
-              style={{
-                position: "absolute",
-                top: 12,
-                right: 12,
-                width: 36,
-                height: 36,
-                borderRadius: 9999,
-                border: "none",
-                background: "rgba(15,23,42,0.85)",
-                color: "#fff",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                zIndex: 2,
-              }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-            <video src={videoSrc} controls autoPlay playsInline style={{ width: "100%", height: "auto" }} />
-          </div>
-        </div>
-      ) : null}
     </section>
   );
 };
 
 export default VideoTestimonials;
-
-// Inline keyframes for modal pop animation
-const styleTag = document.getElementById("video-modal-anim");
-if (!styleTag) {
-  const tag = document.createElement("style");
-  tag.id = "video-modal-anim";
-  tag.innerHTML = `
-    @keyframes videoModalIn {
-      from { transform: scale(0.96); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-  `;
-  document.head.appendChild(tag);
-}

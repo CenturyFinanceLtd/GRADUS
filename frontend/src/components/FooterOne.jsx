@@ -37,7 +37,7 @@ const socialLinks = [
     icon: "/assets/social/facebook.svg",
   },
   {
-    href: "https://www.instagram.com/gradusindiaofficial",
+    href: "https://www.instagram.com/gradusindia.in",
     label: "Instagram",
     icon: "/assets/social/instagram.svg",
   },

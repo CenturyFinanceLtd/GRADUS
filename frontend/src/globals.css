@@ -20838,3 +20838,12 @@ video:-ms-fullscreen {
 .ph-arrow-up-right{
   display: none;
 }
+/* frontend/src/globals.css */
+@media (min-width: 992px) {
+  .nav-mega,
+  .nav-mega:focus,
+  .nav-mega:focus-within {
+    outline: none !important;
+    border-color: transparent !important;
+  }
+}
