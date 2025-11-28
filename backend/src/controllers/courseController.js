@@ -865,6 +865,7 @@ const recordCourseProgress = asyncHandler(async (req, res) => {
 });
 
 const streamLectureNotes = asyncHandler(async (req, res) => {
+  console.log('[notes] fetch start', req.params, req.query);
   const courseSlug = resolveCourseSlugFromParams(req.params);
   if (!courseSlug) {
     res.status(400);
@@ -894,26 +895,127 @@ const streamLectureNotes = asyncHandler(async (req, res) => {
     ? safeBase
     : `${safeBase}.${normalizedFormat || 'pdf'}`;
 
-  const cleanPublicId = normalizeString(lecture.notes.publicId).replace(/^\/+|\/+$/g, '');
+  const cleanPublicId = decodeURIComponent(normalizeString(lecture.notes.publicId)).replace(/^\/+|\/+$/g, '');
   if (!cleanPublicId) {
     res.status(404);
     throw new Error('Lecture notes not available for this lecture.');
   }
 
-  const downloadUrl = cloudinary.url(cleanPublicId, {
-    resource_type: 'auto',
-    secure: true,
-    format: normalizedFormat,
-    type: 'upload',
+  console.log('[notes] target lecture', {
+    lectureId: lecture.lectureId,
+    notes: lecture.notes,
   });
 
-  if (String(req.query.mode).toLowerCase() === 'url') {
-    return res.json({ url: downloadUrl, fileName, format: normalizedFormat || 'pdf' });
+  const fallbackUrl =
+    normalizeString(lecture.notes.url) || normalizeString(lecture.notes.secureUrl);
+  const candidateUrls = [];
+  const seenCandidates = new Set();
+  const addCandidate = (url) => {
+    if (url && typeof url === 'string' && !seenCandidates.has(url)) {
+      candidateUrls.push(url);
+      seenCandidates.add(url);
+    }
+  };
+  if (fallbackUrl) {
+    addCandidate(fallbackUrl);
   }
 
+  const resourceTypeHints = new Set(['image', 'raw']);
+  if (lecture.notes.resourceType) {
+    resourceTypeHints.add(normalizeString(lecture.notes.resourceType));
+  }
+  const expiresAt = Math.floor(Date.now() / 1000) + 60 * 10; // short-lived signed URL
+
+  if (cloudinary?.utils?.private_download_url) {
+    resourceTypeHints.forEach((resourceType) => {
+      try {
+        const signedUrl = cloudinary.utils.private_download_url(cleanPublicId, normalizedFormat || 'pdf', {
+          resource_type: resourceType || 'image',
+          type: 'upload',
+          expires_at: expiresAt,
+        });
+        addCandidate(signedUrl);
+      } catch (error) {
+        console.error('[notes] failed to build signed notes URL', {
+          resourceType,
+          error: error?.message || error,
+        });
+      }
+    });
+  }
+
+  resourceTypeHints.forEach((resourceType) => {
+    // With explicit pdf extension
+    addCandidate(
+      cloudinary.url(cleanPublicId, {
+        resource_type: resourceType || 'image',
+        secure: true,
+        format: normalizedFormat || 'pdf',
+        type: 'upload',
+      })
+    );
+    // Without forcing format (no extension)
+    addCandidate(
+      cloudinary.url(cleanPublicId, {
+        resource_type: resourceType || 'image',
+        secure: true,
+        type: 'upload',
+        format: undefined,
+      })
+    );
+  });
+
+  // Heuristic fix for missing slash between programme/course in older uploads
+  if (cleanPublicId.includes('gradus-xfull')) {
+    const fixedId = cleanPublicId.replace(/(gradus-[^/]*)(full-)/, '$1/$2');
+    resourceTypeHints.forEach((resourceType) => {
+      addCandidate(
+        cloudinary.url(fixedId, {
+          resource_type: resourceType || 'image',
+          secure: true,
+          format: normalizedFormat || 'pdf',
+          type: 'upload',
+        })
+      );
+      addCandidate(
+        cloudinary.url(fixedId, {
+          resource_type: resourceType || 'image',
+          secure: true,
+          type: 'upload',
+          format: undefined,
+        })
+      );
+    });
+  }
+
+  let upstream;
+  let lastError;
+  for (const url of candidateUrls) {
+    console.log('[notes] attempting', url);
+    try {
+      const resp = await fetch(url);
+      if (resp?.ok && resp.body) {
+        upstream = resp;
+        break;
+      }
+      lastError = new Error(`Upstream status ${resp?.status} ${resp?.statusText}`);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  if (!upstream) {
+    console.error('[notes] all upstream attempts failed', lastError);
+    res.status(502);
+    throw new Error('Unable to fetch lecture notes.');
+  }
+
+  res.setHeader('Content-Type', upstream.headers.get('content-type') || 'application/pdf');
+  res.setHeader('Cache-Control', 'no-store, private');
   res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
-  res.setHeader('Cache-Control', 'public, max-age=300');
-  res.redirect(downloadUrl);
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-site');
+
+  await pipeline(upstream.body, res);
 });
 
 const getCourseProgressAdmin = asyncHandler(async (req, res) => {

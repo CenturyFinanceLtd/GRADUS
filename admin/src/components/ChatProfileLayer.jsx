@@ -1,15 +1,9 @@
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { Link } from "react-router-dom";
 
 const ChatProfileLayer = () => {
   return (
     <div className='chat-wrapper'>
       <div className='chat-sidebar profile-setting card'>
-        <div className='text-end'>
-          <Link to='/chat-message'>
-            <Icon icon='akar-icons:cross' />
-          </Link>
-        </div>
         <div className='chat-main-profile'>
           <div className='img'>
             <img src='assets/images/chat/chat-main.png' alt='image_icon' />

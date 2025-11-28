@@ -52,7 +52,6 @@
 
   // Communication
   { key: 'email', label: 'Email', path: '/email', category: 'Communication' },
-  { key: 'chat_message', label: 'Chat Message', path: '/chat-message', category: 'Communication' },
   { key: 'chat_profile', label: 'Chat Profile', path: '/chat-profile', category: 'Communication' },
   { key: 'notification', label: 'Notification', path: '/notification', category: 'Communication' },
   { key: 'notification_alert', label: 'Notification Alert', path: '/notification-alert', category: 'Communication' },

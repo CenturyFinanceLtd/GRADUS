@@ -1635,11 +1635,12 @@ img {
   align-items: center;
   justify-content: center;
   border-radius: 5.24px;
-  border: 1px solid transparent;
+  border: 1px solid hsl(var(--main));
   font-weight: 500;
   font-family: var(--body-font);
   font-size: 12px;
-  color: hsl(var(--white)) !important;
+  color: hsl(var(--white));
+  background-color: hsl(var(--main));
   z-index: 1;
   line-height: 1;
   text-transform: capitalize;

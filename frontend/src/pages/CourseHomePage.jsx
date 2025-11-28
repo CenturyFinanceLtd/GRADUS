@@ -20,9 +20,6 @@ const NAV_SECTIONS = [
   { id: "resources", label: "Resources", slug: "resources" },
   { id: "notes", label: "Notes", slug: "notes" },
   { id: "assessments", label: "Assessments", slug: "assessments" },
-  { id: "messages", label: "Messages", slug: "messages" },
-  
-  
 ];
 
 const MODULE_SECTION_ID = "module";
@@ -121,6 +118,22 @@ const toArray = (value) => {
       .filter(Boolean);
   }
   return [];
+};
+
+const buildPdfViewerUrl = (url) => {
+  if (!url) return "";
+  const separator = url.includes("#") ? "&" : "#";
+  return `${url}${separator}toolbar=0&navpanes=0&scrollbar=0&view=FitH`;
+};
+
+const stripFileExtension = (name = "") => {
+  if (!name) return "";
+  const trimmed = String(name).trim();
+  const lastDot = trimmed.lastIndexOf(".");
+  if (lastDot <= 0) {
+    return trimmed;
+  }
+  return trimmed.slice(0, lastDot);
 };
 
 const normalizeAssignmentUploads = (items = [], fallbackPrefix = "Assignment") => {
@@ -1234,6 +1247,9 @@ const CourseHomePage = () => {
           collected.push({
             lectureId,
             lectureTitle: lecture.title || `Lecture ${lectureIdx + 1}`,
+            moduleIndex: moduleIdx,
+            lectureIndex: lectureIdx,
+            weekIndex: weekIdx,
             moduleId,
             moduleTitle,
             sectionId,
@@ -2098,9 +2114,12 @@ const CourseHomePage = () => {
       lectureTitle: lecture.title || "Lecture",
       moduleTitle: meta.moduleTitle,
       weekTitle: meta.weekTitle,
+      weekIndex: meta.weekIndex,
       videoUrl: lecture.videoUrl,
       hasNotes: lectureHasNotes,
       notesMeta: lectureNotesMeta,
+      moduleIndex: meta.moduleIndex,
+      lectureIndex: meta.lectureIndex,
     });
     setNotesTarget(
       lectureHasNotes
@@ -2110,6 +2129,9 @@ const CourseHomePage = () => {
             sectionId: meta.sectionId,
             moduleTitle: meta.moduleTitle,
             weekTitle: meta.weekTitle,
+            weekIndex: meta.weekIndex,
+            moduleIndex: meta.moduleIndex,
+            lectureIndex: meta.lectureIndex,
             lectureTitle: lecture.title || "Lecture",
             hasNotes: true,
             notesMeta: lectureNotesMeta,
@@ -2865,34 +2887,31 @@ const CourseHomePage = () => {
                 <p className='course-home-panel__eyebrow mb-8'>Notes</p>
                 <h2 className='course-home-panel__title mb-0'>Notes</h2>
               </div>
-              <button type='button' className='course-home-filter'>
-                <span>Filter: </span>
-                <strong>All notes</strong>
-                <i className='ph-bold ph-caret-down d-inline-flex text-md' />
-              </button>
             </div>
             {availableNotes.length ? (
               <div className='d-flex flex-column gap-3'>
                 {availableNotes.map((note) => (
-                  <div
+                    <div
                     key={note.lectureId}
                     className='border rounded-4 p-16 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-12'
                   >
                     <div>
                       <p className='course-home-panel__eyebrow mb-4'>
-                        {note.moduleTitle} / {note.weekTitle}
+                        {[
+                          prettyCourseName || "Course",
+                          Number.isInteger(note.moduleIndex) ? `Module ${note.moduleIndex + 1}` : "",
+                          Number.isInteger(note.weekIndex) ? `Week ${note.weekIndex + 1}` : "",
+                          Number.isInteger(note.lectureIndex)
+                            ? `Lecture ${note.lectureIndex + 1}`
+                            : note.lectureTitle || "Lecture",
+                        ]
+                          .filter(Boolean)
+                          .join(" | ")}
                       </p>
-                      <h4 className='mb-8'>{note.lectureTitle}</h4>
+                      <h4 className='mb-8'>
+                        {stripFileExtension(note.notesMeta?.fileName || "") || note.lectureTitle}
+                      </h4>
                       <div className='d-flex flex-wrap gap-2 align-items-center text-neutral-600 small'>
-                        {note.notesMeta?.fileName ? (
-                          <span className='fw-semibold'>{note.notesMeta.fileName}</span>
-                        ) : null}
-                        {note.pageLabel ? (
-                          <span className='badge bg-light text-dark'>{note.pageLabel}</span>
-                        ) : null}
-                        {note.sizeLabel ? (
-                          <span className='badge bg-light text-dark'>{note.sizeLabel}</span>
-                        ) : null}
                         {note.updatedLabel ? (
                           <span className='text-neutral-500'>Updated {note.updatedLabel}</span>
                         ) : null}
@@ -2930,13 +2949,6 @@ const CourseHomePage = () => {
             programmeSlug={programme}
             courseName={prettyCourseName}
             modules={modules}
-          />
-        );
-      case "messages":
-        return (
-          <SectionPlaceholder
-            title='Messages'
-            description='Stay tuned! Mentor updates and cohort announcements will show up here once your batch begins.'
           />
         );
       case "resources":
@@ -3393,26 +3405,27 @@ const liveStatusText = useMemo(() => {
     }
     const noteMeta = notesTarget.notesMeta || buildEmptyLectureNotes();
     let content = null;
-    const summaryParts = [];
-    if (noteMeta.fileName) {
-      summaryParts.push(noteMeta.fileName);
-    }
-    if (noteMeta.pages) {
-      summaryParts.push(`${noteMeta.pages} pages`);
-    }
-    if (!noteMeta.pages && notesState.pageCount) {
-      summaryParts.push(`${notesState.pageCount} pages`);
-    }
-    if (noteMeta.bytes) {
-      const readable = formatFileSize(noteMeta.bytes);
-      if (readable) {
-        summaryParts.push(readable);
-      }
-    }
-    if (notesTarget.updatedLabel) {
-      summaryParts.push(`Updated ${notesTarget.updatedLabel}`);
-    }
-    const summary = summaryParts.join(" | ");
+    const courseLabel = prettyCourseName || "Course";
+    const moduleLabel =
+      Number.isInteger(notesTarget?.moduleIndex) && notesTarget.moduleIndex >= 0
+        ? `Module ${notesTarget.moduleIndex + 1}`
+        : notesTarget.moduleTitle || "Module";
+    const lectureNumber =
+      Number.isInteger(notesTarget?.lectureIndex) && notesTarget.lectureIndex >= 0
+        ? `Lecture ${notesTarget.lectureIndex + 1}`
+        : "Lecture";
+    const lectureLabel = notesTarget.lectureTitle
+      ? `${lectureNumber} - ${notesTarget.lectureTitle}`
+      : lectureNumber;
+    const fileLabel = stripFileExtension(noteMeta.fileName || notesTarget.lectureTitle || "");
+    const summaryParts = [
+      courseLabel,
+      moduleLabel,
+      Number.isInteger(notesTarget?.weekIndex) ? `Week ${notesTarget.weekIndex + 1}` : notesTarget?.weekTitle || "",
+      Number.isInteger(notesTarget?.lectureIndex) ? `Lecture ${notesTarget.lectureIndex + 1}` : lectureLabel,
+      fileLabel,
+    ];
+    const summary = summaryParts.filter(Boolean).join(" | ");
     if (notesState.status === "loading") {
       content = (
         <div className='course-notes-viewer course-notes-viewer--loading'>
@@ -3432,32 +3445,24 @@ const liveStatusText = useMemo(() => {
         </div>
       );
     } else if (notesState.status === "ready" && notesViewerUrl) {
+      const iframeSrc = buildPdfViewerUrl(notesViewerUrl);
       content = (
         <div className='course-notes-viewer'>
-          <div className='mb-3 d-flex gap-2'>
-            <a className='btn btn-sm btn-outline-primary' href={notesViewerUrl} target='_blank' rel='noreferrer'>
-              Open in new tab
-            </a>
-            {notesState.pageCount ? (
-              <span className='badge bg-light text-dark'>{notesState.pageCount} pages</span>
-            ) : null}
-          </div>
-          <div style={{ width: "100%", height: "75vh" }}>
+          <div
+            style={{
+              width: "min(900px, 92vw)",
+              maxHeight: "72vh",
+              aspectRatio: "210 / 297",
+              margin: "0 auto",
+              overflow: "hidden",
+            }}
+          >
             <iframe
-              src={notesViewerUrl}
+              src={iframeSrc}
               title='Lecture notes'
               style={{ border: 0, width: "100%", height: "100%" }}
               allow='fullscreen'
             />
-            <object data={notesViewerUrl} type='application/pdf' width='100%' height='100%'>
-              <p className='text-neutral-600 small'>
-                PDF preview not available.{" "}
-                <a href={notesViewerUrl} target='_blank' rel='noreferrer'>
-                  Open in a new tab
-                </a>
-                .
-              </p>
-            </object>
           </div>
         </div>
       );
@@ -3494,13 +3499,14 @@ const liveStatusText = useMemo(() => {
       display: "flex",
       alignItems: "flex-start",
       justifyContent: "center",
-      padding: "24px 12px",
+      padding: "128px 12px 32px",
       overflowY: "auto",
     };
     const bodyStyle = {
       position: "relative",
       width: "min(960px, 95vw)",
-      maxHeight: "90vh",
+      maxHeight: "calc(100vh - 140px)",
+      marginTop: "0",
       background: "#fff",
       borderRadius: "16px",
       overflow: "hidden",
@@ -3523,20 +3529,21 @@ const liveStatusText = useMemo(() => {
 
     return (
       <div className='course-notes-modal' role='dialog' aria-modal='true' aria-label='Lecture notes viewer' style={modalStyle}>
+        <style>{`@media print { .course-notes-modal { display: none !important; } }`}</style>
         <div className='course-notes-modal__backdrop' style={backdropStyle} onClick={closeNotesModal} />
         <div className='course-notes-modal__body' style={bodyStyle}>
           <div className='course-notes-modal__header' style={headerStyle}>
             <div>
-              <p className='course-home-panel__eyebrow mb-8'>Lecture Notes</p>
-              <h4 className='course-home-panel__title mb-4'>{notesTarget.lectureTitle || "Lecture"}</h4>
               {summary ? <p className='text-neutral-600 mb-0 small'>{summary}</p> : null}
             </div>
             <div className='d-flex align-items-center gap-2'>
               <span className='course-notes-protection-badge' aria-label='Protected notes'>
-                Protected
+                <i className='ph-bold ph-shield-check' aria-hidden='true' />
+                <span className='sr-only'>Protected</span>
               </span>
               <button type='button' className='course-notes-modal__close' onClick={closeNotesModal} aria-label='Close notes viewer'>
-                Close
+                <i className='ph-bold ph-x' aria-hidden='true' />
+                <span className='sr-only'>Close</span>
               </button>
             </div>
           </div>
