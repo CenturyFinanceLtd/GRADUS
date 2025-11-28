@@ -21,8 +21,9 @@ const COUNTER_DATA = [
   {
     id: "rating",
     label: "Overall Rating",
-    value: 5,
-    suffix: "",
+    value: 4.8,
+    suffix: "/5",
+    decimals: 1,
     icon: "ph-thumbs-up",
     accent: "#4C6FFF",
   },
@@ -46,7 +47,7 @@ const CounterTwo = () => {
     <section className='counter-highlight py-64'>
       <div className='container'>
         <div className='counter-highlight__grid' ref={ref}>
-          {COUNTER_DATA.map(({ id, label, value, suffix, icon, accent }, index) => (
+          {COUNTER_DATA.map(({ id, label, value, suffix, icon, accent, decimals }, index) => (
             <article
               className='counter-highlight__item'
               key={id}
@@ -57,7 +58,7 @@ const CounterTwo = () => {
                 <i className={`ph ${icon}`} />
               </span>
               <div className='counter-highlight__value'>
-                {inView ? <CountUp end={value} duration={1.5} /> : 0}
+                {inView ? <CountUp end={value} duration={1.5} decimals={decimals ?? 0} /> : 0}
                 {suffix}
               </div>
               <p className='counter-highlight__label'>{label}</p>

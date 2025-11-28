@@ -13605,6 +13605,12 @@ a.footer-item__logo img {
     content: none !important;
     display: none !important;
   }
+  /* Remove default focus outline that shows as orange on click */
+  .nav-mega:focus,
+  .nav-mega:focus-within {
+    outline: none !important;
+    border-color: transparent !important;
+  }
   /* Hover bridge to prevent flicker while moving cursor     from the trigger to the mega panel */
   .nav-mega::before {
     content: "";

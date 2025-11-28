@@ -27,6 +27,7 @@ const VideoTestimonials = () => {
   const [error, setError] = useState(null);
   const [activeId, setActiveId] = useState(null);
   const videoRefs = useRef({});
+  const containerRef = useRef(null);
 
   // Fetch testimonials from backend (Cloudinary-backed)
   useEffect(() => {
@@ -71,6 +72,16 @@ const VideoTestimonials = () => {
     },
     []
   );
+
+  useEffect(() => {
+    const handleClickAway = (e) => {
+      const root = containerRef.current;
+      if (!root || root.contains(e.target)) return;
+      setActiveId(null);
+    };
+    document.addEventListener("pointerdown", handleClickAway);
+    return () => document.removeEventListener("pointerdown", handleClickAway);
+  }, []);
 
   const ArrowBtn = ({ className, style, onClick }) => {
     const isPrev = className?.includes("prev");
@@ -161,7 +172,7 @@ const VideoTestimonials = () => {
   `;
 
   return (
-    <section className="video-testimonials-section py-64">
+    <section className="video-testimonials-section py-64" ref={containerRef}>
       <style>{skeletonKeyframes}</style>
       <div className="container">
         <div className="row justify-content-center text-center mb-24">
@@ -273,6 +284,48 @@ const VideoTestimonials = () => {
                             Tap to play
                           </div>
                         )}
+                        {!isActive ? (
+                          <div
+                            aria-hidden="true"
+                            style={{
+                              position: "absolute",
+                              inset: 0,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              pointerEvents: "none",
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: 64,
+                                height: 64,
+                                borderRadius: "50%",
+                                background: "rgba(0,0,0,0.6)",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                boxShadow: "0 8px 22px rgba(0,0,0,0.25)",
+                              }}
+                            >
+                              <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M8.5 6.75L17 12L8.5 17.25V6.75Z"
+                                  fill="#fff"
+                                  stroke="#fff"
+                                  strokeWidth="1.2"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </span>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   </div>

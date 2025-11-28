@@ -3,6 +3,7 @@ import CounterTwo from "../components/CounterTwo";
 import ProgrammesAndCourses from "../components/home/ProgrammesAndCourses";
 import ByCflAndPartners from "../components/home/ByCflAndPartners";
 import VideoTestimonials from "../components/home/VideoTestimonials";
+import CourseInsight from "../components/home/CourseInsight";
 import WhyGradusVideo from "../components/home/WhyGradusVideo";
 import ExpertVideos from "../components/home/ExpertVideos";
 import GradusAmbition from "../components/home/GradusAmbition";
@@ -38,6 +39,9 @@ const HomePageOne = () => {
 
       {/* Video Testimonials */}
       <VideoTestimonials />
+
+      {/* Course Insight */}
+      <CourseInsight />
 
       {/* Expert Videos */}
       <ExpertVideos />
