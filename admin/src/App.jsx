@@ -22,7 +22,6 @@ const ButtonPage = lazy(() => import("./pages/ButtonPage"));
 const CalendarMainPage = lazy(() => import("./pages/CalendarMainPage"));
 const CardPage = lazy(() => import("./pages/CardPage"));
 const CarouselPage = lazy(() => import("./pages/CarouselPage"));
-const ChatMessagePage = lazy(() => import("./pages/ChatMessagePage"));
 const ChatProfilePage = lazy(() => import("./pages/ChatProfilePage"));
 const CodeGeneratorNewPage = lazy(() => import("./pages/CodeGeneratorNewPage"));
 const CodeGeneratorPage = lazy(() => import("./pages/CodeGeneratorPage"));
@@ -161,7 +160,6 @@ function App() {
         <Route exact path='/card' element={<CardPage />} />
         <Route exact path='/carousel' element={<CarouselPage />} />
 
-        <Route exact path='/chat-message' element={<ChatMessagePage />} />
         <Route exact path='/chat-profile' element={<ChatProfilePage />} />
         <Route exact path='/code-generator' element={<CodeGeneratorPage />} />
         <Route

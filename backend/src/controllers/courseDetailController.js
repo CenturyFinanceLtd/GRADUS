@@ -14,7 +14,7 @@ const {
 } = require('../utils/courseDetail');
 
 const getCourseDetail = asyncHandler(async (req, res) => {
-  const slugRaw = safeString(req.query.slug).toLowerCase();
+  const slugRaw = decodeURIComponent(safeString(req.query.slug)).toLowerCase();
   if (!slugRaw) {
     res.status(400);
     throw new Error('slug query parameter is required');
@@ -177,9 +177,12 @@ const uploadLectureNotes = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('Only PDF uploads are allowed');
   }
-  const programme = safeString(req.query.programme) || 'Gradus';
+  const slugParts = slugRaw.split('/');
+  const courseSlugPart = slugParts[slugParts.length - 1];
+  const programmeSlugPart = slugParts.length > 1 ? slugParts[0] : '';
+  const programme = safeString(req.query.programme) || programmeSlugPart || 'Gradus';
   const programmeFolder = sanitizeSegment(programme, 'gradus');
-  const slugSegment = sanitizeSegment(slugRaw, 'course');
+  const slugSegment = sanitizeSegment(courseSlugPart, 'course');
   const moduleName = sanitizeSegment(req.query.module, 'module');
   const sectionName = sanitizeSegment(req.query.section, 'week');
   const lectureName = sanitizeSegment(req.query.lecture, 'lecture');

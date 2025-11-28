@@ -424,15 +424,6 @@ const MasterLayout = ({ children }) => {
                 <span>Customer Support</span>
               </NavLink>
             </li>
-            <li>
-              <NavLink
-                to='/chat-message'
-                className={(navData) => (navData.isActive ? "active-page" : "")}
-              >
-                <Icon icon='bi:chat-dots' className='menu-icon' />
-                <span>Chat</span>
-              </NavLink>
-            </li>
             {hasEmailAccess && (
               <li className={`dropdown ${!emailUnlocked ? 'email-locked' : ''}`}>
                 <Link to='#' onClick={handleEmailMenuClick}>
