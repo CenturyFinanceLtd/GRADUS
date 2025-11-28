@@ -31,8 +31,8 @@ const SocialPortfolioPage = () => {
     },
     {
       name: "Instagram",
-      handle: "@gradusindiaofficial",
-      url: "https://www.instagram.com/gradusindiao.in",
+      handle: "@gradusindia.in",
+      url: "https://www.instagram.com/gradusindia.in",
       icon: "ph ph-instagram-logo",
       color: "#E4405F",
     },
