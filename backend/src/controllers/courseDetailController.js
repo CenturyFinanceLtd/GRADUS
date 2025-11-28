@@ -124,16 +124,22 @@ const uploadLectureVideo = asyncHandler(async (req, res) => {
   });
 });
 
-const uploadNotesBuffer = (buffer, { folder }) =>
+const uploadNotesBuffer = (buffer, { folder, publicId }) =>
   new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
-        resource_type: 'raw',
+        resource_type: 'auto',
         folder,
-        overwrite: false,
-        access_mode: 'authenticated',
-        type: 'authenticated',
+        overwrite: true,
         allowed_formats: ['pdf'],
+        format: 'pdf',
+        public_id: publicId,
+        type: 'upload',
+        access_mode: 'public',
+        content_type: 'application/pdf',
+        use_filename: true,
+        unique_filename: false,
+        filename_override: `${publicId}.pdf`,
       },
       (error, result) => {
         if (error) return reject(error);
@@ -142,6 +148,17 @@ const uploadNotesBuffer = (buffer, { folder }) =>
     );
     stream.end(buffer);
   });
+
+const sanitizeSegment = (value, fallback) => {
+  const cleaned = safeString(value) || fallback || '';
+  return cleaned
+    .toLowerCase()
+    .replace(/[^a-z0-9\-\s]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/(^-|-$)/g, '');
+};
 
 const uploadLectureNotes = asyncHandler(async (req, res) => {
   const slugRaw = safeString(req.query.slug).toLowerCase();
@@ -153,20 +170,50 @@ const uploadLectureNotes = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('Notes PDF file is required');
   }
+  const mimeLower = (req.file.mimetype || '').toLowerCase();
+  const isPdfMime = mimeLower.includes('pdf');
+  const startsWithPdfSignature = req.file.buffer.slice(0, 5).toString('utf8') === '%PDF-';
+  if (!isPdfMime || !startsWithPdfSignature) {
+    res.status(400);
+    throw new Error('Only PDF uploads are allowed');
+  }
   const programme = safeString(req.query.programme) || 'Gradus';
-  const programmeFolder = programme.toLowerCase().replace(/\s+/g, '-');
-  const folder = `${lectureNotesFolder}/${programmeFolder}/${slugRaw}`;
-  const result = await uploadNotesBuffer(req.file.buffer, { folder });
+  const programmeFolder = sanitizeSegment(programme, 'gradus');
+  const slugSegment = sanitizeSegment(slugRaw, 'course');
+  const moduleName = sanitizeSegment(req.query.module, 'module');
+  const sectionName = sanitizeSegment(req.query.section, 'week');
+  const lectureName = sanitizeSegment(req.query.lecture, 'lecture');
+  const originalBase = sanitizeSegment(
+    (req.file.originalname || '').replace(/\.[^.]+$/, ''),
+    lectureName || 'lecture-notes'
+  );
+  const folder = `${lectureNotesFolder}/${programmeFolder}/${slugSegment}/${moduleName}/${sectionName}/${lectureName}`;
+  const publicId = originalBase || 'lecture-notes';
+  const result = await uploadNotesBuffer(req.file.buffer, { folder, publicId });
+  const safeFormat = 'pdf';
+  const safeFileName =
+    (req.file.originalname && req.file.originalname.toLowerCase().endsWith('.pdf')
+      ? req.file.originalname
+      : `${originalBase || 'lecture-notes'}.pdf`) || 'lecture-notes.pdf';
+  const secureUrl =
+    result.secure_url ||
+    cloudinary.url(result.public_id || `${folder}/${publicId}`, {
+      resource_type: 'auto',
+      secure: true,
+      format: 'pdf',
+      type: 'upload',
+    });
   res.status(201).json({
     ok: true,
     asset: {
       publicId: result.public_id,
       folder: result.folder,
-      format: result.format,
+      format: safeFormat,
       bytes: result.bytes,
       pages: Number.isFinite(result.pages) ? result.pages : 0,
-      fileName: result.original_filename || req.file.originalname || 'lecture-notes',
-      accessMode: result.access_mode || 'authenticated',
+      fileName: safeFileName,
+      accessMode: result.access_mode || 'public',
+      secureUrl,
       createdAt: result.created_at,
     },
   });

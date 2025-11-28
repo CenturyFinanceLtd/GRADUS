@@ -875,10 +875,6 @@ const streamLectureNotes = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('lectureId is required.');
   }
-  if (!cloudinary?.utils?.private_download_url) {
-    res.status(503);
-    throw new Error('Secure document delivery is not configured.');
-  }
   const detail = await CourseDetail.findOne({ courseSlug }).select('modules').lean();
   if (!detail?.modules?.length) {
     res.status(404);
@@ -890,39 +886,34 @@ const streamLectureNotes = asyncHandler(async (req, res) => {
     throw new Error('Lecture notes not available for this lecture.');
   }
 
-  const format = normalizeString(lecture.notes.format) || 'pdf';
-  const privateUrl = cloudinary.utils.private_download_url(lecture.notes.publicId, format, {
-    resource_type: 'raw',
-    type: 'authenticated',
-    expires_at: Math.floor(Date.now() / 1000) + 60,
-  });
-
-  let upstream;
-  try {
-    upstream = await fetch(privateUrl);
-  } catch (error) {
-    res.status(502);
-    throw new Error('Unable to fetch lecture notes.');
-  }
-  if (!upstream?.ok || !upstream.body) {
-    res.status(upstream?.status || 502);
-    throw new Error('Unable to fetch lecture notes.');
-  }
-
+  const rawFormat = normalizeString(lecture.notes.format) || 'pdf';
+  const normalizedFormat = rawFormat.toLowerCase().includes('pdf') ? 'pdf' : rawFormat;
   const baseName = lecture.notes.fileName || lecture.title || lecture.lectureId || 'lecture-notes';
   const safeBase = sanitizeFileName(baseName, 'lecture-notes');
-  const normalizedFormat = format.startsWith('.') ? format.slice(1) : format;
   const fileName = safeBase.toLowerCase().endsWith(`.${normalizedFormat}`)
     ? safeBase
     : `${safeBase}.${normalizedFormat || 'pdf'}`;
 
-  res.setHeader('Content-Type', upstream.headers.get('content-type') || 'application/pdf');
-  res.setHeader('Cache-Control', 'no-store, private');
-  res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('Cross-Origin-Resource-Policy', 'same-site');
+  const cleanPublicId = normalizeString(lecture.notes.publicId).replace(/^\/+|\/+$/g, '');
+  if (!cleanPublicId) {
+    res.status(404);
+    throw new Error('Lecture notes not available for this lecture.');
+  }
 
-  await pipeline(upstream.body, res);
+  const downloadUrl = cloudinary.url(cleanPublicId, {
+    resource_type: 'auto',
+    secure: true,
+    format: normalizedFormat,
+    type: 'upload',
+  });
+
+  if (String(req.query.mode).toLowerCase() === 'url') {
+    return res.json({ url: downloadUrl, fileName, format: normalizedFormat || 'pdf' });
+  }
+
+  res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
+  res.setHeader('Cache-Control', 'public, max-age=300');
+  res.redirect(downloadUrl);
 });
 
 const getCourseProgressAdmin = asyncHandler(async (req, res) => {

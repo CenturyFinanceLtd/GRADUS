@@ -48,6 +48,8 @@ import TutorDetailsPage from "./pages/TutorDetailsPage.jsx";
 import ShareholdersPrivacyPage from "./pages/ShareholdersPrivacyPage.jsx";
 import VisitorPolicyPage from "./pages/VisitorPolicyPage.jsx";
 import VendorsPrivacyPage from "./pages/VendorsPrivacyPage.jsx";
+import CancellationRefundsPage from "./pages/CancellationRefundsPage.jsx";
+import TermsConditionsPage from "./pages/TermsConditionsPage.jsx";
 import KnowCFLPage from "./pages/KnowCFLPage.jsx";
 import CoursePaymentPage from "./pages/CoursePaymentPage.jsx";
 import SupportPage from "./pages/SupportPage.jsx";
@@ -164,6 +166,16 @@ function App() {
           path='/vendors'
           element={<VendorsPrivacyPage />}
         />
+        <Route
+          exact
+          path='/cancellation-refunds'
+          element={<CancellationRefundsPage />}
+        />
+        <Route
+          exact
+          path='/terms-and-conditions'
+          element={<TermsConditionsPage />}
+        />
         <Route exact path='/product' element={<ProductPage />} />
         <Route exact path='/product-details' element={<ProductDetailsPage />} />
         <Route exact path='/sign-in' element={<SignInPage />} />
@@ -218,8 +230,4 @@ function App() {
 }
 
 export default App;
-
-
-
-
 

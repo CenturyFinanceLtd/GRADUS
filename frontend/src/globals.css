@@ -16150,6 +16150,14 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   background: hsl(var(--main));
 }
 
+.notes-view-btn {
+  opacity: 1 !important;
+  visibility: visible !important;
+  background: hsl(var(--main)) !important;
+  color: #fff !important;
+  border-color: hsl(var(--main)) !important;
+}
+
 .course-home-panel {
   min-height: 360px;
 }

@@ -64,6 +64,14 @@ const buildEmptyLectureNotes = () => ({
   updatedAt: "",
 });
 
+const buildEmptyNotesState = () => ({
+  status: "idle",
+  lectureId: null,
+  pages: [],
+  pageCount: 0,
+  error: null,
+});
+
 const formatFileSize = (bytes) => {
   if (!Number.isFinite(bytes) || bytes <= 0) {
     return "";
@@ -76,6 +84,17 @@ const formatFileSize = (bytes) => {
     unitIndex += 1;
   }
   return `${value.toFixed(value >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+};
+
+const formatUpdatedDate = (value) => {
+  if (!value) {
+    return "";
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return "";
+  }
+  return parsed.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 };
 
 const resolveImageUrl = (input) => {
@@ -1203,10 +1222,15 @@ const CourseHomePage = () => {
         const weekTitle = week.title || `Week ${weekIdx + 1}`;
         const lectures = Array.isArray(week.lectures) ? week.lectures : [];
         lectures.forEach((lecture, lectureIdx) => {
-          if (!lecture?.notes?.hasFile) {
+          const notesMeta =
+            lecture?.notes && typeof lecture.notes === "object"
+              ? { ...buildEmptyLectureNotes(), ...lecture.notes }
+              : buildEmptyLectureNotes();
+          if (!notesMeta.hasFile) {
             return;
           }
           const lectureId = lecture.lectureId || lecture.id || `${sectionId}-lecture-${lectureIdx + 1}`;
+          const updatedLabel = formatUpdatedDate(notesMeta.updatedAt || lecture.updatedAt);
           collected.push({
             lectureId,
             lectureTitle: lecture.title || `Lecture ${lectureIdx + 1}`,
@@ -1214,24 +1238,39 @@ const CourseHomePage = () => {
             moduleTitle,
             sectionId,
             weekTitle,
-            notesMeta: lecture.notes,
+            notesMeta,
             videoUrl: lecture.videoUrl || "",
             poster: lecture.poster || "",
+            hasNotes: true,
+            updatedLabel,
+            sizeLabel: formatFileSize(notesMeta.bytes),
+            pageLabel: notesMeta.pages ? `${notesMeta.pages} page${notesMeta.pages === 1 ? "" : "s"}` : "",
+            sortKey: `${String(moduleIdx).padStart(3, "0")}-${String(weekIdx).padStart(3, "0")}-${String(
+              lectureIdx
+            ).padStart(3, "0")}`,
           });
         });
       });
     });
-    return collected;
+    return collected.sort((a, b) => {
+      const aUpdated = a.notesMeta?.updatedAt ? new Date(a.notesMeta.updatedAt).getTime() : 0;
+      const bUpdated = b.notesMeta?.updatedAt ? new Date(b.notesMeta.updatedAt).getTime() : 0;
+      if (aUpdated !== bUpdated) {
+        return bUpdated - aUpdated;
+      }
+      return a.sortKey.localeCompare(b.sortKey);
+    });
   }, [modules]);
   const moduleSelectorRef = useRef(null);
   const [progressState, setProgressState] = useState({ loading: false, data: {} });
   const [currentLectureMeta, setCurrentLectureMeta] = useState(null);
   const [resumePositionSeconds, setResumePositionSeconds] = useState(0);
   const playerContainerRef = useRef(null);
-  const [notesState, setNotesState] = useState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
+  const [notesState, setNotesState] = useState(buildEmptyNotesState());
   const [notesReloadToken, setNotesReloadToken] = useState(0);
   const [notesModalOpen, setNotesModalOpen] = useState(false);
-  const notesTarget = currentLectureMeta?.hasNotes ? currentLectureMeta : null;
+  const [notesTarget, setNotesTarget] = useState(null);
+  const [notesViewerUrl, setNotesViewerUrl] = useState("");
   const progressUpdateRef = useRef({});
   const moduleIndexFromUrl = useMemo(() => {
     if (sectionFromUrl !== MODULE_SECTION_ID) {
@@ -1474,11 +1513,15 @@ const CourseHomePage = () => {
 
   useEffect(() => {
     if (!notesModalOpen || !notesTarget?.hasNotes || !notesTarget?.lectureId) {
-      setNotesState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
+      setNotesState(buildEmptyNotesState());
+      if (notesViewerUrl) {
+        URL.revokeObjectURL(notesViewerUrl);
+        setNotesViewerUrl("");
+      }
       return;
     }
     if (!programme || !course) {
-      setNotesState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
+      setNotesState(buildEmptyNotesState());
       return;
     }
     if (!token) {
@@ -1494,9 +1537,13 @@ const CourseHomePage = () => {
     let cancelled = false;
     const controller = new AbortController();
     const loadNotes = async () => {
+      if (notesViewerUrl) {
+        URL.revokeObjectURL(notesViewerUrl);
+        setNotesViewerUrl("");
+      }
       setNotesState({
         status: "loading",
-        lectureId: currentLectureMeta.lectureId,
+        lectureId: notesTarget.lectureId,
         pages: [],
         pageCount: 0,
         error: null,
@@ -1513,31 +1560,35 @@ const CourseHomePage = () => {
           signal: controller.signal,
         });
         if (!response.ok) {
-          throw new Error("Unable to load lecture notes");
+          const text = await response.text().catch(() => "");
+          throw new Error(text || "Unable to load lecture notes");
         }
-        const buffer = await response.arrayBuffer();
-        const pdf = await getDocument({ data: new Uint8Array(buffer) }).promise;
-        const renderedPages = [];
-        for (let pageIndex = 1; pageIndex <= pdf.numPages; pageIndex += 1) {
-          const page = await pdf.getPage(pageIndex);
-          const viewport = page.getViewport({ scale: 1.1 });
-          const canvas = document.createElement("canvas");
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          const context = canvas.getContext("2d");
-          await page.render({ canvasContext: context, viewport }).promise;
-          renderedPages.push(canvas.toDataURL("image/png"));
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        let derivedPageCount = notesTarget.notesMeta?.pages || 0;
+        try {
+          const buffer = await blob.arrayBuffer();
+          const pdf = await getDocument({ data: new Uint8Array(buffer) }).promise;
+          derivedPageCount = pdf.numPages || derivedPageCount;
+        } catch (pdfError) {
+          // eslint-disable-next-line no-console
+          console.warn("Unable to read PDF metadata", pdfError);
         }
         if (!cancelled) {
+          setNotesViewerUrl(objectUrl);
           setNotesState({
             status: "ready",
             lectureId: notesTarget.lectureId,
-            pages: renderedPages,
-            pageCount: pdf.numPages,
+            pages: [],
+            pageCount: derivedPageCount,
             error: null,
           });
+        } else {
+          URL.revokeObjectURL(objectUrl);
         }
       } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to load notes", error);
         if (cancelled || error?.name === "AbortError") {
           return;
         }
@@ -1568,7 +1619,8 @@ const CourseHomePage = () => {
   useEffect(() => {
     if (notesModalOpen && !notesTarget?.hasNotes) {
       setNotesModalOpen(false);
-      setNotesState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
+      setNotesTarget(null);
+      setNotesState(buildEmptyNotesState());
     }
   }, [notesModalOpen, notesTarget?.hasNotes]);
 
@@ -1577,7 +1629,8 @@ const CourseHomePage = () => {
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
         setNotesModalOpen(false);
-        setNotesState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
+        setNotesTarget(null);
+        setNotesState(buildEmptyNotesState());
       }
     };
     document.addEventListener("keydown", handleKeyDown);
@@ -2011,7 +2064,8 @@ const CourseHomePage = () => {
     }
     if (notesModalOpen) {
       setNotesModalOpen(false);
-      setNotesState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
+      setNotesTarget(null);
+      setNotesState(buildEmptyNotesState());
     }
     const lectureId =
       lecture.lectureId ||
@@ -2032,6 +2086,11 @@ const CourseHomePage = () => {
       subtitle,
       meta: { ...meta, lectureId, subtitles: lecture.subtitles || lecture.captions || [] },
     });
+    const lectureNotesMeta =
+      lecture?.notes && typeof lecture.notes === "object"
+        ? { ...buildEmptyLectureNotes(), ...lecture.notes }
+        : buildEmptyLectureNotes();
+    const lectureHasNotes = Boolean(lectureNotesMeta.hasFile);
     setCurrentLectureMeta({
       lectureId,
       moduleId: meta.moduleId,
@@ -2040,9 +2099,28 @@ const CourseHomePage = () => {
       moduleTitle: meta.moduleTitle,
       weekTitle: meta.weekTitle,
       videoUrl: lecture.videoUrl,
-      hasNotes: Boolean(lecture.notes?.hasFile),
-      notesMeta: lecture.notes || null,
+      hasNotes: lectureHasNotes,
+      notesMeta: lectureNotesMeta,
     });
+    setNotesTarget(
+      lectureHasNotes
+        ? {
+            lectureId,
+            moduleId: meta.moduleId,
+            sectionId: meta.sectionId,
+            moduleTitle: meta.moduleTitle,
+            weekTitle: meta.weekTitle,
+            lectureTitle: lecture.title || "Lecture",
+            hasNotes: true,
+            notesMeta: lectureNotesMeta,
+            updatedLabel: formatUpdatedDate(lectureNotesMeta.updatedAt || ""),
+            sizeLabel: formatFileSize(lectureNotesMeta.bytes),
+            pageLabel: lectureNotesMeta.pages
+              ? `${lectureNotesMeta.pages} page${lectureNotesMeta.pages === 1 ? "" : "s"}`
+              : "",
+          }
+        : null
+    );
     const lectureProgress = lectureId ? progressState.data[lectureId] : null;
     const isCompleted =
       Boolean(lectureProgress?.completedAt) ||
@@ -2059,21 +2137,30 @@ const CourseHomePage = () => {
     if (!meta?.hasNotes || !meta?.lectureId) {
       return;
     }
-    const endpoint = `${API_BASE_URL}/courses/${encodeURIComponent(programme)}/${encodeURIComponent(
-      course
-    )}/lectures/${encodeURIComponent(meta.lectureId)}/notes`;
-    window.open(endpoint, "_blank", "noopener,noreferrer");
+    if (notesViewerUrl) {
+      URL.revokeObjectURL(notesViewerUrl);
+      setNotesViewerUrl("");
+    }
+    setNotesTarget(meta);
+    setNotesState(buildEmptyNotesState());
+    setNotesModalOpen(true);
   };
   const closeNotesModal = () => {
+    if (notesViewerUrl) {
+      URL.revokeObjectURL(notesViewerUrl);
+      setNotesViewerUrl("");
+    }
     setNotesModalOpen(false);
-    setNotesState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
+    setNotesTarget(null);
+    setNotesState(buildEmptyNotesState());
   };
   const handlePlayerClose = () => {
     setActiveVideo(null);
     setCurrentLectureMeta(null);
     setResumePositionSeconds(0);
     setNotesModalOpen(false);
-    setNotesState({ status: "idle", lectureId: null, pages: [], pageCount: 0, error: null });
+    setNotesTarget(null);
+    setNotesState(buildEmptyNotesState());
   };
   const toggleModuleDropdown = () => {
     if (!modules.length) {
@@ -2793,33 +2880,29 @@ const CourseHomePage = () => {
                   >
                     <div>
                       <p className='course-home-panel__eyebrow mb-4'>
-                        {note.moduleTitle} · {note.weekTitle}
+                        {note.moduleTitle} / {note.weekTitle}
                       </p>
-                      <h4 className='mb-4'>{note.lectureTitle}</h4>
-                      <p className='text-neutral-600 mb-0 small'>
-                        {note.notesMeta?.pages ? `${note.notesMeta.pages} pages` : "Lecture notes available"}
-                      </p>
+                      <h4 className='mb-8'>{note.lectureTitle}</h4>
+                      <div className='d-flex flex-wrap gap-2 align-items-center text-neutral-600 small'>
+                        {note.notesMeta?.fileName ? (
+                          <span className='fw-semibold'>{note.notesMeta.fileName}</span>
+                        ) : null}
+                        {note.pageLabel ? (
+                          <span className='badge bg-light text-dark'>{note.pageLabel}</span>
+                        ) : null}
+                        {note.sizeLabel ? (
+                          <span className='badge bg-light text-dark'>{note.sizeLabel}</span>
+                        ) : null}
+                        {note.updatedLabel ? (
+                          <span className='text-neutral-500'>Updated {note.updatedLabel}</span>
+                        ) : null}
+                      </div>
                     </div>
                     <div className='d-flex align-items-center gap-2 flex-wrap'>
-                      {note.notesMeta?.pages ? (
-                        <span className='badge bg-light text-dark'>{note.notesMeta.pages} pages</span>
-                      ) : null}
                       <button
                         type='button'
                         className='btn btn-sm btn-outline-primary'
-                        onClick={() =>
-                          openNotesModal({
-                            lectureId: note.lectureId,
-                            moduleId: note.moduleId,
-                            sectionId: note.sectionId,
-                            lectureTitle: note.lectureTitle,
-                            moduleTitle: note.moduleTitle,
-                            weekTitle: note.weekTitle,
-                            videoUrl: note.videoUrl,
-                            hasNotes: true,
-                            notesMeta: note.notesMeta,
-                          })
-                        }
+                        onClick={() => openNotesModal(note)}
                       >
                         View notes
                       </button>
@@ -3309,6 +3392,7 @@ const liveStatusText = useMemo(() => {
       return null;
     }
     const noteMeta = notesTarget.notesMeta || buildEmptyLectureNotes();
+    let content = null;
     const summaryParts = [];
     if (noteMeta.fileName) {
       summaryParts.push(noteMeta.fileName);
@@ -3316,20 +3400,25 @@ const liveStatusText = useMemo(() => {
     if (noteMeta.pages) {
       summaryParts.push(`${noteMeta.pages} pages`);
     }
+    if (!noteMeta.pages && notesState.pageCount) {
+      summaryParts.push(`${notesState.pageCount} pages`);
+    }
     if (noteMeta.bytes) {
       const readable = formatFileSize(noteMeta.bytes);
       if (readable) {
         summaryParts.push(readable);
       }
     }
-    const summary = summaryParts.join(" • ");
-    let content = null;
+    if (notesTarget.updatedLabel) {
+      summaryParts.push(`Updated ${notesTarget.updatedLabel}`);
+    }
+    const summary = summaryParts.join(" | ");
     if (notesState.status === "loading") {
       content = (
         <div className='course-notes-viewer course-notes-viewer--loading'>
           <div className='d-flex align-items-center gap-2'>
             <span className='spinner-border spinner-border-sm text-main-500' role='status' aria-hidden='true' />
-            <span>Preparing secure preview…</span>
+            <span>Preparing secure preview...</span>
           </div>
         </div>
       );
@@ -3340,6 +3429,36 @@ const liveStatusText = useMemo(() => {
           <button type='button' className='btn btn-sm btn-outline-primary' onClick={handleNotesRetry}>
             Try again
           </button>
+        </div>
+      );
+    } else if (notesState.status === "ready" && notesViewerUrl) {
+      content = (
+        <div className='course-notes-viewer'>
+          <div className='mb-3 d-flex gap-2'>
+            <a className='btn btn-sm btn-outline-primary' href={notesViewerUrl} target='_blank' rel='noreferrer'>
+              Open in new tab
+            </a>
+            {notesState.pageCount ? (
+              <span className='badge bg-light text-dark'>{notesState.pageCount} pages</span>
+            ) : null}
+          </div>
+          <div style={{ width: "100%", height: "75vh" }}>
+            <iframe
+              src={notesViewerUrl}
+              title='Lecture notes'
+              style={{ border: 0, width: "100%", height: "100%" }}
+              allow='fullscreen'
+            />
+            <object data={notesViewerUrl} type='application/pdf' width='100%' height='100%'>
+              <p className='text-neutral-600 small'>
+                PDF preview not available.{" "}
+                <a href={notesViewerUrl} target='_blank' rel='noreferrer'>
+                  Open in a new tab
+                </a>
+                .
+              </p>
+            </object>
+          </div>
         </div>
       );
     } else if (notesState.status === "ready" && notesState.pages.length) {
@@ -3357,17 +3476,56 @@ const liveStatusText = useMemo(() => {
         <div className='course-notes-viewer course-notes-viewer--loading'>
           <div className='d-flex align-items-center gap-2'>
             <span className='spinner-border spinner-border-sm text-main-500' role='status' aria-hidden='true' />
-            <span>Preparing secure preview…</span>
+            <span>Preparing secure preview...</span>
           </div>
         </div>
       );
     }
 
+    const backdropStyle = {
+      position: "fixed",
+      inset: 0,
+      background: "rgba(16, 24, 40, 0.55)",
+    };
+    const modalStyle = {
+      position: "fixed",
+      inset: 0,
+      zIndex: 1050,
+      display: "flex",
+      alignItems: "flex-start",
+      justifyContent: "center",
+      padding: "24px 12px",
+      overflowY: "auto",
+    };
+    const bodyStyle = {
+      position: "relative",
+      width: "min(960px, 95vw)",
+      maxHeight: "90vh",
+      background: "#fff",
+      borderRadius: "16px",
+      overflow: "hidden",
+      boxShadow: "0 20px 60px rgba(16,24,40,0.18)",
+      display: "flex",
+      flexDirection: "column",
+    };
+    const headerStyle = {
+      padding: "16px 24px",
+      borderBottom: "1px solid #e5e7eb",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: "12px",
+    };
+    const contentStyle = {
+      padding: "16px 24px",
+      overflowY: "auto",
+    };
+
     return (
-      <div className='course-notes-modal' role='dialog' aria-modal='true' aria-label='Lecture notes viewer'>
-        <div className='course-notes-modal__backdrop' onClick={closeNotesModal} />
-        <div className='course-notes-modal__body'>
-          <div className='course-notes-modal__header'>
+      <div className='course-notes-modal' role='dialog' aria-modal='true' aria-label='Lecture notes viewer' style={modalStyle}>
+        <div className='course-notes-modal__backdrop' style={backdropStyle} onClick={closeNotesModal} />
+        <div className='course-notes-modal__body' style={bodyStyle}>
+          <div className='course-notes-modal__header' style={headerStyle}>
             <div>
               <p className='course-home-panel__eyebrow mb-8'>Lecture Notes</p>
               <h4 className='course-home-panel__title mb-4'>{notesTarget.lectureTitle || "Lecture"}</h4>
@@ -3378,11 +3536,11 @@ const liveStatusText = useMemo(() => {
                 Protected
               </span>
               <button type='button' className='course-notes-modal__close' onClick={closeNotesModal} aria-label='Close notes viewer'>
-                ×
+                Close
               </button>
             </div>
           </div>
-          <div className='course-notes-modal__content'>{content}</div>
+          <div className='course-notes-modal__content' style={contentStyle}>{content}</div>
         </div>
       </div>
     );
@@ -3418,10 +3576,14 @@ const liveStatusText = useMemo(() => {
           </div>
         </div>
       </section>
+      {renderNotesModal()}
       <FooterOne />
     </>
   );
 };
 
 export default CourseHomePage;
+
+
+
 

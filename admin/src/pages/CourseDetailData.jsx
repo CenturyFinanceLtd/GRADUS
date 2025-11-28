@@ -316,22 +316,37 @@ const CourseDetailData = () => {
     const key = buildUploadKey('notes', moduleIndex, sectionIndex, lectureIndex);
     try {
       setUploadingMap((prev) => ({ ...prev, [key]: true }));
+      const moduleName =
+        modules?.[moduleIndex]?.title ||
+        modules?.[moduleIndex]?.moduleLabel ||
+        `module-${moduleIndex + 1}`;
+      const sectionName =
+        modules?.[moduleIndex]?.weeklyStructure?.[sectionIndex]?.title ||
+        modules?.[moduleIndex]?.weeklyStructure?.[sectionIndex]?.subtitle ||
+        `week-${sectionIndex + 1}`;
+      const lectureTitle =
+        modules?.[moduleIndex]?.weeklyStructure?.[sectionIndex]?.lectures?.[lectureIndex]?.title ||
+        `lecture-${lectureIndex + 1}`;
       const asset = await uploadLectureNotes({
         slug,
         file,
         programme: courseMeta?.programme,
+        moduleName,
+        sectionName,
+        lectureTitle,
         token,
       });
       updateLectureAt(moduleIndex, sectionIndex, lectureIndex, (lecture) => ({
         ...lecture,
         notes: {
           publicId: asset?.publicId || '',
-          fileName: asset?.fileName || file.name || 'lecture-notes',
+          fileName: asset?.fileName || file.name || 'lecture-notes.pdf',
           folder: asset?.folder || '',
           bytes: asset?.bytes || 0,
-          format: asset?.format || file.type || 'pdf',
+          format: asset?.format || 'pdf',
           pages: asset?.pages || 0,
-          accessMode: asset?.accessMode || 'authenticated',
+          accessMode: asset?.accessMode || 'public',
+          url: asset?.secureUrl || '',
           uploadedAt: asset?.createdAt || new Date().toISOString(),
         },
       }));
