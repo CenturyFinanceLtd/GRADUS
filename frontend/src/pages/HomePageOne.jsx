@@ -6,7 +6,6 @@ import VideoTestimonials from "../components/home/VideoTestimonials";
 import CourseInsight from "../components/home/CourseInsight";
 import WhyGradusVideo from "../components/home/WhyGradusVideo";
 import ExpertVideos from "../components/home/ExpertVideos";
-import GradusAmbition from "../components/home/GradusAmbition";
 import WhyGradusComparison from "../components/home/WhyGradusComparison";
 import FooterOne from "../components/FooterOne";
 import HeaderOne from "../components/HeaderOne";
@@ -45,9 +44,6 @@ const HomePageOne = () => {
 
       {/* Expert Videos */}
       <ExpertVideos />
-
-      {/* Gradus Ambition */}
-      <GradusAmbition />
 
       {/* CounterTwo */}
       <CounterTwo />
