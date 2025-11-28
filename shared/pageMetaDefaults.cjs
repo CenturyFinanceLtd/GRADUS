@@ -212,6 +212,11 @@ const PAGE_META = {
     description:
       "Learn about cancellation windows, refund eligibility, and how to request a refund for Gradus programs.",
   },
+  "/terms-and-conditions": {
+    title: "Terms and Conditions | Gradus India",
+    description:
+      "Read the terms and conditions that govern the use of Gradus India services and website.",
+  },
   "/product": {
     title: "Gradus | Products",
     description:

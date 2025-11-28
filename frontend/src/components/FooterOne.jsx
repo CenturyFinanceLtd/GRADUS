@@ -369,6 +369,9 @@ const FooterOne = () => {
             <Link to='/privacy-policy' className='gradus-footer__link'>
               Privacy Policy
             </Link>
+            <Link to='/terms-and-conditions' className='gradus-footer__link'>
+              Terms and Conditions
+            </Link>
             <Link to='/cancellation-refunds' className='gradus-footer__link'>
               Cancellation and Refunds
             </Link>

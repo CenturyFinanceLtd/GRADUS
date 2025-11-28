@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import HeaderOne from "../components/HeaderOne";
 import FooterOne from "../components/FooterOne";
@@ -1551,7 +1551,7 @@ const CourseHomePage = () => {
       try {
         const endpoint = `${API_BASE_URL}/courses/${encodeURIComponent(programme)}/${encodeURIComponent(
           course
-        )}/lectures/${encodeURIComponent(notesTarget.lectureId)}/notes?mode=url`;
+        )}/lectures/${encodeURIComponent(notesTarget.lectureId)}/notes`;
         const headers = new Headers();
         headers.set("Authorization", `Bearer ${token}`);
         const response = await fetch(endpoint, {
@@ -1563,12 +1563,17 @@ const CourseHomePage = () => {
           const text = await response.text().catch(() => "");
           throw new Error(text || "Unable to load lecture notes");
         }
-        const data = await response.json();
-        const objectUrl = data?.url || "";
-        if (!objectUrl) {
-          throw new Error("Notes link not available yet. Please try again.");
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        let derivedPageCount = notesTarget.notesMeta?.pages || 0;
+        try {
+          const buffer = await blob.arrayBuffer();
+          const pdf = await getDocument({ data: new Uint8Array(buffer) }).promise;
+          derivedPageCount = pdf.numPages || derivedPageCount;
+        } catch (pdfError) {
+          // eslint-disable-next-line no-console
+          console.warn("Unable to read PDF metadata", pdfError);
         }
-        const derivedPageCount = notesTarget.notesMeta?.pages || 0;
         if (!cancelled) {
           setNotesViewerUrl(objectUrl);
           setNotesState({
@@ -2958,7 +2963,7 @@ const liveStatusText = useMemo(() => {
     return "Waiting for host";
   }
   if (embeddedStageStatus === "joining" || embeddedStageStatus === "connecting") {
-      return "Connectingâ€¦";
+      return "Connecting…";
     }
     if (embeddedStageStatus === "error") {
       return "Connection error";
@@ -3069,7 +3074,7 @@ const liveStatusText = useMemo(() => {
                 disabled={embeddedStageStatus === "live" || !livePasscode}
               >
                 {embeddedStageStatus === "joining" || embeddedStageStatus === "connecting"
-                  ? "Joiningâ€¦"
+                  ? "Joining…"
                   : "Join with passcode"}
               </button>
             </div>
@@ -3230,17 +3235,17 @@ const liveStatusText = useMemo(() => {
                           title='Raise hand'
                           onClick={() => sendEmbedHandRaise()}
                         >
-                          âœ‹
+                          ✋
                         </button>
                         <div className='d-flex gap-1'>
-                          <button type='button' className='btn btn-xs btn-outline-secondary' onClick={() => sendEmbedReaction("ðŸ‘")}>
-                            ðŸ‘
+                          <button type='button' className='btn btn-xs btn-outline-secondary' onClick={() => sendEmbedReaction("👍")}>
+                            👍
                           </button>
-                          <button type='button' className='btn btn-xs btn-outline-secondary' onClick={() => sendEmbedReaction("ðŸŽ‰")}>
-                            ðŸŽ‰
+                          <button type='button' className='btn btn-xs btn-outline-secondary' onClick={() => sendEmbedReaction("🎉")}>
+                            🎉
                           </button>
-                          <button type='button' className='btn btn-xs btn-outline-secondary' onClick={() => sendEmbedReaction("ðŸ™Œ")}>
-                            ðŸ™Œ
+                          <button type='button' className='btn btn-xs btn-outline-secondary' onClick={() => sendEmbedReaction("🙌")}>
+                            🙌
                           </button>
                         </div>
                       </div>
@@ -3437,12 +3442,23 @@ const liveStatusText = useMemo(() => {
               <span className='badge bg-light text-dark'>{notesState.pageCount} pages</span>
             ) : null}
           </div>
-          <iframe
-            src={notesViewerUrl}
-            title='Lecture notes'
-            style={{ border: 0, width: "100%", height: "75vh" }}
-            allow='fullscreen'
-          />
+          <div style={{ width: "100%", height: "75vh" }}>
+            <iframe
+              src={notesViewerUrl}
+              title='Lecture notes'
+              style={{ border: 0, width: "100%", height: "100%" }}
+              allow='fullscreen'
+            />
+            <object data={notesViewerUrl} type='application/pdf' width='100%' height='100%'>
+              <p className='text-neutral-600 small'>
+                PDF preview not available.{" "}
+                <a href={notesViewerUrl} target='_blank' rel='noreferrer'>
+                  Open in a new tab
+                </a>
+                .
+              </p>
+            </object>
+          </div>
         </div>
       );
     } else if (notesState.status === "ready" && notesState.pages.length) {
@@ -3476,9 +3492,10 @@ const liveStatusText = useMemo(() => {
       inset: 0,
       zIndex: 1050,
       display: "flex",
-      alignItems: "center",
+      alignItems: "flex-start",
       justifyContent: "center",
-      padding: "12px",
+      padding: "24px 12px",
+      overflowY: "auto",
     };
     const bodyStyle = {
       position: "relative",
@@ -3566,6 +3583,7 @@ const liveStatusText = useMemo(() => {
 };
 
 export default CourseHomePage;
+
 
 
 
