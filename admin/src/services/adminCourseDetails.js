@@ -38,11 +38,14 @@ export const uploadLectureVideo = async ({ slug, file, programme, token }) => {
   return data?.asset || null;
 };
 
-export const uploadLectureNotes = async ({ slug, file, programme, token }) => {
+export const uploadLectureNotes = async ({ slug, file, programme, moduleName, sectionName, lectureTitle, token }) => {
   if (!file) throw new Error('file is required');
   const params = new URLSearchParams();
   if (programme) params.set('programme', programme);
   if (slug) params.set('slug', slug.trim().toLowerCase());
+  if (moduleName) params.set('module', moduleName);
+  if (sectionName) params.set('section', sectionName);
+  if (lectureTitle) params.set('lecture', lectureTitle);
   const query = params.toString() ? `?${params.toString()}` : '';
   const form = new FormData();
   form.append('file', file);

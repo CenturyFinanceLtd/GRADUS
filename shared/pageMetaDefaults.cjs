@@ -207,6 +207,11 @@ const PAGE_META = {
     description:
       "Explore the trusted privacy vendors partnered with Gradus India to ensure data protection and compliance with industry standards.",
   },
+  "/cancellation-refunds": {
+    title: "Cancellation and Refunds | Gradus India",
+    description:
+      "Learn about cancellation windows, refund eligibility, and how to request a refund for Gradus programs.",
+  },
   "/product": {
     title: "Gradus | Products",
     description:
