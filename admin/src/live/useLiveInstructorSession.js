@@ -25,6 +25,19 @@ const normalizeBasePath = (pathname) => {
   return trimmed === '/' ? '' : trimmed;
 };
 
+const isLocalHost = (host) => {
+  if (!host) return false;
+  const normalized = host.toLowerCase();
+  return (
+    normalized === 'localhost' ||
+    normalized.startsWith('localhost:') ||
+    normalized === '127.0.0.1' ||
+    normalized.startsWith('127.0.0.1:') ||
+    normalized === '[::1]' ||
+    normalized.endsWith('.local')
+  );
+};
+
 const resolveServerInfo = () => {
   try {
     const parsed = new URL(SIGNALING_BASE_URL || API_BASE_URL);
@@ -58,7 +71,7 @@ const DEFAULT_PUBLIC_BASE = PUBLIC_SITE_BASE || deriveBrowserPublicBase();
 const buildWebSocketUrl = (path, sessionId, participantId, key) => {
   const wsProtocol = SERVER_INFO.protocol === 'https:' ? 'wss:' : 'ws:';
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  const basePath = SERVER_INFO.basePath || '';
+  const basePath = SERVER_INFO.basePath || (!isLocalHost(SERVER_INFO.host) ? '/api' : '');
   const combinedPath =
     basePath && !normalizedPath.startsWith(basePath) ? `${basePath}${normalizedPath}` : normalizedPath;
   const cleanPath = combinedPath.replace(/\/{2,}/g, '/');
