@@ -3,16 +3,24 @@ import { API_BASE_URL } from "../services/apiClient";
 import { useAuth } from "../context/AuthContext.jsx";
 import { fetchLiveSession, joinLiveSession, fetchLiveChatMessages } from "./liveApi";
 
+const normalizeBasePath = (pathname) => {
+  if (!pathname || pathname === "/") {
+    return "";
+  }
+  const trimmed = pathname.replace(/\/+$/, "");
+  return trimmed === "/" ? "" : trimmed;
+};
+
 const resolveServerInfo = () => {
   const override = import.meta.env.VITE_SIGNALING_BASE_URL;
   try {
     const parsed = new URL(override || API_BASE_URL);
-    return { protocol: parsed.protocol, host: parsed.host };
+    return { protocol: parsed.protocol, host: parsed.host, basePath: normalizeBasePath(parsed.pathname) };
   } catch (_) {
     if (typeof window !== "undefined") {
-      return { protocol: window.location.protocol, host: window.location.host };
+      return { protocol: window.location.protocol, host: window.location.host, basePath: "" };
     }
-    return { protocol: "http:", host: "localhost:5000" };
+    return { protocol: "http:", host: "localhost:5000", basePath: "" };
   }
 };
 
@@ -21,12 +29,16 @@ const SERVER_INFO = resolveServerInfo();
 const buildWebSocketUrl = (path, sessionId, participantId, key) => {
   const wsProtocol = SERVER_INFO.protocol === "https:" ? "wss:" : "ws:";
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const basePath = SERVER_INFO.basePath || "";
+  const combinedPath =
+    basePath && !normalizedPath.startsWith(basePath) ? `${basePath}${normalizedPath}` : normalizedPath;
+  const cleanPath = combinedPath.replace(/\/{2,}/g, "/");
   const search = new URLSearchParams({
     sessionId,
     participantId,
     key,
   }).toString();
-  return `${wsProtocol}//${SERVER_INFO.host}${normalizedPath}?${search}`;
+  return `${wsProtocol}//${SERVER_INFO.host}${cleanPath}?${search}`;
 };
 
 const useLiveStudentSession = (sessionId) => {

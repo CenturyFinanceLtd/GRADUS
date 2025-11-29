@@ -58,6 +58,12 @@ const validateSignalPayload = (payload) => {
   return true;
 };
 
+const normalizePath = (path) => {
+  const normalized = path && typeof path === 'string' ? path : '/live-signaling';
+  const withLeadingSlash = normalized.startsWith('/') ? normalized : `/${normalized}`;
+  return withLeadingSlash.replace(/\/{2,}/g, '/');
+};
+
 const broadcastToSession = (connections, sessionId, message, roomId = null) => {
   const sessionConnections = connections.get(sessionId);
   if (!sessionConnections) {
@@ -170,14 +176,28 @@ const attachLiveSignalingServer = (httpServer) => {
     throw new Error('HTTP server instance is required to attach the live signaling server.');
   }
 
-  const signalingPath = config.live?.signalingPath || '/live-signaling';
+  const signalingPath = normalizePath(config.live?.signalingPath || '/live-signaling');
+  // Allow both direct and /api-prefixed upgrade paths so proxies that only expose /api still work.
+  const allowedPaths = new Set([signalingPath]);
+  const apiPrefixedPath = signalingPath.startsWith('/api/') ? null : normalizePath(`/api${signalingPath}`);
+  if (apiPrefixedPath && !allowedPaths.has(apiPrefixedPath)) {
+    allowedPaths.add(apiPrefixedPath);
+  }
+  const unprefixedPath =
+    signalingPath.startsWith('/api/') && signalingPath.length > 5
+      ? normalizePath(signalingPath.slice(4))
+      : null;
+  if (unprefixedPath && !allowedPaths.has(unprefixedPath)) {
+    allowedPaths.add(unprefixedPath);
+  }
+
   const wss = new WebSocketServer({ noServer: true });
   const connections = new Map();
 
   const authenticateUpgrade = async (request) => {
     try {
       const requestUrl = new URL(request.url, `http://${request.headers.host}`);
-      if (requestUrl.pathname !== signalingPath) {
+      if (!allowedPaths.has(requestUrl.pathname)) {
         return { accepted: false, statusCode: 404, message: 'Not Found' };
       }
 
@@ -382,6 +402,13 @@ const attachLiveSignalingServer = (httpServer) => {
   });
 
   console.log(`[live-signaling] WebSocket signaling mounted on ${config.serverUrl}${signalingPath}`);
+  if (allowedPaths.size > 1) {
+    console.log(
+      `[live-signaling] Also accepting upgrades on: ${Array.from(allowedPaths)
+        .filter((path) => path !== signalingPath)
+        .join(', ')}`
+    );
+  }
 
   liveEvents.on('session-updated', (sessionId) => {
     broadcastSessionState(connections, sessionId).catch(() => {});
