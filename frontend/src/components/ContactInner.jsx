@@ -306,7 +306,7 @@ const ContactInner = () => {
                 <div>
                   <p className='contact-info-label mb-4'>Office</p>
                   <p className='contact-info-address mb-0'>
-                    First floor, southern park, D-2, District Centre, Saket, New Delhi, 110017
+                    1st floor, Southern Park, D-2,<br/> District Centre, Saket, New Delhi, 110017
                   </p>
                 </div>
               </div>
