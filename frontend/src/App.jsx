@@ -3,63 +3,64 @@
   - Centralized react-router configuration and cross-cutting providers
   - Adds Meta manager, analytics tracker, and chatbot widget globally
 */
-import OurCoursesPage from "./pages/OurCoursesPage.jsx";
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Routes, Route, useParams } from "react-router-dom";
 import RouteScrollToTop from "./helper/RouteScrollToTop.jsx";
 import RequireAuth from "./components/RequireAuth.jsx";
 import MetaManager from "./components/MetaManager.jsx";
 import SiteAnalyticsTracker from "./components/SiteAnalyticsTracker.jsx";
 import HelpLauncher from "./components/HelpLauncher.jsx";
-import HomePageOne from "./pages/HomePageOne";
-import AboutPage from "./pages/AboutPage.jsx";
-import ApplyAdmissionPage from "./pages/ApplyAdmissionPage.jsx";
-import BlogPage from "./pages/BlogPage.jsx";
-import BlogDetailsPage from "./pages/BlogDetailsPage.jsx";
-import BookOnlineClassPage from "./pages/BookOnlineClassPage.jsx";
-import CartPage from "./pages/CartPage.jsx";
-import CheckoutPage from "./pages/CheckoutPage.jsx";
-import ContactPage from "./pages/ContactPage.jsx";
-import CoursePage from "./pages/CoursePage.jsx";
-import CourseDetailsPage from "./pages/CourseDetailsPage.jsx";
-import EventDetailsPage from "./pages/EventDetailsPage.jsx";
-import EventsPage from "./pages/EventsPage.jsx";
-// FaqPage removed
-import MyCoursesPage from "./pages/MyCoursesPage.jsx";
-import FindTutorsPage from "./pages/FindTutorsPage.jsx";
-import GalleryPage from "./pages/GalleryPage.jsx";
-import CandidatesAndInternsPage from "./pages/CandidatesAndInternsPage.jsx";
-import EmployeeAndAlumniPage from "./pages/EmployeeAndAlumniPage.jsx";
-import InstructorPage from "./pages/InstructorPage.jsx";
-import InstructorDetailsPage from "./pages/InstructorDetailsPage.jsx";
-import InstructorTwoPage from "./pages/InstructorTwoPage.jsx";
-import LessonDetailsPage from "./pages/LessonDetailsPage.jsx";
-import PricingPlanPage from "./pages/PricingPlanPage.jsx";
-import PrivacyPolicyPage from "./pages/PrivacyPolicyPage.jsx";
-import InvestorsPrivacyPage from "./pages/InvestorsPrivacyPage.jsx";
-import ProductPage from "./pages/ProductPage.jsx";
-import ProductDetailsPage from "./pages/ProductDetailsPage.jsx";
-import SignInPage from "./pages/SignInPage.jsx";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
-import SignUpPage from "./pages/SignUpPage.jsx";
-import ProfilePage from "./pages/ProfilePage.jsx";
-import TuitionJobsPage from "./pages/TuitionJobsPage.jsx";
-import TutorPage from "./pages/TutorPage.jsx";
-import TutorDetailsPage from "./pages/TutorDetailsPage.jsx";
-import ShareholdersPrivacyPage from "./pages/ShareholdersPrivacyPage.jsx";
-import VisitorPolicyPage from "./pages/VisitorPolicyPage.jsx";
-import VendorsPrivacyPage from "./pages/VendorsPrivacyPage.jsx";
-import CancellationRefundsPage from "./pages/CancellationRefundsPage.jsx";
-import TermsConditionsPage from "./pages/TermsConditionsPage.jsx";
-import KnowCFLPage from "./pages/KnowCFLPage.jsx";
-import CoursePaymentPage from "./pages/CoursePaymentPage.jsx";
-import SupportPage from "./pages/SupportPage.jsx";
-import SupportTicketDetailsPage from "./pages/SupportTicketDetailsPage.jsx";
-import SocialPortfolioPage from "./pages/SocialPortfolioPage.jsx";
-import ProgrammeCoursePage from "./pages/ProgrammeCoursePage.jsx";
-import CourseHomePage from "./pages/CourseHomePage.jsx";
-import GoogleAuthCallback from "./pages/GoogleAuthCallback.jsx";
 import GoogleOneTap from "./components/GoogleOneTap.jsx";
-import LiveStudentPage from "./live/LiveStudentPage.jsx";
+
+const HomePageOne = lazy(() => import("./pages/HomePageOne"));
+const AboutPage = lazy(() => import("./pages/AboutPage.jsx"));
+const ApplyAdmissionPage = lazy(() => import("./pages/ApplyAdmissionPage.jsx"));
+const BlogPage = lazy(() => import("./pages/BlogPage.jsx"));
+const BlogDetailsPage = lazy(() => import("./pages/BlogDetailsPage.jsx"));
+const BookOnlineClassPage = lazy(() => import("./pages/BookOnlineClassPage.jsx"));
+const CartPage = lazy(() => import("./pages/CartPage.jsx"));
+const CheckoutPage = lazy(() => import("./pages/CheckoutPage.jsx"));
+const ContactPage = lazy(() => import("./pages/ContactPage.jsx"));
+const CoursePage = lazy(() => import("./pages/CoursePage.jsx"));
+const CourseDetailsPage = lazy(() => import("./pages/CourseDetailsPage.jsx"));
+const EventDetailsPage = lazy(() => import("./pages/EventDetailsPage.jsx"));
+const EventsPage = lazy(() => import("./pages/EventsPage.jsx"));
+const MyCoursesPage = lazy(() => import("./pages/MyCoursesPage.jsx"));
+const FindTutorsPage = lazy(() => import("./pages/FindTutorsPage.jsx"));
+const GalleryPage = lazy(() => import("./pages/GalleryPage.jsx"));
+const CandidatesAndInternsPage = lazy(() => import("./pages/CandidatesAndInternsPage.jsx"));
+const EmployeeAndAlumniPage = lazy(() => import("./pages/EmployeeAndAlumniPage.jsx"));
+const InstructorPage = lazy(() => import("./pages/InstructorPage.jsx"));
+const InstructorDetailsPage = lazy(() => import("./pages/InstructorDetailsPage.jsx"));
+const InstructorTwoPage = lazy(() => import("./pages/InstructorTwoPage.jsx"));
+const LessonDetailsPage = lazy(() => import("./pages/LessonDetailsPage.jsx"));
+const PricingPlanPage = lazy(() => import("./pages/PricingPlanPage.jsx"));
+const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage.jsx"));
+const InvestorsPrivacyPage = lazy(() => import("./pages/InvestorsPrivacyPage.jsx"));
+const ProductPage = lazy(() => import("./pages/ProductPage.jsx"));
+const ProductDetailsPage = lazy(() => import("./pages/ProductDetailsPage.jsx"));
+const SignInPage = lazy(() => import("./pages/SignInPage.jsx"));
+const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage.jsx"));
+const SignUpPage = lazy(() => import("./pages/SignUpPage.jsx"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage.jsx"));
+const TuitionJobsPage = lazy(() => import("./pages/TuitionJobsPage.jsx"));
+const TutorPage = lazy(() => import("./pages/TutorPage.jsx"));
+const TutorDetailsPage = lazy(() => import("./pages/TutorDetailsPage.jsx"));
+const ShareholdersPrivacyPage = lazy(() => import("./pages/ShareholdersPrivacyPage.jsx"));
+const VisitorPolicyPage = lazy(() => import("./pages/VisitorPolicyPage.jsx"));
+const VendorsPrivacyPage = lazy(() => import("./pages/VendorsPrivacyPage.jsx"));
+const CancellationRefundsPage = lazy(() => import("./pages/CancellationRefundsPage.jsx"));
+const TermsConditionsPage = lazy(() => import("./pages/TermsConditionsPage.jsx"));
+const KnowCFLPage = lazy(() => import("./pages/KnowCFLPage.jsx"));
+const CoursePaymentPage = lazy(() => import("./pages/CoursePaymentPage.jsx"));
+const SupportPage = lazy(() => import("./pages/SupportPage.jsx"));
+const SupportTicketDetailsPage = lazy(() => import("./pages/SupportTicketDetailsPage.jsx"));
+const SocialPortfolioPage = lazy(() => import("./pages/SocialPortfolioPage.jsx"));
+const ProgrammeCoursePage = lazy(() => import("./pages/ProgrammeCoursePage.jsx"));
+const CourseHomePage = lazy(() => import("./pages/CourseHomePage.jsx"));
+const GoogleAuthCallback = lazy(() => import("./pages/GoogleAuthCallback.jsx"));
+const OurCoursesPage = lazy(() => import("./pages/OurCoursesPage.jsx"));
+const LiveStudentPage = lazy(() => import("./live/LiveStudentPage.jsx"));
 
 const GradusXRedirect = () => {
   const { course } = useParams();
@@ -75,156 +76,158 @@ function App() {
       <HelpLauncher />
       <GoogleOneTap />
 
-      <Routes>
-        <Route exact path='/' element={<HomePageOne />} />
-        <Route exact path='/about-us' element={<AboutPage />} />
-        <Route exact path='/know-CFL' element={<KnowCFLPage />} />
-        <Route exact path='/apply-admission' element={<ApplyAdmissionPage />} />
-        <Route exact path='/blogs' element={<BlogPage />} />
-        <Route exact path='/blogs/:slug' element={<BlogDetailsPage />} />
-        <Route
-          exact
-          path='/book-online-class'
-          element={<BookOnlineClassPage />}
-        />
-        <Route exact path='/cart' element={<CartPage />} />
-        <Route exact path='/checkout' element={<CheckoutPage />} />
-        <Route exact path='/contact' element={<ContactPage />} />
-        <Route exact path='/course-grid-view' element={<Navigate to='/our-courses' replace />} />
-        <Route exact path='/our-courses' element={<OurCoursesPage />} />
-        { /* Programmes page removed */ }
-        <Route exact path='/course-list-view' element={<Navigate to='/our-courses' replace />} />
-        <Route exact path='/course-details' element={<CourseDetailsPage />} />
-        
-        <Route exact path='/events' element={<EventsPage />} />
-        <Route exact path='/events/:slug' element={<EventDetailsPage />} />
-        <Route exact path='/event-details/:slug?' element={<EventDetailsPage />} />
-        { /* FAQ page removed */ }
-        <Route
-          exact
-          path='/my-courses'
-          element={
-            <RequireAuth>
-              <MyCoursesPage />
-            </RequireAuth>
-          }
-        />
-        <Route
-          exact
-          path='/support'
-          element={
-            <RequireAuth>
-              <SupportPage />
-            </RequireAuth>
-          }
-        />
-        <Route
-          exact
-          path='/support/:id'
-          element={
-            <RequireAuth>
-              <SupportTicketDetailsPage />
-            </RequireAuth>
-          }
-        />
-        <Route exact path='/favorite-course' element={<Navigate to='/my-courses' replace />} />
-        <Route exact path='/find-tutors' element={<FindTutorsPage />} />
-        <Route exact path='/gallery' element={<GalleryPage />} />
-        <Route exact path='/instructor' element={<Navigate to='/our-courses' replace />} />
-        <Route exact path='/instructor-details' element={<Navigate to='/our-courses' replace />} />
-        <Route exact path='/instructor-two' element={<Navigate to='/our-courses' replace />} />
-        <Route exact path='/lesson-details' element={<LessonDetailsPage />} />
-        <Route exact path='/pricing-plan' element={<PricingPlanPage />} />
-        <Route exact path='/privacy-policy' element={<PrivacyPolicyPage />} />
-        <Route
-          exact
-          path='/candidates-interns'
-          element={<CandidatesAndInternsPage />}
-        />
-        <Route
-          exact
-          path='/employee-alumni'
-          element={<EmployeeAndAlumniPage />}
-        />
-        <Route
-          exact
-          path='/investors'
-          element={<InvestorsPrivacyPage />}
-        />
-        <Route
-          exact
-          path='/shareholders'
-          element={<ShareholdersPrivacyPage />}
-        />
-        <Route
-          exact
-          path='/visitor-policy'
-          element={<VisitorPolicyPage />}
-        />
-        <Route
-          exact
-          path='/vendors'
-          element={<VendorsPrivacyPage />}
-        />
-        <Route
-          exact
-          path='/cancellation-refunds'
-          element={<CancellationRefundsPage />}
-        />
-        <Route
-          exact
-          path='/terms-and-conditions'
-          element={<TermsConditionsPage />}
-        />
-        <Route exact path='/product' element={<ProductPage />} />
-        <Route exact path='/product-details' element={<ProductDetailsPage />} />
-        <Route exact path='/sign-in' element={<SignInPage />} />
-        <Route exact path='/forgot-password' element={<ForgotPasswordPage />} />
-        <Route exact path='/sign-up' element={<SignUpPage />} />
-        <Route exact path='/auth/google/callback' element={<GoogleAuthCallback />} />
-        <Route
-          exact
-          path='/profile'
-          element={
-            <RequireAuth>
-              <ProfilePage />
-            </RequireAuth>
-          }
-        />
-        <Route
-          exact
-          path='/payment'
-          element={
-            <RequireAuth>
-              <CoursePaymentPage />
-            </RequireAuth>
-          }
-        />
-        <Route exact path='/tuition-jobs' element={<TuitionJobsPage />} />
-        <Route exact path='/tutor' element={<TutorPage />} />
-        <Route exact path='/tutor-details' element={<TutorDetailsPage />} />
-        <Route exact path='/social' element={<SocialPortfolioPage />} />
-        {/* Canonicalize old programme slug to hyphenated version */}
-        <Route path='/gradusx/:course' element={<GradusXRedirect />} />
-        <Route
-          path='/:programme/:course/home/:section?/:subSection?'
-          element={
-            <RequireAuth>
-              <CourseHomePage />
-            </RequireAuth>
-          }
-        />
-        <Route
-          exact
-          path='/live/:sessionId'
-          element={
-            <RequireAuth>
-              <LiveStudentPage />
-            </RequireAuth>
-          }
-        />
-        <Route path='/:programme/:course' element={<ProgrammeCoursePage />} />
-      </Routes>
+      <Suspense fallback={<div className='page-loading'>Loading...</div>}>
+        <Routes>
+          <Route exact path='/' element={<HomePageOne />} />
+          <Route exact path='/about-us' element={<AboutPage />} />
+          <Route exact path='/know-CFL' element={<KnowCFLPage />} />
+          <Route exact path='/apply-admission' element={<ApplyAdmissionPage />} />
+          <Route exact path='/blogs' element={<BlogPage />} />
+          <Route exact path='/blogs/:slug' element={<BlogDetailsPage />} />
+          <Route
+            exact
+            path='/book-online-class'
+            element={<BookOnlineClassPage />}
+          />
+          <Route exact path='/cart' element={<CartPage />} />
+          <Route exact path='/checkout' element={<CheckoutPage />} />
+          <Route exact path='/contact' element={<ContactPage />} />
+          <Route exact path='/course-grid-view' element={<Navigate to='/our-courses' replace />} />
+          <Route exact path='/our-courses' element={<OurCoursesPage />} />
+          { /* Programmes page removed */ }
+          <Route exact path='/course-list-view' element={<Navigate to='/our-courses' replace />} />
+          <Route exact path='/course-details' element={<CourseDetailsPage />} />
+          
+          <Route exact path='/events' element={<EventsPage />} />
+          <Route exact path='/events/:slug' element={<EventDetailsPage />} />
+          <Route exact path='/event-details/:slug?' element={<EventDetailsPage />} />
+          { /* FAQ page removed */ }
+          <Route
+            exact
+            path='/my-courses'
+            element={
+              <RequireAuth>
+                <MyCoursesPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            exact
+            path='/support'
+            element={
+              <RequireAuth>
+                <SupportPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            exact
+            path='/support/:id'
+            element={
+              <RequireAuth>
+                <SupportTicketDetailsPage />
+              </RequireAuth>
+            }
+          />
+          <Route exact path='/favorite-course' element={<Navigate to='/my-courses' replace />} />
+          <Route exact path='/find-tutors' element={<FindTutorsPage />} />
+          <Route exact path='/gallery' element={<GalleryPage />} />
+          <Route exact path='/instructor' element={<Navigate to='/our-courses' replace />} />
+          <Route exact path='/instructor-details' element={<Navigate to='/our-courses' replace />} />
+          <Route exact path='/instructor-two' element={<Navigate to='/our-courses' replace />} />
+          <Route exact path='/lesson-details' element={<LessonDetailsPage />} />
+          <Route exact path='/pricing-plan' element={<PricingPlanPage />} />
+          <Route exact path='/privacy-policy' element={<PrivacyPolicyPage />} />
+          <Route
+            exact
+            path='/candidates-interns'
+            element={<CandidatesAndInternsPage />}
+          />
+          <Route
+            exact
+            path='/employee-alumni'
+            element={<EmployeeAndAlumniPage />}
+          />
+          <Route
+            exact
+            path='/investors'
+            element={<InvestorsPrivacyPage />}
+          />
+          <Route
+            exact
+            path='/shareholders'
+            element={<ShareholdersPrivacyPage />}
+          />
+          <Route
+            exact
+            path='/visitor-policy'
+            element={<VisitorPolicyPage />}
+          />
+          <Route
+            exact
+            path='/vendors'
+            element={<VendorsPrivacyPage />}
+          />
+          <Route
+            exact
+            path='/cancellation-refunds'
+            element={<CancellationRefundsPage />}
+          />
+          <Route
+            exact
+            path='/terms-and-conditions'
+            element={<TermsConditionsPage />}
+          />
+          <Route exact path='/product' element={<ProductPage />} />
+          <Route exact path='/product-details' element={<ProductDetailsPage />} />
+          <Route exact path='/sign-in' element={<SignInPage />} />
+          <Route exact path='/forgot-password' element={<ForgotPasswordPage />} />
+          <Route exact path='/sign-up' element={<SignUpPage />} />
+          <Route exact path='/auth/google/callback' element={<GoogleAuthCallback />} />
+          <Route
+            exact
+            path='/profile'
+            element={
+              <RequireAuth>
+                <ProfilePage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            exact
+            path='/payment'
+            element={
+              <RequireAuth>
+                <CoursePaymentPage />
+              </RequireAuth>
+            }
+          />
+          <Route exact path='/tuition-jobs' element={<TuitionJobsPage />} />
+          <Route exact path='/tutor' element={<TutorPage />} />
+          <Route exact path='/tutor-details' element={<TutorDetailsPage />} />
+          <Route exact path='/social' element={<SocialPortfolioPage />} />
+          {/* Canonicalize old programme slug to hyphenated version */}
+          <Route path='/gradusx/:course' element={<GradusXRedirect />} />
+          <Route
+            path='/:programme/:course/home/:section?/:subSection?'
+            element={
+              <RequireAuth>
+                <CourseHomePage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            exact
+            path='/live/:sessionId'
+            element={
+              <RequireAuth>
+                <LiveStudentPage />
+              </RequireAuth>
+            }
+          />
+          <Route path='/:programme/:course' element={<ProgrammeCoursePage />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

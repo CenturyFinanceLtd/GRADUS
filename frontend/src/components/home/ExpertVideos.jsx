@@ -13,6 +13,7 @@ const ExpertVideos = () => {
   const touchLatestX = useRef(null);
   const touchActive = useRef(false);
   const { ref: viewRef, inView } = useInView({ threshold: 0.35 });
+  const panelId = "expert-video-panel";
 
   useEffect(() => {
     let isMounted = true;
@@ -155,6 +156,10 @@ const ExpertVideos = () => {
             <div className="expert-video-card is-current">
               <div
                 className="expert-video-current-wrapper"
+                id={panelId}
+                role="tabpanel"
+                aria-live="polite"
+                aria-label={currentVideo?.title || "Expert video"}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
@@ -215,8 +220,12 @@ const ExpertVideos = () => {
                 key={video.id || idx}
                 type="button"
                 className={`expert-indicator${idx === index ? " is-active" : ""}`}
+                role="tab"
                 aria-label={`Show expert video ${video.title || idx + 1}`}
+                aria-selected={idx === index}
                 aria-pressed={idx === index}
+                aria-controls={panelId}
+                tabIndex={idx === index ? 0 : -1}
                 onClick={() => goToIndex(idx)}
               />
             ))}

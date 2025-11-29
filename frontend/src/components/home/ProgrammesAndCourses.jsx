@@ -409,7 +409,7 @@ const ProgrammesAndCourses = () => {
                         ) : null}
                         <div className='programme-card__body'>
                           <p className='programme-card__schedule text-sm'>{course.scheduleLabel}</p>
-                          <h5 className='programme-card__title'>{course.title}</h5>
+                          <h3 className='programme-card__title'>{course.title}</h3>
                           <p className='programme-card__summary text-sm'>{course.summary}</p>
                           <div className='programme-card__footer'>
                             <div className='programme-card__price'>

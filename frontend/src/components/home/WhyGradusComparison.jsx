@@ -103,10 +103,18 @@ const WhyGradusComparison = () => {
               {FEATURES.map((feature) => (
                 <li className="compare-card__row" key={`compare-${feature}`}>
                   <span className="visually-hidden">{feature}</span>
-                  <span className="compare-card__icon is-positive" aria-label={`Gradus offers ${feature}`}>
+                  <span
+                    className="compare-card__icon is-positive"
+                    role="img"
+                    aria-label={`Gradus offers ${feature}`}
+                  >
                     <CheckIcon />
                   </span>
-                  <span className="compare-card__icon is-negative" aria-label={`Other platforms lack ${feature}`}>
+                  <span
+                    className="compare-card__icon is-negative"
+                    role="img"
+                    aria-label={`Other platforms lack ${feature}`}
+                  >
                     <CrossIcon />
                   </span>
                 </li>

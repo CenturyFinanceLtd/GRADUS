@@ -192,13 +192,16 @@ const BannerOne = () => {
           [data-variant="${variant}-banner"] .slick-list { padding-bottom: 0 !important; }
         `}</style>
         <Slider {...sliderSettings} className='only-image-slider'>
-          {resolvedSlides.map((item) => {
+          {resolvedSlides.map((item, idx) => {
+            const isFirstSlide = idx === 0;
             const image = (
               <img
                 src={item.src}
                 alt={item.title || "Gradus banner"}
                 className='banner-img-only'
-                loading='lazy'
+                loading={isFirstSlide ? "eager" : "lazy"}
+                fetchpriority={isFirstSlide ? "high" : "auto"}
+                decoding='async'
                 onLoad={() => setHeroReady(true)}
               />
             );
