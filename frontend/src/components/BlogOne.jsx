@@ -161,7 +161,7 @@ const BlogOne = () => {
                 >
                   <div className='blog-item scale-hover-item bg-main-25 rounded-16 p-12 h-100 border border-neutral-30'>
                     <div className='rounded-12 overflow-hidden position-relative'>
-                      <Link to={`/blogs/${blog.slug}`} className='w-100 h-100 d-block'>
+                      <Link to={`/blog/${blog.slug}`} className='w-100 h-100 d-block'>
                         <img
                           src={blog.featuredImage}
                           alt={blog.title}
@@ -175,7 +175,7 @@ const BlogOne = () => {
                           {blog.category}
                         </span>
                         <h4 className='mb-28'>
-                          <Link to={`/blogs/${blog.slug}`} className='link text-line-2'>
+                          <Link to={`/blog/${blog.slug}`} className='link text-line-2'>
                             {blog.title}
                           </Link>
                         </h4>
@@ -205,7 +205,7 @@ const BlogOne = () => {
                       </div>
                       <div className='pt-24 border-top border-neutral-50 mt-28 border-dashed border-0'>
                         <Link
-                          to={`/blogs/${blog.slug}`}
+                          to={`/blog/${blog.slug}`}
                           className='flex-align gap-8 text-main-600 hover-text-decoration-underline transition-1 fw-semibold'
                           tabIndex={0}
                         >

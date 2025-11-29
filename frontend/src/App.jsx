@@ -67,6 +67,11 @@ const GradusXRedirect = () => {
   return <Navigate to={`/gradus-x/${course}`} replace />;
 };
 
+const BlogSlugRedirect = () => {
+  const { slug } = useParams();
+  return <Navigate to={`/blog/${slug}`} replace />;
+};
+
 function App() {
   return (
     <BrowserRouter>
@@ -83,7 +88,8 @@ function App() {
           <Route exact path='/know-CFL' element={<KnowCFLPage />} />
           <Route exact path='/apply-admission' element={<ApplyAdmissionPage />} />
           <Route exact path='/blogs' element={<BlogPage />} />
-          <Route exact path='/blogs/:slug' element={<BlogDetailsPage />} />
+          <Route exact path='/blog/:slug' element={<BlogDetailsPage />} />
+          <Route exact path='/blogs/:slug' element={<BlogSlugRedirect />} />
           <Route
             exact
             path='/book-online-class'

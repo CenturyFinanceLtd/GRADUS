@@ -148,7 +148,7 @@ const BlogGridInner = () => {
               <div key={blog.id} className='col-lg-4 col-sm-6'>
                 <div className='scale-hover-item bg-main-25 rounded-16 p-12 h-100 border border-neutral-30'>
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
-                    <Link to={`/blogs/${blog.slug}`} className='w-100 h-100 d-block'>
+                    <Link to={`/blog/${blog.slug}`} className='w-100 h-100 d-block'>
                       <img
                         src={blog.featuredImage}
                         alt={blog.title}
@@ -163,7 +163,7 @@ const BlogGridInner = () => {
                   <div className='pt-32 pb-24 px-16 position-relative'>
                     <h4 className='mb-28'>
                       <Link
-                        to={`/blogs/${blog.slug}`}
+                        to={`/blog/${blog.slug}`}
                         className='link text-line-2 text-start text-main-600 hover-text-decoration-underline'
                       >
                         {blog.title}
@@ -194,7 +194,7 @@ const BlogGridInner = () => {
                     </div>
                     <div className='flex-between gap-8 pt-24 border-top border-neutral-50 mt-28 border-dashed border-0'>
                       <Link
-                        to={`/blogs/${blog.slug}`}
+                        to={`/blog/${blog.slug}`}
                         className='flex-align gap-8 text-main-600 hover-text-decoration-underline transition-1 fw-semibold'
                       >
                         Read More

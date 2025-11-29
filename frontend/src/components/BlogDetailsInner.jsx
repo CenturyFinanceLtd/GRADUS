@@ -580,7 +580,7 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
                       return (
                         <div key={recent.id} className='d-flex gap-12 align-items-start blog-details__recent-item'>
                           <Link
-                            to={`/blogs/${recent.slug}`}
+                            to={`/blog/${recent.slug}`}
                             className='blog__thumb radius-12 overflow-hidden flex-shrink-0 blog-details__recent-thumb'
                           >
                             <img src={image} alt={recent.title} className='w-100 h-100 object-fit-cover' />
@@ -588,7 +588,7 @@ const BlogDetailsInner = ({ onBlogLoaded }) => {
                           <div className='blog__content flex-grow-1'>
                             <h6 className='mb-8'>
                               <Link
-                                to={`/blogs/${recent.slug}`}
+                                to={`/blog/${recent.slug}`}
                                 className='text-line-2 text-hover-primary-600 text-md transition-2'
                               >
                                 {recent.title}

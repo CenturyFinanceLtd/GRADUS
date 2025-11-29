@@ -47,19 +47,25 @@ const humanizeSlug = (value = "") =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
 
+const blogMetaResolver = ({ params }) => {
+  const titleSegment = humanizeSlug(params?.slug || "");
+  return {
+    title: titleSegment ? `${titleSegment} | Gradus Blog` : "Gradus Blog Article",
+    description: titleSegment
+      ? `Explore ${titleSegment} on the Gradus blog for expert opinions and practical tips.`
+      : "Read Gradus India's latest blog article covering education, careers, and learning strategies.",
+    keywords: `${titleSegment}, Gradus blog, Gradus article`,
+  };
+};
+
 const DYNAMIC_META_RESOLVERS = [
   {
+    pattern: "/blog/:slug",
+    resolve: blogMetaResolver,
+  },
+  {
     pattern: "/blogs/:slug",
-    resolve: ({ params }) => {
-      const titleSegment = humanizeSlug(params?.slug || "");
-      return {
-        title: titleSegment ? `${titleSegment} | Gradus Blog` : "Gradus Blog Article",
-        description: titleSegment
-          ? `Explore ${titleSegment} on the Gradus blog for expert opinions and practical tips.`
-          : "Read Gradus India's latest blog article covering education, careers, and learning strategies.",
-        keywords: `${titleSegment}, Gradus blog, Gradus article`,
-      };
-    },
+    resolve: blogMetaResolver,
   },
   {
     pattern: "/events/:slug",
