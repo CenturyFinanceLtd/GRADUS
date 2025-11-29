@@ -965,7 +965,7 @@ img {
 @media (min-width: 1200px) {
   /* Place dots higher within banner on large screens */
   .only-image-slider .slick-dots {
-    bottom: 4% !important;
+    bottom: 2% !important;
   } /* Pull the next section upward by percentage on large screens */
   .info-two {
     margin-top: -6% !important;
