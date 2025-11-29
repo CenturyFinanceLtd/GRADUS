@@ -306,7 +306,9 @@ const ContactInner = () => {
                 <div>
                   <p className='contact-info-label mb-4'>Office</p>
                   <p className='contact-info-address mb-0'>
+                    <a href="https://maps.app.goo.gl/2jtGiSHycyszPXc66">
                     1st floor, Southern Park, D-2,<br/> District Centre, Saket, New Delhi, 110017
+                    </a>
                   </p>
                 </div>
               </div>
@@ -495,7 +497,6 @@ const ContactInner = () => {
                   <p className='contact-helper mb-0'>Submit the form we will reach you soon</p>
                   <button type='submit' className='btn btn-main flex-center gap-8' disabled={submitting}>
                     {submitting ? "Submitting..." : "Submit"}
-                    <i className='ph-bold ph-arrow-up-right d-flex text-lg' />
                   </button>
                 </div>
               </div>
