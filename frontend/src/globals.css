@@ -12117,6 +12117,13 @@ ul.footer-menu {
 @media (max-width: 767.98px) {
   .gradus-footer__grid {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  .gradus-footer__group {
+    margin: 0;
+  }
+  .gradus-footer__group + .gradus-footer__group {
+    margin-top: 0;
   }
   .gradus-footer__cta-row {
     flex-direction: column;
@@ -12135,13 +12142,24 @@ ul.footer-menu {
     flex-direction: column;
     align-items: flex-start;
   }
+  .gradus-footer__meta {
+    padding-top: 0.75rem;
+    margin-top: 0.75rem;
+  }
+  .gradus-footer__copyright {
+    font-size: 0.82rem;
+    line-height: 1.35;
+  }
   .gradus-footer__accordion {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 0.6rem;
-    margin-bottom: 0.6rem;
+    padding-block: 0.4rem;
+    margin-bottom: 0.35rem;
   }
   .gradus-footer__accordion i {
     display: inline-flex;
+  }
+  .gradus-footer__accordion-panel {
+    padding-top: 0.5rem;
   }
   .gradus-footer__accordion-panel[hidden] {
     display: none;
