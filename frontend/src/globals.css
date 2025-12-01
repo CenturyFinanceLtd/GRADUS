@@ -12130,7 +12130,7 @@ ul.footer-menu {
     align-items: stretch;
   }
   .gradus-footer__social--cta {
-    justify-content: flex-start;
+    justify-content: space-evenly;
   }
   .gradus-footer__newsletter-form {
     border-radius: 24px;
@@ -12149,6 +12149,13 @@ ul.footer-menu {
   .gradus-footer__copyright {
     font-size: 0.82rem;
     line-height: 1.35;
+  }
+  .gradus-footer__legal {
+    gap: 0.76rem;
+    font-size: 0.9rem;
+  }
+  .gradus-footer__legal .gradus-footer__link {
+    font-size: 0.56rem;
   }
   .gradus-footer__accordion {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
