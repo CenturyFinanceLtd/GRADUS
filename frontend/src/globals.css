@@ -12143,11 +12143,14 @@ ul.footer-menu {
     align-items: flex-start;
   }
   .gradus-footer__meta {
-    padding-top: 0.75rem;
-    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
   }
   .gradus-footer__copyright {
-    font-size: 0.82rem;
+    font-size: 0.72rem;
     line-height: 1.35;
   }
   .gradus-footer__legal {
@@ -12155,7 +12158,7 @@ ul.footer-menu {
     font-size: 0.9rem;
   }
   .gradus-footer__legal .gradus-footer__link {
-    font-size: 0.56rem;
+    font-size: 0.46rem;
   }
   .gradus-footer__accordion {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
