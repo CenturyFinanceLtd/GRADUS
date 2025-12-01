@@ -12119,6 +12119,16 @@ ul.footer-menu {
     grid-template-columns: 1fr;
     gap: 0.75rem;
   }
+  .gradus-footer__column--company {
+    grid-column: span 1;
+    max-width: none;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+    text-align: left;
+  }
   .gradus-footer__group {
     margin: 0;
   }

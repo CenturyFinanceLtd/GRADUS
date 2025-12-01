@@ -67,7 +67,7 @@ const CourseInsight = () => {
         .course-insight-card {
           height: 100%;
           background: #fff;
-          border-radius: 18px;
+          border-radius: 10px;
           padding: 24px 20px;
           text-align: center;
           box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
@@ -92,10 +92,11 @@ const CourseInsight = () => {
         }
         @media (max-width: 575.98px) {
           .course-insight-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
           }
           .course-insight-card {
             padding: 20px 16px;
+            gap: 4px;
           }
         }
       `}</style>

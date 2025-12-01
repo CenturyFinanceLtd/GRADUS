@@ -137,7 +137,7 @@ const VideoTestimonials = () => {
         settings: {
           slidesToShow: 1,
           centerMode: true,
-          centerPadding: "48px",
+          centerPadding: "24px",
           swipeToSlide: true,
           arrows: false,
           infinite: true,
@@ -148,7 +148,7 @@ const VideoTestimonials = () => {
         settings: {
           slidesToShow: 1,
           centerMode: true,
-          centerPadding: "34px",
+          centerPadding: "0px",
           swipeToSlide: true,
           arrows: false,
           infinite: true,
@@ -170,10 +170,60 @@ const VideoTestimonials = () => {
       100% { background-position: -200% 0; }
     }
   `;
+  const mobileHeroStyles = `
+    @media (max-width: 575.98px) {
+      .video-testimonials-section {
+        background: linear-gradient(180deg, #e6f2f8 0%, #eef5fb 55%, #f7fbff 100%);
+        padding-top: 48px;
+        padding-bottom: 48px;
+      }
+      .video-testimonials-section .container {
+        max-width: none;
+        padding-inline: 0;
+      }
+      .video-testimonials-section .row {
+        margin: 0;
+      }
+      .video-testimonials-section .row > div {
+        padding-inline: 20px;
+      }
+      .video-reels-slider .slick-list {
+        overflow: visible;
+      }
+      .video-reels-slider .slick-slide {
+        transition: transform 0.25s ease, opacity 0.25s ease;
+      }
+      .video-reels-slider .slick-slide > div {
+        display: flex;
+        justify-content: center;
+        padding-inline: 0;
+      }
+      .video-testimonial-card {
+        max-width: 420px;
+        width: 92vw;
+        margin: 0 auto;
+        border-radius: 28px;
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+      }
+      .video-testimonial-card > div {
+        border-radius: 28px;
+      }
+      .video-testimonial-card::before {
+        content: "";
+        position: absolute;
+        inset: -16%;
+        background: radial-gradient(circle at 50% 20%, rgba(0, 150, 199, 0.35), rgba(0, 0, 0, 0.15));
+        filter: blur(26px);
+        z-index: -1;
+        border-radius: 32px;
+      }
+    }
+  `;
 
   return (
     <section className="video-testimonials-section py-64" ref={containerRef}>
-      <style>{skeletonKeyframes}</style>
+      <style>{skeletonKeyframes + mobileHeroStyles}</style>
       <div className="container">
         <div className="row justify-content-center text-center mb-24">
           <div className="col-xl-7 col-lg-8">
