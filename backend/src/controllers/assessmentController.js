@@ -388,15 +388,17 @@ const generateCourseAssessments = asyncHandler(async (req, res) => {
         const scopedCourseDetail = { modules: [{ ...task.module, weeklyStructure: [task.week] }] };
         let existingSet = await AssessmentSet.findOne({ courseSlug: course.slug, variant }).lean();
 
-        for (let i = 0; i < targetQuestionCount; i += 1) {
+        let generatedForTask = 0;
+        while (generatedForTask < targetQuestionCount) {
           const currentJob = await AssessmentJob.findById(job._id).lean();
           if (!currentJob || currentJob.status === 'cancelled') {
             break;
           }
+          const batchSize = Math.min(5, targetQuestionCount - generatedForTask); // generate in small batches for speed
           const pool = await buildQuestionPool({
             course,
             courseDetail: scopedCourseDetail,
-            targetQuestionCount: 1,
+            targetQuestionCount: batchSize,
             desiredLevel,
           });
           const { meta, questions, usage, model } = pool;
@@ -464,7 +466,8 @@ const generateCourseAssessments = asyncHandler(async (req, res) => {
             // Ignore duplicate key errors; continue generation.
           }
 
-          completed += 1;
+          generatedForTask += questions.length;
+          completed += questions.length;
           await AssessmentJob.findByIdAndUpdate(job._id, {
             completed,
             status: 'running',
@@ -826,4 +829,5 @@ module.exports = {
   submitAssessmentAttempt,
   deleteAssessmentSet,
   getAssessmentJobStatus,
+  cancelAssessmentJob,
 };

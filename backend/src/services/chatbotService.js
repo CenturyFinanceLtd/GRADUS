@@ -1,4 +1,4 @@
-const knowledgeBase = require('../data/chatbotKnowledge');
+ï»¿const knowledgeBase = require('../data/chatbotKnowledge');
 const Blog = require('../models/Blog');
 const BLOG_PUBLIC_BASE = (process.env.GRADUS_WEB_BASE_URL || 'https://gradusindia.in').replace(/\/\/+$/, '');
 const http = require('http');
@@ -423,7 +423,7 @@ const callOpenAI = async (messages) => {
     model,
     messages,
     temperature: 0.2,
-    max_tokens: 700,
+    
   };
 
   const response = await fetchImpl(`${baseUrl}/chat/completions`, {
@@ -518,7 +518,7 @@ const buildBlogContexts = async (query, limit = 3) => {
           context: {
             id: `blog-${blog.slug || blog._id}`,
             title: `Blog insight: ${blog.title}`,
-            content: `${formatPublished(blog.publishedAt)}${blog.category ? ` · ${blog.category}` : ''} — ${summary}${permalink ? ` (Read more: ${permalink})` : ''}`,
+            content: `${formatPublished(blog.publishedAt)}${blog.category ? ` Â· ${blog.category}` : ''} â€” ${summary}${permalink ? ` (Read more: ${permalink})` : ''}`,
             source: permalink,
             tags: Array.from(tagSet),
           },
@@ -950,6 +950,7 @@ const handleChatMessage = async ({ message, history, page }) => {
 module.exports = {
   handleChatMessage,
 };
+
 
 
 

@@ -184,12 +184,20 @@ const concatMessages = (messages = []) =>
 
 const callOpenAI = async (messages) => {
   const apiKey = process.env.OPENAI_API_KEY;
-  const model = process.env.OPENAI_CHAT_MODEL || 'gpt-5.1';
+  // Use highest quality available; override via OPENAI_CHAT_MODEL in .env
+  const model = process.env.OPENAI_CHAT_MODEL || 'gpt-4.1';
   const baseUrl = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
 
   if (!apiKey) {
     throw new Error('OPENAI_API_KEY is not configured for assessment generation.');
   }
+
+  const body = {
+    model,
+    messages,
+    temperature: 0.35,
+    response_format: { type: 'json_object' },
+  };
 
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
@@ -197,13 +205,7 @@ const callOpenAI = async (messages) => {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({
-      model,
-      messages,
-      temperature: 0.35,
-      max_tokens: 6000,
-      response_format: { type: 'json_object' },
-    }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {
