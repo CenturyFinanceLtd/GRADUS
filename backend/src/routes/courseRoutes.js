@@ -14,12 +14,15 @@ const {
   recordCourseProgress,
   streamLectureNotes,
 } = require('../controllers/courseController');
+const { getCourseAssessments } = require('../controllers/assessmentController');
 const { attachUserIfPresent, protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
 router.get('/page', attachUserIfPresent, getCoursePage);
 router.get('/', listCourses);
+router.get('/:programmeSlug/:courseSlug/assessments', attachUserIfPresent, getCourseAssessments);
+router.get('/:courseSlug/assessments', attachUserIfPresent, getCourseAssessments);
 router.get('/:programmeSlug/:courseSlug/progress', protect, getCourseProgress);
 router.post('/:programmeSlug/:courseSlug/progress', protect, recordCourseProgress);
 router.get('/:programmeSlug/:courseSlug/lectures/:lectureId/notes', protect, streamLectureNotes);

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { getAssessmentsForCourse } from "../data/assessments";
+import { getAssessmentsForCourse as getFallbackAssessmentsForCourse } from "../data/assessments";
+import { fetchAssessmentsForCourse } from "../services/assessmentService";
 
 const buildSession = (quizId, status = "idle") => ({
   quizId: quizId || null,
@@ -16,12 +17,34 @@ const formatPlural = (value, label) => {
   return `${safe} ${unit}`;
 };
 
-const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules = [] }) => {
-  const assessments = useMemo(
-    () => getAssessmentsForCourse({ courseSlug, programmeSlug }) || [],
+const buildGroupKey = (quiz) => {
+  const moduleIndex = Number(quiz.moduleIndex) || 0;
+  const weekIndex = Number(quiz.weekIndex) || 0;
+  return `${moduleIndex}-${weekIndex}`;
+};
+
+const buildGroupLabel = (quiz) => {
+  const moduleIndex = Number(quiz.moduleIndex) || 0;
+  const weekIndex = Number(quiz.weekIndex) || 0;
+  if (moduleIndex && weekIndex) {
+    return `Module ${moduleIndex} | Week ${weekIndex}`;
+  }
+  if (moduleIndex) {
+    return `Module ${moduleIndex}`;
+  }
+  return "All sets";
+};
+
+const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules = [], focusContext = null }) => {
+  const fallbackAssessments = useMemo(
+    () => getFallbackAssessmentsForCourse({ courseSlug, programmeSlug }) || [],
     [courseSlug, programmeSlug]
   );
+  const [assessments, setAssessments] = useState(fallbackAssessments);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [activeQuizId, setActiveQuizId] = useState(assessments[0]?.id || null);
+  const [groupFilter, setGroupFilter] = useState("all");
   const [session, setSession] = useState(() => buildSession(assessments[0]?.id));
   const [flashMessage, setFlashMessage] = useState("");
   const [tryItOpen, setTryItOpen] = useState(false);
@@ -30,15 +53,74 @@ const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules =
   const [tryItRunToken, setTryItRunToken] = useState(0);
 
   useEffect(() => {
-    const firstId = assessments[0]?.id || null;
+    let cancelled = false;
+    const loadAssessments = async () => {
+      setLoading(true);
+      setError("");
+      setAssessments(fallbackAssessments);
+      try {
+        const response = await fetchAssessmentsForCourse({ courseSlug, programmeSlug });
+        const items = Array.isArray(response?.items) ? response.items : [];
+        if (!cancelled) {
+          setAssessments(items.length ? items : fallbackAssessments);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err?.message || "Unable to load assessments right now.");
+          setAssessments(fallbackAssessments);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+    loadAssessments();
+    return () => {
+      cancelled = true;
+    };
+  }, [courseSlug, programmeSlug, fallbackAssessments]);
+
+  const groups = useMemo(() => {
+    const unique = new Map();
+    assessments.forEach((quiz) => {
+      const key = buildGroupKey(quiz);
+      const label = buildGroupLabel(quiz);
+      unique.set(key, label);
+    });
+    const entries = Array.from(unique.entries()).map(([key, label]) => ({ key, label }));
+    return [{ key: "all", label: "All sets" }, ...entries];
+  }, [assessments]);
+
+  useEffect(() => {
+    if (!focusContext) {
+      
+      return;
+    }
+    const moduleIndex = Number(focusContext.module) || 0;
+    const weekIndex = Number(focusContext.week) || 0;
+    if (moduleIndex || weekIndex) {
+      setGroupFilter(`${moduleIndex}-${weekIndex}`);
+    }
+  }, [focusContext]);
+
+  const filteredAssessments = useMemo(() => {
+    if (groupFilter === "all") {
+      return assessments;
+    }
+    return assessments.filter((quiz) => buildGroupKey(quiz) === groupFilter);
+  }, [assessments, groupFilter]);
+
+  useEffect(() => {
+    const firstId = filteredAssessments[0]?.id || null;
     setActiveQuizId(firstId);
     setSession(buildSession(firstId));
     setFlashMessage("");
-  }, [assessments]);
+  }, [filteredAssessments]);
 
   const activeQuiz = useMemo(
-    () => assessments.find((quiz) => quiz.id === activeQuizId) || null,
-    [assessments, activeQuizId]
+    () => filteredAssessments.find((quiz) => quiz.id === activeQuizId) || null,
+    [filteredAssessments, activeQuizId]
   );
   const activeQuestion = activeQuiz?.questions?.[session.currentIndex] || null;
   const totalQuestions = activeQuiz?.questions?.length || 0;
@@ -90,6 +172,10 @@ const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules =
   }, [modules]);
 
   const handleSelectQuiz = (quizId) => {
+    const target = filteredAssessments.find((quiz) => quiz.id === quizId) || assessments.find((quiz) => quiz.id === quizId);
+    if (target) {
+      setGroupFilter(buildGroupKey(target));
+    }
     setActiveQuizId(quizId);
     setSession(buildSession(quizId));
     setFlashMessage("");
@@ -205,6 +291,20 @@ const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules =
   };
 
   const tryItSrcDoc = useMemo(() => buildSrcDoc(tryItCode), [tryItCode, tryItRunToken]);
+  const isAIGenerated = useMemo(() => assessments.some((quiz) => quiz.source === "ai"), [assessments]);
+  const focusLabel = useMemo(() => {
+    if (!focusContext) {
+      return "";
+    }
+    const parts = [];
+    if (focusContext.moduleTitle || focusContext.module) {
+      parts.push(focusContext.moduleTitle || `Module ${focusContext.module}`);
+    }
+    if (focusContext.weekTitle || focusContext.week) {
+      parts.push(focusContext.weekTitle || `Week ${focusContext.week}`);
+    }
+    return parts.join(" - ");
+  }, [focusContext]);
 
   if (!assessments.length) {
     return (
@@ -216,10 +316,18 @@ const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules =
           </div>
         </div>
         <div className='course-home-empty text-center'>
-          <p className='text-neutral-700 fw-semibold mb-8'>No assessments yet for this course.</p>
-          <p className='text-neutral-600 mb-0'>
-            Add question sets to <code>frontend/src/data/assessments.js</code> to enable the quizzes.
-          </p>
+          {loading ? (
+            <>
+              <p className='text-neutral-700 fw-semibold mb-8'>Generating AI-powered questions...</p>
+              <p className='text-neutral-600 mb-0'>We are syncing assessments from your course content. Check back in a moment.</p>
+            </>
+          ) : (
+            <>
+              <p className='text-neutral-700 fw-semibold mb-8'>No assessments yet for this course.</p>
+              
+              {error ? <p className='text-danger small mt-8 mb-0'>{error}</p> : null}
+            </>
+          )}
         </div>
       </div>
     );
@@ -239,8 +347,30 @@ const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules =
           <span className='assessment-chip'>Instant feedback</span>
           <span className='assessment-chip'>Multiple choice</span>
           <span className='assessment-chip'>Auto-graded</span>
+          <span className='assessment-chip assessment-chip--ghost'>
+            {isAIGenerated ? "AI-generated" : "Sample set"}
+          </span>
         </div>
       </div>
+
+      {loading ? (
+        <p className='text-neutral-600 mb-12'>Syncing AI-generated questions for this course...</p>
+      ) : null}
+      {focusLabel ? (
+        <div
+          className='d-flex align-items-center justify-content-between gap-8 mb-12'
+          style={{ background: "#f7f9ff", border: "1px solid #dbe4ff", borderRadius: 12, padding: 12 }}
+        >
+          <div>
+            <p className='mb-2 fw-semibold text-neutral-800'>Linked from module</p>
+            <p className='mb-0 text-neutral-600'>{focusLabel}</p>
+          </div>
+          <span className='assessment-chip assessment-chip--ghost'>Focus</span>
+        </div>
+      ) : null}
+      {error ? (
+        <p className='text-danger mb-12 small'>Using fallback questions. {error}</p>
+      ) : null}
 
       <div className='assessment-layout'>
         <div className='assessment-runner'>
@@ -249,9 +379,15 @@ const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules =
               <p className='assessment-runner__eyebrow mb-4'>Active quiz</p>
               <h3 className='assessment-runner__title mb-2'>{activeQuiz?.title}</h3>
               <p className='text-neutral-600 mb-0'>
-                {courseName ? `${courseName} · ` : ""}
-                {formatPlural(totalQuestions, "question")} · {activeQuiz?.level}
+                {courseName ? `${courseName} - ` : ""}
+                {formatPlural(totalQuestions, "question")} - {activeQuiz?.level || "Mixed"}
               </p>
+              {(activeQuiz?.moduleIndex || activeQuiz?.weekIndex) ? (
+                <p className='text-neutral-600 mb-0 small'>
+                  {activeQuiz?.moduleIndex ? `Module ${activeQuiz.moduleIndex}` : ""}
+                  {activeQuiz?.weekIndex ? ` - Week ${activeQuiz.weekIndex}` : ""}
+                </p>
+              ) : null}
             </div>
             <div className='assessment-chip-row'>
               {activeQuiz?.tags?.map((tag) => (
@@ -432,10 +568,31 @@ const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules =
         </div>
 
         <aside className='assessment-sidebar'>
+          {groups.length > 1 ? (
+            <div className='assessment-sidebar__section'>
+              <p className='assessment-sidebar__eyebrow mb-8'>Filter by module/week</p>
+              <div className='d-flex flex-wrap gap-8'>
+                {groups.map((group) => {
+                  const isActive = group.key === groupFilter;
+                  return (
+                    <button
+                      key={group.key}
+                      type='button'
+                      className={`assessment-chip ${isActive ? "" : "assessment-chip--ghost"}`}
+                      onClick={() => setGroupFilter(group.key)}
+                    >
+                      {group.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
+
           <div className='assessment-sidebar__section'>
             <p className='assessment-sidebar__eyebrow mb-8'>Available sets</p>
             <div className='assessment-quiz-list'>
-              {assessments.map((quiz) => {
+              {filteredAssessments.map((quiz) => {
                 const isActive = quiz.id === activeQuizId;
                 return (
                   <button
@@ -447,8 +604,14 @@ const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules =
                     <div>
                       <p className='assessment-quiz__title mb-4'>{quiz.title}</p>
                       <p className='assessment-quiz__meta mb-0'>
-                        {formatPlural(quiz.questions?.length || 0, "question")} · {quiz.level}
+                        {formatPlural(quiz.questions?.length || 0, "question")} - {quiz.level}
                       </p>
+                      {(quiz.moduleIndex || quiz.weekIndex) ? (
+                        <p className='assessment-quiz__meta mb-0 small text-neutral-600'>
+                          {quiz.moduleIndex ? `Module ${quiz.moduleIndex}` : ""}
+                          {quiz.weekIndex ? ` - Week ${quiz.weekIndex}` : ""}
+                        </p>
+                      ) : null}
                     </div>
                     <i className='ph-bold ph-caret-right' aria-hidden='true' />
                   </button>
@@ -479,7 +642,7 @@ const AssessmentPanel = ({ courseSlug, programmeSlug, courseName = "", modules =
           <div className='assessment-sidebar__note'>
             <p className='mb-2 fw-semibold text-neutral-800'>Want more?</p>
             <p className='mb-0 text-neutral-600'>
-              Extend <code>assessments.js</code> with course-specific questions. The UI will auto-pick them per slug.
+              Generate fresh sets from Admin &gt; Assessments or add overrides in <code>frontend/src/data/assessments.js</code>.
             </p>
           </div>
         </aside>

@@ -530,6 +530,17 @@ const MasterLayout = ({ children }) => {
                 <span>Customize Courses</span>
               </NavLink>
             </li>
+            {(hasFullAccess || allowedPages.includes('course_assessments')) && (
+              <li>
+                <NavLink
+                  to='/course-assessments'
+                  className={(navData) => (navData.isActive ? "active-page" : "")}
+                >
+                  <Icon icon='mdi:clipboard-text-outline' className='menu-icon' />
+                  <span>Course Assessments</span>
+                </NavLink>
+              </li>
+            )}
             <li>
               <NavLink
                 to='/course-progress'

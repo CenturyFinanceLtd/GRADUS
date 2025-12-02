@@ -23,6 +23,7 @@
   // Courses management
   { key: 'courses_admin', label: 'Courses', path: '/courses-admin', category: 'Application' },
   { key: 'customize_courses', label: 'Customize Courses', path: '/customize-courses', category: 'Application' },
+  { key: 'course_assessments', label: 'Course Assessments', path: '/course-assessments', category: 'Application' },
   { key: 'course_progress', label: 'Course Progress', path: '/course-progress', category: 'Application' },
   { key: 'course_enrollments', label: 'Course Enrollments', path: '/course-enrollments', category: 'Application' },
   { key: 'live_classes', label: 'Go Live', path: '/live/classes', category: 'Application' },

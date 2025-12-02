@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import HeaderOne from "../components/HeaderOne";
 import FooterOne from "../components/FooterOne";
 import Animation from "../helper/Animation";
@@ -167,6 +167,18 @@ const normalizeAssignmentUploads = (items = [], fallbackPrefix = "Assignment") =
       return null;
     })
     .filter(Boolean);
+};
+
+const getGlobalWeekNumber = (modules = [], moduleIndex = 0, weekIndex = 0) => {
+  if (!Array.isArray(modules)) {
+    return weekIndex + 1;
+  }
+  let offset = 0;
+  for (let i = 0; i < moduleIndex; i += 1) {
+    const weeks = Array.isArray(modules[i]?.weeklyStructure) ? modules[i].weeklyStructure.length : 0;
+    offset += weeks || 0;
+  }
+  return offset + weekIndex + 1;
 };
 
 const normalizeLectureItems = (items) => {
@@ -1213,6 +1225,7 @@ const CourseHomePage = () => {
     useParams();
   const { token, loading: authLoading, user: authUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const sectionFromUrl = useMemo(
     () => resolveSectionFromSlug(sectionSlugParam),
     [sectionSlugParam]
@@ -1279,6 +1292,19 @@ const CourseHomePage = () => {
   }, [modules]);
   const moduleSelectorRef = useRef(null);
   const [progressState, setProgressState] = useState({ loading: false, data: {} });
+  const isLectureCompleted = useCallback(
+    (lecture) => {
+      if (!lecture) {
+        return false;
+      }
+      const lectureId = lecture.lectureId;
+      const lectureProgress = lectureId ? progressState.data[lectureId] : null;
+      const completionRatio = lectureProgress?.completionRatio || 0;
+      return Boolean(lectureProgress?.completedAt) || completionRatio >= VIDEO_COMPLETION_THRESHOLD;
+    },
+    [progressState.data]
+  );
+  const [assessmentFocus, setAssessmentFocus] = useState(null);
   const [currentLectureMeta, setCurrentLectureMeta] = useState(null);
   const [resumePositionSeconds, setResumePositionSeconds] = useState(0);
   const playerContainerRef = useRef(null);
@@ -1298,6 +1324,27 @@ const CourseHomePage = () => {
     }
     return parsed - 1;
   }, [sectionFromUrl, sectionDetailParam]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search || "");
+    const rawModule = Number(params.get("module"));
+    const rawWeek = Number(params.get("week"));
+    const hasModule = Number.isFinite(rawModule) && rawModule > 0;
+    const hasWeek = Number.isFinite(rawWeek) && rawWeek > 0;
+    if (hasModule || hasWeek) {
+      const moduleTitle = hasModule ? modules[rawModule - 1]?.title : "";
+      const weekTitle =
+        hasModule && hasWeek && modules[rawModule - 1]?.weeklyStructure?.[rawWeek - 1]?.title;
+      setAssessmentFocus({
+        module: hasModule ? rawModule : null,
+        week: hasWeek ? rawWeek : null,
+        moduleTitle: moduleTitle || (hasModule ? `Module ${rawModule}` : ""),
+        weekTitle: weekTitle || (hasWeek ? `Week ${rawWeek}` : ""),
+      });
+    } else {
+      setAssessmentFocus(null);
+    }
+  }, [location.search, modules]);
 
   useEffect(() => {
     setActiveSection(sectionFromUrl);
@@ -1904,6 +1951,21 @@ const CourseHomePage = () => {
       handleModuleClick(moduleIndex);
     }
   };
+  const handleWeekAssessmentClick = (moduleIndex, weekIndex, weekTitle, moduleTitle) => {
+    const moduleNumber = moduleIndex + 1;
+    const weekNumber = weekIndex + 1;
+    const params = new URLSearchParams();
+    params.set("module", moduleNumber);
+    params.set("week", weekNumber);
+    setActiveSection("assessments");
+    setAssessmentFocus({
+      module: moduleNumber,
+      week: weekNumber,
+      moduleTitle: moduleTitle || `Module ${moduleNumber}`,
+      weekTitle: weekTitle || `Week ${weekNumber}`,
+    });
+    navigate(`/${programme}/${course}/home/assessments?${params.toString()}`);
+  };
   const checkActiveLiveSession = useCallback(async () => {
     if (!isEnrolled || !token || courseLookupKeys.length === 0) {
       setLiveSessionState({ checking: false, session: null, error: null });
@@ -2445,11 +2507,20 @@ const CourseHomePage = () => {
             <div className='course-module-weeks'>
               {weeklyStructure.map((week, weekIdx) => {
                 const weekNotes = normalizeWeekNotes(week.notes);
+                const lecturesInWeek = Array.isArray(week.lectures) ? week.lectures : [];
+                const completedLectures = lecturesInWeek.reduce(
+                  (count, lecture) => count + (isLectureCompleted(lecture) ? 1 : 0),
+                  0
+                );
+                const totalLectures = lecturesInWeek.length;
+                const isWeekUnlocked = totalLectures > 0 && completedLectures === totalLectures;
+                const weekNumber = getGlobalWeekNumber(modules, safeIndex, weekIdx);
+                const weekTitle = week.title || `Week ${weekNumber}`;
                 return (
                   <div key={`module-${safeIndex}-week-${weekIdx}`} className='course-module-week'>
                   <div className='course-module-week__header'>
                     <div>
-                      <p className='course-module-week__title'>{week.title || `Week ${weekIdx + 1}`}</p>
+                      <p className='course-module-week__title'>{weekTitle}</p>
                       {week.subtitle ? (
                         <span className='course-module-week__subtitle'>{week.subtitle}</span>
                       ) : null}
@@ -2597,13 +2668,54 @@ const CourseHomePage = () => {
                           return (
                             <span key={key} className='course-module-week__note-chip is-static'>
                               <i className='ph-bold ph-note' aria-hidden='true' />
-                              <span>{note.label}</span>
-                            </span>
-                          );
-                        })}
-                      </div>
+                          <span>{note.label}</span>
+                        </span>
+                      );
+                    })}
                     </div>
+                  </div>
                   ) : null}
+                  <div
+                    className='course-module-week__assessment-cta'
+                    style={{
+                      border: "1px dashed #d7e3ff",
+                      background: "#f7f9ff",
+                      borderRadius: 12,
+                      padding: 16,
+                      marginTop: 12,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 12,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <div>
+                      <p className='mb-4 fw-semibold text-neutral-800'>Assessment checkpoint</p>
+                      <p className='mb-0 text-neutral-600'>
+                        {isWeekUnlocked
+                          ? "Test yourself on this week's concepts before moving on."
+                          : totalLectures
+                          ? `Complete all ${totalLectures} lecture${totalLectures === 1 ? "" : "s"} to unlock the assessment.`
+                          : "Watch this week's lectures to unlock the assessment."}
+                      </p>
+                    </div>
+                    <button
+                      type='button'
+                      className='btn btn-main'
+                      disabled={!isWeekUnlocked}
+                      onClick={() =>
+                        handleWeekAssessmentClick(
+                          safeIndex,
+                          weekIdx,
+                          weekTitle,
+                          module.title || `Module ${safeIndex + 1}`
+                        )
+                      }
+                    >
+                      {isWeekUnlocked ? "Go to assessment" : "Locked"}
+                    </button>
+                  </div>
                 </div>
               );
             })}
@@ -2949,6 +3061,7 @@ const CourseHomePage = () => {
             programmeSlug={programme}
             courseName={prettyCourseName}
             modules={modules}
+            focusContext={assessmentFocus}
           />
         );
       case "resources":
