@@ -1,9 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import MasterLayout from "../masterLayout/MasterLayout";
 import PageTitle from "../components/PageTitle";
 import { listAdminCourses } from "../services/adminCourses";
 import { fetchCourseDetail } from "../services/adminCourseDetails";
-import { generateAssessment, listAssessments } from "../services/adminAssessments";
+import {
+  deleteAssessmentSet,
+  generateAssessment,
+  listAssessments,
+  uploadSyllabusAssessments,
+  fetchAssessmentProgress,
+  cancelAssessmentJob,
+} from "../services/adminAssessments";
 import useAuth from "../hook/useAuth";
 import { formatDistanceToNow } from "date-fns";
 
@@ -17,7 +24,7 @@ const Card = ({ title, children, footer }) => (
   </div>
 );
 
-const AssessmentRow = ({ item }) => {
+const AssessmentRow = ({ item, onDelete, deletingId }) => {
   const questionCount = Array.isArray(item?.questions) ? item.questions.length : 0;
   const updatedLabel = item?.generatedAt
     ? formatDistanceToNow(new Date(item.generatedAt), { addSuffix: true })
@@ -42,6 +49,16 @@ const AssessmentRow = ({ item }) => {
       <td>{questionCount}</td>
       <td>{item?.source === "ai" ? "AI-generated" : item?.source || "—"}</td>
       <td className='text-muted small'>{updatedLabel}</td>
+      <td>
+        <button
+          type='button'
+          className='btn btn-sm btn-outline-danger'
+          onClick={() => onDelete?.(item)}
+          disabled={deletingId === item?.id}
+        >
+          {deletingId === item?.id ? "Deleting..." : "Delete"}
+        </button>
+      </td>
     </tr>
   );
 };
@@ -59,6 +76,18 @@ const CourseAssessmentsPage = () => {
   const [courseDetail, setCourseDetail] = useState(null);
   const [selectedModuleIndex, setSelectedModuleIndex] = useState("");
   const [selectedWeekIndex, setSelectedWeekIndex] = useState("");
+  const [selectedLevel, setSelectedLevel] = useState("");
+  const [questionCount, setQuestionCount] = useState("");
+  const [syllabusFile, setSyllabusFile] = useState(null);
+  const [syllabusFileName, setSyllabusFileName] = useState("");
+  const [syllabusText, setSyllabusText] = useState("");
+  const [uploadingSyllabus, setUploadingSyllabus] = useState(false);
+  const [syllabusProgress, setSyllabusProgress] = useState(0);
+  const syllabusInputRef = useRef(null);
+  const [deletingId, setDeletingId] = useState("");
+  const [jobProgress, setJobProgress] = useState({ status: "", completed: 0, total: 0 });
+  const [jobId, setJobId] = useState("");
+  const pollRef = useRef(null);
 
   const selectedCourse = useMemo(
     () => courses.find((c) => c.slug === selectedSlug) || null,
@@ -150,21 +179,202 @@ const CourseAssessmentsPage = () => {
     setGenerating(true);
     setFlash("");
     setError("");
+    setJobProgress({ status: "running", completed: 0, total: 0 });
     try {
-      await generateAssessment({
+      const resp = await generateAssessment({
         token,
         courseSlug: selectedSlug,
         programmeSlug: selectedCourse?.programmeSlug || selectedCourse?.programme,
+        level: selectedLevel || undefined,
+        questionCount: questionCount ? Number(questionCount) : undefined,
         moduleIndex: selectedModuleIndex ? Number(selectedModuleIndex) : undefined,
         weekIndex: selectedWeekIndex ? Number(selectedWeekIndex) : undefined,
       });
-      setFlash("AI assessment generated. Refreshing list...");
-      const items = await listAssessments({ token, courseSlug: selectedSlug });
-      setAssessments(items);
+      if (resp?.jobId) {
+        setJobId(resp.jobId);
+        const poll = async () => {
+          try {
+            const status = await fetchAssessmentProgress({
+              token,
+              courseSlug: selectedSlug,
+              programmeSlug: selectedCourse?.programmeSlug || selectedCourse?.programme,
+              moduleIndex: selectedModuleIndex ? Number(selectedModuleIndex) : undefined,
+              weekIndex: selectedWeekIndex ? Number(selectedWeekIndex) : undefined,
+            });
+            if (status) {
+              setJobProgress({
+                status: status.status,
+                completed: status.completed || 0,
+                total: status.totalTarget || 0,
+              });
+              if (status.status === "completed") {
+                const items = await listAssessments({ token, courseSlug: selectedSlug });
+                setAssessments(items);
+                setFlash("Assessment generation completed.");
+                setGenerating(false);
+                setJobProgress((prev) => ({ ...prev, status: "completed" }));
+                if (pollRef.current) {
+                  clearInterval(pollRef.current);
+                  pollRef.current = null;
+                }
+                return;
+              }
+              if (status.status === "failed") {
+                setError(status.error || "Generation failed.");
+                setGenerating(false);
+                if (pollRef.current) {
+                  clearInterval(pollRef.current);
+                  pollRef.current = null;
+                }
+                return;
+              }
+            }
+          } catch (err) {
+            setError(err?.message || "Failed to fetch progress.");
+          }
+        };
+        if (pollRef.current) clearInterval(pollRef.current);
+        pollRef.current = setInterval(poll, 2000);
+        await poll();
+      } else {
+        setFlash("Generation started.");
+      }
     } catch (err) {
       setError(err?.message || "Generation failed.");
     } finally {
-      setGenerating(false);
+      // generating flag cleared by poll on completion/failure
+    }
+  };
+
+  // Auto-resume progress polling on refresh/page load
+  useEffect(() => {
+    if (!token || !selectedSlug) return;
+    const startPoll = () => {
+      const poll = async () => {
+        try {
+            const status = await fetchAssessmentProgress({
+              token,
+              courseSlug: selectedSlug,
+              programmeSlug: selectedCourse?.programmeSlug || selectedCourse?.programme,
+            });
+          if (status) {
+              setJobProgress({
+                status: status.status,
+                completed: status.completed || 0,
+                total: status.totalTarget || 0,
+              });
+              if (status.id) setJobId(status.id);
+              if (status.status === "completed") {
+                setGenerating(false);
+                const items = await listAssessments({ token, courseSlug: selectedSlug });
+                setAssessments(items);
+                if (pollRef.current) {
+                clearInterval(pollRef.current);
+                pollRef.current = null;
+              }
+              return;
+            }
+            if (status.status === "failed") {
+              setGenerating(false);
+              setError(status.error || "Generation failed.");
+              if (pollRef.current) {
+                clearInterval(pollRef.current);
+                pollRef.current = null;
+              }
+              return;
+            }
+            // keep polling if running/pending
+            setGenerating(status.status === "running" || status.status === "pending");
+          } else {
+            setJobProgress({ status: "", completed: 0, total: 0 });
+            setGenerating(false);
+          }
+        } catch (err) {
+          setError(err?.message || "Failed to fetch progress.");
+        }
+      };
+          if (pollRef.current) clearInterval(pollRef.current);
+      pollRef.current = setInterval(poll, 2000);
+      poll();
+    };
+    startPoll();
+    return () => {
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    };
+  }, [token, selectedSlug, selectedCourse]);
+
+  const handleSyllabusSelect = (event) => {
+    const file = event?.target?.files?.[0];
+    if (!file) {
+      setSyllabusFile(null);
+      setSyllabusFileName("");
+      return;
+    }
+    setSyllabusFile(file);
+    setSyllabusFileName(file.name || "syllabus.json");
+  };
+
+  const handleUploadSyllabus = async () => {
+    if (!token || !selectedSlug) {
+      setError("Select a course first.");
+      return;
+    }
+    const trimmedText = syllabusText.trim();
+    if (!trimmedText && !syllabusFile) {
+      setError("Paste syllabus JSON or choose a file first.");
+      return;
+    }
+    setUploadingSyllabus(true);
+    setSyllabusProgress(10);
+    setFlash("");
+    setError("");
+    try {
+      const text = trimmedText || (await syllabusFile.text());
+      setSyllabusProgress(35);
+      const parsed = JSON.parse(text);
+      setSyllabusProgress(55);
+      await uploadSyllabusAssessments({
+        token,
+        courseSlug: selectedSlug,
+        programmeSlug: selectedCourse?.programmeSlug || selectedCourse?.programme,
+        syllabus: parsed,
+      });
+      setSyllabusProgress(85);
+      setFlash("Syllabus saved. Now select module/week and click Generate to create question sets.");
+      setSyllabusFile(null);
+      setSyllabusFileName("");
+      setSyllabusText("");
+      if (syllabusInputRef.current) {
+        syllabusInputRef.current.value = "";
+      }
+      setSyllabusProgress(100);
+    } catch (err) {
+      setError(err?.message || "Failed to upload syllabus.");
+      setSyllabusProgress(0);
+    } finally {
+      setUploadingSyllabus(false);
+      setTimeout(() => setSyllabusProgress(0), 1200);
+    }
+  };
+
+  const handleDeleteSet = async (item) => {
+    if (!item?.id || !token) return;
+    const confirmed = window.confirm("Delete this assessment set? This will remove its question entries too.");
+    if (!confirmed) return;
+    setDeletingId(item.id);
+    setError("");
+    setFlash("");
+    try {
+      await deleteAssessmentSet({ token, assessmentId: item.id });
+      const items = await listAssessments({ token, courseSlug: selectedSlug });
+      setAssessments(items);
+    } catch (err) {
+      setError(err?.message || "Failed to delete assessment set.");
+    } finally {
+      setDeletingId("");
     }
   };
 
@@ -255,6 +465,33 @@ const CourseAssessmentsPage = () => {
             </select>
           </div>
           <div className='col-md-2'>
+            <label className='form-label'>Difficulty</label>
+            <select
+              className='form-select'
+              value={selectedLevel}
+              onChange={(e) => setSelectedLevel(e.target.value)}
+              disabled={loadingCourses}
+            >
+              <option value=''>AI default</option>
+              <option value='Beginner'>Beginner</option>
+              <option value='Intermediate'>Intermediate</option>
+              <option value='Advanced'>Advanced</option>
+            </select>
+          </div>
+          <div className='col-md-2'>
+            <label className='form-label'>Question count</label>
+            <input
+              type='number'
+              min='1'
+              max='500'
+              className='form-control'
+              placeholder='Default'
+              value={questionCount}
+              onChange={(e) => setQuestionCount(e.target.value)}
+              disabled={loadingCourses}
+            />
+          </div>
+          <div className='col-md-2'>
             <label className='form-label'>Actions</label>
             <div className='d-flex gap-2'>
               <button
@@ -274,11 +511,100 @@ const CourseAssessmentsPage = () => {
               >
                 <i className='ri-refresh-line' aria-hidden='true' />
               </button>
+              {generating ? (
+                <button
+                  type='button'
+                  className='btn btn-outline-danger'
+                  onClick={handleCancelJob}
+                  disabled={!generating}
+                  title='Stop generation'
+                >
+                  Stop
+                </button>
+              ) : null}
+            </div>
+          </div>
+          <div className='col-12'>
+            <div className='border rounded-3 p-3 bg-light'>
+              <div className='d-flex flex-wrap justify-content-between align-items-center mb-2'>
+                <div>
+                  <div className='fw-semibold'>Paste syllabus (JSON)</div>
+                  <div className='text-muted small'>
+                    Upload syllabus JSON to save it to the course. Generation runs separately when you click Generate.
+                  </div>
+                </div>
+              </div>
+              <div className='d-flex flex-column gap-2'>
+                <textarea
+                  className='form-control'
+                  rows={5}
+                  placeholder='Paste syllabus JSON here...'
+                  value={syllabusText}
+                  onChange={(e) => setSyllabusText(e.target.value)}
+                  disabled={uploadingSyllabus || loadingCourses}
+                />
+                <div className='d-flex flex-wrap gap-2 align-items-center'>
+                  <input
+                    type='file'
+                    accept='application/json'
+                    className='form-control'
+                    style={{ maxWidth: 260 }}
+                    onChange={handleSyllabusSelect}
+                    ref={syllabusInputRef}
+                    disabled={uploadingSyllabus || loadingCourses}
+                  />
+                  <div className='text-muted small flex-grow-1'>
+                    {syllabusFileName ? `Selected file: ${syllabusFileName}` : "File optional if pasted JSON is provided."}
+                  </div>
+                  <button
+                    type='button'
+                    className='btn btn-outline-primary'
+                    onClick={handleUploadSyllabus}
+                    disabled={uploadingSyllabus || !selectedSlug}
+                  >
+                    {uploadingSyllabus ? "Uploading..." : "Upload syllabus"}
+                  </button>
+                </div>
+                {uploadingSyllabus || syllabusProgress > 0 ? (
+                  <div className='progress' style={{ height: 6 }}>
+                    <div
+                      className='progress-bar progress-bar-striped progress-bar-animated'
+                      role='progressbar'
+                      style={{ width: `${syllabusProgress || 10}%` }}
+                      aria-valuenow={syllabusProgress}
+                      aria-valuemin='0'
+                      aria-valuemax='100'
+                    />
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
         </div>
         {flash ? <p className='text-success mt-3 mb-0'>{flash}</p> : null}
         {error ? <p className='text-danger mt-3 mb-0'>{error}</p> : null}
+        {jobProgress.status ? (
+          <div className='mt-3'>
+            <div className='d-flex justify-content-between small text-muted mb-1'>
+              <span>Status: {jobProgress.status}</span>
+              <span>
+                {jobProgress.completed}/{jobProgress.total || '—'} questions
+              </span>
+            </div>
+            <div className='progress' style={{ height: 6 }}>
+              <div
+                className={`progress-bar ${jobProgress.status === 'failed' ? 'bg-danger' : 'bg-success'}`}
+                role='progressbar'
+                style={{
+                  width: jobProgress.total ? `${Math.min(100, Math.floor((jobProgress.completed / jobProgress.total) * 100))}%` : '10%',
+                }}
+                aria-valuenow={jobProgress.completed}
+                aria-valuemin='0'
+                aria-valuemax={jobProgress.total || 100}
+              />
+            </div>
+          </div>
+        ) : null}
       </Card>
 
       <Card title='Assessment sets'>
@@ -296,11 +622,12 @@ const CourseAssessmentsPage = () => {
                   <th>Questions</th>
                   <th>Source</th>
                   <th>Updated</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {assessments.map((item) => (
-                  <AssessmentRow key={item.id} item={item} />
+                  <AssessmentRow key={item.id} item={item} onDelete={handleDeleteSet} deletingId={deletingId} />
                 ))}
               </tbody>
             </table>
@@ -314,3 +641,20 @@ const CourseAssessmentsPage = () => {
 };
 
 export default CourseAssessmentsPage;
+  const handleCancelJob = async () => {
+    if (!token || !selectedSlug) return;
+    try {
+      await cancelAssessmentJob({
+        token,
+        courseSlug: selectedSlug,
+        programmeSlug: selectedCourse?.programmeSlug || selectedCourse?.programme,
+        moduleIndex: selectedModuleIndex ? Number(selectedModuleIndex) : undefined,
+        weekIndex: selectedWeekIndex ? Number(selectedWeekIndex) : undefined,
+      });
+      setGenerating(false);
+      setFlash("Generation cancelled.");
+      setJobProgress({ status: "cancelled", completed: jobProgress.completed, total: jobProgress.total });
+    } catch (err) {
+      setError(err?.message || "Failed to cancel generation.");
+    }
+  };

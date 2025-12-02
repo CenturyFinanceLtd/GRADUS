@@ -184,7 +184,7 @@ const concatMessages = (messages = []) =>
 
 const callOpenAI = async (messages) => {
   const apiKey = process.env.OPENAI_API_KEY;
-  const model = process.env.OPENAI_CHAT_MODEL || 'gpt-4o-mini';
+  const model = process.env.OPENAI_CHAT_MODEL || 'gpt-5.1';
   const baseUrl = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
 
   if (!apiKey) {
@@ -415,7 +415,7 @@ const normalizeOptions = (options = [], questionIndex = 0) => {
     .slice(0, 5);
 };
 
-const normalizeAssessment = (raw = {}, { course = {}, questionCount = 8 } = {}) => {
+const normalizeAssessment = (raw = {}, { course = {}, questionCount = 8, desiredLevel = '' } = {}) => {
   const count = Math.min(Math.max(Number(questionCount) || 8, 4), MAX_QUESTION_COUNT);
   const normalizedQuestions = [];
   const seenQuestionIds = new Set();
@@ -466,7 +466,7 @@ const normalizeAssessment = (raw = {}, { course = {}, questionCount = 8 } = {}) 
 
   return {
     title: normalizeString(raw.title) || `${courseLabel} checkpoint`,
-    level: normalizeString(raw.level) || normalizeString(course?.level) || 'Mixed',
+    level: normalizeString(desiredLevel) || normalizeString(raw.level) || normalizeString(course?.level) || 'Mixed',
     summary: normalizeString(raw.summary) || `Assessment generated from course content for ${courseLabel}.`,
     tags: Array.from(new Set(['AI-generated', 'Auto-graded', ...tags])),
     questions: limitedQuestions,
@@ -476,10 +476,11 @@ const normalizeAssessment = (raw = {}, { course = {}, questionCount = 8 } = {}) 
   };
 };
 
-const generateAssessmentSetForCourse = async ({ course, courseDetail = null, questionCount = 6 }) => {
+const generateAssessmentSetForCourse = async ({ course, courseDetail = null, questionCount = 6, desiredLevel = '' }) => {
   const courseContext = buildCourseContext(course, courseDetail);
   const courseName = normalizeString(course?.name) || 'this course';
   const desiredCount = Math.min(Math.max(Number(questionCount) || 10, 4), MAX_QUESTION_COUNT);
+  const levelHint = normalizeString(desiredLevel) ? `Target difficulty: ${normalizeString(desiredLevel)}.` : '';
   const messages = [
     {
       role: 'system',
@@ -488,7 +489,7 @@ const generateAssessmentSetForCourse = async ({ course, courseDetail = null, que
     },
     {
       role: 'user',
-      content: `Generate ${desiredCount} multiple-choice questions with 4 options each for ${courseName}. Keep prompts concise and grounded strictly in the course context below.\n\nCourse context:\n${courseContext}\n\nReturn ONLY JSON in this exact shape:\n{\n  "title": "Assessment title",\n  "level": "Beginner/Mid/Advanced",\n  "summary": "1-2 line overview",\n  "tags": ["tag1", "tag2"],\n  "questions": [\n    {\n      "id": "slug-id",\n      "prompt": "Question text",\n      "options": [\n        {"id": "a", "label": "Option text"},\n        {"id": "b", "label": "Option text"},\n        {"id": "c", "label": "Option text"},\n        {"id": "d", "label": "Option text"}\n      ],\n      "correctOptionId": "a",\n      "explanation": "Why the answer is correct.",\n      "tryItTemplate": ""\n    }\n  ]\n}\nEnsure correctOptionId matches one of the option ids. No prose before/after the JSON. Do not emit markdown fences.`,
+      content: `Generate ${desiredCount} multiple-choice questions with 4 options each for ${courseName}. ${levelHint} Keep prompts concise and grounded strictly in the course context below.\n\nCourse context:\n${courseContext}\n\nReturn ONLY JSON in this exact shape:\n{\n  "title": "Assessment title",\n  "level": "Beginner/Mid/Advanced",\n  "summary": "1-2 line overview",\n  "tags": ["tag1", "tag2"],\n  "questions": [\n    {\n      "id": "slug-id",\n      "prompt": "Question text",\n      "options": [\n        {"id": "a", "label": "Option text"},\n        {"id": "b", "label": "Option text"},\n        {"id": "c", "label": "Option text"},\n        {"id": "d", "label": "Option text"}\n      ],\n      "correctOptionId": "a",\n      "explanation": "Why the answer is correct.",\n      "tryItTemplate": ""\n    }\n  ]\n}\nEnsure correctOptionId matches one of the option ids. No prose before/after the JSON. Do not emit markdown fences.`,
     },
   ];
 
@@ -547,7 +548,7 @@ const generateAssessmentSetForCourse = async ({ course, courseDetail = null, que
   }
 
   const parsed = extractJson(content);
-  const normalized = normalizeAssessment(parsed, { course, questionCount: desiredCount });
+  const normalized = normalizeAssessment(parsed, { course, questionCount: desiredCount, desiredLevel });
   return {
     assessment: normalized,
     usage,

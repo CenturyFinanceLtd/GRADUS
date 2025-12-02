@@ -8,11 +8,15 @@ const AssessmentSet = require('../models/AssessmentSet');
 const AssessmentAttempt = require('../models/AssessmentAttempt');
 const Course = require('../models/Course');
 const CourseDetail = require('../models/CourseDetail');
+const Syllabus = require('../models/Syllabus');
+const AssessmentQuestion = require('../models/AssessmentQuestion');
+const AssessmentJob = require('../models/AssessmentJob');
 const { generateAssessmentSetForCourse } = require('../services/assessmentGenerator');
 
 const QUESTION_POOL_TARGET = 500;
 const QUESTION_POOL_BATCH_SIZE = 40;
 const PER_ATTEMPT_COUNT = 10;
+const toArray = (value) => (Array.isArray(value) ? value.filter(Boolean) : []);
 
 const normalizeString = (value) => (typeof value === 'string' ? value.trim() : '');
 const normalizeSlug = (value) => normalizeString(value).toLowerCase();
@@ -137,7 +141,115 @@ const parsePositiveInt = (value) => {
   return Math.floor(n);
 };
 
-const buildQuestionPool = async ({ course, courseDetail, targetQuestionCount }) => {
+const normalizeSyllabusModules = (syllabus = {}) => {
+  const modules = Array.isArray(syllabus?.modules) ? syllabus.modules : [];
+  return modules.map((module, moduleIndex) => {
+    const weeks = Array.isArray(module?.weeks) ? module.weeks : [];
+    const weeklyStructure = weeks.map((week, weekIndex) => {
+      const lectures = toArray(week?.lectures).map((lecture, lectureIndex) => {
+        const topics = toArray(lecture?.topics)
+          .map((topic) => normalizeString(topic))
+          .filter(Boolean);
+        return {
+          title: lecture?.title || lecture?.name || `Lecture ${lecture?.lecture || lectureIndex + 1}`,
+          summary: topics.join('; '),
+          topics,
+        };
+      });
+      const flattenedTopics = lectures.flatMap((lec) => lec.topics || []);
+      const summaryParts = [];
+      if (flattenedTopics.length) {
+        summaryParts.push(`Topics: ${flattenedTopics.join(', ')}`);
+      }
+      if (week?.summary) {
+        summaryParts.push(normalizeString(week.summary));
+      }
+      return {
+        week: parsePositiveInt(week?.week) || weekIndex + 1,
+        title: week?.title || `Week ${week?.week || weekIndex + 1}`,
+        subtitle: week?.subtitle || '',
+        summary: summaryParts.join(' | '),
+        lectures,
+      };
+    });
+
+    return {
+      moduleIndex: moduleIndex + 1,
+      title: module?.module || module?.title || `Module ${moduleIndex + 1}`,
+      summary: normalizeString(module?.summary || ''),
+      weeklyStructure,
+    };
+  });
+};
+
+const buildCourseDetailFromSyllabus = (syllabusDoc = null) => {
+  if (!syllabusDoc?.syllabus) return null;
+  const modules = normalizeSyllabusModules(syllabusDoc.syllabus);
+  return { modules };
+};
+
+const mergeQuestionPools = (existing = [], incoming = []) => {
+  const seen = new Set();
+  const merged = [];
+  existing.forEach((q) => {
+    if (!q?.prompt) return;
+    const key = q.prompt.trim().toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    merged.push(q);
+  });
+  incoming.forEach((q) => {
+    if (!q?.prompt) return;
+    const key = q.prompt.trim().toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    merged.push(q);
+  });
+  return merged;
+};
+
+const ensureUniqueQuestionId = (baseId, suffixSeed = '') => {
+  const safeBase = normalizeString(baseId) || 'q';
+  return `${safeBase}-${Date.now()}-${Math.random().toString(16).slice(2, 6)}${suffixSeed}`;
+};
+
+const pickGenerationTasks = (courseDetail = null, syllabusDetail = null, moduleIndex = null, weekIndex = null) => {
+  const detailModules = Array.isArray(courseDetail?.modules) ? courseDetail.modules : [];
+  const syllabusModules = Array.isArray(syllabusDetail?.modules) ? syllabusDetail.modules : [];
+
+  const pickModule = (idx) => syllabusModules[idx] || detailModules[idx] || null;
+  const tasks = [];
+
+  if (moduleIndex) {
+    const moduleIdx = moduleIndex - 1;
+    const module = pickModule(moduleIdx);
+    if (!module) return [];
+    if (weekIndex) {
+      const weekIdx = weekIndex - 1;
+      const week = Array.isArray(module.weeklyStructure) ? module.weeklyStructure[weekIdx] : null;
+      if (!week) return [];
+      tasks.push({ moduleIndex, weekIndex, module, week });
+    } else {
+      const weeks = Array.isArray(module.weeklyStructure) ? module.weeklyStructure : [];
+      weeks.forEach((week, idx) => {
+        tasks.push({ moduleIndex, weekIndex: idx + 1, module, week });
+      });
+    }
+    return tasks;
+  }
+
+  // whole course: all modules/weeks from syllabus first, else detail
+  const sourceModules = syllabusModules.length ? syllabusModules : detailModules;
+  sourceModules.forEach((module, mIdx) => {
+    const weeks = Array.isArray(module.weeklyStructure) ? module.weeklyStructure : [];
+    weeks.forEach((week, wIdx) => {
+      tasks.push({ moduleIndex: mIdx + 1, weekIndex: wIdx + 1, module, week });
+    });
+  });
+  return tasks;
+};
+
+const buildQuestionPool = async ({ course, courseDetail, targetQuestionCount, desiredLevel }) => {
   const target = Math.min(targetQuestionCount || QUESTION_POOL_TARGET, QUESTION_POOL_TARGET);
   const seenPrompts = new Set();
   const collected = [];
@@ -154,6 +266,7 @@ const buildQuestionPool = async ({ course, courseDetail, targetQuestionCount }) 
       course,
       courseDetail,
       questionCount: batchSize,
+      desiredLevel,
     });
 
     if (!meta) {
@@ -215,98 +328,211 @@ const generateCourseAssessments = asyncHandler(async (req, res) => {
 
   const moduleIndex = parsePositiveInt(req.body?.moduleIndex ?? req.query?.moduleIndex);
   const weekIndex = parsePositiveInt(req.body?.weekIndex ?? req.query?.weekIndex);
+  const desiredLevelRaw = normalizeString(req.body?.level || req.query?.level || '');
+  const desiredLevel =
+    desiredLevelRaw && ['beginner', 'intermediate', 'advanced'].includes(desiredLevelRaw.toLowerCase())
+      ? desiredLevelRaw
+      : '';
   if (weekIndex && !moduleIndex) {
     res.status(400);
     throw new Error('Week assessments must include a moduleIndex.');
   }
 
   const courseDetail = await CourseDetail.findOne({ courseSlug: course.slug }).lean();
+  const syllabusDoc = await Syllabus.findOne({ courseSlug: course.slug }).lean();
+  const syllabusDetail = buildCourseDetailFromSyllabus(syllabusDoc);
   const questionCountInput = parsePositiveInt(req.body?.questionCount ?? req.query?.questionCount);
-  let scopedCourseDetail = courseDetail;
-  let variant = 'course-default';
-  let defaultTitle = course.name;
-  let moduleTitle = '';
-  let weekTitle = '';
-
-  if (moduleIndex) {
-    const moduleIdx = moduleIndex - 1;
-    const modules = Array.isArray(courseDetail?.modules) ? courseDetail.modules : [];
-    const targetModule = modules[moduleIdx];
-    if (!targetModule) {
-      res.status(400);
-      throw new Error(`Module ${moduleIndex} not found for this course.`);
-    }
-    moduleTitle = targetModule.title || `Module ${moduleIndex}`;
-    variant = `module-${moduleIndex}`;
-    defaultTitle = `${course.name} - ${moduleTitle}`;
-    if (weekIndex) {
-      const weekIdx = weekIndex - 1;
-      const week = Array.isArray(targetModule.weeklyStructure) ? targetModule.weeklyStructure[weekIdx] : null;
-      if (!week) {
-        res.status(400);
-        throw new Error(`Week ${weekIndex} not found for module ${moduleIndex}.`);
-      }
-      weekTitle = week.title || `Week ${weekIndex}`;
-      variant = `module-${moduleIndex}-week-${weekIndex}`;
-      defaultTitle = `${course.name} - ${moduleTitle} - ${weekTitle}`;
-      const trimmedModule = { ...targetModule, weeklyStructure: [week] };
-      scopedCourseDetail = { ...(courseDetail || {}), modules: [trimmedModule] };
-    } else {
-      scopedCourseDetail = { ...(courseDetail || {}), modules: [targetModule] };
-    }
-  }
-
   const targetQuestionCount = Math.min(
     questionCountInput || (weekIndex ? QUESTION_POOL_TARGET : 50),
     QUESTION_POOL_TARGET
   );
 
-  const pool = await buildQuestionPool({
-    course,
-    courseDetail: scopedCourseDetail,
-    targetQuestionCount,
+  const job = await AssessmentJob.create({
+    courseId: course._id,
+    courseSlug: course.slug,
+    programmeSlug: normalizeSlug(course.programmeSlug || course.programme).replace(/\s+/g, '-'),
+    courseName: course.name,
+    moduleIndex: moduleIndex || null,
+    weekIndex: weekIndex || null,
+    variant: moduleIndex ? (weekIndex ? `module-${moduleIndex}-week-${weekIndex}` : `module-${moduleIndex}`) : 'course-default',
+    level: desiredLevel,
+    totalTarget: 0,
+    completed: 0,
+    status: 'pending',
   });
-  const { meta, questions, usage, model } = pool;
 
-  const usageMeta = usage
-    ? {
-        promptTokens: usage.prompt_tokens ?? usage.promptTokens ?? 0,
-        completionTokens: usage.completion_tokens ?? usage.completionTokens ?? 0,
-        totalTokens: usage.total_tokens ?? usage.totalTokens ?? 0,
+  const tasks = pickGenerationTasks(courseDetail, syllabusDetail, moduleIndex, weekIndex);
+  if (!tasks.length) {
+    await AssessmentJob.findByIdAndUpdate(job._id, { status: 'failed', error: 'No modules/weeks found to generate.' });
+    res.status(400);
+    throw new Error('No modules/weeks found to generate.');
+  }
+
+  job.totalTarget = tasks.length * targetQuestionCount;
+  job.status = 'running';
+  job.startedAt = new Date();
+  await job.save();
+
+  setImmediate(async () => {
+    try {
+      let completed = 0;
+      for (const task of tasks) {
+        const jobState = await AssessmentJob.findById(job._id).lean();
+        if (!jobState || jobState.status === 'cancelled') {
+          break;
+        }
+        const variant = `module-${task.moduleIndex}-week-${task.weekIndex}`;
+        const moduleTitle = task.module?.title || `Module ${task.moduleIndex}`;
+        const weekTitle = task.week?.title || `Week ${task.weekIndex}`;
+        const defaultTitle = `${course.name} - ${moduleTitle} - ${weekTitle}`;
+        const scopedCourseDetail = { modules: [{ ...task.module, weeklyStructure: [task.week] }] };
+        let existingSet = await AssessmentSet.findOne({ courseSlug: course.slug, variant }).lean();
+
+        for (let i = 0; i < targetQuestionCount; i += 1) {
+          const currentJob = await AssessmentJob.findById(job._id).lean();
+          if (!currentJob || currentJob.status === 'cancelled') {
+            break;
+          }
+          const pool = await buildQuestionPool({
+            course,
+            courseDetail: scopedCourseDetail,
+            targetQuestionCount: 1,
+            desiredLevel,
+          });
+          const { meta, questions, usage, model } = pool;
+          const merged = mergeQuestionPools(existingSet?.questions || [], questions);
+
+          const usageMeta = usage
+            ? {
+                promptTokens: usage.prompt_tokens ?? usage.promptTokens ?? 0,
+                completionTokens: usage.completion_tokens ?? usage.completionTokens ?? 0,
+                totalTokens: usage.total_tokens ?? usage.totalTokens ?? 0,
+              }
+            : undefined;
+
+          const saved = await AssessmentSet.findOneAndUpdate(
+            { courseSlug: course.slug, variant },
+            {
+              $set: {
+                courseId: course._id,
+                courseSlug: course.slug,
+                programmeSlug: normalizeSlug(course.programmeSlug || course.programme).replace(/\s+/g, '-'),
+                courseName: course.name,
+                title: meta.title || defaultTitle,
+                level: desiredLevel || meta.level,
+                summary: meta.summary,
+                tags: meta.tags,
+                questions: merged,
+                questionPoolSize: merged.length,
+                perAttemptCount: PER_ATTEMPT_COUNT,
+                source: 'ai',
+                variant,
+                moduleIndex: task.moduleIndex || null,
+                weekIndex: task.weekIndex || null,
+                moduleTitle,
+                weekTitle,
+                model: model || '',
+                ...(usageMeta ? { usage: usageMeta } : {}),
+                generatedAt: new Date(),
+              },
+            },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+          ).lean();
+
+          const questionDocs = questions.map((q, idx) => ({
+            courseId: course._id,
+            courseSlug: course.slug,
+            programmeSlug: normalizeSlug(course.programmeSlug || course.programme).replace(/\s+/g, '-'),
+            moduleIndex: task.moduleIndex || null,
+            weekIndex: task.weekIndex || null,
+            variant,
+            assessmentId: saved?._id,
+            // Always force a unique id to avoid duplicate-key errors
+            questionId: ensureUniqueQuestionId(`q-${Date.now()}-${idx}-${Math.random().toString(16).slice(2, 6)}`),
+            prompt: q.prompt,
+            options: Array.isArray(q.options) ? q.options : [],
+            correctOptionId: q.correctOptionId,
+            explanation: q.explanation || '',
+            source: 'ai',
+          }));
+          try {
+            await AssessmentQuestion.insertMany(questionDocs, { ordered: false });
+          } catch (err) {
+            if (err?.code !== 11000) {
+              throw err;
+            }
+            // Ignore duplicate key errors; continue generation.
+          }
+
+          completed += 1;
+          await AssessmentJob.findByIdAndUpdate(job._id, {
+            completed,
+            status: 'running',
+            error: '',
+          });
+
+          existingSet = saved;
+        }
       }
-    : undefined;
+      const finalJob = await AssessmentJob.findById(job._id).lean();
+      if (finalJob?.status === 'cancelled') {
+        return;
+      }
+      await AssessmentJob.findByIdAndUpdate(job._id, {
+        status: 'completed',
+        finishedAt: new Date(),
+      });
+    } catch (err) {
+      await AssessmentJob.findByIdAndUpdate(job._id, {
+        status: 'failed',
+        error: err?.message || 'Generation failed.',
+      });
+    }
+  });
 
-  const saved = await AssessmentSet.findOneAndUpdate(
-    { courseSlug: course.slug, variant },
+  res.status(202).json({
+    jobId: job._id.toString(),
+    status: job.status,
+    totalTarget: job.totalTarget,
+    completed: job.completed,
+  });
+});
+
+const generateAssessmentsFromSyllabus = asyncHandler(async (req, res) => {
+  const slug = resolveCourseSlug(req);
+  if (!slug) {
+    res.status(400);
+    throw new Error('Course identifier is required to generate assessments.');
+  }
+
+  const course = await Course.findOne({ slug });
+  if (!course) {
+    res.status(404);
+    throw new Error('Course not found.');
+  }
+
+  const syllabus = req.body?.syllabus;
+  if (!syllabus) {
+    res.status(400);
+    throw new Error('Syllabus JSON is required.');
+  }
+
+  await Syllabus.findOneAndUpdate(
+    { courseSlug: course.slug },
     {
       $set: {
         courseId: course._id,
         courseSlug: course.slug,
         programmeSlug: normalizeSlug(course.programmeSlug || course.programme).replace(/\s+/g, '-'),
         courseName: course.name,
-        title: meta.title || defaultTitle,
-        level: meta.level,
-        summary: meta.summary,
-        tags: meta.tags,
-        questions,
-        questionPoolSize: questions.length,
-        perAttemptCount: PER_ATTEMPT_COUNT,
-        source: 'ai',
-        variant,
-        moduleIndex: moduleIndex || null,
-        weekIndex: weekIndex || null,
-        moduleTitle,
-        weekTitle,
-        model: model || '',
-        ...(usageMeta ? { usage: usageMeta } : {}),
-        generatedAt: new Date(),
+        syllabus,
       },
     },
     { new: true, upsert: true, setDefaultsOnInsert: true }
-  ).lean();
+  );
 
   res.status(201).json({
-    assessment: mapAssessmentSet(saved),
+    message: 'Syllabus saved for course. Use Generate to create assessments.',
   });
 });
 
@@ -390,7 +616,21 @@ const startAssessmentAttempt = asyncHandler(async (req, res) => {
     throw new Error('Course not found.');
   }
 
-  const set = await AssessmentSet.findOne({ courseSlug: course.slug, moduleIndex, weekIndex }).lean();
+  const findFallbackSet = async () => {
+    // exact match
+    let target = await AssessmentSet.findOne({ courseSlug: course.slug, moduleIndex, weekIndex }).lean();
+    if (target) return target;
+    // module-level fallback
+    if (moduleIndex && !weekIndex) {
+      target = await AssessmentSet.findOne({ courseSlug: course.slug, moduleIndex, weekIndex: null }).lean();
+      if (target) return target;
+    }
+    // course-level fallback
+    target = await AssessmentSet.findOne({ courseSlug: course.slug, moduleIndex: null, weekIndex: null }).lean();
+    return target;
+  };
+
+  const set = await findFallbackSet();
   if (!set || !Array.isArray(set.questions) || !set.questions.length) {
     res.status(404);
     throw new Error('Assessment set not found for this module/week.');
@@ -400,8 +640,8 @@ const startAssessmentAttempt = asyncHandler(async (req, res) => {
   let attempt = await AssessmentAttempt.findOne({
     userId: req.user._id,
     courseSlug: course.slug,
-    moduleIndex,
-    weekIndex,
+    moduleIndex: set.moduleIndex || null,
+    weekIndex: set.weekIndex || null,
   }).lean();
 
   if (!attempt) {
@@ -412,10 +652,10 @@ const startAssessmentAttempt = asyncHandler(async (req, res) => {
       courseSlug: course.slug,
       programmeSlug: course.programmeSlug || course.programme || '',
       courseName: course.name,
-      moduleIndex,
-      weekIndex,
-      moduleTitle: set.moduleTitle || `Module ${moduleIndex}`,
-      weekTitle: set.weekTitle || `Week ${weekIndex}`,
+      moduleIndex: set.moduleIndex || null,
+      weekIndex: set.weekIndex || null,
+      moduleTitle: set.moduleTitle || (set.moduleIndex ? `Module ${set.moduleIndex}` : 'Course'),
+      weekTitle: set.weekTitle || (set.weekIndex ? `Week ${set.weekIndex}` : 'Whole module'),
       status: 'in-progress',
       questions: attemptQuestions,
       questionPoolSize: set.questionPoolSize || set.questions.length,
@@ -498,10 +738,92 @@ const submitAssessmentAttempt = asyncHandler(async (req, res) => {
   });
 });
 
+const deleteAssessmentSet = asyncHandler(async (req, res) => {
+  const assessmentId = req.params?.assessmentId;
+  if (!assessmentId) {
+    res.status(400);
+    throw new Error('Assessment identifier is required.');
+  }
+  const assessment = await AssessmentSet.findById(assessmentId);
+  if (!assessment) {
+    res.status(404);
+    throw new Error('Assessment not found.');
+  }
+  await AssessmentQuestion.deleteMany({ assessmentId });
+  await assessment.deleteOne();
+  res.json({ message: 'Assessment set deleted.' });
+});
+
+const getAssessmentJobStatus = asyncHandler(async (req, res) => {
+  const slug = resolveCourseSlug(req);
+  if (!slug) {
+    res.status(400);
+    throw new Error('Course identifier is required.');
+  }
+  const moduleIndex = parsePositiveInt(req.query?.moduleIndex);
+  const weekIndex = parsePositiveInt(req.query?.weekIndex);
+  const filter = { courseSlug: slug };
+  if (moduleIndex) filter.moduleIndex = moduleIndex;
+  if (weekIndex) filter.weekIndex = weekIndex;
+  const jobs = await AssessmentJob.find(filter).sort({ updatedAt: -1 }).limit(1).lean();
+  if (!jobs || !jobs.length) {
+    return res.json({ job: null });
+  }
+  const job = jobs[0];
+  res.json({
+    job: {
+      id: job._id?.toString() || '',
+      status: job.status,
+      totalTarget: job.totalTarget || 0,
+      completed: job.completed || 0,
+      error: job.error || '',
+      moduleIndex: job.moduleIndex || null,
+      weekIndex: job.weekIndex || null,
+      level: job.level || '',
+      startedAt: job.startedAt || job.createdAt || null,
+      finishedAt: job.finishedAt || null,
+      variant: job.variant || '',
+    },
+  });
+});
+
+const cancelAssessmentJob = asyncHandler(async (req, res) => {
+  const slug = resolveCourseSlug(req);
+  if (!slug) {
+    res.status(400);
+    throw new Error('Course identifier is required.');
+  }
+  const moduleIndex = parsePositiveInt(req.body?.moduleIndex ?? req.query?.moduleIndex);
+  const weekIndex = parsePositiveInt(req.body?.weekIndex ?? req.query?.weekIndex);
+  const filter = { courseSlug: slug, status: { $in: ['pending', 'running'] } };
+  if (moduleIndex) filter.moduleIndex = moduleIndex;
+  if (weekIndex) filter.weekIndex = weekIndex;
+  const job = await AssessmentJob.findOneAndUpdate(
+    filter,
+    { $set: { status: 'cancelled', error: 'Cancelled by user', finishedAt: new Date() } },
+    { new: true }
+  ).lean();
+  if (!job) {
+    res.status(404);
+    throw new Error('No running job found to cancel.');
+  }
+  res.json({
+    job: {
+      id: job._id?.toString() || '',
+      status: job.status,
+      completed: job.completed || 0,
+      totalTarget: job.totalTarget || 0,
+    },
+  });
+});
+
 module.exports = {
   getCourseAssessments,
   listAssessmentsAdmin,
   generateCourseAssessments,
+  generateAssessmentsFromSyllabus,
   startAssessmentAttempt,
   submitAssessmentAttempt,
+  deleteAssessmentSet,
+  getAssessmentJobStatus,
 };
