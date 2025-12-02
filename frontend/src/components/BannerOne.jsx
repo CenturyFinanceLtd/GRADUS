@@ -92,7 +92,7 @@ const BannerOne = () => {
     "banner banner--rounded banner--full-bleed position-relative overflow-hidden";
   const minHeightDesktop = 420;
   const minHeightMobile = 260;
-  const showSkeleton = loading || error || !banners.length;
+  const showSkeleton = loading || error;
 
   const skeletonStyle = {
     background: "linear-gradient(90deg, #e7edf7 25%, #d7deeb 50%, #e7edf7 75%)",
@@ -116,7 +116,7 @@ const BannerOne = () => {
 
     if (showSkeleton) {
       return (
-        <section className={sectionClassName} data-variant={`${variant}-banner`} style={{ minHeight }}>
+        <section className={sectionClassName} data-variant={`${variant}-banner`} >
           <style>{skeletonKeyframes}</style>
           <div style={{ position: "relative", height: "100%" }}>
             <div style={{ position: "absolute", inset: 0, padding: 12 }}>

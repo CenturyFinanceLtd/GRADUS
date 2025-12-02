@@ -40,9 +40,7 @@ const CourseInsight = () => {
         <div className="text-center mb-32">
           <h2 className="mb-8">
             Course <span style={{ color: "#22c55e" }}>Insights</span>
-          </h2>
-          <p className="text-neutral-600 mb-0">
-            A seamlessly integrated learning experience crafted for practical, measurable growth
+          </h2><p className="text-neutral-600 mb-0"> A seamlessly integrated learning experience crafted for practical, measurable growth
           </p>
         </div>
 
@@ -77,7 +75,8 @@ const CourseInsight = () => {
         }
         .course-insight-icon {
           width: 64px;
-          height: 64px;
+
++-          height: 64px;
           margin: 1rem auto 1rem;
           border-radius: 18px;
           display: inline-flex;

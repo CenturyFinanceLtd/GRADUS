@@ -13,6 +13,10 @@ export default defineConfig({
     // disables CSS source maps in dev mode
     devSourcemap: false,
   },
+  test: {
+    environment: "jsdom",
+    setupFiles: "./src/setupTests.js",
+  },
   resolve: {
     alias: {
       "@shared": path.resolve(__dirname, "../shared"),

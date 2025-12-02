@@ -91,7 +91,6 @@ const ByCflAndPartners = () => {
     () => prioritizePartners(partnerItems),
     [partnerItems]
   );
-
   // Split partners into 3 independent rows
   const rows = useMemo(() => {
     const rowBuckets = [[], [], []];
@@ -174,6 +173,7 @@ const ByCflAndPartners = () => {
             minHeight: 360,
             background: showSkeleton ? "#f7f9fc" : undefined,
             border: "1px solid #eef1f5",
+            padding: "32px 20px",
           }}
         >
           <div className="container">
@@ -191,13 +191,13 @@ const ByCflAndPartners = () => {
               ))
             ) : (
               rows.map((row, i) => (
-                <div key={`partner-row-${i}`} style={{ marginBottom: i === rows.length - 1 ? 0 : 12 }}>
+                <div key={`partner-row-${i}`} style={{ marginBottom: i === rows.length - 1 ? 0 : 18 }}>
                   <Slider {...rowSettings[i]} className="brand-slider bycfl-slider">
                     {row.map(({ key, logo, displayName }) => (
                       <div
                         className="brand-slider__item"
                         key={key}
-                        style={{ paddingLeft: 8, paddingRight: 8 }}
+                        style={{ padding: "12px 12px" }}
                       >
                         <div>
                           <img

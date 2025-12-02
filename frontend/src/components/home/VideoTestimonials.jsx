@@ -9,6 +9,9 @@ const cardStyles = {
     overflow: "hidden",
     boxShadow: "0 8px 24px rgba(16,24,40,0.08)",
     background: "#fff",
+    width: "min(340px, 88vw)",
+    maxWidth: 340,
+    margin: "0 auto",
   },
   thumb: {
     display: "block",
@@ -199,8 +202,8 @@ const VideoTestimonials = () => {
         padding-inline: 0;
       }
       .video-testimonial-card {
-        max-width: 420px;
-        width: 92vw;
+        max-width: 340px;
+        width: 84vw;
         margin: 0 auto;
         border-radius: 28px;
         box-shadow: 0 18px 42px rgba(0, 0, 0, 0.25);

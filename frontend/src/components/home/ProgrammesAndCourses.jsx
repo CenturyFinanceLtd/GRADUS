@@ -75,7 +75,7 @@ const BASE_SLIDER_SETTINGS = {
     },
     {
       breakpoint: 575.98,
-      settings: { slidesToShow: 1, autoplaySpeed: 4000 },
+      settings: { slidesToShow: 1.1, autoplay: false, swipeToSlide: true },
     },
   ],
 };
@@ -270,13 +270,28 @@ const ProgrammesAndCourses = () => {
   const sliderSettings = useMemo(() => {
     const total = tabbedCourses.length;
     const slidesToShow = Math.min(4, Math.max(1, total));
-    const responsive = BASE_SLIDER_SETTINGS.responsive.map(({ breakpoint, settings }) => ({
-      breakpoint,
-      settings: {
+    const responsive = BASE_SLIDER_SETTINGS.responsive.map(({ breakpoint, settings }) => {
+      const nextSettings = {
         ...settings,
         slidesToShow: Math.min(settings.slidesToShow, Math.max(1, total)),
-      },
-    }));
+      };
+
+      const shouldLoop = total > (nextSettings.slidesToShow || 1);
+
+      // Keep a 1.2-card peek on narrow screens even after swiping.
+      if (breakpoint === 575.98) {
+        nextSettings.slidesToShow = Math.min(1.05, Math.max(1, total));
+        nextSettings.slidesToScroll = 1;
+        nextSettings.infinite = false; // prevent huge cloned track + negative translate on mobile
+        nextSettings.initialSlide = 0;
+        nextSettings.centerMode = false;
+        nextSettings.swipeToSlide = true;
+      } else {
+        nextSettings.infinite = shouldLoop;
+      }
+
+      return { breakpoint, settings: nextSettings };
+    });
     return {
       ...BASE_SLIDER_SETTINGS,
       slidesToShow,
@@ -437,7 +452,7 @@ const ProgrammesAndCourses = () => {
             )}
           </div>
         </div>
-        <div className='text-center mt-40'>
+        <div className='text-center'>
           <Link to='/our-courses' className='programmes-courses-all btn'>
             All Courses
           </Link>
