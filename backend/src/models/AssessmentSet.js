@@ -39,6 +39,8 @@ const assessmentSetSchema = new mongoose.Schema(
     summary: { type: String, trim: true, default: '' },
     tags: { type: [String], default: [] },
     questions: { type: [questionSchema], default: [] },
+    questionPoolSize: { type: Number, default: 0 },
+    perAttemptCount: { type: Number, default: 10 },
     source: { type: String, trim: true, default: 'ai' }, // ai/manual/imported
     variant: { type: String, trim: true, default: 'course-default' }, // allow multiple sets per course
     model: { type: String, trim: true, default: '' },

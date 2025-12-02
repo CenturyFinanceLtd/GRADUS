@@ -112,6 +112,7 @@ const CourseDetailData = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [uploadingMap, setUploadingMap] = useState({});
+  const [expandedWeeks, setExpandedWeeks] = useState({});
 
   const activeModule = modules[activeModuleIndex] || null;
 
@@ -233,6 +234,14 @@ const CourseDetailData = () => {
     updateModuleAt(moduleIndex, (module) => {
       const sections = (module.sections || []).filter((_, idx) => idx !== sectionIndex);
       return { ...module, sections: sections.length ? sections : [buildEmptySection()] };
+    });
+  };
+
+  const toggleWeek = (moduleIndex, sectionIndex) => {
+    const key = `${moduleIndex}-${sectionIndex}`;
+    setExpandedWeeks((prev) => {
+      const isOpen = prev[key] !== false;
+      return { ...prev, [key]: !isOpen };
     });
   };
 
@@ -547,35 +556,49 @@ const CourseDetailData = () => {
                     </div>
                     <hr className='my-4' />
                     <div className='d-flex justify-content-between align-items-center mb-3'>
-                      <h6 className='mb-0'>Weekly sections</h6>
+                      <h6 className='mb-0'>Weekly structure</h6>
                       <button
                         type='button'
                         className='btn btn-sm btn-outline-primary'
                         onClick={() => addSection(activeModuleIndex)}
                       >
-                        Add section
+                        Add week
                       </button>
                     </div>
-                    {activeModule.sections?.map((section, sectionIndex) => (
+                    {activeModule.sections?.map((section, sectionIndex) => {
+                      const key = `${activeModuleIndex}-${sectionIndex}`;
+                      const isExpanded = expandedWeeks[key] !== false;
+                      return (
                       <div className='border rounded-4 p-3 mb-4' key={section.sectionId}>
                         <div className='d-flex justify-content-between align-items-center mb-3'>
                           <div>
-                            <strong>Section {sectionIndex + 1}</strong>
-                            <div className='text-muted small'>{section.title || 'Untitled section'}</div>
+                            <strong>Week {sectionIndex + 1}</strong>
+                            <div className='text-muted small'>{section.title || 'Untitled week'}</div>
                           </div>
-                          {activeModule.sections.length > 1 ? (
+                          <div className='d-flex align-items-center gap-2'>
                             <button
                               type='button'
-                              className='btn btn-sm btn-outline-danger'
-                              onClick={() => removeSection(activeModuleIndex, sectionIndex)}
+                              className='btn btn-sm btn-outline-secondary'
+                              onClick={() => toggleWeek(activeModuleIndex, sectionIndex)}
                             >
-                              Remove
+                              {isExpanded ? 'Collapse' : 'Expand'}
                             </button>
-                          ) : null}
+                            {activeModule.sections.length > 1 ? (
+                              <button
+                                type='button'
+                                className='btn btn-sm btn-outline-danger'
+                                onClick={() => removeSection(activeModuleIndex, sectionIndex)}
+                              >
+                                Remove
+                              </button>
+                            ) : null}
+                          </div>
                         </div>
+                          {isExpanded ? (
+                            <>
                         <div className='row g-3'>
                           <div className='col-md-6'>
-                            <label className='form-label'>Section title</label>
+                            <label className='form-label'>Week title</label>
                             <input
                               type='text'
                               className='form-control'
@@ -586,7 +609,7 @@ const CourseDetailData = () => {
                             />
                           </div>
                           <div className='col-md-6'>
-                            <label className='form-label'>Section subtitle</label>
+                            <label className='form-label'>Week subtitle</label>
                             <input
                               type='text'
                               className='form-control'
@@ -831,8 +854,11 @@ const CourseDetailData = () => {
                             );
                           })}
                         </div>
+                            </>
+                          ) : null}
                       </div>
-                    ))}
+                      );
+                    })}
                     {activeModule.variant === 'capstone' ? (
                       <div className='border rounded-4 p-3'>
                         <h6>Capstone details</h6>

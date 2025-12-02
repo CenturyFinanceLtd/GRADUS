@@ -7,7 +7,14 @@ export const listAssessments = async ({ token, courseSlug } = {}) => {
   return data?.items || [];
 };
 
-export const generateAssessment = async ({ token, courseSlug, programmeSlug, questionCount } = {}) => {
+export const generateAssessment = async ({
+  token,
+  courseSlug,
+  programmeSlug,
+  questionCount,
+  moduleIndex,
+  weekIndex,
+} = {}) => {
   if (!courseSlug) {
     throw new Error('courseSlug is required');
   }
@@ -17,6 +24,12 @@ export const generateAssessment = async ({ token, courseSlug, programmeSlug, que
   const body = {};
   if (Number.isFinite(questionCount)) {
     body.questionCount = questionCount;
+  }
+  if (Number.isFinite(moduleIndex) && moduleIndex > 0) {
+    body.moduleIndex = moduleIndex;
+  }
+  if (Number.isFinite(weekIndex) && weekIndex > 0) {
+    body.weekIndex = weekIndex;
   }
   const data = await apiClient(endpoint, { method: 'POST', data: body, token });
   return data?.assessment || null;

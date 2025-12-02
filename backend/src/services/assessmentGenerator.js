@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 
+const MAX_QUESTION_COUNT = 500;
 const normalizeString = (value) => (typeof value === 'string' ? value.trim() : '');
 const toArray = (value) => (Array.isArray(value) ? value.filter(Boolean) : []);
 
@@ -200,7 +201,8 @@ const callOpenAI = async (messages) => {
       model,
       messages,
       temperature: 0.35,
-      max_tokens: 1000,
+      max_tokens: 6000,
+      response_format: { type: 'json_object' },
     }),
   });
 
@@ -237,7 +239,7 @@ const callGemini = async (messages) => {
 
   const baseGenerationConfig = {
     temperature: 0.35,
-    maxOutputTokens: 900,
+    maxOutputTokens: 4096,
   };
 
   const jsonGenerationConfig = {
@@ -414,7 +416,7 @@ const normalizeOptions = (options = [], questionIndex = 0) => {
 };
 
 const normalizeAssessment = (raw = {}, { course = {}, questionCount = 8 } = {}) => {
-  const count = Math.min(Math.max(Number(questionCount) || 8, 4), 12);
+  const count = Math.min(Math.max(Number(questionCount) || 8, 4), MAX_QUESTION_COUNT);
   const normalizedQuestions = [];
   const seenQuestionIds = new Set();
   const rawQuestions = Array.isArray(raw.questions) ? raw.questions : [];
@@ -477,7 +479,7 @@ const normalizeAssessment = (raw = {}, { course = {}, questionCount = 8 } = {}) 
 const generateAssessmentSetForCourse = async ({ course, courseDetail = null, questionCount = 6 }) => {
   const courseContext = buildCourseContext(course, courseDetail);
   const courseName = normalizeString(course?.name) || 'this course';
-  const desiredCount = Math.min(Math.max(Number(questionCount) || 6, 4), 8);
+  const desiredCount = Math.min(Math.max(Number(questionCount) || 10, 4), MAX_QUESTION_COUNT);
   const messages = [
     {
       role: 'system',

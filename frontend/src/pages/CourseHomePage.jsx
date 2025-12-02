@@ -181,6 +181,27 @@ const getGlobalWeekNumber = (modules = [], moduleIndex = 0, weekIndex = 0) => {
   return offset + weekIndex + 1;
 };
 
+const getWeekOffsetBeforeModule = (modules = [], moduleIndex = 0) => {
+  if (!Array.isArray(modules) || moduleIndex <= 0) {
+    return 0;
+  }
+  let offset = 0;
+  for (let i = 0; i < moduleIndex; i += 1) {
+    const weeks = Array.isArray(modules[i]?.weeklyStructure) ? modules[i].weeklyStructure.length : 0;
+    offset += weeks || 0;
+  }
+  return offset;
+};
+
+const getWeekNumberWithinModule = (modules = [], moduleIndex = 0, globalWeekNumber = 0) => {
+  if (!Number.isFinite(globalWeekNumber) || globalWeekNumber <= 0) {
+    return null;
+  }
+  const offset = getWeekOffsetBeforeModule(modules, moduleIndex);
+  const localWeek = globalWeekNumber - offset;
+  return localWeek > 0 ? localWeek : globalWeekNumber;
+};
+
 const normalizeLectureItems = (items) => {
   if (!Array.isArray(items)) {
     return [];
@@ -1332,14 +1353,23 @@ const CourseHomePage = () => {
     const hasModule = Number.isFinite(rawModule) && rawModule > 0;
     const hasWeek = Number.isFinite(rawWeek) && rawWeek > 0;
     if (hasModule || hasWeek) {
-      const moduleTitle = hasModule ? modules[rawModule - 1]?.title : "";
+      const moduleIndex = hasModule ? rawModule - 1 : null;
+      const moduleTitle = hasModule ? modules[moduleIndex]?.title : "";
+      const weekInModule =
+        hasModule && hasWeek ? getWeekNumberWithinModule(modules, moduleIndex, rawWeek) : null;
       const weekTitle =
-        hasModule && hasWeek && modules[rawModule - 1]?.weeklyStructure?.[rawWeek - 1]?.title;
+        hasModule &&
+        hasWeek &&
+        weekInModule &&
+        modules[moduleIndex]?.weeklyStructure?.[weekInModule - 1]?.title;
       setAssessmentFocus({
         module: hasModule ? rawModule : null,
         week: hasWeek ? rawWeek : null,
+        weekInModule: weekInModule || null,
         moduleTitle: moduleTitle || (hasModule ? `Module ${rawModule}` : ""),
-        weekTitle: weekTitle || (hasWeek ? `Week ${rawWeek}` : ""),
+        weekTitle:
+          weekTitle ||
+          (hasWeek ? `Week ${rawWeek}` : weekInModule ? `Week ${weekInModule}` : ""),
       });
     } else {
       setAssessmentFocus(null);
@@ -1953,7 +1983,8 @@ const CourseHomePage = () => {
   };
   const handleWeekAssessmentClick = (moduleIndex, weekIndex, weekTitle, moduleTitle) => {
     const moduleNumber = moduleIndex + 1;
-    const weekNumber = weekIndex + 1;
+    const weekInModule = weekIndex + 1;
+    const weekNumber = getGlobalWeekNumber(modules, moduleIndex, weekIndex);
     const params = new URLSearchParams();
     params.set("module", moduleNumber);
     params.set("week", weekNumber);
@@ -1961,6 +1992,7 @@ const CourseHomePage = () => {
     setAssessmentFocus({
       module: moduleNumber,
       week: weekNumber,
+      weekInModule,
       moduleTitle: moduleTitle || `Module ${moduleNumber}`,
       weekTitle: weekTitle || `Week ${weekNumber}`,
     });
@@ -2515,7 +2547,8 @@ const CourseHomePage = () => {
                 const totalLectures = lecturesInWeek.length;
                 const isWeekUnlocked = totalLectures > 0 && completedLectures === totalLectures;
                 const weekNumber = getGlobalWeekNumber(modules, safeIndex, weekIdx);
-                const weekTitle = week.title || `Week ${weekNumber}`;
+                const baseTitle = week.title || `Week ${weekIdx + 1}`;
+                const weekTitle = `Week ${weekNumber}${baseTitle ? ` · ${baseTitle}` : ""}`;
                 return (
                   <div key={`module-${safeIndex}-week-${weekIdx}`} className='course-module-week'>
                   <div className='course-module-week__header'>

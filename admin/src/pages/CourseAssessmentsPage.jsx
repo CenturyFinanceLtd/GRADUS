@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import MasterLayout from "../masterLayout/MasterLayout";
 import PageTitle from "../components/PageTitle";
 import { listAdminCourses } from "../services/adminCourses";
+import { fetchCourseDetail } from "../services/adminCourseDetails";
 import { generateAssessment, listAssessments } from "../services/adminAssessments";
 import useAuth from "../hook/useAuth";
 import { formatDistanceToNow } from "date-fns";
@@ -23,10 +24,20 @@ const AssessmentRow = ({ item }) => {
     : item?.updatedAt
     ? formatDistanceToNow(new Date(item.updatedAt), { addSuffix: true })
     : "—";
+  const moduleLabel = item?.moduleIndex
+    ? `Module ${item.moduleIndex}${item.moduleTitle ? `: ${item.moduleTitle}` : ""}`
+    : "Course";
+  const weekLabel = item?.weekIndex
+    ? `Week ${item.weekIndex}${item.weekTitle ? `: ${item.weekTitle}` : ""}`
+    : item?.moduleIndex
+    ? "Whole module"
+    : "—";
 
   return (
     <tr>
       <td className='fw-semibold'>{item?.title || "Untitled set"}</td>
+      <td>{moduleLabel}</td>
+      <td>{weekLabel}</td>
       <td>{item?.level || "—"}</td>
       <td>{questionCount}</td>
       <td>{item?.source === "ai" ? "AI-generated" : item?.source || "—"}</td>
@@ -45,6 +56,9 @@ const CourseAssessmentsPage = () => {
   const [generating, setGenerating] = useState(false);
   const [flash, setFlash] = useState("");
   const [error, setError] = useState("");
+  const [courseDetail, setCourseDetail] = useState(null);
+  const [selectedModuleIndex, setSelectedModuleIndex] = useState("");
+  const [selectedWeekIndex, setSelectedWeekIndex] = useState("");
 
   const selectedCourse = useMemo(
     () => courses.find((c) => c.slug === selectedSlug) || null,
@@ -107,6 +121,30 @@ const CourseAssessmentsPage = () => {
     };
   }, [token, selectedSlug]);
 
+  useEffect(() => {
+    if (!token || !selectedSlug) return;
+    let cancelled = false;
+    const loadDetail = async () => {
+      try {
+        const detail = await fetchCourseDetail({ slug: selectedSlug, token });
+        if (!cancelled) {
+          setCourseDetail(detail);
+          setSelectedModuleIndex("");
+          setSelectedWeekIndex("");
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setCourseDetail(null);
+          setError(err?.message || "Failed to load course detail.");
+        }
+      }
+    };
+    loadDetail();
+    return () => {
+      cancelled = true;
+    };
+  }, [token, selectedSlug]);
+
   const handleGenerate = async () => {
     if (!selectedSlug || !token) return;
     setGenerating(true);
@@ -117,6 +155,8 @@ const CourseAssessmentsPage = () => {
         token,
         courseSlug: selectedSlug,
         programmeSlug: selectedCourse?.programmeSlug || selectedCourse?.programme,
+        moduleIndex: selectedModuleIndex ? Number(selectedModuleIndex) : undefined,
+        weekIndex: selectedWeekIndex ? Number(selectedWeekIndex) : undefined,
       });
       setFlash("AI assessment generated. Refreshing list...");
       const items = await listAssessments({ token, courseSlug: selectedSlug });
@@ -128,13 +168,41 @@ const CourseAssessmentsPage = () => {
     }
   };
 
+  const moduleOptions = useMemo(() => {
+    const detailModules =
+      (Array.isArray(courseDetail?.modules) && courseDetail.modules) ||
+      (Array.isArray(courseDetail?.detail?.modules) && courseDetail.detail.modules) ||
+      [];
+    if (detailModules.length) {
+      return detailModules;
+    }
+    const courseModules = Array.isArray(selectedCourse?.modules) ? selectedCourse.modules : [];
+    return courseModules;
+  }, [courseDetail, selectedCourse]);
+
+  const weekOptions = useMemo(() => {
+    if (!selectedModuleIndex) return [];
+    const moduleIdx = Number(selectedModuleIndex) - 1;
+    if (!moduleOptions[moduleIdx]) return [];
+    const module = moduleOptions[moduleIdx];
+    const sections = Array.isArray(module?.sections) ? module.sections : [];
+    if (sections.length) return sections;
+    if (Array.isArray(module?.weeklyStructure) && module.weeklyStructure.length) return module.weeklyStructure;
+
+    const fallbackCourseModules = Array.isArray(selectedCourse?.modules) ? selectedCourse.modules : [];
+    if (fallbackCourseModules[moduleIdx]?.weeklyStructure) {
+      return fallbackCourseModules[moduleIdx].weeklyStructure;
+    }
+    return [];
+  }, [moduleOptions, selectedModuleIndex, selectedCourse]);
+
   return (
     <MasterLayout>
       <PageTitle title='Course Assessments' breadcrumbItems={['Application', 'Course Assessments']} />
 
       <Card title='Select course'>
         <div className='row g-3 align-items-end'>
-          <div className='col-md-6'>
+          <div className='col-md-5'>
             <label className='form-label'>Course</label>
             <select
               className='form-select'
@@ -152,6 +220,41 @@ const CourseAssessmentsPage = () => {
             </select>
           </div>
           <div className='col-md-3'>
+            <label className='form-label'>Module (optional)</label>
+            <select
+              className='form-select'
+              value={selectedModuleIndex}
+              onChange={(e) => {
+                setSelectedModuleIndex(e.target.value);
+                setSelectedWeekIndex("");
+              }}
+              disabled={!moduleOptions.length || loadingCourses}
+            >
+              <option value=''>Whole course</option>
+              {moduleOptions.map((module, idx) => (
+                <option key={module.title || idx} value={idx + 1}>
+                  {`Module ${idx + 1}: ${module.title || "Untitled"}`}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className='col-md-2'>
+            <label className='form-label'>Week (optional)</label>
+            <select
+              className='form-select'
+              value={selectedWeekIndex}
+              onChange={(e) => setSelectedWeekIndex(e.target.value)}
+              disabled={!selectedModuleIndex || !weekOptions.length || loadingCourses}
+            >
+              <option value=''>Whole module</option>
+              {weekOptions.map((week, idx) => (
+                <option key={week.title || idx} value={idx + 1}>
+                  {`Week ${idx + 1}: ${week.title || "Untitled"}`}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className='col-md-2'>
             <label className='form-label'>Actions</label>
             <div className='d-flex gap-2'>
               <button
@@ -187,6 +290,8 @@ const CourseAssessmentsPage = () => {
               <thead>
                 <tr>
                   <th>Title</th>
+                  <th>Module</th>
+                  <th>Week</th>
                   <th>Level</th>
                   <th>Questions</th>
                   <th>Source</th>
