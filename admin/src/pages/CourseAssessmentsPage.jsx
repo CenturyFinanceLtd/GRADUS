@@ -378,6 +378,24 @@ const CourseAssessmentsPage = () => {
     }
   };
 
+  const handleCancelJob = async () => {
+    if (!token || !selectedSlug) return;
+    try {
+      await cancelAssessmentJob({
+        token,
+        courseSlug: selectedSlug,
+        programmeSlug: selectedCourse?.programmeSlug || selectedCourse?.programme,
+        moduleIndex: selectedModuleIndex ? Number(selectedModuleIndex) : undefined,
+        weekIndex: selectedWeekIndex ? Number(selectedWeekIndex) : undefined,
+      });
+      setGenerating(false);
+      setFlash("Generation cancelled.");
+      setJobProgress({ status: "cancelled", completed: jobProgress.completed, total: jobProgress.total });
+    } catch (err) {
+      setError(err?.message || "Failed to cancel generation.");
+    }
+  };
+
   const moduleOptions = useMemo(() => {
     const detailModules =
       (Array.isArray(courseDetail?.modules) && courseDetail.modules) ||
@@ -641,20 +659,3 @@ const CourseAssessmentsPage = () => {
 };
 
 export default CourseAssessmentsPage;
-  const handleCancelJob = async () => {
-    if (!token || !selectedSlug) return;
-    try {
-      await cancelAssessmentJob({
-        token,
-        courseSlug: selectedSlug,
-        programmeSlug: selectedCourse?.programmeSlug || selectedCourse?.programme,
-        moduleIndex: selectedModuleIndex ? Number(selectedModuleIndex) : undefined,
-        weekIndex: selectedWeekIndex ? Number(selectedWeekIndex) : undefined,
-      });
-      setGenerating(false);
-      setFlash("Generation cancelled.");
-      setJobProgress({ status: "cancelled", completed: jobProgress.completed, total: jobProgress.total });
-    } catch (err) {
-      setError(err?.message || "Failed to cancel generation.");
-    }
-  };

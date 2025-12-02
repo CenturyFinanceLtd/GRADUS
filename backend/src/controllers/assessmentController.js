@@ -772,7 +772,28 @@ const getAssessmentJobStatus = asyncHandler(async (req, res) => {
   if (!jobs || !jobs.length) {
     return res.json({ job: null });
   }
-  const job = jobs[0];
+  let job = jobs[0];
+
+  // Auto-heal: mark completed if counts match, or fail stale running jobs
+  const now = Date.now();
+  const updatedAt = job.updatedAt ? new Date(job.updatedAt).getTime() : now;
+  const isStaleRunning = job.status === 'running' && now - updatedAt > 10 * 60 * 1000; // 10 minutes
+  const isDone = job.totalTarget && job.completed >= job.totalTarget;
+
+  if (isDone && job.status !== 'completed') {
+    job = await AssessmentJob.findByIdAndUpdate(
+      job._id,
+      { status: 'completed', finishedAt: new Date() },
+      { new: true }
+    ).lean();
+  } else if (isStaleRunning) {
+    job = await AssessmentJob.findByIdAndUpdate(
+      job._id,
+      { status: 'failed', error: 'Job stalled; auto-marked as failed.' },
+      { new: true }
+    ).lean();
+  }
+
   res.json({
     job: {
       id: job._id?.toString() || '',
