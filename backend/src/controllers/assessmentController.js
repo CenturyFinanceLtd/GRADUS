@@ -395,12 +395,31 @@ const generateCourseAssessments = asyncHandler(async (req, res) => {
             break;
           }
           const batchSize = Math.min(5, targetQuestionCount - generatedForTask); // generate in small batches for speed
-          const pool = await buildQuestionPool({
-            course,
-            courseDetail: scopedCourseDetail,
-            targetQuestionCount: batchSize,
-            desiredLevel,
-          });
+          let pool = null;
+          let lastErr = null;
+          for (let attempt = 0; attempt < 3; attempt += 1) {
+            try {
+              pool = await buildQuestionPool({
+                course,
+                courseDetail: scopedCourseDetail,
+                targetQuestionCount: batchSize,
+                desiredLevel,
+              });
+              lastErr = null;
+              break;
+            } catch (err) {
+              lastErr = err;
+              await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+            }
+          }
+          if (!pool && lastErr) {
+            await AssessmentJob.findByIdAndUpdate(job._id, {
+              status: 'failed',
+              error: lastErr?.message || 'Generation failed after retries.',
+              finishedAt: new Date(),
+            });
+            return;
+          }
           const { meta, questions, usage, model } = pool;
           const merged = mergeQuestionPools(existingSet?.questions || [], questions);
 
@@ -619,6 +638,20 @@ const startAssessmentAttempt = asyncHandler(async (req, res) => {
     throw new Error('Course not found.');
   }
 
+  // If the user already has an attempt for this module/week, return it (even if the set was later deleted)
+  const existingAttempt = await AssessmentAttempt.findOne({
+    userId: req.user._id,
+    courseSlug: course.slug,
+    moduleIndex,
+    weekIndex,
+  }).lean();
+
+  if (existingAttempt) {
+    return res.json({
+      attempt: mapAttemptForResponse(existingAttempt, { includeCorrect: existingAttempt.status === 'submitted' }),
+    });
+  }
+
   const findFallbackSet = async () => {
     // exact match
     let target = await AssessmentSet.findOne({ courseSlug: course.slug, moduleIndex, weekIndex }).lean();
@@ -635,6 +668,16 @@ const startAssessmentAttempt = asyncHandler(async (req, res) => {
 
   const set = await findFallbackSet();
   if (!set || !Array.isArray(set.questions) || !set.questions.length) {
+    // If there's no set, return the latest attempt for this course (if any) so the user can review
+    const latestAttempt = await AssessmentAttempt.findOne({ userId: req.user._id, courseSlug: course.slug })
+      .sort({ updatedAt: -1 })
+      .lean();
+    if (latestAttempt) {
+      return res.json({
+        attempt: mapAttemptForResponse(latestAttempt, { includeCorrect: latestAttempt.status === 'submitted' }),
+      });
+    }
+
     res.status(404);
     throw new Error('Assessment set not found for this module/week.');
   }
@@ -717,8 +760,10 @@ const submitAssessmentAttempt = asyncHandler(async (req, res) => {
   let correctCount = 0;
   attempt.questions = attempt.questions.map((question) => {
     const baseQuestion = typeof question.toObject === 'function' ? question.toObject() : question;
-    const selectedOptionId = answerMap.get(String(question.questionId)) || '';
-    const isCorrect = selectedOptionId && selectedOptionId === baseQuestion.correctOptionId;
+    const selectedOptionId = answerMap.has(String(question.questionId))
+      ? answerMap.get(String(question.questionId)) || ''
+      : '';
+    const isCorrect = !!(selectedOptionId && selectedOptionId === baseQuestion.correctOptionId);
     if (isCorrect) {
       correctCount += 1;
     }
