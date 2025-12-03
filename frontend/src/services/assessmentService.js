@@ -16,8 +16,18 @@ export const fetchAssessmentsForCourse = ({ courseSlug = "", programmeSlug = "",
 };
 
 const buildCoursePath = (courseSlug = "", programmeSlug = "") => {
-  const courseKey = courseSlug.toString().trim().toLowerCase();
-  const programmeKey = programmeSlug.toString().trim().toLowerCase();
+  let courseKey = courseSlug.toString().trim().toLowerCase();
+  let programmeKey = programmeSlug.toString().trim().toLowerCase();
+
+  // Support combined slug like "programme/course"
+  if (!programmeKey && courseKey.includes("/")) {
+    const [maybeProgramme, ...rest] = courseKey.split("/");
+    if (maybeProgramme && rest.length) {
+      programmeKey = maybeProgramme;
+      courseKey = rest.join("/");
+    }
+  }
+
   const encodedCourse = encodeURIComponent(courseKey);
   const encodedProgramme = encodeURIComponent(programmeKey);
   if (courseKey && programmeKey) {

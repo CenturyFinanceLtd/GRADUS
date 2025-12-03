@@ -2297,6 +2297,20 @@ const CourseHomePage = () => {
     }
   };
 
+  useEffect(() => {
+    if (isModuleDropdownOpen) return;
+    const container = moduleSelectorRef.current;
+    if (!container) return;
+    const active = document.activeElement;
+    if (active && container.contains(active)) {
+      active.blur();
+    }
+    const trigger = container.querySelector("#module-selector");
+    if (trigger && typeof trigger.focus === "function") {
+      trigger.focus({ preventScroll: true });
+    }
+  }, [isModuleDropdownOpen]);
+
   const renderModuleDetail = () => {
     if (!modules.length) {
       return (
@@ -2445,6 +2459,7 @@ const CourseHomePage = () => {
                 <div
                   className='course-module-selector__list-wrap'
                   aria-hidden={!isModuleDropdownOpen}
+                  inert={!isModuleDropdownOpen ? "true" : undefined}
                 >
                   <ul
                     id='module-selector-list'
