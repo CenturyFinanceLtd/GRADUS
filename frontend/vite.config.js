@@ -13,6 +13,35 @@ export default defineConfig({
     // disables CSS source maps in dev mode
     devSourcemap: false,
   },
+  build: {
+    chunkSizeWarningLimit: 900, // raise limit after splitting to avoid noisy warnings
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          "vendor-ui": [
+            "bootstrap",
+            "react-select",
+            "aos",
+            "lightgallery",
+            "react-modal-video",
+            "react-fast-marquee",
+            "react-slider",
+            "react-visibility-sensor",
+            "react-countup",
+          ],
+          "vendor-slick": ["react-slick", "slick-carousel"],
+          "vendor-icons": [
+            "@fortawesome/fontawesome-svg-core",
+            "@fortawesome/free-brands-svg-icons",
+            "@fortawesome/react-fontawesome",
+          ],
+          "vendor-pdf": ["pdfjs-dist"],
+          "vendor-socket": ["socket.io-client"],
+        },
+      },
+    },
+  },
   test: {
     environment: "jsdom",
     setupFiles: "./src/setupTests.js",
