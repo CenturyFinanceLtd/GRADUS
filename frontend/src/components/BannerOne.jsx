@@ -91,7 +91,7 @@ const BannerOne = () => {
   const baseSectionClass =
     "banner banner--rounded banner--full-bleed position-relative overflow-hidden";
   const minHeightDesktop = 420;
-  const minHeightMobile = 260;
+  const minHeightMobile = 0; // allow natural height on mobile to avoid forced whitespace
   const showSkeleton = loading || error;
 
   const skeletonStyle = {
@@ -169,7 +169,7 @@ const BannerOne = () => {
       <section
         className={sectionClassName}
         data-variant={`${variant}-banner`}
-        style={{ minHeight }}
+        style={{ minHeight: variant === "mobile" ? undefined : minHeight }}
       >
         {!heroReady ? (
           <div

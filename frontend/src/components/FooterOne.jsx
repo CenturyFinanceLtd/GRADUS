@@ -235,7 +235,7 @@ const FooterOne = () => {
                   onClick={() => toggleSection("privacy")}
                   aria-expanded={isSectionExpanded("privacy")}
                 >
-                  <span>Privacy Statements</span>
+                  <span>Privacy Policies</span>
                   <i className='ph ph-caret-down' aria-hidden='true' />
                 </button>
                 <div className='gradus-footer__accordion-panel' hidden={!isSectionExpanded("privacy")}>
@@ -344,6 +344,7 @@ const FooterOne = () => {
             </form>
           </div>
           <div className='gradus-footer__social gradus-footer__social--cta'>
+            <p className='gradus-footer__social-heading'>Follow us</p>
             {socialLinks.map(({ href, label, icon, color }) => (
               <a
                 key={`cta-${label}`}
@@ -362,7 +363,7 @@ const FooterOne = () => {
       </div>
       <div className='gradus-footer__meta container container-two'>
         <p className='gradus-footer__copyright'>
-          Copyright &copy; 2025 All Rights Reserved by Century finance limited
+          Copyright &copy; 2025 | All Rights Reserved by Century finance limited
         </p>
         <div className='gradus-footer__bottom'>
           <div className='gradus-footer__legal'>

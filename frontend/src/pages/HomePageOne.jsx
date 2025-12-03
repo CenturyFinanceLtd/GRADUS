@@ -51,7 +51,7 @@ const HomePageOne = () => {
   }, []);
 
   return (
-    <>
+    <div className='home-page'>
       {/* Preloader */}
       <Preloader />
 
@@ -90,7 +90,7 @@ const HomePageOne = () => {
 
       {/* Footer */}
       <FooterOne />
-    </>
+    </div>
   );
 };
 
