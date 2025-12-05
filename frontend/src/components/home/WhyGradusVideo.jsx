@@ -128,7 +128,7 @@ const WhyGradusVideo = () => {
               </>
             ) : (
               <>
-                {title ? <h3 className="why-gradus-title mt-12">{title}</h3> : null}
+                {title ? <h3 className="why-gradus-title l1-head mt-12">{title}</h3> : null}
                 {description ? <p className="why-gradus-desc mt-12">{description}</p> : null}
                 {ctaLabel && ctaHref ? (
                   <a className="why-gradus-cta mt-12 d-inline-flex align-items-center gap-8" href={ctaHref}>

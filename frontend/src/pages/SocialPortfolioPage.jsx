@@ -23,6 +23,13 @@ const SocialPortfolioPage = () => {
       color: "#25D366",
     },
     {
+      name: "Telegram",
+      handle: "@freeskillsandjobhub",
+      url: "https://t.me/freeskillsandjobhub",
+      icon: "ph ph-telegram-logo",
+      color: "#0088cc",
+    },
+    {
       name: "Facebook",
       handle: "Gradus India",
       url: "https://www.facebook.com/people/Gradus/61583093960559/?sk=about",

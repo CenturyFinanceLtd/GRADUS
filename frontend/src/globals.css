@@ -1040,7 +1040,7 @@ img {
     padding-block: var(--size-28) !important;
   }
   .programmes-courses-section .container {
-    padding-inline: 0;
+    padding-inline: 6px; /* slight inset so first card sits close to edge */
   }
   .programmes-courses-carousel {
     margin-top: 16px;
@@ -1050,8 +1050,8 @@ img {
   }
   .programmes-courses-carousel .slick-list {
     overflow: visible;
-    padding-inline-start: 12px;
-    padding-inline-end: 8px;
+    padding-inline-start: 6px;
+    padding-inline-end: 6px;
   }
   .programmes-courses-carousel .slick-slide {
     margin: 0 6px !important;
@@ -1200,8 +1200,8 @@ img {
   display: inline-flex;
 }
 .programme-card__avatar {
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   border: 2px solid #fff;
   margin-inline-end: -10px;
@@ -1219,7 +1219,7 @@ img {
   background: linear-gradient(135deg, #ec4899, #f472b6);
 }
 .programme-card__pill-text {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #0c1442;
 }
@@ -11925,12 +11925,7 @@ ul.footer-menu {
 
 /* Gradus footer redesign */
 .gradus-footer {
-  background: radial-gradient(
-      128% 128% at 0% 0%,
-      rgba(101, 126, 255, 0.28) 0%,
-      rgba(9, 8, 27, 0.85) 55%
-    )
-    #040016;
+  background: radial-gradient(128% 128% at 0% 0%, #657eff47, #09081b9c 55%) #040016e8;
   color: #f4f6ff;
   padding-block: clamp(3rem, 4vw, 5.5rem);
   padding-bottom: 20px;
@@ -11956,10 +11951,10 @@ ul.footer-menu {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
+  /* background: #ffffff; */
   border-radius: 18px;
-  padding: 18px;
-  box-shadow: 0 25px 40px rgba(0, 0, 0, 0.3);
+  padding: 18px 0;
+  /* box-shadow: 0 25px 40px rgba(0, 0, 0, 0.3); */
 }
 .gradus-footer__logo--inline {
   margin-bottom: 1.5rem;
@@ -12112,8 +12107,7 @@ ul.footer-menu {
   /* text-align: center; */
 }
 .gradus-footer__social--cta .gradus-footer__social-link {
-  width: 52px;
-  height: 52px;
+  padding: 4px 6px;
   border-radius: 16px;
 }
 
@@ -12607,6 +12601,21 @@ ul.footer-menu {
     width: 220px; /* +10% */
     max-width: 220px;
     margin: 0 auto 8px;
+  }
+  .gradus-footer__logo{
+    padding: 5px 0;
+  }
+  .gradus-footer__primary{
+    gap: clamp(1rem, 4vw, 3rem);
+  }
+  .l1-head{
+    font-size: 24px;
+  }
+  .l2-head{
+    font-size: 20px;
+  }
+  .l3-head{
+
   }
 }
 .video-testimonials-section.py-64 {
@@ -19285,6 +19294,12 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
     width: 64px;
     height: 64px;
   }
+  .counter-highlight__value{
+    font-size: clamp(1.5rem, 1.3rem + 1.3vw, 2.7rem);
+  }
+  .bycfl-section .container {
+    padding: 0px !important;
+  }
 }
 
 @media (max-width: 767.98px) {
@@ -22016,5 +22031,16 @@ video:-ms-fullscreen {
   }
   .events-modern__inner {
     width: 100%;
+  }
+}
+
+/* Consistent mobile gutters for all sections/containers */
+@media (max-width: 767.98px) {
+  .container,
+  .container.container--lg,
+  .container-fluid {
+    padding-left: clamp(16px, 5vw, 24px);
+    padding-right: clamp(16px, 5vw, 24px);
+    max-width: 100%;
   }
 }

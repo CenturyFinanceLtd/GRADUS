@@ -38,7 +38,7 @@ const CourseInsight = () => {
     <section className="course-insight-section py-64">
       <div className="container container--lg">
         <div className="text-center mb-32">
-          <h2 className="mb-8">
+          <h2 className="mb-8 l1-head">
             Course <span style={{ color: "#22c55e" }}>Insights</span>
           </h2><p className="text-neutral-600 mb-0"> A seamlessly integrated learning experience crafted for practical, measurable growth
           </p>

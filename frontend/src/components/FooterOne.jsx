@@ -56,6 +56,11 @@ const socialLinks = [
     label: "WhatsApp",
     icon: "/assets/social/whatsapp.svg",
   },
+  {
+    href: "https://t.me/freeskillsandjobhub",
+    label: "Telegram",
+    icon: "/assets/social/telegram.svg",
+  },
 ];
 
 const deriveProgrammeSlug = (course) => {
@@ -95,7 +100,6 @@ const FooterOne = () => {
     });
     return initial;
   });
-  // Default to desktop-open state; resize effect below will sync on the client.
   const [expandedSections, setExpandedSections] = useState(() => buildSectionState(true));
   const [isMobile, setIsMobile] = useState(false);
 
@@ -193,7 +197,7 @@ const FooterOne = () => {
         <div className='gradus-footer__primary'>
           <div className='gradus-footer__logo-row'>
             <Link to='/' className='gradus-footer__logo' aria-label='Gradus home'>
-              <img src='/assets/images/logo/logo.png' alt='Gradus logo' />
+              <img src='/assets/images/logo/logo.svg' alt='Gradus logo' />
             </Link>
           </div>
           <div className='gradus-footer__grid'>

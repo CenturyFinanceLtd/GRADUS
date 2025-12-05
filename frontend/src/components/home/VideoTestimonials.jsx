@@ -219,7 +219,7 @@ const VideoTestimonials = () => {
       <div className="container">
         <div className="row justify-content-center text-center mb-24">
           <div className="col-xl-7 col-lg-8">
-            <h2 className="mb-0 text-neutral-900">Hear From Our Students</h2>
+            <h2 className="mb-0 l1-head text-neutral-900">Hear From Our Students</h2>
           </div>
         </div>
 
