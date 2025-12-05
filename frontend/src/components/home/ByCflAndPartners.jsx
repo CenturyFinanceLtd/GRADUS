@@ -81,6 +81,15 @@ const prioritizePartners = (items) => {
   return weavePartners();
 };
 
+const buildLoopRow = (row, visibleSlides) => {
+  if (!row?.length) return [];
+
+  const minItems = Math.max(visibleSlides * 4, row.length * 3);
+  const repeatCount = Math.ceil(minItems / row.length);
+
+  return Array.from({ length: repeatCount }, () => row).flat();
+};
+
 const ByCflAndPartners = () => {
   const { partners, loading, error } = usePartnerLogos();
   const partnerItems = useMemo(
@@ -119,11 +128,11 @@ const ByCflAndPartners = () => {
   `;
 
   const baseSettings = {
-    slidesToShow: 7,
+    slidesToShow: 4,
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 0, // continuous movement with no pause
-    speed: 7000,
+    speed: 13000, // steady, uniform pace across all rows
     cssEase: "linear",
     dots: false,
     pauseOnHover: false,
@@ -132,22 +141,22 @@ const ByCflAndPartners = () => {
     infinite: true,
     swipeToSlide: true,
     responsive: [
-      { breakpoint: 1399, settings: { slidesToShow: 6 } },
-      { breakpoint: 1200, settings: { slidesToShow: 5 } },
-      { breakpoint: 992, settings: { slidesToShow: 4 } },
+      { breakpoint: 1399, settings: { slidesToShow: 4 } },
+      { breakpoint: 1200, settings: { slidesToShow: 4 } },
+      { breakpoint: 992, settings: { slidesToShow: 3 } },
       { breakpoint: 768, settings: { slidesToShow: 3 } },
       { breakpoint: 520, settings: { slidesToShow: 2 } },
     ],
   };
 
-  const rowSettings = [
-    baseSettings,
-    { ...baseSettings, speed: 8500 },
-    { ...baseSettings, speed: 8000 },
+  const rowConfigs = [
+    { direction: "ltr" },
+    { direction: "rtl" },
+    { direction: "ltr" },
   ];
 
   return (
-    <section className="bycfl-section py-64 position-relative z-1 bg-white overflow-hidden">
+    <section className="bycfl-section py-40 position-relative z-1 bg-white overflow-hidden">
       <style>{skeletonKeyframes}</style>
       <div className="container container--lg">
         <div className="text-center mb-32">
@@ -194,23 +203,56 @@ const ByCflAndPartners = () => {
               ))
             ) : (
               rows.map((row, i) => {
-                const loopRow = row.length ? row.concat(row, row) : row;
+                const rowLength = row.length;
+                const desktopSlides = Math.min(
+                  baseSettings.slidesToShow,
+                  Math.max(rowLength, 3)
+                );
+                const loopRow = buildLoopRow(row, desktopSlides);
+                if (!loopRow.length) {
+                  return null;
+                }
+
+                const responsive = baseSettings.responsive.map((entry) => ({
+                  ...entry,
+                  settings: {
+                    ...entry.settings,
+                    slidesToShow: Math.min(
+                      entry.settings.slidesToShow,
+                      Math.max(rowLength, 2)
+                    ),
+                  },
+                }));
+
+                const sliderSettings = {
+                  ...baseSettings,
+                  slidesToShow: desktopSlides,
+                  infinite: loopRow.length > desktopSlides,
+                  rtl: rowConfigs[i]?.direction === "rtl", // alternate row direction for a calmer feel
+                  speed: baseSettings.speed,
+                  initialSlide: 0,
+                  centerMode: false,
+                  variableWidth: false,
+                  slidesToScroll: 1,
+                  waitForAnimate: true,
+                  responsive,
+                };
                 return (
-                <div key={`partner-row-${i}`} style={{ marginBottom: i === rows.length - 1 ? 0 : 18 }}>
-                  <Slider {...rowSettings[i]} className="brand-slider bycfl-slider">
-                    {loopRow.map(({ key, logo, displayName }, idx) => (
-                      <div className="brand-slider__item" key={`${key}-${idx}`} style={{ padding: "12px 12px" }}>
-                        <div>
-                          <img
-                            src={logo}
-                            alt={displayName || "Partner logo"}
-                            style={{ maxHeight: 44, width: "auto", display: "block", margin: "0 auto" }}
-                          />
+                  <div key={`partner-row-${i}`} style={{ marginBottom: i === rows.length - 1 ? 0 : 18 }}>
+                    <Slider {...sliderSettings} className="brand-slider bycfl-slider">
+                      {loopRow.map(({ key, logo, displayName }, idx) => (
+                        <div className="brand-slider__item" key={`${key}-${idx}`} style={{ padding: "10px 12px" }}>
+                          <div>
+                            <img
+                              src={logo}
+                              alt={displayName || "Partner logo"}
+                              style={{ maxHeight: 48, width: "auto", display: "block", margin: "0 auto" }}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </Slider>
-                </div>
+                      ))}
+                    </Slider>
+                  </div>
                 );
               })
             )}

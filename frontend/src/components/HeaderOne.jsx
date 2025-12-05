@@ -541,29 +541,28 @@ const HeaderOne = () => {
                 </div>
               ) : (
                 <>
-                  {/* Desktop: icon + label inside one pill */}
+                  {/* Desktop: sign-in CTA without profile icon */}
                   <Link
                     to={profileLink}
                     title={profileLabel}
                     aria-label={profileLabel}
-                    className='account-pill d-none d-lg-inline-flex'
+                    className='account-pill d-none d-lg-inline-flex account-pill--signin'
                   >
-                    <span className='account-pill__icon'><i className='ph ph-user-circle' /></span>
                     <span className='account-pill__label'>Sign in</span>
                     <i className='ph-bold ph-arrow-up-right account-pill__caret' aria-hidden='true' />
                   </Link>
-                  {/* Mobile/Tablet: compact icon button on the right */}
+                  {/* Mobile/Tablet: text button instead of profile icon */}
                   <Link
                     to={profileLink}
                     title={profileLabel}
                     aria-label={profileLabel}
-                    className='info-action w-52 h-52 bg-main-25 hover-bg-main-600 border border-neutral-30 rounded-circle flex-center text-2xl text-neutral-500 hover-text-white hover-border-main-600 d-lg-none'
+                    className='header-signin-btn d-lg-none'
                   >
-                    <i className='ph ph-user-circle' />
+                    <span>Sign in</span>
+                    <i className='ph-bold ph-arrow-up-right' aria-hidden='true' />
                   </Link>
                 </>
               )}
-              
               </div>
               {/* Header Right End  */}
             </div>

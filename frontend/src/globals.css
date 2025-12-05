@@ -5385,11 +5385,7 @@ button:focus {
 .bycfl-section {
   /* default inherits py-64 spacing */
 }
-@media (max-width: 575.98px) {
-  .bycfl-section {
-    padding-block: var(--size-8) !important;
-  }
-}
+
 .py-68 {
   padding-block: var(--size-68) !important;
 }
@@ -11080,7 +11076,7 @@ button:focus {
   z-index: 1200;
   -webkit-backdrop-filter: blur(24px);
   backdrop-filter: blur(24px);
-  -webkit-animation: slideDown 0.35s ease-out;
+  -webkit-animation: slideDown 0.5s ease-in-out;
   animation: slideDown 0.35s ease-out;
   background: rgba(255, 255, 255, 0.4);
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6),
@@ -11272,6 +11268,33 @@ button:focus {
 .account-pill__caret {
   opacity: 0.7;
   margin-inline-start: 2px;
+}
+.account-pill--signin {
+  padding-inline: 18px;
+  background: linear-gradient(120deg, var(--main-600), var(--main-700));
+  color: hsl(var(--white));
+  border-color: var(--main-600);
+  box-shadow: 0 12px 28px hsl(var(--main) / 0.25);
+  font-weight: 700;
+}
+.account-pill--signin .account-pill__caret {
+  opacity: 1;
+  color: inherit;
+}
+.account-pill--signin .account-pill__label {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.account-pill--signin:hover,
+.account-pill--signin:focus-visible {
+  background: linear-gradient(120deg, var(--main-700), var(--main-800));
+  border-color: var(--main-700);
+  color: hsl(var(--white));
+  box-shadow: 0 14px 30px hsl(var(--main) / 0.3);
+}
+.account-pill--signin:focus-visible {
+  outline: 3px solid hsl(var(--main-200));
+  outline-offset: 2px;
 }
 @media screen and (max-width: 1399px) {
   .nav-menu {
@@ -11524,16 +11547,33 @@ button:focus {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  border: 1px solid var(--neutral-30);
-  background: #fff;
-  color: var(--neutral-800);
-  font-weight: 600;
-  line-height: 1;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--main-600);
+  background: linear-gradient(120deg, var(--main-600), var(--main-700));
+  color: hsl(var(--white));
+  font-weight: 700;
+  line-height: 1.1;
+  min-height: 44px;
+  box-shadow: 0 12px 28px hsl(var(--main) / 0.24);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.header-signin-btn i {
+  font-size: 16px;
 }
 .header-signin-btn:hover {
-  background: var(--neutral-20);
+  color: hsl(var(--white));
+  background: linear-gradient(120deg, var(--main-700), var(--main-800));
+  border-color: var(--main-700);
+  box-shadow: 0 14px 30px hsl(var(--main) / 0.3);
+}
+@media screen and (max-width: 575px) {
+  .header-signin-btn {
+    padding: 8px 12px;
+    min-height: 38px;
+    font-size: 0.95rem;
+  }
 }
 .header-call-btn {
   width: 40px;
@@ -12430,7 +12470,56 @@ ul.footer-menu {
   -webkit-transition-delay: 0.3s;
   -o-transition-delay: 0.3s;
   transition-delay: 0.3s;
-} /* ================================= Social Icon Css End ===========================  */ /* ===== Scoped carousel arrows (ByCfl + Video Reels) ===== */
+} /* ================================= Social Icon Css End ===========================  */
+
+/* Partner carousel polish */
+.bycfl-slider {
+  position: relative;
+}
+.bycfl-slider .slick-list {
+  overflow: hidden;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+.bycfl-slider .slick-track {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  align-items: center;
+  -webkit-box-pack: start;
+  -ms-flex-pack: start;
+  justify-content: flex-start;
+}
+.bycfl-slider .slick-slide {
+  height: 100%;
+}
+.bycfl-slider .slick-slide > div,
+.bycfl-slider .brand-slider__item {
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+.bycfl-slider .brand-slider__item img {
+  max-height: 52px;
+  width: auto;
+  object-fit: contain;
+  margin-inline: auto;
+}
+/* Keep clones visible so logos don't vanish mid-scroll */
+.bycfl-slider .slick-slide[aria-hidden="true"],
+.bycfl-slider .slick-slide[aria-hidden="true"] * {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* ===== Scoped carousel arrows (ByCfl + Video Reels) ===== */
 .bycfl-slider .slick-prev:before,
 .bycfl-slider .slick-next:before,
 .video-reels-slider .slick-prev:before,
@@ -12448,8 +12537,8 @@ ul.footer-menu {
 }
 .video-testimonial-card {
   border-radius: 28px;
-  width: min(320px, 86vw);
-  max-width: 320px;
+  width: min(308px, 82vw); /* +10% */
+  max-width: 308px;
   margin-inline: auto;
 }
 .video-testimonial-frame {
@@ -12473,12 +12562,12 @@ ul.footer-menu {
   visibility: visible !important;
 }
 .video-reels-slider .slick-slide {
-  margin: 0 8px;
+  margin: 0 0.5rem; /* 1rem total gap between items */
 }
 @media (max-width: 991.98px) {
   .video-testimonial-card {
-    width: min(320px, 86vw);
-    max-width: 320px;
+    width: min(308px, 82vw); /* +10% */
+    max-width: 308px;
   }
   .video-reels-slider .slick-list {
     overflow: visible;
@@ -12498,14 +12587,14 @@ ul.footer-menu {
 }
 @media (max-width: 767.98px) {
   .video-testimonial-card {
-    width: min(300px, 84vw);
-    max-width: 300px;
+    width: min(286px, 82vw); /* +10% */
+    max-width: 286px;
   }
   .video-reels-slider {
     padding-inline: clamp(10px, 4vw, 18px);
   }
   .video-reels-slider .slick-slide {
-    margin: 0 6px !important; /* small gutter similar to popular courses */
+    margin: 0 0.5rem !important; /* 1rem total gap between items */
   }
   .video-reels-slider .slick-list {
     overflow: visible;
@@ -12515,8 +12604,8 @@ ul.footer-menu {
 }
 @media (max-width: 575.98px) {
   .video-testimonial-card {
-    width: 240px;
-    max-width: 240px;
+    width: 220px; /* +10% */
+    max-width: 220px;
     margin: 0 auto 8px;
   }
 }
