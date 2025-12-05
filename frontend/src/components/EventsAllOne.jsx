@@ -10,6 +10,10 @@ const formatSchedule = (schedule) => {
     return {
       dateLabel: "TBA",
       timeLabel: "",
+      dayLabel: "Any",
+      monthLabel: "",
+      dayOfMonth: "",
+      year: "",
     };
   }
 
@@ -22,11 +26,21 @@ const formatSchedule = (schedule) => {
   const timeFormatter = new Intl.DateTimeFormat("en-IN", {
     hour: "numeric",
     minute: "2-digit",
+    hour12: true,
   });
+  const dayNameFormatter = new Intl.DateTimeFormat("en-US", { weekday: "long" });
+  const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "short" });
+
+  const dateLabel = dateFormatter.format(date);
+  const [dayOfMonth, monthLabel, year] = dateLabel.split(" ");
 
   return {
-    dateLabel: dateFormatter.format(date),
+    dateLabel,
     timeLabel: timeFormatter.format(date),
+    dayLabel: dayNameFormatter.format(date),
+    monthLabel: monthLabel || monthFormatter.format(date),
+    dayOfMonth,
+    year,
   };
 };
 
@@ -42,112 +56,106 @@ const isEventLive = (event) => {
   return now >= startMs && now <= startMs + windowAfterMs;
 };
 
-const EventsFilterChips = ({ categories, active, onSelect }) => (
-  <div className='events-chips d-flex flex-wrap gap-12 justify-content-lg-end'>
-    {categories.map((cat) => (
+const defaultTakeaways = [
+  "Career opportunities",
+  "High-demand skills for 2025",
+  "How to grow your career fast",
+  "Placement roadmap",
+];
+
+const EventTypeChips = ({ options, active, onSelect }) => (
+  <div className='events-modern__chips'>
+    {options.map((opt) => (
       <button
-        key={cat}
+        key={opt}
         type='button'
-        className={`filter-chip ${active === cat ? "is-active" : ""}`}
-        onClick={() => onSelect(cat)}
+        className={`event-chip ${active === opt ? "is-active" : ""}`}
+        onClick={() => onSelect(opt)}
       >
-        {cat}
+        {opt}
       </button>
     ))}
   </div>
 );
 
-const MasterclassCard = ({ event }) => {
-  const { dateLabel, timeLabel } = formatSchedule(event?.schedule);
-  const rawLabel = event?.price?.label || "";
-  const isFreeLabel = rawLabel.trim().toLowerCase() === "free";
-  const priceLabel =
-    event?.price?.amount || (rawLabel && !isFreeLabel)
-      ? rawLabel || `Rs ${event.price.amount}`
-      : null;
-
-  const liveNow = isEventLive(event);
+const EventCard = ({ event }) => {
+  const { dateLabel, timeLabel, monthLabel, dayOfMonth, year } = formatSchedule(event?.schedule);
+  const headline =
+    event?.headline ||
+    event?.subtitle ||
+    "Companies are hiring... but only skilled candidates.";
+  const desc =
+    event?.summary ||
+    "If you want a high-growth career, this is for you.";
+  const takeaways = Array.isArray(event?.takeaways) && event.takeaways.length
+    ? event.takeaways
+    : defaultTakeaways;
+  const eventType = event?.eventType || "Event";
+  const hostName = event?.host?.name || "Gradus Mentor";
+  const hostTitle = event?.host?.title ? ` | ${event.host.title}` : "";
 
   return (
-    <article className='masterclass-card h-100'>
-      <Link
-        to={event?.slug ? `/events/${event.slug}` : "#"}
-        className='masterclass-card__thumb'
-        aria-label={event?.title || "View masterclass"}
-      >
-        <img
-          src={event?.heroImage?.url || "/assets/images/thumbs/event-img1.png"}
-          alt={event?.heroImage?.alt || event?.title || "Event thumbnail"}
-          loading='lazy'
-        />
-        {liveNow ? (
-          <span
-            className='masterclass-card__badge'
-            style={{ background: "#d6293e", color: "#fff" }}
+    <article className='event-card'>
+      <div className='event-card__hero'>
+        <div className='event-card__copy'>
+          <p className='event-card__eyebrow'>{headline}</p>
+          <p className='event-card__desc'>{desc}</p>
+          <div className='event-card__pill'>Join our webinar to learn:</div>
+          <ul className='event-card__bullets'>
+            {takeaways.map((item, idx) => (
+              <li key={`${event.id}-takeaway-${idx}`}>{item}</li>
+            ))}
+          </ul>
+          <div className='event-card__meta'>
+            <div className='event-card__meta-row'>
+              <span className='event-card__meta-icon' aria-hidden='true'>📅</span>
+              <span className='event-card__meta-text'>{dateLabel}</span>
+            </div>
+            <div className='event-card__meta-row'>
+              <span className='event-card__meta-icon' aria-hidden='true'>⏰</span>
+              <span className='event-card__meta-text'>{timeLabel || "TBA"}</span>
+            </div>
+          </div>
+          <Link
+            to={event?.slug ? `/events/${event.slug}` : "#"}
+            className='event-card__cta'
           >
-            Live now
-          </span>
-        ) : null}
-        {!liveNow && event?.badge ? <span className='masterclass-card__badge'>{event.badge}</span> : null}
-      </Link>
-      <div className='masterclass-card__body'>
-        <div className='masterclass-card__head flex-between gap-8'>
-          <span className='masterclass-card__category'>{event?.eventType || "Event"}</span>
-          {priceLabel ? (
-            <span className={`masterclass-card__price-tag ${event?.price?.isFree ? "is-free" : ""}`}>
-              {priceLabel}
-            </span>
-          ) : null}
-        </div>
-        <h3 className='masterclass-card__title text-line-2'>
-          <Link to={event?.slug ? `/events/${event.slug}` : "#"} className='link'>
-            {event?.title || "Untitled session"}
+            Register now
           </Link>
-        </h3>
-        <p className='masterclass-card__instructor mb-2'>
-          {event?.host?.name || "Gradus Mentor"}
-          {event?.host?.title ? ` | ${event.host.title}` : ""}
-        </p>
-        <p className='masterclass-card__summary text-line-2'>
-          {event?.summary || event?.subtitle || "Join us live for an actionable masterclass."}
-        </p>
-        <p className='masterclass-card__time text-sm text-neutral-500 mb-0'>
-          {dateLabel}
-          {timeLabel ? ` | ${timeLabel}` : ""}
-        </p>
+        </div>
+        <div className='event-card__media'>
+          <img
+            src={event?.heroImage?.url || "/assets/images/thumbs/event-img1.png"}
+            alt={event?.heroImage?.alt || event?.title || "Event speaker"}
+            loading='lazy'
+          />
+          <p className='event-card__speaker'>
+            {hostName}
+            {hostTitle}
+          </p>
+        </div>
+      </div>
+
+      <div className='event-card__footer'>
+        <div className='event-card__date'>
+          <span className='event-card__date-month'>{monthLabel || "TBA"}</span>
+          <span className='event-card__date-day'>{dayOfMonth || "--"}</span>
+          <span className='event-card__date-year'>{year || ""}</span>
+        </div>
+        <div className='event-card__info'>
+          <span className='event-card__type'>{eventType}</span>
+          <h3 className='event-card__title'>
+            <Link to={event?.slug ? `/events/${event.slug}` : "#"}>{event?.title || "Upcoming session"}</Link>
+          </h3>
+          <p className='event-card__host'>
+            {hostName}
+            {event?.host?.title ? ` | ${event.host.title}` : ""}
+          </p>
+        </div>
       </div>
     </article>
   );
 };
-
-const LoadingState = () => (
-  <div className='row g-4'>
-    {Array.from({ length: 6 }).map((_, index) => (
-      <div className='col-xl-4 col-md-6' key={`events-skel-${index}`}>
-        <div className='masterclass-card skeleton animate-pulse'>
-          <div className='skeleton-thumb rounded-24 mb-16' />
-          <div className='skeleton-line w-75 mb-8' />
-          <div className='skeleton-line w-50 mb-12' />
-          <div className='skeleton-line w-100 mb-6' />
-          <div className='skeleton-line w-60' />
-        </div>
-      </div>
-    ))}
-  </div>
-);
-
-const EmptyState = ({
-  title = "Nothing scheduled yet",
-  description = "We’re curating the next wave of events. Check back shortly or subscribe to updates.",
-}) => (
-  <div className='empty-state text-center py-80'>
-    <div className='empty-state__illustration mb-24'>
-      <i className='ph ph-calendar-x text-3xl text-main-600' />
-    </div>
-    <h4 className='mb-8'>{title}</h4>
-    <p className='text-neutral-600 mb-0'>{description}</p>
-  </div>
-);
 
 const EventsAllOne = () => {
   const [eventType, setEventType] = useState(EVENT_TYPE_OPTIONS[0]);
@@ -166,7 +174,7 @@ const EventsAllOne = () => {
         const isLiveFilter = eventType === "Live now";
         const response = await fetchEvents({
           limit: EVENT_LIMIT,
-          timeframe: isLiveFilter ? "all" : "upcoming",
+          timeframe: "upcoming",
           eventType: eventType === "All" || isLiveFilter ? undefined : eventType,
           signal: controller.signal,
         });
@@ -176,14 +184,11 @@ const EventsAllOne = () => {
         if (!isMounted || err?.name === "AbortError") return;
         setError(err?.message || "Failed to fetch events");
       } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+        if (isMounted) setLoading(false);
       }
     };
 
     load();
-
     return () => {
       isMounted = false;
       controller.abort();
@@ -194,109 +199,59 @@ const EventsAllOne = () => {
     if (eventType === "Live now") {
       return events.filter(isEventLive);
     }
-    return events;
+    if (eventType === "All") return events;
+    return events.filter(
+      (ev) => (ev?.eventType || "").toLowerCase() === eventType.toLowerCase()
+    );
   }, [events, eventType]);
 
-  const liveBannerEvent = eventType === "Live now" && visibleEvents.length ? visibleEvents[0] : null;
-  const showSpotlight = eventType !== "Live now" && visibleEvents.length > 2;
-  const featuredEvent = showSpotlight ? visibleEvents[0] : null;
-  const gridEvents = showSpotlight ? visibleEvents.slice(1) : visibleEvents;
-
   return (
-    <section className='events-list py-20 bg-white'>
-      <div className='container container--xl'>
-        <header className='events-list__header d-flex flex-wrap gap-20 justify-content-lg-end mb-20'>
-          <EventsFilterChips
-            categories={EVENT_TYPE_OPTIONS}
+    <section className='events-modern'>
+      <div className='container container--xl events-modern__inner'>
+        <header className='events-modern__head'>
+          <h1 className='events-modern__title'>Upcoming Events</h1>
+          <EventTypeChips
+            options={EVENT_TYPE_OPTIONS}
             active={eventType}
             onSelect={setEventType}
           />
         </header>
 
-        {liveBannerEvent ? (
-          <div className='alert alert-info d-flex flex-wrap align-items-center justify-content-between rounded-16 p-16 mb-20'>
-            <div className='d-flex flex-column gap-4'>
-              <span className='badge bg-danger text-white align-self-start'>Live now</span>
-              <h5 className='mb-0'>{liveBannerEvent.title || "Live webinar"}</h5>
-              <p className='mb-0 text-neutral-600'>
-                Join this webinar happening now (available until 30 minutes after the start time).
-              </p>
-            </div>
-            <Link
-              to={`/events/${liveBannerEvent.slug || ""}`}
-              className='btn btn-primary rounded-pill px-24'
-            >
-              Join now
-            </Link>
-          </div>
-        ) : null}
-
         {error ? (
           <div className='alert alert-danger rounded-16'>{error}</div>
         ) : loading ? (
-          <LoadingState />
-        ) : visibleEvents.length === 0 ? (
-          <EmptyState
-            title={eventType === "Live now" ? "No live webinars right now" : undefined}
-            description={
-              eventType === "Live now"
-                ? "Live webinars show here from their start time until 30 minutes after. Please check back soon."
-                : undefined
-            }
-          />
-        ) : (
-          <>
-            {showSpotlight && featuredEvent ? (
-              <section className='events-hero spotlight-card mb-48'>
-                <div className='spotlight-card__content'>
-                  <p className='text-neutral-200 text-sm fw-semibold mb-4'>Featured</p>
-                  <h2 className='spotlight-card__title text-line-2'>
-                    {featuredEvent.title || "Masterclass highlight"}
-                  </h2>
-                  <p className='text-neutral-100 mb-16 text-line-3'>
-                    {featuredEvent.summary ||
-                      featuredEvent.subtitle ||
-                      "Join our flagship live cohort to experience Gradus events."}
-                  </p>
-                  <div className='d-flex flex-wrap gap-12 align-items-center mb-20'>
-                    <span className='spotlight-chip'>
-                      {formatSchedule(featuredEvent.schedule).dateLabel}
-                    </span>
-                    <span className='spotlight-chip'>
-                      {formatSchedule(featuredEvent.schedule).timeLabel || "TBA"}
-                    </span>
-                    <span className='spotlight-chip text-uppercase'>
-                      {featuredEvent.category || "Masterclass"}
-                    </span>
+          <div className='events-modern__grid'>
+            {Array.from({ length: 3 }).map((_, idx) => (
+              <div key={`event-skeleton-${idx}`} className='event-card event-card--skeleton'>
+                <div className='event-card__hero'>
+                  <div className='event-card__copy'>
+                    <div className='skeleton-line w-75 mb-12' />
+                    <div className='skeleton-line w-60 mb-10' />
+                    <div className='skeleton-line w-50 mb-16' />
+                    <div className='skeleton-pill' />
+                    <div className='skeleton-line w-80 mb-8' />
+                    <div className='skeleton-line w-70 mb-8' />
                   </div>
-                  <Link
-                    to={`/events/${featuredEvent.slug || ""}`}
-                    className='btn btn-white rounded-pill px-32'
-                  >
-                    Join this session
-                  </Link>
+                  <div className='event-card__media skeleton-box' />
                 </div>
-                <div className='spotlight-card__media'>
-                  <img
-                    src={featuredEvent.heroImage?.url || "/assets/images/thumbs/event-img1.png"}
-                    alt={featuredEvent.heroImage?.alt || featuredEvent.title || "Featured masterclass"}
-                  />
+                <div className='event-card__footer'>
+                  <div className='skeleton-line w-25 mb-8' />
+                  <div className='skeleton-line w-60 mb-6' />
+                  <div className='skeleton-line w-40' />
                 </div>
-              </section>
-            ) : null}
-
-            {gridEvents.length ? (
-              <div className='events-grid'>
-                {gridEvents.map((event) => (
-                  <MasterclassCard key={event.id} event={event} />
-                ))}
               </div>
-            ) : (
-              <div className='text-center py-40 text-neutral-500 fw-semibold'>
-                More events are being scheduled. Stay tuned!
-              </div>
-            )}
-          </>
+            ))}
+          </div>
+        ) : visibleEvents.length === 0 ? (
+          <div className='text-center py-32 text-neutral-600 fw-semibold'>
+            More events are being scheduled. Check back soon.
+          </div>
+        ) : (
+          <div className='events-modern__grid'>
+            {visibleEvents.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
         )}
       </div>
     </section>

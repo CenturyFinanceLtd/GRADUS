@@ -240,6 +240,10 @@ function ProgrammeCoursePage() {
     );
   }
 
+  const effortLabel = data?.details?.effort || "8–10 hrs/week";
+  const durationLabel = data?.stats?.duration || "12 Weeks";
+  const modeLabel = data?.stats?.mode || "Online / Hybrid";
+
   return (
     <>
       <Preloader />
@@ -269,7 +273,7 @@ function ProgrammeCoursePage() {
                         </a>
                       </li>
                       <li className='text-neutral-500'><i className='ph-bold ph-caret-right' /></li>
-                      <li><Link to='/our-courses' className='link'>Browse</Link></li>
+                      <li><Link to='/our-courses' className='link'>Programmes</Link></li>
                       <li className='text-neutral-500'><i className='ph-bold ph-caret-right' /></li>
                       <li><Link to={`/our-courses?programme=${programmeQuery}`} className='link'>{programmeTitle}</Link></li>
                       <li className='text-neutral-500'><i className='ph-bold ph-caret-right' /></li>
@@ -318,34 +322,33 @@ function ProgrammeCoursePage() {
 
       <section className='py-0'>
         <div className='container'>
-          <div className='rounded-16 bg-white border border-neutral-40 box-shadow-md p-16' style={{ marginTop: -28, position: 'relative', zIndex: 2 }}>
-            <div className='d-grid' style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
-              <div className='flex-align gap-10 px-16 py-12 rounded-12 bg-white border border-neutral-30'>
-                <i className='ph-bold ph-list-bullets d-inline-flex text-main-600' />
+          <div
+            className='course-info-summary rounded-16 bg-white border border-neutral-40 box-shadow-md p-16'
+            style={{ marginTop: -28, position: "relative", zIndex: 2 }}
+          >
+            <div className='course-info-summary__grid'>
+              <div className='course-info-summary__item'>
                 <div className='d-flex flex-column'>
                   <span className='fw-semibold text-neutral-900'>{modulesCount} modules</span>
                   <span className='text-neutral-600 text-sm'>Hands-on projects included</span>
                 </div>
               </div>
-              <div className='flex-align gap-10 px-16 py-12 rounded-12 bg-white border border-neutral-30'>
-                <i className='ph-bold ph-desktop d-inline-flex text-main-600' />
+              <div className='course-info-summary__item'>
                 <div className='d-flex flex-column'>
                   <span className='fw-semibold text-neutral-900'>Mode</span>
-                  <span className='text-neutral-600 text-sm'>{data?.stats?.mode || '-'}</span>
+                  <span className='summary-chip'>{modeLabel}</span>
                 </div>
               </div>
-              <div className='flex-align gap-10 px-16 py-12 rounded-12 bg-white border border-neutral-30'>
-                <i className='ph-bold ph-rocket-launch d-inline-flex text-main-600' />
+              <div className='course-info-summary__item'>
                 <div className='d-flex flex-column'>
                   <span className='fw-semibold text-neutral-900'>Level</span>
-                  <span className='text-neutral-600 text-sm'>{data?.stats?.level || '-'}</span>
+                  <span className='text-neutral-600 text-sm'>{data?.stats?.level || "-"}</span>
                 </div>
               </div>
-              <div className='flex-align gap-10 px-16 py-12 rounded-12 bg-white border border-neutral-30'>
-                <i className='ph-bold ph-clock d-inline-flex text-main-600' />
+              <div className='course-info-summary__item'>
                 <div className='d-flex flex-column'>
                   <span className='fw-semibold text-neutral-900'>Duration</span>
-                  <span className='text-neutral-600 text-sm'>{data?.stats?.duration || '-'}</span>
+                  <span className='summary-chip'>{`${durationLabel} • ${effortLabel}`}</span>
                 </div>
               </div>
             </div>
@@ -393,7 +396,6 @@ function ProgrammeCoursePage() {
                   <div className='row g-4'>
                     <div className='col-md-4'>
                       <div className='d-flex align-items-start gap-12'>
-                        <i className='ph-bold ph-hourglass text-neutral-800 d-inline-flex text-xl' />
                         <div>
                           <div className='fw-semibold text-neutral-900'>Effort</div>
                           <div className='text-neutral-600'>{data?.details?.effort || '8-10 hours per week'}</div>
@@ -402,7 +404,6 @@ function ProgrammeCoursePage() {
                     </div>
                     <div className='col-md-4'>
                       <div className='d-flex align-items-start gap-12'>
-                        <i className='ph-bold ph-translate text-neutral-800 d-inline-flex text-xl' />
                         <div>
                           <div className='fw-semibold text-neutral-900'>Language</div>
                           <div className='text-neutral-600'>{data?.details?.language || 'English'}</div>
@@ -411,12 +412,34 @@ function ProgrammeCoursePage() {
                     </div>
                     <div className='col-md-4'>
                       <div className='d-flex align-items-start gap-12'>
-                        <i className='ph-bold ph-book-bookmark text-neutral-800 d-inline-flex text-xl' />
                         <div>
                           <div className='fw-semibold text-neutral-900'>Prerequisites</div>
                           <div className='text-neutral-600'>{data?.details?.prerequisites || 'Basic HTML/CSS/JS (covered in Module 1)'}</div>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className='mt-24 row g-4'>
+                  <div className='col-md-6'>
+                    <div className='rounded-12 border border-neutral-30 p-16 h-100 bg-neutral-10'>
+                      <h6 className='text-neutral-900 fw-semibold mb-10'>Who this is for</h6>
+                      <ul className='list-unstyled d-grid gap-10 m-0 text-neutral-700'>
+                        <li>Engineers and product folks upskilling into agentic AI builds</li>
+                        <li>Developers shifting from traditional backends to LLM/RAG stacks</li>
+                        <li>Professionals shipping deployable AI features end-to-end</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className='col-md-6'>
+                    <div className='rounded-12 border border-neutral-30 p-16 h-100 bg-neutral-10'>
+                      <h6 className='text-neutral-900 fw-semibold mb-10'>Prerequisites</h6>
+                      <ul className='list-unstyled d-grid gap-10 m-0 text-neutral-700'>
+                        <li>{data?.details?.prerequisites || 'Comfort with Python and APIs'}</li>
+                        <li>Familiarity with Git and CLI workflows</li>
+                        <li>Ability to dedicate {effortLabel} for the cohort</li>
+                      </ul>
                     </div>
                   </div>
                 </div>
@@ -442,9 +465,9 @@ function ProgrammeCoursePage() {
                 <div className='col-12 col-lg-6'>
                   <div className='rounded-16 border border-neutral-30 p-24 mb-12 bg-white h-100'>
                     <h4 className='mb-12'>Tools and Frameworks</h4>
-                    <ul className='list-unstyled d-grid gap-10 m-0 text-neutral-700'>
-                      {(data?.toolsFrameworks || []).map((t, i) => (<li key={`tool-${i}`} className='d-flex align-items-start gap-10'><i className='ph-bold ph-wrench text-main-600 mt-1 d-inline-flex' />{t}</li>))}
-                    </ul>
+                    <div className='d-flex flex-wrap gap-8'>
+                      {(data?.toolsFrameworks || []).map((t, i) => (<span key={`tool-${i}`} className='chip chip--neutral'>{t}</span>))}
+                    </div>
                   </div>
                 </div>
               </div>

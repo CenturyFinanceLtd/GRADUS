@@ -1,14 +1,29 @@
 import Slider from "react-slick";
 
 const BrandOne = () => {
+  const logos = [
+    "/assets/images/thumbs/brand-img1.png",
+    "/assets/images/thumbs/brand-img2.png",
+    "/assets/images/thumbs/brand-img3.png",
+    "/assets/images/thumbs/brand-img4.png",
+    "/assets/images/thumbs/brand-img5.png",
+    "/assets/images/thumbs/brand-img6.png",
+    "/assets/images/thumbs/brand-img7.png",
+    "/assets/images/thumbs/brand-img3.png",
+  ];
+
+  const loopLogos = [...logos, ...logos, ...logos]; // duplicate to avoid gaps when looping
+
   const settings = {
     slidesToShow: 7,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 2000,
-    speed: 900,
+    autoplaySpeed: 0,
+    speed: 9000,
+    cssEase: "linear",
     dots: false,
-    pauseOnHover: true,
+    pauseOnHover: false,
+    pauseOnFocus: false,
     arrows: false,
     infinite: true,
     responsive: [
@@ -41,63 +56,13 @@ const BrandOne = () => {
       data-wow-delay='.5s'
     >
       <div className='container container--lg'>
-        <div className='brand-box py-80 px-16 bg-main-25 border border-neutral-30 rounded-16'>
-          <h5 className='mb-40 text-center text-neutral-500'>
-            TRUSTED BY OVER 17,300 GREAT TEAMS
-          </h5>
-          <div className='container'>
-            <Slider {...settings} className='brand-slider'>
-              <div className='brand-slider__item px-24'>
-                <img src='/assets/images/thumbs/brand-img1.png' alt='' />
-              </div>
-              <div className='brand-slider__item px-24'>
-                <img src='/assets/images/thumbs/brand-img2.png' alt='' />
-              </div>
-              <div className='brand-slider__item px-24'>
-                <img src='/assets/images/thumbs/brand-img3.png' alt='' />
-              </div>
-              <div className='brand-slider__item px-24'>
-                <img src='/assets/images/thumbs/brand-img4.png' alt='' />
-              </div>
-              <div className='brand-slider__item px-24'>
-                <img src='/assets/images/thumbs/brand-img5.png' alt='' />
-              </div>
-              <div className='brand-slider__item px-24'>
-                <img src='/assets/images/thumbs/brand-img6.png' alt='' />
-              </div>
-              <div className='brand-slider__item px-24'>
-                <img src='/assets/images/thumbs/brand-img7.png' alt='' />
-              </div>
-              <div className='brand-slider__item px-24'>
-                <img src='/assets/images/thumbs/brand-img3.png' alt='' />
-              </div>
-              <div className='brand-slider__item px-24'>
-                <img src='/assets/images/thumbs/brand-img1.png' alt='' />
-              </div>
-              <div className='brand-slider__item px-24'>
-                <img src='/assets/images/thumbs/brand-img2.png' alt='' />
-              </div>
-              <div className='brand-slider__item px-24'>
-                <img src='/assets/images/thumbs/brand-img3.png' alt='' />
-              </div>
-              <div className='brand-slider__item px-24'>
-                <img src='/assets/images/thumbs/brand-img4.png' alt='' />
-              </div>
-              <div className='brand-slider__item px-24'>
-                <img src='/assets/images/thumbs/brand-img5.png' alt='' />
-              </div>
-              <div className='brand-slider__item px-24'>
-                <img src='/assets/images/thumbs/brand-img6.png' alt='' />
-              </div>
-              <div className='brand-slider__item px-24'>
-                <img src='/assets/images/thumbs/brand-img7.png' alt='' />
-              </div>
-              <div className='brand-slider__item px-24'>
-                <img src='/assets/images/thumbs/brand-img3.png' alt='' />
-              </div>
-            </Slider>
-          </div>
-        </div>
+        <Slider {...settings} className='brand-slider brand-slider--marquee'>
+          {loopLogos.map((src, idx) => (
+            <div className='brand-slider__item px-24' key={`brand-one-${idx}`}>
+              <img src={src} alt='' />
+            </div>
+          ))}
+        </Slider>
       </div>
     </div>
   );

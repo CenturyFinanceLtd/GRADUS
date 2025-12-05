@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { PROGRAMMES } from "../data/programmes.js";
 import { API_BASE_URL } from "../services/apiClient";
+import { fetchEvents } from "../services/eventService";
 import { slugify } from "../utils/slugify.js";
 import isProtectedPath from "../utils/isProtectedPath.js";
 const HeaderOne = () => {
@@ -10,6 +11,7 @@ const HeaderOne = () => {
   const [scroll, setScroll] = useState(false);
   const [isMenuActive, setIsMenuActive] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [hasUpcomingEvents, setHasUpcomingEvents] = useState(false);
 
   useEffect(() => {
     const onScroll = () => {
@@ -313,6 +315,31 @@ const HeaderOne = () => {
     </>
   );
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await fetchEvents({ limit: 1, timeframe: "upcoming" });
+        if (cancelled) return;
+        const items = Array.isArray(response?.items) ? response.items : [];
+        const now = Date.now();
+        const hasFutureEvent =
+          items.some((event) => {
+            const startValue = event?.schedule?.start;
+            if (!startValue) return false;
+            const start = new Date(startValue);
+            return !Number.isNaN(start.getTime()) && start.getTime() > now;
+          }) || items.length > 0;
+        setHasUpcomingEvents(hasFutureEvent);
+      } catch {
+        if (!cancelled) setHasUpcomingEvents(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const ourCoursesDropdown = {
     label: "Courses",
     links: [
@@ -334,7 +361,7 @@ const HeaderOne = () => {
       ],
     },
     ourCoursesDropdown,
-    { to: "/events", label: "Events", badge: "New" },
+    { to: "/events", label: "Events", badge: hasUpcomingEvents ? "New" : null },
     { to: "/blogs", label: "Blogs" },
     { to: "/contact", label: "Contact us" },
   ];

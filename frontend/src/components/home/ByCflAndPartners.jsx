@@ -122,12 +122,15 @@ const ByCflAndPartners = () => {
     slidesToShow: 7,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 1800,
-    speed: 800,
+    autoplaySpeed: 0, // continuous movement with no pause
+    speed: 7000,
+    cssEase: "linear",
     dots: false,
-    pauseOnHover: true,
+    pauseOnHover: false,
+    pauseOnFocus: false,
     arrows: false,
     infinite: true,
+    swipeToSlide: true,
     responsive: [
       { breakpoint: 1399, settings: { slidesToShow: 6 } },
       { breakpoint: 1200, settings: { slidesToShow: 5 } },
@@ -139,8 +142,8 @@ const ByCflAndPartners = () => {
 
   const rowSettings = [
     baseSettings,
-    { ...baseSettings, autoplaySpeed: 2000 },
-    { ...baseSettings, autoplaySpeed: 2200 },
+    { ...baseSettings, speed: 8500 },
+    { ...baseSettings, speed: 8000 },
   ];
 
   return (
@@ -170,10 +173,10 @@ const ByCflAndPartners = () => {
         <div
           className="brand-box py-24 px-8"
           style={{
-            minHeight: 360,
-            background: showSkeleton ? "#f7f9fc" : undefined,
-            border: "1px solid #eef1f5",
-            padding: "32px 20px",
+            minHeight: 320,
+            background: showSkeleton ? "#f7f9fc" : "transparent",
+            border: "none",
+            padding: "16px 12px",
           }}
         >
           <div className="container">
@@ -190,15 +193,13 @@ const ByCflAndPartners = () => {
                 </div>
               ))
             ) : (
-              rows.map((row, i) => (
+              rows.map((row, i) => {
+                const loopRow = row.length ? row.concat(row, row) : row;
+                return (
                 <div key={`partner-row-${i}`} style={{ marginBottom: i === rows.length - 1 ? 0 : 18 }}>
                   <Slider {...rowSettings[i]} className="brand-slider bycfl-slider">
-                    {row.map(({ key, logo, displayName }) => (
-                      <div
-                        className="brand-slider__item"
-                        key={key}
-                        style={{ padding: "12px 12px" }}
-                      >
+                    {loopRow.map(({ key, logo, displayName }, idx) => (
+                      <div className="brand-slider__item" key={`${key}-${idx}`} style={{ padding: "12px 12px" }}>
                         <div>
                           <img
                             src={logo}
@@ -210,7 +211,8 @@ const ByCflAndPartners = () => {
                     ))}
                   </Slider>
                 </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>

@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import Breadcrumb from "../components/Breadcrumb";
 import FooterOne from "../components/FooterOne";
 import HeaderOne from "../components/HeaderOne";
 import Animation from "../helper/Animation";
@@ -576,14 +575,13 @@ const CoursePaymentPage = () => {
       <Preloader />
       <Animation />
       <HeaderOne />
-        <Breadcrumb title={"Complete Enrollment"} />
-        <section className='py-120'>
-          <div className='container'>
-            <div className='row justify-content-center'>
-              <div className='col-xl-7 col-lg-8'>{renderContent()}</div>
-            </div>
+      <section className='py-120'>
+        <div className='container'>
+          <div className='row justify-content-center'>
+            <div className='col-xl-7 col-lg-8'>{renderContent()}</div>
           </div>
-        </section>
+        </div>
+      </section>
       <FooterOne />
     </>
   );

@@ -95,23 +95,21 @@ const FooterOne = () => {
     });
     return initial;
   });
-  const initialExpanded = typeof window !== "undefined" ? window.innerWidth > 767 : true;
-  const [expandedSections, setExpandedSections] = useState(() => buildSectionState(initialExpanded));
-  const [isMobile, setIsMobile] = useState(() => (typeof window !== "undefined" ? window.innerWidth <= 767 : false));
+  // Default to desktop-open state; resize effect below will sync on the client.
+  const [expandedSections, setExpandedSections] = useState(() => buildSectionState(true));
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth <= 767;
+      const mobile = typeof window !== "undefined" ? window.innerWidth <= 767 : false;
       setIsMobile(mobile);
+      setExpandedSections(buildSectionState(!mobile));
     };
 
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  useEffect(() => {
-    setExpandedSections(buildSectionState(!isMobile));
-  }, [isMobile]);
 
   useEffect(() => {
     let isMounted = true;
@@ -363,7 +361,7 @@ const FooterOne = () => {
       </div>
       <div className='gradus-footer__meta container container-two'>
         <p className='gradus-footer__copyright'>
-          Copyright &copy; 2025 | All Rights Reserved by Century finance limited
+          &copy; 2025 | All Rights Reserved by Century finance limited
         </p>
         <div className='gradus-footer__bottom'>
           <div className='gradus-footer__legal'>

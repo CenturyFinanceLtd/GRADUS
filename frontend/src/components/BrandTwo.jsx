@@ -9,6 +9,10 @@ const BrandTwo = () => {
     () => buildPartnerDisplayItems(partners),
     [partners]
   );
+  const loopPartners = useMemo(() => {
+    if (!brandPartners.length) return [];
+    return brandPartners.concat(brandPartners, brandPartners);
+  }, [brandPartners]);
 
   if (!brandPartners.length) {
     return null;
@@ -18,10 +22,12 @@ const BrandTwo = () => {
     slidesToShow: 7,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 2000,
-    speed: 900,
+    autoplaySpeed: 0,
+    speed: 9000,
+    cssEase: "linear",
     dots: false,
-    pauseOnHover: true,
+    pauseOnHover: false,
+    pauseOnFocus: false,
     arrows: false,
     draggable: true,
     infinite: true,
@@ -75,8 +81,8 @@ const BrandTwo = () => {
             178+ Strategic Industry Partners
           </h5>
           <div className='container'>
-            <Slider {...settings} className='brand-slider'>
-              {brandPartners.map(({ key, href, logo, displayName }) => {
+            <Slider {...settings} className='brand-slider brand-slider--marquee'>
+              {loopPartners.map(({ key, href, logo, displayName }, idx) => {
                 const Element = href ? "a" : "div";
                 const elementProps = href
                   ? {
@@ -87,7 +93,7 @@ const BrandTwo = () => {
                   : {};
 
                 return (
-                  <div className='brand-slider__item px-24' key={key}>
+                  <div className='brand-slider__item px-24' key={`${key}-${idx}`}>
                     <Element {...elementProps}>
                       <img
                         src={logo}
