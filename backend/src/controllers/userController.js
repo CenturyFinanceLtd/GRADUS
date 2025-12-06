@@ -311,6 +311,7 @@ const getMyEnrollments = asyncHandler(async (req, res) => {
   const enrollments = await Enrollment.find({
     user: req.user._id,
     status: 'ACTIVE',
+    paymentStatus: 'PAID',
   })
     .sort({ createdAt: -1 })
     // Include image so the frontend can render course thumbnails on My Courses
