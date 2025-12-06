@@ -31,6 +31,7 @@
   { key: 'blog_details', label: 'Blog Details', path: '/blog/:blogId', category: 'Content & Media' },
   { key: 'blog_details_alt', label: 'Blog Details (Alt)', path: '/blog-details/:blogId', category: 'Content & Media' },
   { key: 'blog_add', label: 'Add Blog', path: '/add-blog', category: 'Content & Media' },
+  { key: 'blog_edit', label: 'Edit Blog', path: '/edit-blog/:blogId', category: 'Content & Media' },
   { key: 'testimonials', label: 'Testimonials', path: '/testimonials', category: 'Application' },
   { key: 'expert_videos', label: 'Expert Videos', path: '/expert-videos', category: 'Application' },
   { key: 'why_gradus_video', label: 'Why Gradus Video', path: '/why-gradus-video', category: 'Application' },

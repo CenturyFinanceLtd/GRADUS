@@ -523,7 +523,7 @@ const CoursesAdmin = () => {
                     <div className='d-flex gap-2'>
                       <button type='button' className='btn btn-sm btn-outline-secondary' onClick={() => setCertifications((prev) => prev.filter((_, i) => i !== idx))} disabled={certifications.length <= 1}>Remove</button>
                       <button type='button' className='btn btn-sm btn-outline-secondary' onClick={() => setCertifications((prev) => { if (idx === 0) return prev; const arr = prev.slice(); const tmp = arr[idx-1]; arr[idx-1] = arr[idx]; arr[idx] = tmp; return arr; })} disabled={idx === 0}>Up</button>
-                      <button type='button' className='btn btn-sm btn-outline-secondary' onClick={() => setCertifications((certs) => { if (idx === certs.length - 1) return certs; const arr = certs.slice(); const tmp = arr[idx+1]; arr[idx+1] = arr[idx]; arr[idx] = tmp; return arr; })} disabled={idx === certs.length - 1}>Down</button>
+                      <button type='button' className='btn btn-sm btn-outline-secondary' onClick={() => setCertifications((certs) => { if (idx === certs.length - 1) return certs; const arr = certs.slice(); const tmp = arr[idx+1]; arr[idx+1] = arr[idx]; arr[idx] = tmp; return arr; })} disabled={idx === certifications.length - 1}>Down</button>
                     </div>
                   </div>
                   <div className='row g-3'>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { Editor } from "@tinymce/tinymce-react";
+import DOMPurify from "dompurify";
 import { Link } from "react-router-dom";
 import useAuth from "../hook/useAuth";
 import { createBlog, fetchBlogDetails, fetchBlogs, updateBlog } from "../services/adminBlogs";
@@ -58,6 +59,27 @@ const resolveImagePath = (path) => {
 };
 const FALLBACK_IMAGE = "/assets/images/blog/blog-placeholder.png";
 
+const modalBackdropStyle = {
+  position: "fixed",
+  inset: 0,
+  background: "rgba(15, 23, 42, 0.55)",
+  zIndex: 1050,
+};
+
+const modalPanelStyle = {
+  position: "fixed",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "min(960px, 96vw)",
+  maxHeight: "90vh",
+  overflowY: "auto",
+  background: "#fff",
+  borderRadius: 24,
+  boxShadow: "0 24px 60px rgba(15,23,42,0.3)",
+  zIndex: 1060,
+};
+
 const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
   const isEditMode = mode === "edit";
   const { token, admin } = useAuth();
@@ -82,6 +104,9 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
   const [recentBlogs, setRecentBlogs] = useState([]);
   const [recentLoading, setRecentLoading] = useState(false);
   const [recentError, setRecentError] = useState(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewPayload, setPreviewPayload] = useState(null);
+  const [lastPublishedBlog, setLastPublishedBlog] = useState(null);
   const editorRef = useRef(null);
 
   useEffect(
@@ -359,26 +384,27 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
       const response = isEditMode
         ? await updateBlog({ blogId, token, data: formData })
         : await createBlog({ token, data: formData });
+      const resultingBlog = response?.blog || null;
 
       setFeedback({
         type: "success",
         message: isEditMode ? "Blog post updated successfully." : "Blog post created successfully.",
       });
+      setLastPublishedBlog(resultingBlog);
 
       if (isEditMode) {
-        const updatedBlog = response?.blog;
-        if (updatedBlog) {
-          setTitle(updatedBlog.title || "");
-          setSlug(updatedBlog.slug || "");
-          setAuthor(updatedBlog.author || defaultAuthor);
-          setCategory(updatedBlog.category || "");
-          setExcerpt(updatedBlog.excerpt || "");
-          setTagsInput((updatedBlog.tags || []).join(", "));
-          setContent(updatedBlog.content || "");
-          setExistingImageUrl(resolveImagePath(updatedBlog.featuredImage));
+        if (resultingBlog) {
+          setTitle(resultingBlog.title || "");
+          setSlug(resultingBlog.slug || "");
+          setAuthor(resultingBlog.author || defaultAuthor);
+          setCategory(resultingBlog.category || "");
+          setExcerpt(resultingBlog.excerpt || "");
+          setTagsInput((resultingBlog.tags || []).join(", "));
+          setContent(resultingBlog.content || "");
+          setExistingImageUrl(resolveImagePath(resultingBlog.featuredImage));
           setRemoveExistingImage(false);
           if (editor) {
-            editor.setContent(updatedBlog.content || "");
+            editor.setContent(resultingBlog.content || "");
           }
         }
         if (imagePreview) {
@@ -413,6 +439,32 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handlePreview = () => {
+    const editor = editorRef.current;
+    const htmlContent = editor ? editor.getContent() : content;
+    const sanitized = DOMPurify.sanitize(
+      htmlContent && htmlContent.trim().length ? htmlContent : "<p class='text-neutral-500'>No content added yet.</p>"
+    );
+
+    setPreviewPayload({
+      title: title?.trim() || "Untitled Blog Post",
+      category: category?.trim() || "Uncategorized",
+      author: author?.trim() || defaultAuthor,
+      excerpt: excerpt?.trim() || "",
+      tags: tagsInput
+        .split(/[,\n]/)
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+      image: imagePreview || existingImageUrl || FALLBACK_IMAGE,
+      content: sanitized,
+    });
+    setPreviewOpen(true);
+  };
+
+  const closePreview = () => {
+    setPreviewOpen(false);
   };
 
   const displayedImage = imagePreview || existingImageUrl;
@@ -462,7 +514,22 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
               <form className='d-flex flex-column gap-20' onSubmit={handleSubmit} noValidate>
                 {feedback ? (
                   <div className={alertClass} role='alert'>
-                    {feedback.message}
+                    <div>{feedback.message}</div>
+                    {feedback.type === "success" && lastPublishedBlog?.id ? (
+                      <div className='d-flex flex-wrap gap-8 mt-12'>
+                        <Link to={`/edit-blog/${lastPublishedBlog.id}`} className='btn btn-sm btn-outline-light'>
+                          Edit Published Post
+                        </Link>
+                        <a
+                          href={(PUBLIC_SITE_BASE || "") + "/blogs/" + (lastPublishedBlog.slug || slug)}
+                          target='_blank'
+                          rel='noreferrer'
+                          className='btn btn-sm btn-outline-light'
+                        >
+                          View Public Page
+                        </a>
+                      </div>
+                    ) : null}
                   </div>
                 ) : null}
                 <div>
@@ -625,9 +692,19 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
                     )}
                   </div>
                 </div>
-                <button type='submit' className='btn btn-primary-600 radius-8' disabled={submitting}>
-                  {submitting ? (isEditMode ? "Saving..." : "Submitting...") : isEditMode ? "Save Changes" : "Submit"}
-                </button>
+                <div className='d-flex flex-wrap gap-12 justify-content-end'>
+                  <button
+                    type='button'
+                    className='btn btn-outline-secondary radius-8'
+                    onClick={handlePreview}
+                    disabled={submitting}
+                  >
+                    Preview
+                  </button>
+                  <button type='submit' className='btn btn-primary-600 radius-8' disabled={submitting}>
+                    {submitting ? (isEditMode ? "Saving..." : "Submitting...") : isEditMode ? "Save Changes" : "Submit"}
+                  </button>
+                </div>
               </form>
             )}
           </div>
@@ -719,6 +796,52 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
           </div>
         </div>
       </div>
+      {previewOpen && previewPayload ? (
+        <>
+          <div style={modalBackdropStyle} onClick={closePreview} />
+          <div style={modalPanelStyle} className='preview-card shadow-lg'>
+            <div className='p-24 border-bottom d-flex justify-content-between align-items-center'>
+              <h4 className='mb-0'>Preview</h4>
+              <button type='button' className='btn btn-sm btn-outline-secondary' onClick={closePreview}>
+                Close
+              </button>
+            </div>
+            <div className='p-24'>
+              <div className='mb-20'>
+                <span className='badge bg-main-100 text-main-600 px-16 py-6 radius-pill fw-semibold text-sm'>
+                  {previewPayload.category}
+                </span>
+                <h3 className='mt-16 mb-12'>{previewPayload.title}</h3>
+                <p className='text-neutral-500 mb-2'>
+                  By {previewPayload.author} • {new Date().toLocaleDateString()}
+                </p>
+                {previewPayload.excerpt ? <p className='text-neutral-600'>{previewPayload.excerpt}</p> : null}
+              </div>
+              <div className='rounded-16 overflow-hidden mb-20' style={{ maxHeight: 360 }}>
+                <img
+                  src={previewPayload.image}
+                  alt={previewPayload.title}
+                  className='w-100 h-100 object-fit-cover'
+                  style={{ maxHeight: 360 }}
+                />
+              </div>
+              <div
+                className='blog-preview-content text-neutral-900'
+                dangerouslySetInnerHTML={{ __html: previewPayload.content }}
+              />
+              {previewPayload.tags.length ? (
+                <div className='d-flex flex-wrap gap-8 mt-20'>
+                  {previewPayload.tags.map((tag) => (
+                    <span key={tag} className='badge bg-neutral-100 text-neutral-700 px-12 py-6 radius-pill'>
+                      {tag.startsWith("#") ? tag : `#${tag}`}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 };

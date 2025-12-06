@@ -10,7 +10,7 @@ const { ADMIN_PAGE_DEFINITIONS, ADMIN_PAGE_KEYS } = require('../data/adminPageDe
 const DEFAULT_ROLE_PERMISSIONS = {
   programmer_admin: ['*'],
   admin: ['*'],
-  seo: ['blog_list', 'blog_details', 'blog_details_alt', 'blog_add', 'testimonials', 'expert_videos', 'page_meta', 'inquiries'],
+  seo: ['blog_list', 'blog_details', 'blog_details_alt', 'blog_add', 'blog_edit', 'testimonials', 'expert_videos', 'page_meta', 'inquiries'],
   sales: ['inquiries'],
   teacher: [],
 };
@@ -33,12 +33,15 @@ const resolveAllowedPages = (role, record) => {
     return ['*'];
   }
 
+  const defaults = DEFAULT_ROLE_PERMISSIONS[normalizedRole] || [];
   const stored = Array.isArray(record?.allowedPages) ? record.allowedPages : null;
   if (stored && stored.length > 0) {
-    return uniqueArray(stored);
+    // Merge stored permissions with defaults so new default pages (e.g., blog editing for SEO)
+    // automatically become available without clobbering existing customizations.
+    return uniqueArray([...(stored || []), ...defaults]);
   }
 
-  return uniqueArray(DEFAULT_ROLE_PERMISSIONS[normalizedRole] || []);
+  return uniqueArray(defaults);
 };
 
 const ensurePermissionDocument = async (role) => {

@@ -1060,6 +1060,26 @@ img {
     min-height: auto;
   }
 }
+.video-reels-swiper .swiper-button-next,
+.video-reels-swiper .swiper-button-prev {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: hsl(var(--main));
+  color: hsl(var(--white));
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+.video-reels-swiper .swiper-button-next::after,
+.video-reels-swiper .swiper-button-prev::after {
+  font-size: 18px;
+  font-weight: 600;
+}
+.video-reels-swiper .swiper-scrollbar {
+  display: none !important;
+}
+.video-reels-swiper .swiper-scrollbar-drag {
+  display: none !important;
+}
 .programmes-courses-badge {
   display: inline-flex;
   padding: 6px 18px;
@@ -12527,19 +12547,21 @@ ul.footer-menu {
   z-index: 3;
 }
 .video-testimonials-section {
-  background: #f1f7fb;
+  background: linear-gradient(180deg, #f4f8fc 0%, #e7eef6 100%);
 }
 .video-testimonial-card {
   border-radius: 28px;
-  width: min(308px, 82vw); /* +10% */
-  max-width: 308px;
+  width: min(360px, 90vw);
+  max-width: 360px;
   margin-inline: auto;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(17, 24, 39, 0.14);
+  background: #0b1120;
 }
 .video-testimonial-frame {
   position: relative;
   width: 100%;
-  height: 0;
-  padding-bottom: 170%;
+  aspect-ratio: 3 / 5;
   background-color: #0b1120;
   overflow: hidden;
   border-radius: 28px;
@@ -12548,47 +12570,59 @@ ul.footer-menu {
   position: relative;
 }
 .video-reels-slider {
-  padding-inline: clamp(12px, 3vw, 22px);
+  padding-inline: clamp(10px, 4vw, 28px);
+}
+.video-reel-slide {
+  width: clamp(260px, 70vw, 400px);
 }
 /* Keep adjacent slides visible for the video carousel (override global slick visibility rules) */
 .video-reels-slider .slick-slide,
 .video-reels-slider .slick-slide * {
   visibility: visible !important;
 }
-.video-reels-slider .slick-slide {
-  margin: 0 0.5rem; /* 1rem total gap between items */
+.video-reels-slider .slick-slide,
+.video-reels-swiper .swiper-slide {
+  margin: 0 0.75rem; /* 1.5rem total gap between items */
+  height: auto;
+}
+.video-reels-swiper .swiper-slide {
+  display: flex;
+  justify-content: center;
+}
+.video-testimonials-slider-wrap {
+  min-height: 100%;
 }
 @media (max-width: 991.98px) {
   .video-testimonial-card {
-    width: min(308px, 82vw); /* +10% */
-    max-width: 308px;
+    width: min(320px, 90vw);
+    max-width: 320px;
   }
   .video-reels-slider .slick-list {
     overflow: visible;
+  }
+  .video-reels-swiper .swiper-button-next,
+  .video-reels-swiper .swiper-button-prev {
+    display: none;
   }
 }
 @media (min-width: 992px) {
   .video-reels-slider .slick-list {
     overflow: hidden;
   }
-  .video-reels-slider .slick-slide {
-    margin: 0 !important;
-  }
-  .video-reels-slider .video-testimonial-card {
-    width: 100% !important;
-    max-width: none !important;
-  }
 }
 @media (max-width: 767.98px) {
   .video-testimonial-card {
-    width: min(286px, 82vw); /* +10% */
-    max-width: 286px;
+    width: min(270px, 90vw);
+    max-width: 270px;
   }
   .video-reels-slider {
     padding-inline: clamp(10px, 4vw, 18px);
   }
   .video-reels-slider .slick-slide {
     margin: 0 0.5rem !important; /* 1rem total gap between items */
+  }
+  .video-reels-swiper .swiper-slide {
+    margin: 0 0.5rem;
   }
   .video-reels-slider .slick-list {
     overflow: visible;
@@ -12598,9 +12632,12 @@ ul.footer-menu {
 }
 @media (max-width: 575.98px) {
   .video-testimonial-card {
-    width: 220px; /* +10% */
-    max-width: 220px;
+    width: min(230px, 92vw); /* slightly larger mobile footprint */
+    max-width: 230px;
     margin: 0 auto 8px;
+  }
+  .video-reel-slide {
+    width: clamp(220px, 78vw, 320px);
   }
   .gradus-footer__logo{
     padding: 5px 0;
