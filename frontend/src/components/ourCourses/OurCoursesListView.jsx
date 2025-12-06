@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { API_BASE_URL } from "../../services/apiClient";
 import { stripBrackets } from "../../utils/slugify.js";
+import { useAuth } from "../../context/AuthContext.jsx";
+import { fetchMyEnrollments } from "../../services/userService.js";
 
 const FLAGSHIP_PRICE_INR = 46000;
 const INR_CURRENCY_FORMATTER = new Intl.NumberFormat("en-IN", {
@@ -15,6 +17,8 @@ const OurCoursesListView = () => {
   // Loaded courses from backend
   const [items, setItems] = useState([]);
   const courses = useMemo(() => items, [items]);
+  const { isAuthenticated, token } = useAuth();
+  const [enrolledSlugs, setEnrolledSlugs] = useState(new Set());
 
   const [selectedProgrammes, setSelectedProgrammes] = useState([]);
   const [query, setQuery] = useState("");
@@ -207,6 +211,41 @@ const OurCoursesListView = () => {
     ? `${programmeLabel(selectedProgrammes[0])}`
     : "All Courses";
 
+  // Load current user's enrollments to hide Enroll button where applicable
+  useEffect(() => {
+    let active = true;
+    const loadEnrollments = async () => {
+      if (!isAuthenticated || !token) {
+        if (active) setEnrolledSlugs(new Set());
+        return;
+      }
+      try {
+        const response = await fetchMyEnrollments({ token });
+        if (!active) return;
+        const items = Array.isArray(response?.items) ? response.items : [];
+        const next = new Set();
+        items.forEach((enrollment) => {
+          const slug =
+            enrollment?.course?.slug ||
+            enrollment?.courseSlug ||
+            enrollment?.course?.path ||
+            enrollment?.courseId ||
+            "";
+          if (slug) {
+            next.add(String(slug).replace(/^\//, ""));
+          }
+        });
+        setEnrolledSlugs(next);
+      } catch (error) {
+        if (active) setEnrolledSlugs(new Set());
+      }
+    };
+    loadEnrollments();
+    return () => {
+      active = false;
+    };
+  }, [isAuthenticated, token]);
+
   return (
     <section className='courses-archive pb-64'>
       <div
@@ -343,6 +382,8 @@ const OurCoursesListView = () => {
                   course.duration || (course.modulesCount ? `${course.modulesCount} Modules` : "12 Weeks");
                 const levelLabel = course.level || "Beginner";
                 const ratingLabel = course.ratingLabel || "5.0 (10 Reviews)";
+                const courseSlug = String(course.url || "").replace(/^\//, "");
+                const isEnrolled = enrolledSlugs.has(courseSlug);
 
                 return (
                   <article
@@ -383,9 +424,15 @@ const OurCoursesListView = () => {
                           
                         </div>
                         <div className='course-card__actions'>
-                          <Link to={course.url} className='btn btn-main'>
-                            Enroll Now
-                          </Link>
+                          {isEnrolled ? (
+                            <Link to={course.url} className='btn btn-outline-main'>
+                              View Course
+                            </Link>
+                          ) : (
+                            <Link to={course.url} className='btn btn-main'>
+                              Enroll Now
+                            </Link>
+                          )}
                         </div>
                       </div>
                     </div>

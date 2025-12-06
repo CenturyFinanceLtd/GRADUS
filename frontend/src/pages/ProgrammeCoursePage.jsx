@@ -251,7 +251,7 @@ function ProgrammeCoursePage() {
       <HeaderOne />
 
       <section className='py-40 bg-main-25 border-bottom border-neutral-40'>
-          <div className='container'>
+          <div className='container padding-mob-5'>
           <div className='d-flex flex-wrap align-items-start justify-content-between gap-16'>
             <div className='flex-grow-1 min-w-0'>
               {(() => {
@@ -323,7 +323,7 @@ function ProgrammeCoursePage() {
       <section className='py-0'>
         <div className='container'>
           <div
-            className='course-info-summary rounded-16 bg-white border border-neutral-40 box-shadow-md p-16'
+            className='course-info-summary rounded-16 prt-0 bg-white border border-neutral-40 box-shadow-md p-16'
             style={{ marginTop: -28, position: "relative", zIndex: 2 }}
           >
             <div className='course-info-summary__grid'>
@@ -423,7 +423,7 @@ function ProgrammeCoursePage() {
 
                 <div className='mt-24 row g-4'>
                   <div className='col-md-6'>
-                    <div className='rounded-12 border border-neutral-30 p-16 h-100 bg-neutral-10'>
+                    <div className='rounded-12 prt-0-bn border border-neutral-30 p-16 h-100 bg-neutral-10'>
                       <h6 className='text-neutral-900 fw-semibold mb-10'>Who this is for</h6>
                       <ul className='list-unstyled d-grid gap-10 m-0 text-neutral-700'>
                         <li>Engineers and product folks upskilling into agentic AI builds</li>
@@ -433,7 +433,7 @@ function ProgrammeCoursePage() {
                     </div>
                   </div>
                   <div className='col-md-6'>
-                    <div className='rounded-12 border border-neutral-30 p-16 h-100 bg-neutral-10'>
+                    <div className='rounded-12 prt-0-bn border border-neutral-30 p-16 h-100 bg-neutral-10'>
                       <h6 className='text-neutral-900 fw-semibold mb-10'>Prerequisites</h6>
                       <ul className='list-unstyled d-grid gap-10 m-0 text-neutral-700'>
                         <li>{data?.details?.prerequisites || 'Comfort with Python and APIs'}</li>
@@ -463,7 +463,7 @@ function ProgrammeCoursePage() {
                   </div>
                 </div>
                 <div className='col-12 col-lg-6'>
-                  <div className='rounded-16 border border-neutral-30 p-24 mb-12 bg-white h-100'>
+                  <div className='rounded-16 p-20-15 border border-neutral-30 p-24 mb-12 bg-white h-100'>
                     <h4 className='mb-12'>Tools and Frameworks</h4>
                     <div className='d-flex flex-wrap gap-8'>
                       {(data?.toolsFrameworks || []).map((t, i) => (<span key={`tool-${i}`} className='chip chip--neutral'>{t}</span>))}
@@ -474,7 +474,7 @@ function ProgrammeCoursePage() {
 
               <div className='row g-4'>
                 <div className='col-12 col-lg-8'>
-                  <div id='modules' className='rounded-16 border border-neutral-30 p-24 mb-12 bg-white'>
+                  <div id='modules' className='rounded-16 p-20-15 border border-neutral-30 p-24 mb-12 bg-white'>
                     <h4 className='mb-8'>There are {modulesCount} modules in this course</h4>
                     <p className='text-neutral-700 mb-16'>Work through the curriculum at your own pace. Each module blends concise lessons with hands-on practice.</p>
                     <div className='accordion accordion-flush' id='course-modules-accordion'>
@@ -483,7 +483,7 @@ function ProgrammeCoursePage() {
                           <h2 className='accordion-header' id={`h-${idx}`}>
                             <button className={`accordion-button ${idx === 0 ? '' : 'collapsed'}`} type='button' data-bs-toggle='collapse' data-bs-target={`#module-${idx}`} aria-expanded={idx === 0} aria-controls={`module-${idx}`}>
                               <span className='badge bg-main-25 text-main-600 me-8 rounded-pill px-12 py-6'>Module {idx + 1}</span>
-                              <span>{m.title}</span>
+                              <span className="module-label">{m.title}</span>
                             </button>
                           </h2>
                           <div id={`module-${idx}`} className={`accordion-collapse collapse ${idx === 0 ? 'show' : ''}`} aria-labelledby={`h-${idx}`} data-bs-parent='#course-modules-accordion'>

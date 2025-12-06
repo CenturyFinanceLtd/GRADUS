@@ -24679,7 +24679,7 @@ li.breadcrumb__item {
   }
 
   .course-card__price-row {
-    gap: 10px;
+    gap: 8px;
     padding-top: 10px;
   }
 
@@ -26125,6 +26125,30 @@ video:-ms-fullscreen {
     padding-left: clamp(16px, 5vw, 24px);
     padding-right: clamp(16px, 5vw, 24px);
     max-width: 100%;
+  }
+  .padding-mob-5{
+    padding: 5px;
+  }
+  .prt-0{
+    padding-right:0 !important;
+    padding-left: 0 !important;
+  }
+  .prt-0-bn{
+    padding-right:0 !important;
+    padding-left: 0 !important;
+    border:none !important;
+  }
+  .module-label{
+    font-size:0.825rem;
+  }
+  #course-modules-accordion .accordion-item .accordion-button{
+    padding: 15px 10px;
+  }
+  #modules p{
+    font-size: 13px;
+  }
+  .p-20-15{
+    padding: 20px 15px;
   }
 }
 
