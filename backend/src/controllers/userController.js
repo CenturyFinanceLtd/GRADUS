@@ -16,7 +16,7 @@ const getProfile = asyncHandler(async (req, res) => {
 });
 
 const updateProfile = asyncHandler(async (req, res) => {
-  const { firstName, lastName, mobile, whatsappNumber, personalDetails, educationDetails } = req.body;
+  const { firstName, lastName, mobile, whatsappNumber, personalDetails, educationDetails, jobDetails } = req.body;
 
   const user = await User.findById(req.user._id);
 
@@ -85,6 +85,17 @@ const updateProfile = asyncHandler(async (req, res) => {
     assignNestedString(user.educationDetails, educationDetails, 'passingYear');
     assignNestedString(user.educationDetails, educationDetails, 'fieldOfStudy', { allowEmpty: true });
     assignNestedString(user.educationDetails, educationDetails, 'address', { allowEmpty: true });
+  }
+
+  if (jobDetails && typeof jobDetails === 'object') {
+    if (!user.jobDetails) {
+      user.jobDetails = {};
+    }
+
+    assignNestedString(user.jobDetails, jobDetails, 'company');
+    assignNestedString(user.jobDetails, jobDetails, 'designation');
+    assignNestedString(user.jobDetails, jobDetails, 'experienceYears');
+    assignNestedString(user.jobDetails, jobDetails, 'linkedin');
   }
 
   await user.save();

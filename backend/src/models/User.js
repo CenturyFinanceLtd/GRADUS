@@ -128,6 +128,24 @@ const userSchema = new mongoose.Schema(
         trim: true,
       },
     },
+    jobDetails: {
+      company: {
+        type: String,
+        trim: true,
+      },
+      designation: {
+        type: String,
+        trim: true,
+      },
+      experienceYears: {
+        type: String,
+        trim: true,
+      },
+      linkedin: {
+        type: String,
+        trim: true,
+      },
+    },
     password: {
       type: String,
       required: true,
