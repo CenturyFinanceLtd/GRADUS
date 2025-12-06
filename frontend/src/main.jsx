@@ -16,6 +16,8 @@ import "lightgallery/css/lg-thumbnail.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "animate.css/animate.css";
+import "swiper/css";
+import "swiper/css/navigation";
 
 import "./globals.css";
 

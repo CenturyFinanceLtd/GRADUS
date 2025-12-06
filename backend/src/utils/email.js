@@ -196,7 +196,7 @@ const sendOtpEmail = async ({ to, otp, subject, context }) => {
       <p>Use the following one-time password (OTP) to complete ${context?.action || 'your request'}:</p>
       <div style="font-size: 28px; letter-spacing: 8px; font-weight: bold; color: #0B5394;">${otp}</div>
       <p>This code will expire in <strong>10 minutes</strong>. If you did not request this, please ignore this email.</p>
-      <p>Regards,<br/>CFL Graduate Support Team</p>
+      <p>Regards,<br/>Team Gradus</p>
     </div>
   `;
 

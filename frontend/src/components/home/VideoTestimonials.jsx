@@ -5,20 +5,29 @@ import { listTestimonials } from "../../services/testimonialService";
 import "swiper/css";
 import "swiper/css/navigation";
 
-const sliderSettings = {
-  modules: [Navigation, A11y],
-  slidesPerView: "auto",
-  spaceBetween: 24,
-  navigation: true,
-  loop: true,
-  breakpoints: {
-    0: { slidesPerView: "auto", spaceBetween: 14, navigation: false, centeredSlides: true },
-    576: { slidesPerView: "auto", spaceBetween: 16, navigation: false, centeredSlides: false },
-    768: { slidesPerView: "auto", spaceBetween: 18, navigation: false },
-    992: { slidesPerView: "auto", spaceBetween: 22, navigation: true },
-    1200: { slidesPerView: "auto", spaceBetween: 24, navigation: true },
+const FALLBACK_TESTIMONIALS = [
+  {
+    id: "fallback-1",
+    name: "Gradus Learner",
+    role: "Gradus X",
+    thumbnailUrl: "https://dummyimage.com/960x1600/0b1120/ffffff&text=Student+Story",
+    playbackUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
   },
-};
+  {
+    id: "fallback-2",
+    name: "Gradus Learner",
+    role: "Gradus Finlit",
+    thumbnailUrl: "https://dummyimage.com/960x1600/0b1120/ffffff&text=Student+Story",
+    playbackUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+  },
+  {
+    id: "fallback-3",
+    name: "Gradus Learner",
+    role: "Gradus Lead",
+    thumbnailUrl: "https://dummyimage.com/960x1600/0b1120/ffffff&text=Student+Story",
+    playbackUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+  },
+];
 
 const shimmerKeyframes = `
   @keyframes video-testimonial-shimmer {
@@ -28,53 +37,83 @@ const shimmerKeyframes = `
 `;
 
 const VideoTestimonials = () => {
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState(FALLBACK_TESTIMONIALS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeId, setActiveId] = useState(null);
+  // Track all mounted video elements per testimonial id (loop clones included)
   const videoRefs = useRef({});
   const containerRef = useRef(null);
 
+  const normalizeItems = useCallback((list) => {
+    if (!Array.isArray(list)) return [];
+    return list
+      .map((item, idx) => {
+        if (!item) return null;
+        const playbackUrl =
+          item.playbackUrl || item.videoUrl || item.video || item.src || item.url || item?.mediaUrl || "";
+        if (!playbackUrl) return null;
+        const thumbnailUrl =
+          item.thumbnailUrl || item.poster || item.imageUrl || item.thumbUrl || item.thumbnail || "";
+        return {
+          ...item,
+          playbackUrl,
+          thumbnailUrl,
+          id: item.id ?? item._id ?? `testimonial-${idx}`,
+        };
+      })
+      .filter(Boolean);
+  }, []);
+
   const registerVideo = useCallback((key, node) => {
     if (!key) return;
-    const slide = node?.closest(".swiper-slide");
-    if (slide?.classList?.contains("swiper-slide-duplicate")) return;
+    if (!videoRefs.current[key]) {
+      videoRefs.current[key] = new Set();
+    }
     if (node) {
-      videoRefs.current[key] = node;
+      videoRefs.current[key].add(node);
     } else {
-      delete videoRefs.current[key];
+      videoRefs.current[key].delete(node);
     }
   }, []);
 
   const stopAll = useCallback(() => {
-    Object.values(videoRefs.current).forEach((video) => {
-      try {
-        video.pause();
-        video.currentTime = 0;
-      } catch (_) {
-        /* ignore */
-      }
+    Object.values(videoRefs.current).forEach((set) => {
+      set.forEach((video) => {
+        try {
+          video.pause();
+          video.currentTime = 0;
+        } catch (_) {
+          /* ignore */
+        }
+      });
     });
     setActiveId(null);
   }, []);
 
   const togglePlayback = useCallback(
-    (key) => {
-      const video = videoRefs.current[key];
+    (key, event) => {
+      const frame = event?.currentTarget?.closest(".video-testimonial-frame");
+      const clickedVideo = frame?.querySelector("video");
+      const set = videoRefs.current[key];
+      const fallbackVideo = set ? Array.from(set)[0] : null;
+      const video = clickedVideo || fallbackVideo;
       if (!video) return;
+
       if (activeId === key && !video.paused) {
         video.pause();
         setActiveId(null);
         return;
       }
       stopAll();
+      // Update state immediately to show controls/remove overlay
+      setActiveId(key);
+
       const playPromise = video.play();
       if (playPromise?.then) {
-        playPromise.then(() => setActiveId(key)).catch(() => {
+        playPromise.catch(() => {
           /* autoplay may be blocked */
         });
-      } else {
-        setActiveId(key);
       }
     },
     [activeId, stopAll]
@@ -85,15 +124,14 @@ const VideoTestimonials = () => {
     (async () => {
       try {
         const data = await listTestimonials();
-        if (mounted) {
-          setItems(Array.isArray(data) ? data : []);
-          setError(null);
-        }
+        if (!mounted) return;
+        const normalized = normalizeItems(data);
+        setItems(normalized.length ? normalized : FALLBACK_TESTIMONIALS);
+        setError(null);
       } catch (err) {
-        if (mounted) {
-          setItems([]);
-          setError(err?.message || "Unable to load testimonials.");
-        }
+        if (!mounted) return;
+        setItems(FALLBACK_TESTIMONIALS);
+        setError(err?.message || "Unable to load testimonials.");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -101,7 +139,7 @@ const VideoTestimonials = () => {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [normalizeItems]);
 
   useEffect(() => {
     const handlePointerDown = (event) => {
@@ -133,6 +171,9 @@ const VideoTestimonials = () => {
     border: 0,
     background: "linear-gradient(180deg, rgba(3,7,18,0) 35%, rgba(3,7,18,0.65) 100%)",
     cursor: "pointer",
+    touchAction: "manipulation", // Improves touch responsiveness
+    WebkitTapHighlightColor: "transparent",
+    zIndex: 2,
   };
   const playIconStyle = {
     width: 64,
@@ -144,7 +185,54 @@ const VideoTestimonials = () => {
     justifyContent: "center",
     boxShadow: "0 8px 22px rgba(0,0,0,0.25)",
   };
-  const showSkeleton = loading || error || !items.length;
+  // Floating pause button style - visible, positioned in corner, doesn't block video controls
+  const floatingPauseButtonStyle = {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    width: 44,
+    height: 44,
+    borderRadius: "50%",
+    background: "rgba(0,0,0,0.6)",
+    border: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    zIndex: 10,
+    touchAction: "manipulation",
+    WebkitTapHighlightColor: "transparent",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+    transition: "opacity 0.2s, transform 0.2s",
+  };
+  // Only show skeleton while loading and no items are ready to render
+  const showSkeleton = loading && !items.length;
+
+  const sliderSettings = useMemo(() => {
+    const count = Math.max(1, items.length || FALLBACK_TESTIMONIALS.length);
+    const navigationEnabled = count > 1;
+    const base = {
+      modules: [Navigation, A11y],
+      slidesPerView: "auto",
+      spaceBetween: 24,
+      navigation: navigationEnabled,
+      loop: count > 2, // avoid duplicate-first slide when only a couple of reels
+      centeredSlides: false,
+      touchStartPreventDefault: false, // let touch gestures bubble so swipes register on mobile
+      watchOverflow: true,
+      initialSlide: 0,
+    };
+
+    const bp = {
+      0: { slidesPerView: "auto", spaceBetween: 12, navigation: false, centeredSlides: false },
+      576: { slidesPerView: "auto", spaceBetween: 16, navigation: false, centeredSlides: false },
+      768: { slidesPerView: "auto", spaceBetween: 18, navigation: false, centeredSlides: false },
+      992: { slidesPerView: "auto", spaceBetween: 20, navigation: count > 3, centeredSlides: false },
+      1200: { slidesPerView: "auto", spaceBetween: 24, navigation: count > 4, centeredSlides: false },
+    };
+
+    return { ...base, breakpoints: bp };
+  }, [items.length]);
 
   return (
     <section className="video-testimonials-section py-64" ref={containerRef}>
@@ -178,11 +266,28 @@ const VideoTestimonials = () => {
                 const isActive = activeId === key;
                 const poster = item.thumbnailUrl || undefined;
                 const altText = item.name ? `${item.name}'s testimonial` : "Student testimonial";
+                const showPoster = Boolean(poster) && !isActive;
                 return (
                   <SwiperSlide key={key} className="video-reel-slide">
                     <div className="px-12">
                       <div className="video-testimonial-card">
                         <div className="video-testimonial-frame">
+                          {showPoster ? (
+                            <img
+                              src={poster}
+                              alt={altText}
+                              loading="lazy"
+                              style={{
+                                position: "absolute",
+                                inset: 0,
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                zIndex: 0,
+                                pointerEvents: "none",
+                              }}
+                            />
+                          ) : null}
                           <video
                             ref={(node) => registerVideo(key, node)}
                             playsInline
@@ -201,13 +306,18 @@ const VideoTestimonials = () => {
                               height: "100%",
                               objectFit: "cover",
                               backgroundColor: "#0b1120",
+                              opacity: isActive ? 1 : 0, // keep video hidden until user plays
+                              transition: "opacity 0.2s ease",
+                              zIndex: 1,
+                              pointerEvents: isActive ? "auto" : "none",
+                              touchAction: "pan-x", // Allow horizontal swiping when video is not playing
                             }}
                           />
                           {!isActive ? (
                             <button
                               type="button"
                               aria-label={`Play ${altText}`}
-                              onClick={() => togglePlayback(key)}
+                              onClick={(event) => togglePlayback(key, event)}
                               style={playButtonStyle}
                             >
                               <span style={playIconStyle}>
@@ -217,18 +327,18 @@ const VideoTestimonials = () => {
                               </span>
                             </button>
                           ) : (
+                            /* Floating pause button - positioned in corner, doesn't block video controls */
                             <button
                               type="button"
                               aria-label={`Pause ${altText}`}
-                              onClick={() => togglePlayback(key)}
-                              style={{
-                                position: "absolute",
-                                inset: 0,
-                                border: 0,
-                                background: "transparent",
-                                cursor: "pointer",
-                              }}
-                            />
+                              onClick={(event) => togglePlayback(key, event)}
+                              style={floatingPauseButtonStyle}
+                            >
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="6" y="5" width="4" height="14" rx="1" fill="#fff" />
+                                <rect x="14" y="5" width="4" height="14" rx="1" fill="#fff" />
+                              </svg>
+                            </button>
                           )}
                         </div>
                       </div>

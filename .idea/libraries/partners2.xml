@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="partners2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/frontend/public/assets/images/partners.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
