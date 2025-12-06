@@ -11,10 +11,18 @@ const VideoTestimonials = () => {
   const [error, setError] = useState(null);
   const [activeId, setActiveId] = useState(null);
   const videoMap = useRef({});
+  const suppressPauseRef = useRef(false);
   const containerRef = useRef(null);
 
   const pauseAll = useCallback(() => {
-    Object.values(videoMap.current).forEach((node) => {
+    suppressPauseRef.current = true;
+    const trackedNodes = Object.values(videoMap.current);
+    const domNodes =
+      typeof document !== "undefined"
+        ? Array.from(document.querySelectorAll(".video-testimonial-frame video"))
+        : [];
+    [...trackedNodes, ...domNodes].forEach((node) => {
+      if (!node) return;
       try {
         node.pause();
         node.currentTime = 0;
@@ -22,6 +30,9 @@ const VideoTestimonials = () => {
         /* ignore */
       }
     });
+    setTimeout(() => {
+      suppressPauseRef.current = false;
+    }, 0);
   }, []);
 
   const registerVideo = useCallback((rawKey, node) => {
@@ -34,21 +45,32 @@ const VideoTestimonials = () => {
     }
   }, []);
 
-  const handleCardToggle = (rawKey) => {
+  const handleCardToggle = (rawKey, evt) => {
     const key = normalizeKey(rawKey);
     if (!key) return;
+    const fallbackNode =
+      evt?.currentTarget?.closest(".video-testimonial-frame")?.querySelector("video") || null;
+    const node = videoMap.current[key] || fallbackNode;
     if (activeId === key) {
-      pauseAll();
+      if (node) {
+        try {
+          node.pause();
+        } catch (_) {
+          /* ignore */
+        }
+      }
       setActiveId(null);
       return;
     }
     pauseAll();
     setActiveId(key);
-    const node = videoMap.current[key];
     if (node) {
-      node.play().catch(() => {
-        /* autoplay may be blocked */
-      });
+      const playPromise = node.play();
+      if (playPromise?.catch) {
+        playPromise.catch(() => {
+          /* autoplay might still be blocked */
+        });
+      }
     }
   };
 
@@ -213,6 +235,46 @@ const VideoTestimonials = () => {
     []
   );
 
+  const autoPlayActiveVideo = useCallback((key) => {
+    if (!key) return undefined;
+    const node = videoMap.current[key];
+    if (!node) return undefined;
+    let cancelled = false;
+
+    const tryPlay = () => {
+      if (cancelled || !node) return;
+      const promise = node.play();
+      if (promise?.catch) {
+        promise.catch(() => {
+          /* autoplay might still be blocked */
+        });
+      }
+    };
+
+    if (node.readyState >= 2) {
+      tryPlay();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const handleLoaded = () => {
+      node.removeEventListener("loadeddata", handleLoaded);
+      tryPlay();
+    };
+    node.addEventListener("loadeddata", handleLoaded);
+
+    return () => {
+      cancelled = true;
+      node.removeEventListener("loadeddata", handleLoaded);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!activeId) return undefined;
+    return autoPlayActiveVideo(activeId);
+  }, [activeId, autoPlayActiveVideo]);
+
   return (
     <section className="video-testimonials-section py-64" ref={containerRef}>
       <style>{skeletonKeyframes}</style>
@@ -246,100 +308,81 @@ const VideoTestimonials = () => {
                 return (
                   <div className="px-12" key={key}>
                     <div style={{ ...cardStyles.wrapper }} className="video-testimonial-card">
-                      <div className="video-testimonial-frame">
-                        {isActive ? (
-                          <video
-                            ref={(node) => registerVideo(key, node)}
-                            playsInline
-                            controls
-                            preload="metadata"
-                            poster={thumb}
-                            src={item.playbackUrl}
-                            crossOrigin="anonymous"
-                            onPlay={() => setActiveId(key)}
-                            onPause={pauseAll}
+                      <div
+                        className="video-testimonial-frame"
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => handleCardToggle(key, e)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            handleCardToggle(key, e);
+                          }
+                        }}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <video
+                          ref={(node) => registerVideo(key, node)}
+                          playsInline
+                          controls={isActive}
+                          preload="metadata"
+                          poster={thumb}
+                          src={item.playbackUrl}
+                          crossOrigin="anonymous"
+                          onEnded={() => setActiveId(null)}
+                          onPause={() => {
+                            if (suppressPauseRef.current) return;
+                            if (activeId === key) setActiveId(null);
+                          }}
+                          style={{
+                            position: "absolute",
+                            inset: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            backgroundColor: "#0b1120",
+                            pointerEvents: isActive ? "auto" : "none",
+                          }}
+                          aria-label={altText}
+                        />
+                        {!isActive ? (
+                          <button
+                            type="button"
+                            aria-label="Play testimonial"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleCardToggle(key);
+                              handleCardToggle(key, e);
                             }}
                             style={{
                               position: "absolute",
                               inset: 0,
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
-                              backgroundColor: "#0b1120",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              border: 0,
+                              background: "linear-gradient(180deg, rgba(3,7,18,0) 35%, rgba(3,7,18,0.65) 100%)",
+                              cursor: "pointer",
+                              color: "#fff",
                             }}
-                          />
-                        ) : (
-                          <>
-                            {thumb ? (
-                              <img
-                                src={thumb}
-                                alt={altText}
-                                style={{
-                                  position: "absolute",
-                                  inset: 0,
-                                  width: "100%",
-                                  height: "100%",
-                                  objectFit: "cover",
-                                  backgroundColor: "#0b1120",
-                                }}
-                                loading="lazy"
-                              />
-                            ) : (
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  inset: 0,
-                                  background: "#0b1120",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  color: "#fff",
-                                  fontSize: 14,
-                                  letterSpacing: 0.2,
-                                }}
-                                aria-hidden="true"
-                              />
-                            )}
-                            <button
-                              type="button"
-                              aria-label="Play testimonial"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleCardToggle(key);
-                              }}
+                          >
+                            <span
                               style={{
-                                position: "absolute",
-                                inset: 0,
-                                display: "flex",
+                                width: 64,
+                                height: 64,
+                                borderRadius: "50%",
+                                background: "rgba(0,0,0,0.65)",
+                                display: "inline-flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                border: 0,
-                                background: "transparent",
-                                cursor: "pointer",
+                                boxShadow: "0 8px 22px rgba(0,0,0,0.25)",
                               }}
                             >
-                              <span
-                                style={{
-                                  width: 64,
-                                  height: 64,
-                                  borderRadius: "50%",
-                                  background: "rgba(0,0,0,0.6)",
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  boxShadow: "0 8px 22px rgba(0,0,0,0.25)",
-                                }}
-                              >
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M8.5 6.75L17 12L8.5 17.25V6.75Z" fill="#fff" stroke="#fff" strokeWidth="1.2" strokeLinejoin="round" />
-                                </svg>
-                              </span>
-                            </button>
-                          </>
-                        )}
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 7L16 12L9 17V7Z" fill="#fff" stroke="#fff" strokeWidth="1.1" strokeLinejoin="round" />
+                              </svg>
+                            </span>
+                          </button>
+                        ) : null}
                       </div>
                     </div>
                   </div>

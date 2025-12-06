@@ -75,7 +75,7 @@ const BASE_SLIDER_SETTINGS = {
     },
     {
       breakpoint: 575.98,
-      settings: { slidesToShow: 1.1, autoplay: false, swipeToSlide: true },
+      settings: { slidesToShow: 1.3, autoplay: false, swipeToSlide: true },
     },
   ],
 };
@@ -285,6 +285,7 @@ const ProgrammesAndCourses = () => {
         nextSettings.infinite = false; // prevent huge cloned track + negative translate on mobile
         nextSettings.initialSlide = 0;
         nextSettings.centerMode = false;
+        nextSettings.centerPadding = undefined;
         nextSettings.swipeToSlide = true;
       } else {
         nextSettings.infinite = shouldLoop;
