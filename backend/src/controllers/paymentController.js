@@ -141,15 +141,20 @@ const verifyPayment = asyncHandler(async (req, res) => {
     throw new Error('Missing payment verification fields');
   }
 
-  const expected = crypto
-    .createHmac('sha256', config.payments.razorpayKeySecret)
-    .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-    .digest('hex');
+  // DEV BYPASS: Allow mock verification if not in production
+  if (config.nodeEnv !== 'production' && razorpay_signature === 'mock_dev_success') {
+    // Skip crypto check
+  } else {
+    const expected = crypto
+      .createHmac('sha256', config.payments.razorpayKeySecret)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest('hex');
 
-  const isValid = expected === razorpay_signature;
-  if (!isValid) {
-    res.status(400);
-    throw new Error('Invalid payment signature');
+    const isValid = expected === razorpay_signature;
+    if (!isValid) {
+      res.status(400);
+      throw new Error('Invalid payment signature');
+    }
   }
 
   const enrollment = await Enrollment.findOne({ user: req.user._id, razorpayOrderId: razorpay_order_id });
