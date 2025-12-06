@@ -166,6 +166,7 @@ app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/live', liveRoutes);
 app.use('/api/page-meta', pageMetaRoutes);
+app.use('/api/callback-requests', require('./routes/callbackRequestRoutes'));
 
 // 404 and error handling (must be last)
 app.use(notFound);

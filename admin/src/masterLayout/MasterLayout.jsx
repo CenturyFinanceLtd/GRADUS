@@ -147,7 +147,7 @@ const MasterLayout = ({ children }) => {
       }
     }
   };
- 
+
   useEffect(() => {
     if (typeof document === "undefined") {
       return;
@@ -238,8 +238,8 @@ const MasterLayout = ({ children }) => {
           sidebarActive
             ? "sidebar active "
             : mobileMenu
-            ? "sidebar sidebar-open"
-            : "sidebar"
+              ? "sidebar sidebar-open"
+              : "sidebar"
         }
       >
         <button
@@ -514,15 +514,6 @@ const MasterLayout = ({ children }) => {
 
             <li>
               <NavLink
-                to='/courses-admin'
-                className={(navData) => (navData.isActive ? "active-page" : "")}
-              >
-                <Icon icon='ri:book-open-line' className='menu-icon' />
-                <span>Courses</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
                 to='/customize-courses'
                 className={(navData) => (navData.isActive ? "active-page" : "")}
               >
@@ -649,10 +640,6 @@ const MasterLayout = ({ children }) => {
                 <span>Event Registrations</span>
               </NavLink>
             </li>
-            
-
-            { /* Courses management and enrollments links removed */ }
-
             <li>
               <NavLink
                 to='/inquiries'
@@ -662,9 +649,15 @@ const MasterLayout = ({ children }) => {
                 <span>Inquiries</span>
               </NavLink>
             </li>
-
-            {/* Removed duplicate Support Tickets menu; Customer Support entry at top covers this */}
-
+            <li>
+              <NavLink
+                to='/callback-requests'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='mdi:phone-incoming' className='menu-icon' />
+                <span>Call Back Request</span>
+              </NavLink>
+            </li>
             <li>
               <NavLink
                 to='/calendar-main'
@@ -1362,11 +1355,11 @@ const MasterLayout = ({ children }) => {
               </NavLink>
             </li>
 
-           
 
-            
 
-            
+
+
+
             <li>
               <NavLink
                 to='/faq'
@@ -2201,7 +2194,7 @@ const MasterLayout = ({ children }) => {
         <div className='dashboard-main-body'>{children}</div>
 
       </main>
-    </section>
+    </section >
   );
 };
 
