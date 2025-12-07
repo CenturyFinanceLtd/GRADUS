@@ -23421,7 +23421,7 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   }
 
   .why-gradus-card {
-    padding: 18px 14px;
+    padding: 18px 8px;
     border-radius: 20px;
     box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
   }
@@ -23448,7 +23448,7 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
 
   .compare-card__header {
     grid-template-columns: 1fr 2fr;
-    gap: 8px;
+    gap: 6px;
     margin-bottom: 16px;
   }
 
