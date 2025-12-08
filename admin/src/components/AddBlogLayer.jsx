@@ -23,7 +23,16 @@ const slugifyTitle = (input) => {
     .replace(/-+/g, "-");
 };
 
+const buildPublicBlogUrl = (slugValue, titleValue) => {
+  const normalizedSlug = slugifyTitle(slugValue || titleValue || "");
+  if (!normalizedSlug) {
+    return null;
+  }
+  return (PUBLIC_SITE_BASE || "") + "/blog/" + normalizedSlug;
+};
+
 const tinyPlugins = [
+  "advlist",
   "anchor",
   "autolink",
   "charmap",
@@ -42,14 +51,23 @@ const tinyPlugins = [
   "searchreplace",
   "table",
   "visualblocks",
+  "visualchars",
   "wordcount",
 ];
 
 const tinyToolbar = [
-  "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough",
-  "| link image media table | align lineheight | numlist bullist indent outdent",
-  "| emoticons charmap insertdatetime | code preview fullscreen | removeformat",
+  "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor",
+  "| alignleft aligncenter alignright alignjustify | lineheight | bullist numlist outdent indent | blockquote hr",
+  "| link image media table | codesample code | charmap emoticons insertdatetime | searchreplace removeformat",
+  "| preview fullscreen",
 ].join(" ");
+
+const stripHtml = (value) => {
+  if (!value) {
+    return "";
+  }
+  return value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+};
 
 const resolveImagePath = (path) => {
   if (!path) {
@@ -86,6 +104,7 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
   const defaultAuthor = admin?.fullName || admin?.name || admin?.displayName || admin?.email || "Admin";
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const [author, setAuthor] = useState(defaultAuthor);
   const [category, setCategory] = useState("");
   const [excerpt, setExcerpt] = useState("");
@@ -95,6 +114,7 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
   const [existingImageUrl, setExistingImageUrl] = useState(null);
   const [removeExistingImage, setRemoveExistingImage] = useState(false);
   const [content, setContent] = useState("");
+  const [contentMode, setContentMode] = useState("visual");
   const [isDragging, setIsDragging] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null);
@@ -108,6 +128,7 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
   const [previewPayload, setPreviewPayload] = useState(null);
   const [lastPublishedBlog, setLastPublishedBlog] = useState(null);
   const editorRef = useRef(null);
+  const sourceTextareaRef = useRef(null);
 
   useEffect(
     () => () => {
@@ -121,7 +142,23 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
   const handleTitleChange = (event) => {
     const nextTitle = event.target.value;
     setTitle(nextTitle);
-    setSlug(slugifyTitle(nextTitle));
+    if (!slugManuallyEdited) {
+      setSlug(slugifyTitle(nextTitle));
+    }
+  };
+
+  const handleSlugChange = (event) => {
+    const nextSlug = slugifyTitle(event.target.value);
+    setSlug(nextSlug);
+    setSlugManuallyEdited(nextSlug.length > 0);
+  };
+
+  const handleSlugBlur = () => {
+    if (!slug && title) {
+      const fallback = slugifyTitle(title);
+      setSlug(fallback);
+      setSlugManuallyEdited(false);
+    }
   };
 
   const applySelectedFile = (file) => {
@@ -199,6 +236,49 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
     applySelectedFile(files[0]);
   };
 
+  const switchContentMode = (mode) => {
+    if (mode === contentMode) {
+      return;
+    }
+
+    // Sync content when switching modes
+    if (mode === "html" && editorRef.current) {
+      setContent(editorRef.current.getContent());
+    }
+    if (mode === "visual" && editorRef.current) {
+      editorRef.current.setContent(content || "");
+    }
+
+    setContentMode(mode);
+    if (mode === "visual") {
+      setTimeout(() => {
+        if (editorRef.current) {
+          editorRef.current.focus();
+        }
+      }, 20);
+    } else if (mode === "html") {
+      setTimeout(() => {
+        if (sourceTextareaRef.current) {
+          sourceTextareaRef.current.focus();
+        }
+      }, 20);
+    }
+  };
+
+  const getHtmlContent = () => {
+    if (contentMode === "visual" && editorRef.current) {
+      return editorRef.current.getContent();
+    }
+    return content;
+  };
+
+  const getPlainTextContent = () => {
+    if (contentMode === "visual" && editorRef.current) {
+      return editorRef.current.getContent({ format: "text" }).trim();
+    }
+    return stripHtml(content) || content.trim();
+  };
+
   const handleReloadBlog = () => {
     if (!isEditMode || submitting) {
       return;
@@ -246,6 +326,7 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
         }
         setTitle(currentBlog.title || "");
         setSlug(currentBlog.slug || "");
+        setSlugManuallyEdited(true);
         setAuthor(currentBlog.author || defaultAuthor);
         setCategory(currentBlog.category || "");
         setExcerpt(currentBlog.excerpt || "");
@@ -321,9 +402,7 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
     }
 
     const editor = editorRef.current;
-    const plainText = editor
-      ? editor.getContent({ format: "text" }).trim()
-      : content.replace(/<[^>]+>/g, "").trim();
+    const plainText = getPlainTextContent();
 
     if (!title.trim() || !category.trim() || !plainText) {
       setFeedback({
@@ -353,8 +432,9 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
       setSubmitting(true);
       setFeedback(null);
 
-      const htmlContent = editor ? editor.getContent() : content;
+      const htmlContent = getHtmlContent();
       const normalizedAuthor = author && author.trim() ? author.trim() : defaultAuthor;
+      const normalizedSlug = slugifyTitle(slug || title);
       const normalizedTags = tagsInput
         .split(/[,\n]/)
         .map((tag) => tag.trim())
@@ -366,6 +446,9 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
       formData.append("category", category.trim());
       formData.append("content", htmlContent);
       formData.append("author", normalizedAuthor);
+      if (normalizedSlug) {
+        formData.append("slug", normalizedSlug);
+      }
 
       if (isEditMode || excerpt.trim()) {
         formData.append("excerpt", excerpt.trim());
@@ -394,12 +477,13 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
 
       if (isEditMode) {
         if (resultingBlog) {
-          setTitle(resultingBlog.title || "");
-          setSlug(resultingBlog.slug || "");
-          setAuthor(resultingBlog.author || defaultAuthor);
-          setCategory(resultingBlog.category || "");
-          setExcerpt(resultingBlog.excerpt || "");
-          setTagsInput((resultingBlog.tags || []).join(", "));
+        setTitle(resultingBlog.title || "");
+        setSlug(resultingBlog.slug || "");
+        setSlugManuallyEdited(true);
+        setAuthor(resultingBlog.author || defaultAuthor);
+        setCategory(resultingBlog.category || "");
+        setExcerpt(resultingBlog.excerpt || "");
+        setTagsInput((resultingBlog.tags || []).join(", "));
           setContent(resultingBlog.content || "");
           setExistingImageUrl(resolveImagePath(resultingBlog.featuredImage));
           setRemoveExistingImage(false);
@@ -421,6 +505,7 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
         }
         setTitle("");
         setSlug("");
+        setSlugManuallyEdited(false);
         setAuthor(defaultAuthor);
         setCategory("");
         setExcerpt("");
@@ -442,8 +527,7 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
   };
 
   const handlePreview = () => {
-    const editor = editorRef.current;
-    const htmlContent = editor ? editor.getContent() : content;
+    const htmlContent = getHtmlContent();
     const sanitized = DOMPurify.sanitize(
       htmlContent && htmlContent.trim().length ? htmlContent : "<p class='text-neutral-500'>No content added yet.</p>"
     );
@@ -520,14 +604,16 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
                         <Link to={`/edit-blog/${lastPublishedBlog.id}`} className='btn btn-sm btn-outline-light'>
                           Edit Published Post
                         </Link>
-                        <a
-                          href={(PUBLIC_SITE_BASE || "") + "/blogs/" + (lastPublishedBlog.slug || slug)}
-                          target='_blank'
-                          rel='noreferrer'
-                          className='btn btn-sm btn-outline-light'
-                        >
-                          View Public Page
-                        </a>
+                        {buildPublicBlogUrl(lastPublishedBlog.slug, lastPublishedBlog.title) ? (
+                          <a
+                            href={buildPublicBlogUrl(lastPublishedBlog.slug, lastPublishedBlog.title)}
+                            target='_blank'
+                            rel='noreferrer'
+                            className='btn btn-sm btn-outline-light'
+                          >
+                            View Public Page
+                          </a>
+                        ) : null}
                       </div>
                     ) : null}
                   </div>
@@ -556,9 +642,12 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
                     className='form-control border border-neutral-200 radius-8'
                     id='slug'
                     value={slug}
-                    readOnly
+                    onChange={handleSlugChange}
+                    onBlur={handleSlugBlur}
+                    placeholder='custom-url-slug'
+                    disabled={submitting}
                   />
-                </div>
+                  </div>
                 <div>
                   <label className='form-label fw-bold text-neutral-900' htmlFor='author'>
                     Author
@@ -621,24 +710,81 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
                   <label className='form-label fw-bold text-neutral-900'>
                     Post Content
                   </label>
+                  <div className='d-flex flex-wrap gap-12 justify-content-between align-items-center mb-12'>
+                    <div className='btn-group' role='group' aria-label='Content mode toggle'>
+                      <button
+                        type='button'
+                        className={`btn btn-sm ${contentMode === "visual" ? "btn-primary-600" : "btn-outline-secondary"}`}
+                        onClick={() => switchContentMode("visual")}
+                        disabled={submitting}
+                      >
+                        Visual Editor
+                      </button>
+                      <button
+                        type='button'
+                        className={`btn btn-sm ${contentMode === "html" ? "btn-primary-600" : "btn-outline-secondary"}`}
+                        onClick={() => switchContentMode("html")}
+                        disabled={submitting}
+                      >
+                        HTML / Text
+                      </button>
+                    </div>
+                    <span className='text-sm text-neutral-500'>
+                      Use Visual for rich formatting or switch to HTML to write clean markup and embeds.
+                    </span>
+                  </div>
                   <div className='border border-neutral-200 radius-8 overflow-hidden'>
-                    <Editor
-                      apiKey='81qrnbgkcadey6vzliszp67sut8lreadzvfkpdicpi2sw8ez'
-                      onInit={(_evt, editor) => {
-                        editorRef.current = editor;
+                    <div style={{ display: contentMode === "visual" ? "block" : "none" }}>
+                      <Editor
+                        apiKey='81qrnbgkcadey6vzliszp67sut8lreadzvfkpdicpi2sw8ez'
+                        onInit={(_evt, editor) => {
+                          editorRef.current = editor;
+                        }}
+                        value={content}
+                        onEditorChange={(value) => setContent(value)}
+                        init={{
+                          plugins: tinyPlugins,
+                          toolbar: tinyToolbar,
+                          menubar: "file edit view insert format tools table help",
+                          toolbar_mode: "wrap",
+                          toolbar_sticky: true,
+                          quickbars_insert_toolbar: "image media table hr | codesample",
+                          quickbars_selection_toolbar: "bold italic underline | h2 h3 blockquote | link",
+                          branding: false,
+                          height: 520,
+                          statusbar: true,
+                          content_style:
+                            "body { background: #ffffff; font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 16px; color: #0f172a; line-height: 1.7; } code, pre { background: #0f172a0d; padding: 4px 6px; border-radius: 6px; }",
+                          link_default_target: "_blank",
+                          link_assume_external_targets: true,
+                          image_caption: true,
+                        }}
+                        disabled={submitting || contentMode !== "visual"}
+                      />
+                    </div>
+                    <textarea
+                      ref={sourceTextareaRef}
+                      className='form-control border-0 rounded-0'
+                      style={{
+                        display: contentMode === "html" ? "block" : "none",
+                        minHeight: 520,
+                        fontFamily:
+                          "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+                        fontSize: 14,
+                        backgroundColor: "#ffffff",
+                        color: "#0f172a",
+                        caretColor: "#0f172a",
                       }}
                       value={content}
-                      onEditorChange={(value) => setContent(value)}
-                    init={{
-                      plugins: tinyPlugins,
-                      toolbar: tinyToolbar,
-                      toolbar_mode: "sliding",
-                      quickbars_insert_toolbar: false,
-                      branding: false,
-                    }}
+                      onChange={(event) => setContent(event.target.value)}
+                      placeholder='Write or paste HTML here...'
+                      spellCheck={false}
                       disabled={submitting}
                     />
                   </div>
+                  <small className='d-block mt-8 text-neutral-500'>
+                    Content stays in sync between Visual and HTML modes so you can switch whenever you need.
+                  </small>
                 </div>
                 <div>
                   <label className='form-label fw-bold text-neutral-900'>
@@ -732,13 +878,13 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
               ) : (
                 recentBlogs.map((blog) => {
                   const previewImage = resolveImagePath(blog.featuredImage) || FALLBACK_IMAGE;
-                  const publicUrl = (PUBLIC_SITE_BASE || '') + '/blogs/' + blog.slug;
+                  const publicUrl = buildPublicBlogUrl(blog.slug, blog.title);
                   return (
                     <div className='d-flex align-items-start gap-12 p-12 radius-12 border border-neutral-50 bg-neutral-10' key={blog.id}>
                       <a
-                        href={publicUrl}
+                        href={publicUrl || '#'}
                         target='_blank'
-                        rel='noreferrer'
+                        rel={publicUrl ? 'noreferrer' : undefined}
                         className='blog__thumb overflow-hidden flex-shrink-0 rounded-12'
                         style={{ width: '96px', height: '96px' }}
                       >
