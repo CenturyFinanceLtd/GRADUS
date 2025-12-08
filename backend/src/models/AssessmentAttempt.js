@@ -50,7 +50,7 @@ const assessmentAttemptSchema = new mongoose.Schema(
 
 assessmentAttemptSchema.index(
   { userId: 1, courseSlug: 1, moduleIndex: 1, weekIndex: 1 },
-  { unique: true }
+  { unique: false }
 );
 
 module.exports = mongoose.model('AssessmentAttempt', assessmentAttemptSchema);

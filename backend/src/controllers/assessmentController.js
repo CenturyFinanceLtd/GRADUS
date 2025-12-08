@@ -599,7 +599,8 @@ const mapAttemptForResponse = (attempt, { includeCorrect = false } = {}) => {
     startedAt: attempt.startedAt || attempt.createdAt || null,
     questions: questions.map((q) => {
       const mapped = {
-        id: q.questionId,
+        id: q._id ? q._id.toString() : q.questionId,
+        questionId: q.questionId,
         prompt: q.prompt,
         options: Array.isArray(q.options) ? q.options : [],
         selectedOptionId: status === 'submitted' ? (q.selectedOptionId || '') : '',
@@ -638,86 +639,84 @@ const startAssessmentAttempt = asyncHandler(async (req, res) => {
     throw new Error('Course not found.');
   }
 
-  // If the user already has an attempt for this module/week, return it (even if the set was later deleted)
-  const existingAttempt = await AssessmentAttempt.findOne({
+  // Check for an active attempt to resume
+  let activeAttempt = await AssessmentAttempt.findOne({
     userId: req.user._id,
     courseSlug: course.slug,
     moduleIndex,
     weekIndex,
+    status: 'in-progress'
   }).lean();
 
-  if (existingAttempt) {
+  if (activeAttempt) {
     return res.json({
-      attempt: mapAttemptForResponse(existingAttempt, { includeCorrect: existingAttempt.status === 'submitted' }),
+      attempt: mapAttemptForResponse(activeAttempt, { includeCorrect: false }),
     });
   }
 
-  const findFallbackSet = async () => {
-    // exact match
-    let target = await AssessmentSet.findOne({ courseSlug: course.slug, moduleIndex, weekIndex }).lean();
-    if (target) return target;
-    // module-level fallback
-    if (moduleIndex && !weekIndex) {
-      target = await AssessmentSet.findOne({ courseSlug: course.slug, moduleIndex, weekIndex: null }).lean();
-      if (target) return target;
-    }
-    // course-level fallback
-    target = await AssessmentSet.findOne({ courseSlug: course.slug, moduleIndex: null, weekIndex: null }).lean();
-    return target;
-  };
-
+  // No active attempt -> Create a NEW one with questions removed from the GLOBAL POOL
+  // 1. Find the Set (without lean, we might need to update it, but better to use updateOne for atomicity)
   const set = await findFallbackSet();
-  if (!set || !Array.isArray(set.questions) || !set.questions.length) {
-    // If there's no set, return the latest attempt for this course (if any) so the user can review
-    const latestAttempt = await AssessmentAttempt.findOne({ userId: req.user._id, courseSlug: course.slug })
-      .sort({ updatedAt: -1 })
-      .lean();
-    if (latestAttempt) {
-      return res.json({
-        attempt: mapAttemptForResponse(latestAttempt, { includeCorrect: latestAttempt.status === 'submitted' }),
-      });
-    }
-
-    res.status(404);
-    throw new Error('Assessment set not found for this module/week.');
+  
+  if (!set || !Array.isArray(set.questions) || set.questions.length === 0) {
+     // Re-check: If questions are empty, user sees "Not Uploaded"
+     return res.status(400).json({
+      error: 'Assessments has not been uploaded soon it will be uploaded',
+      code: 'POOL_EXHAUSTED'
+    });
   }
 
-  const perAttemptCount = Number(set.perAttemptCount) || PER_ATTEMPT_COUNT;
-  let attempt = await AssessmentAttempt.findOne({
+  // 2. Check if we have enough questions
+  const perAttemptCount = Number(set.perAttemptCount) || 10;
+  
+  // If we have fewer than 10, should we use them all?
+  // Requirement: "once any 10... decreasing... after all questions finished... show not uploaded"
+  // This implies we consume what is there.
+  
+  // 3. Select Questions (Shuffle and Pick)
+  // We pick from the currently available set.questions
+  const selectedQuestions = pickQuestionsForAttempt(set.questions, perAttemptCount);
+  const selectedIds = selectedQuestions.map(q => q.id);
+
+  // 4. GLOBAL DEPLETION: Permanently remove these questions from the AssessmentSet
+  // This ensures they are "used" and the count in Admin decreases
+  await AssessmentSet.updateOne(
+    { _id: set._id },
+    { $pull: { questions: { id: { $in: selectedIds } } } }
+  );
+
+  // 5. Create New Attempt
+  const attemptsCount = await AssessmentAttempt.countDocuments({
     userId: req.user._id,
     courseSlug: course.slug,
-    moduleIndex: set.moduleIndex || null,
-    weekIndex: set.weekIndex || null,
-  }).lean();
+    moduleIndex,
+    weekIndex
+  });
 
-  if (!attempt) {
-    const attemptQuestions = pickQuestionsForAttempt(set.questions, perAttemptCount);
-    attempt = await AssessmentAttempt.create({
-      userId: req.user._id,
-      courseId: course._id,
-      courseSlug: course.slug,
-      programmeSlug: course.programmeSlug || course.programme || '',
-      courseName: course.name,
-      moduleIndex: set.moduleIndex || null,
-      weekIndex: set.weekIndex || null,
-      moduleTitle: set.moduleTitle || (set.moduleIndex ? `Module ${set.moduleIndex}` : 'Course'),
-      weekTitle: set.weekTitle || (set.weekIndex ? `Week ${set.weekIndex}` : 'Whole module'),
-      status: 'in-progress',
-      questions: attemptQuestions,
-      questionPoolSize: set.questionPoolSize || set.questions.length,
-      perAttemptCount,
-      score: 0,
-      totalQuestions: attemptQuestions.length,
-      startedAt: new Date(),
-    });
-
-    attempt = attempt.toObject();
-  }
+  const attempt = await AssessmentAttempt.create({
+    userId: req.user._id,
+    courseId: course._id,
+    courseSlug: course.slug,
+    programmeSlug: course.programmeSlug || course.programme || '',
+    courseName: course.name,
+    moduleIndex,
+    weekIndex,
+    moduleTitle: set.moduleTitle,
+    weekTitle: set.weekTitle,
+    title: `${set.title} (Attempt ${attemptsCount + 1})`,
+    status: 'in-progress',
+    questions: selectedQuestions,
+    questionPoolSize: set.questions.length - selectedQuestions.length, // Remaining pool size
+    perAttemptCount,
+    totalQuestions: selectedQuestions.length,
+    startedAt: new Date(),
+  });//end of creation
 
   res.json({
-    attempt: mapAttemptForResponse(attempt, { includeCorrect: attempt.status === 'submitted' }),
+    attempt: mapAttemptForResponse(attempt.toObject(), { includeCorrect: false }),
   });
 });
+
 
 const submitAssessmentAttempt = asyncHandler(async (req, res) => {
   if (!req.user?._id) {
@@ -760,8 +759,10 @@ const submitAssessmentAttempt = asyncHandler(async (req, res) => {
   let correctCount = 0;
   attempt.questions = attempt.questions.map((question) => {
     const baseQuestion = typeof question.toObject === 'function' ? question.toObject() : question;
-    const selectedOptionId = answerMap.has(String(question.questionId))
-      ? answerMap.get(String(question.questionId)) || ''
+    const lookupId = baseQuestion._id ? baseQuestion._id.toString() : String(baseQuestion.questionId);
+    
+    const selectedOptionId = answerMap.has(lookupId)
+      ? answerMap.get(lookupId) || ''
       : '';
     const isCorrect = !!(selectedOptionId && selectedOptionId === baseQuestion.correctOptionId);
     if (isCorrect) {
