@@ -31,6 +31,52 @@ const buildPublicBlogUrl = (slugValue, titleValue) => {
   return (PUBLIC_SITE_BASE || "") + "/blog/" + normalizedSlug;
 };
 
+const beautifyHtml = (html) => {
+  if (!html || typeof html !== "string") {
+    return "";
+  }
+  const VOID_ELEMENTS = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<body>${html}</body>`, "text/html");
+    const formatNode = (node, depth = 0) => {
+      const indent = "  ".repeat(depth);
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent.replace(/\s+/g, " ").trim();
+        return text ? `${indent}${text}\n` : "";
+      }
+      if (node.nodeType === Node.COMMENT_NODE) {
+        return `${indent}<!--${node.textContent}-->\n`;
+      }
+      if (node.nodeType !== Node.ELEMENT_NODE) {
+        return "";
+      }
+      const tag = node.nodeName.toLowerCase();
+      const attrs = Array.from(node.attributes)
+        .map((attr) => `${attr.name}="${attr.value}"`)
+        .join(" ");
+      const open = attrs ? `<${tag} ${attrs}>` : `<${tag}>`;
+      if (VOID_ELEMENTS.has(tag)) {
+        return `${indent}${open}\n`;
+      }
+      const children = Array.from(node.childNodes)
+        .map((child) => formatNode(child, depth + 1))
+        .join("");
+      return children
+        ? `${indent}${open}\n${children}${indent}</${tag}>\n`
+        : `${indent}${open}</${tag}>\n`;
+    };
+    const body = doc.body;
+    const formatted = Array.from(body.childNodes)
+      .map((child) => formatNode(child, 0))
+      .join("")
+      .trimEnd();
+    return formatted;
+  } catch (_err) {
+    return html;
+  }
+};
+
 const tinyPlugins = [
   "advlist",
   "anchor",
@@ -61,6 +107,24 @@ const tinyToolbar = [
   "| link image media table | codesample code | charmap emoticons insertdatetime | searchreplace removeformat",
   "| preview fullscreen",
 ].join(" ");
+
+const previewListStyles = `
+.blog-preview-content ul,
+.blog-preview-content ol {
+  list-style-position: outside;
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  margin: 12px 0;
+  color: inherit;
+}
+.blog-preview-content ol {
+  list-style-type: decimal;
+}
+.blog-preview-content li {
+  display: list-item;
+  margin-bottom: 6px;
+}
+`;
 
 const stripHtml = (value) => {
   if (!value) {
@@ -115,6 +179,7 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
   const [removeExistingImage, setRemoveExistingImage] = useState(false);
   const [content, setContent] = useState("");
   const [contentMode, setContentMode] = useState("visual");
+  const [formattingMessage, setFormattingMessage] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null);
@@ -159,6 +224,12 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
       setSlug(fallback);
       setSlugManuallyEdited(false);
     }
+  };
+
+  const handleResetSlug = () => {
+    const resetSlug = slugifyTitle(title || slug);
+    setSlug(resetSlug);
+    setSlugManuallyEdited(false);
   };
 
   const applySelectedFile = (file) => {
@@ -279,6 +350,18 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
     return stripHtml(content) || content.trim();
   };
 
+  const handleFormatHtml = () => {
+    const rawHtml = getHtmlContent();
+    const formatted = beautifyHtml(rawHtml);
+    setContent(formatted);
+    if (editorRef.current) {
+      editorRef.current.setContent(formatted);
+    }
+    setContentMode("html");
+    setFormattingMessage("HTML formatted for readability.");
+    setTimeout(() => setFormattingMessage(null), 1800);
+  };
+
   const handleReloadBlog = () => {
     if (!isEditMode || submitting) {
       return;
@@ -324,9 +407,12 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
         if (!currentBlog) {
           throw new Error("Blog not found");
         }
-        setTitle(currentBlog.title || "");
-        setSlug(currentBlog.slug || "");
-        setSlugManuallyEdited(true);
+        const nextTitle = currentBlog.title || "";
+        const fetchedSlug = currentBlog.slug || "";
+        const autoSlug = slugifyTitle(nextTitle);
+        setTitle(nextTitle);
+        setSlug(fetchedSlug || autoSlug);
+        setSlugManuallyEdited(!!fetchedSlug && fetchedSlug !== autoSlug);
         setAuthor(currentBlog.author || defaultAuthor);
         setCategory(currentBlog.category || "");
         setExcerpt(currentBlog.excerpt || "");
@@ -477,9 +563,12 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
 
       if (isEditMode) {
         if (resultingBlog) {
-        setTitle(resultingBlog.title || "");
-        setSlug(resultingBlog.slug || "");
-        setSlugManuallyEdited(true);
+          const nextTitle = resultingBlog.title || "";
+          const updatedSlug = resultingBlog.slug || slugifyTitle(nextTitle);
+          const autoSlug = slugifyTitle(nextTitle);
+          setTitle(nextTitle);
+          setSlug(updatedSlug || autoSlug);
+          setSlugManuallyEdited(!!updatedSlug && updatedSlug !== autoSlug);
         setAuthor(resultingBlog.author || defaultAuthor);
         setCategory(resultingBlog.category || "");
         setExcerpt(resultingBlog.excerpt || "");
@@ -560,6 +649,9 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
     .join(" ")
     .trim();
 
+  const currentHtmlForFormat = contentMode === "visual" && editorRef.current ? editorRef.current.getContent() : content;
+  const canFormatHtml = !!(currentHtmlForFormat && currentHtmlForFormat.trim().length);
+
   const alertClass = feedback
     ? feedback.type === "success"
       ? "alert alert-success"
@@ -567,7 +659,9 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
     : "";
 
   return (
-    <div className='row gy-4'>
+    <>
+      <style>{previewListStyles}</style>
+      <div className='row gy-4'>
       <div className='col-lg-8'>
         <div className='card mt-24'>
         <div className='card-header border-bottom'>
@@ -637,17 +731,30 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
                   <label className='form-label fw-bold text-neutral-900' htmlFor='slug'>
                     Post Slug:
                   </label>
-                  <input
-                    type='text'
-                    className='form-control border border-neutral-200 radius-8'
-                    id='slug'
-                    value={slug}
-                    onChange={handleSlugChange}
-                    onBlur={handleSlugBlur}
-                    placeholder='custom-url-slug'
-                    disabled={submitting}
-                  />
+                  <div className='d-flex gap-12 align-items-start flex-wrap'>
+                    <input
+                      type='text'
+                      className='form-control border border-neutral-200 radius-8 flex-grow-1'
+                      id='slug'
+                      value={slug}
+                      onChange={handleSlugChange}
+                      onBlur={handleSlugBlur}
+                      placeholder='custom-url-slug'
+                      disabled={submitting}
+                    />
+                    <button
+                      type='button'
+                      className='btn btn-outline-secondary btn-sm'
+                      onClick={handleResetSlug}
+                      disabled={submitting}
+                    >
+                      Reset from title
+                    </button>
                   </div>
+                  <small className='text-neutral-500'>
+                    Slug auto-syncs with the title unless you edit it. Use reset to regenerate from the current title.
+                  </small>
+                </div>
                 <div>
                   <label className='form-label fw-bold text-neutral-900' htmlFor='author'>
                     Author
@@ -711,28 +818,43 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
                     Post Content
                   </label>
                   <div className='d-flex flex-wrap gap-12 justify-content-between align-items-center mb-12'>
-                    <div className='btn-group' role='group' aria-label='Content mode toggle'>
+                    <div className='d-flex flex-wrap gap-12 align-items-center'>
+                      <div className='btn-group' role='group' aria-label='Content mode toggle'>
+                        <button
+                          type='button'
+                          className={`btn btn-sm ${contentMode === "visual" ? "btn-primary-600" : "btn-outline-secondary"}`}
+                          onClick={() => switchContentMode("visual")}
+                          disabled={submitting}
+                        >
+                          Visual Editor
+                        </button>
+                        <button
+                          type='button'
+                          className={`btn btn-sm ${contentMode === "html" ? "btn-primary-600" : "btn-outline-secondary"}`}
+                          onClick={() => switchContentMode("html")}
+                          disabled={submitting}
+                        >
+                          HTML / Text
+                        </button>
+                      </div>
                       <button
                         type='button'
-                        className={`btn btn-sm ${contentMode === "visual" ? "btn-primary-600" : "btn-outline-secondary"}`}
-                        onClick={() => switchContentMode("visual")}
-                        disabled={submitting}
+                        className='btn btn-sm btn-outline-primary'
+                        onClick={handleFormatHtml}
+                        disabled={!canFormatHtml || submitting}
                       >
-                        Visual Editor
-                      </button>
-                      <button
-                        type='button'
-                        className={`btn btn-sm ${contentMode === "html" ? "btn-primary-600" : "btn-outline-secondary"}`}
-                        onClick={() => switchContentMode("html")}
-                        disabled={submitting}
-                      >
-                        HTML / Text
+                        Format HTML
                       </button>
                     </div>
                     <span className='text-sm text-neutral-500'>
                       Use Visual for rich formatting or switch to HTML to write clean markup and embeds.
                     </span>
                   </div>
+                  {formattingMessage ? (
+                    <div className='alert alert-info py-2 px-3 mb-12'>
+                      {formattingMessage}
+                    </div>
+                  ) : null}
                   <div className='border border-neutral-200 radius-8 overflow-hidden'>
                     <div style={{ display: contentMode === "visual" ? "block" : "none" }}>
                       <Editor
@@ -988,7 +1110,8 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
           </div>
         </>
       ) : null}
-    </div>
+      </div>
+    </>
   );
 };
 

@@ -54,6 +54,32 @@
   color: #4b5563;
 }
 
+.admin-blog-content ul,
+.admin-blog-content ol,
+.blog-preview-content ul,
+.blog-preview-content ol {
+  list-style-position: outside;
+  padding-left: 1.25rem;
+  margin: 12px 0;
+}
+
+.admin-blog-content ul,
+.blog-preview-content ul {
+  list-style-type: disc;
+}
+
+.admin-blog-content ol,
+.blog-preview-content ol {
+  list-style-type: decimal;
+}
+
+.admin-blog-content li,
+.blog-preview-content li {
+  display: list-item;
+  margin-bottom: 6px;
+  color: inherit;
+}
+
 .admin-comment__actions {
   display: flex;
   gap: 8px;
