@@ -691,7 +691,7 @@ const startAssessmentAttempt = asyncHandler(async (req, res) => {
   // 3. Select Questions (Shuffle and Pick)
   // We pick from the currently available set.questions
   const selectedQuestions = pickQuestionsForAttempt(set.questions, perAttemptCount);
-  const selectedIds = selectedQuestions.map(q => q.id);
+  const selectedIds = selectedQuestions.map(q => q.questionId);
 
   // 4. GLOBAL DEPLETION: Permanently remove these questions from the AssessmentSet
   // This ensures they are "used" and the count in Admin decreases
