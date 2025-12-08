@@ -455,6 +455,7 @@ const generateCourseAssessments = asyncHandler(async (req, res) => {
                 model: model || '',
                 ...(usageMeta ? { usage: usageMeta } : {}),
                 generatedAt: new Date(),
+                initialQuestionCount: merged.length,
               },
             },
             { new: true, upsert: true, setDefaultsOnInsert: true }
