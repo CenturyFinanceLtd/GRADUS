@@ -5,6 +5,20 @@ import { deleteBlog, fetchBlogs } from "../services/adminBlogs";
 import { ASSET_BASE_URL, PUBLIC_SITE_BASE } from "../config/env";
 
 const PLACEHOLDER_IMAGE = "/assets/images/blog/blog-placeholder.png";
+const slugifyTitle = (value) => {
+  if (!value) {
+    return "";
+  }
+  return value
+    .toString()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+};
 
 const BlogLayer = () => {
   const { token } = useAuth();
@@ -175,8 +189,11 @@ const BlogLayer = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredBlogs.map((blog) => (
-                <tr key={blog.id}>
+              {filteredBlogs.map((blog) => {
+                const publicSlug = slugifyTitle(blog.slug || blog.title || "");
+                const publicUrl = publicSlug ? (PUBLIC_SITE_BASE || "") + "/blog/" + publicSlug : null;
+                return (
+                  <tr key={blog.id}>
                   <td>
                     <div className='d-flex align-items-center gap-12'>
                       <img
@@ -205,14 +222,16 @@ const BlogLayer = () => {
                       <Link to={'/blog-details/' + blog.id} className='btn btn-sm btn-primary-600 radius-8'>
                         Manage
                       </Link>
-                      <a
-                        href={PUBLIC_SITE_BASE + '/blogs/' + blog.slug}
-                        target='_blank'
-                        rel='noreferrer'
-                        className='btn btn-sm btn-outline-primary radius-8'
-                      >
-                        View Public
-                      </a>
+                      {publicUrl ? (
+                        <a
+                          href={publicUrl}
+                          target='_blank'
+                          rel='noreferrer'
+                          className='btn btn-sm btn-outline-primary radius-8'
+                        >
+                          View Public
+                        </a>
+                      ) : null}
                       <button
                         type='button'
                         className='btn btn-sm btn-outline-danger radius-8'
@@ -223,8 +242,9 @@ const BlogLayer = () => {
                       </button>
                     </div>
                   </td>
-                </tr>
-              ))}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

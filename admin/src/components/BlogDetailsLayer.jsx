@@ -13,6 +13,20 @@ import { ASSET_BASE_URL, PUBLIC_SITE_BASE } from "../config/env";
 import "./BlogDetailsLayer.css";
 
 const PLACEHOLDER_IMAGE = "/assets/images/blog/blog-placeholder.png";
+const slugifyTitle = (value) => {
+  if (!value) {
+    return "";
+  }
+  return value
+    .toString()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+};
 
 const formatDateTime = (value) => {
   if (!value) {
@@ -242,6 +256,9 @@ const BlogDetailsLayer = ({ onBlogLoaded = undefined }) => {
     return <div className='alert alert-warning'>Blog not found.</div>;
   }
 
+  const publicSlug = slugifyTitle(blog.slug || blog.title || "");
+  const publicUrl = publicSlug ? (PUBLIC_SITE_BASE || "") + "/blog/" + publicSlug : null;
+
   const resolveImage = (path) => {
     if (!path) {
       return PLACEHOLDER_IMAGE;
@@ -327,14 +344,16 @@ const BlogDetailsLayer = ({ onBlogLoaded = undefined }) => {
               >
                 Edit Blog
               </Link>
-              <a
-                href={PUBLIC_SITE_BASE + '/blogs/' + blog.slug}
-                target='_blank'
-                rel='noreferrer'
-                className='btn btn-outline-primary radius-8 flex-grow-1'
-              >
-                View Public Page
-              </a>
+              {publicUrl ? (
+                <a
+                  href={publicUrl}
+                  target='_blank'
+                  rel='noreferrer'
+                  className='btn btn-outline-primary radius-8 flex-grow-1'
+                >
+                  View Public Page
+                </a>
+              ) : null}
             </div>
           </div>
           <div className='card p-0 radius-12 overflow-hidden admin-comment-card'>
