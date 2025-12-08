@@ -110,7 +110,10 @@ const AssessmentPanel = ({
       setAttempt(nextAttempt);
       setCurrentIndex(savedIndex);
       setQuestionStartAt(savedQuestionStart);
-      setLockedQuestions({});
+      // Only reset lockedQuestions if this is a new attempt or submitted
+      if (nextAttempt?.status === 'submitted' || !stateKey || !localStorage.getItem(stateKey)) {
+        setLockedQuestions({});
+      }
       if (nextAttempt?.status === "submitted") {
         setHasStarted(true);
         setRemainingMs(null);
@@ -357,9 +360,8 @@ const AssessmentPanel = ({
           </p>
           {isSubmitted ? (
             <span
-              className={`assessment-chip ${
-                isCorrect ? "assessment-chip--success" : "assessment-chip--danger"
-              }`}
+              className={`assessment-chip ${isCorrect ? "assessment-chip--success" : "assessment-chip--danger"
+                }`}
             >
               {isCorrect ? "Correct" : "Incorrect"}
             </span>
@@ -376,9 +378,8 @@ const AssessmentPanel = ({
               <button
                 key={optionKey}
                 type='button'
-                className={`assessment-option ${optionIsSelected ? "is-selected" : ""} ${
-                  optionIsCorrect ? "is-correct" : ""
-                } ${optionIsIncorrect ? "is-incorrect" : ""}`}
+                className={`assessment-option ${optionIsSelected ? "is-selected" : ""} ${optionIsCorrect ? "is-correct" : ""
+                  } ${optionIsIncorrect ? "is-incorrect" : ""}`}
                 onClick={() => handleSelect(question.id, option.id)}
                 aria-pressed={optionIsSelected}
                 disabled={isLocked}
@@ -431,8 +432,8 @@ const AssessmentPanel = ({
       : 0;
     const timeLabel = showTimer
       ? `${Math.max(0, Math.floor((remainingMs || 0) / 60000))
-          .toString()
-          .padStart(2, "0")}:${Math.max(0, Math.floor(((remainingMs || 0) % 60000) / 1000))
+        .toString()
+        .padStart(2, "0")}:${Math.max(0, Math.floor(((remainingMs || 0) % 60000) / 1000))
           .toString()
           .padStart(2, "0")}`
       : null;
@@ -529,8 +530,8 @@ const AssessmentPanel = ({
                       ? "Submit answers"
                       : "Lock & submit"
                     : isCurrentLocked
-                    ? "Next question"
-                    : "Lock & next"}
+                      ? "Next question"
+                      : "Lock & next"}
                 </button>
               </div>
               <button
@@ -558,7 +559,7 @@ const AssessmentPanel = ({
         <div>
           <p className='course-home-panel__eyebrow mb-8'>Assessments</p>
           <h2 className='course-home-panel__title mb-4'>Weekly checkpoints</h2>
-          
+
         </div>
       </div>
 
