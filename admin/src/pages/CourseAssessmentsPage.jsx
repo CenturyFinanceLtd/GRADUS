@@ -29,16 +29,16 @@ const AssessmentRow = ({ item, onDelete, deletingId }) => {
   const updatedLabel = item?.generatedAt
     ? formatDistanceToNow(new Date(item.generatedAt), { addSuffix: true })
     : item?.updatedAt
-    ? formatDistanceToNow(new Date(item.updatedAt), { addSuffix: true })
-    : "—";
+      ? formatDistanceToNow(new Date(item.updatedAt), { addSuffix: true })
+      : "—";
   const moduleLabel = item?.moduleIndex
     ? `Module ${item.moduleIndex}${item.moduleTitle ? `: ${item.moduleTitle}` : ""}`
     : "Course";
   const weekLabel = item?.weekIndex
     ? `Week ${item.weekIndex}${item.weekTitle ? `: ${item.weekTitle}` : ""}`
     : item?.moduleIndex
-    ? "Whole module"
-    : "—";
+      ? "Whole module"
+      : "—";
 
   return (
     <tr>
@@ -46,7 +46,8 @@ const AssessmentRow = ({ item, onDelete, deletingId }) => {
       <td>{moduleLabel}</td>
       <td>{weekLabel}</td>
       <td>{item?.level || "—"}</td>
-      <td>{questionCount}</td>
+      <td>{item?.initialQuestionCount || questionCount}</td>
+      <td className="text-primary fw-bold">{questionCount}</td>
       <td>{item?.source === "ai" ? "AI-generated" : item?.source || "—"}</td>
       <td className='text-muted small'>{updatedLabel}</td>
       <td>
@@ -252,23 +253,23 @@ const CourseAssessmentsPage = () => {
     const startPoll = () => {
       const poll = async () => {
         try {
-            const status = await fetchAssessmentProgress({
-              token,
-              courseSlug: selectedSlug,
-              programmeSlug: selectedCourse?.programmeSlug || selectedCourse?.programme,
-            });
+          const status = await fetchAssessmentProgress({
+            token,
+            courseSlug: selectedSlug,
+            programmeSlug: selectedCourse?.programmeSlug || selectedCourse?.programme,
+          });
           if (status) {
-              setJobProgress({
-                status: status.status,
-                completed: status.completed || 0,
-                total: status.totalTarget || 0,
-              });
-              if (status.id) setJobId(status.id);
-              if (status.status === "completed") {
-                setGenerating(false);
-                const items = await listAssessments({ token, courseSlug: selectedSlug });
-                setAssessments(items);
-                if (pollRef.current) {
+            setJobProgress({
+              status: status.status,
+              completed: status.completed || 0,
+              total: status.totalTarget || 0,
+            });
+            if (status.id) setJobId(status.id);
+            if (status.status === "completed") {
+              setGenerating(false);
+              const items = await listAssessments({ token, courseSlug: selectedSlug });
+              setAssessments(items);
+              if (pollRef.current) {
                 clearInterval(pollRef.current);
                 pollRef.current = null;
               }
@@ -293,7 +294,7 @@ const CourseAssessmentsPage = () => {
           setError(err?.message || "Failed to fetch progress.");
         }
       };
-          if (pollRef.current) clearInterval(pollRef.current);
+      if (pollRef.current) clearInterval(pollRef.current);
       pollRef.current = setInterval(poll, 2000);
       poll();
     };
@@ -637,7 +638,8 @@ const CourseAssessmentsPage = () => {
                   <th>Module</th>
                   <th>Week</th>
                   <th>Level</th>
-                  <th>Questions</th>
+                  <th>Total</th>
+                  <th>Unused</th>
                   <th>Source</th>
                   <th>Updated</th>
                   <th>Actions</th>
