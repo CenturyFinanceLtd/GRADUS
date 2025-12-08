@@ -16,6 +16,7 @@ const {
 } = require('../controllers/courseController');
 const {
   getCourseAssessments,
+  getUserAssessmentAttempts,
   startAssessmentAttempt,
   submitAssessmentAttempt,
 } = require('../controllers/assessmentController');
@@ -25,7 +26,9 @@ const router = express.Router();
 
 router.get('/page', attachUserIfPresent, getCoursePage);
 router.get('/', listCourses);
+router.get('/:programmeSlug/:courseSlug/assessments/attempts', protect, getUserAssessmentAttempts);
 router.get('/:programmeSlug/:courseSlug/assessments', attachUserIfPresent, getCourseAssessments);
+router.get('/:courseSlug/assessments/attempts', protect, getUserAssessmentAttempts);
 router.get('/:courseSlug/assessments', attachUserIfPresent, getCourseAssessments);
 router.post('/:programmeSlug/:courseSlug/assessments/attempts', protect, startAssessmentAttempt);
 router.post('/:programmeSlug/:courseSlug/assessments/attempts/:attemptId/submit', protect, submitAssessmentAttempt);
