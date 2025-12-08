@@ -639,6 +639,20 @@ const startAssessmentAttempt = asyncHandler(async (req, res) => {
     throw new Error('Course not found.');
   }
 
+  const findFallbackSet = async () => {
+    // exact match
+    let target = await AssessmentSet.findOne({ courseSlug: course.slug, moduleIndex, weekIndex }).lean();
+    if (target) return target;
+    // module-level fallback
+    if (moduleIndex && !weekIndex) {
+      target = await AssessmentSet.findOne({ courseSlug: course.slug, moduleIndex, weekIndex: null }).lean();
+      if (target) return target;
+    }
+    // course-level fallback
+    target = await AssessmentSet.findOne({ courseSlug: course.slug, moduleIndex: null, weekIndex: null }).lean();
+    return target;
+  };
+
   // Check for an active attempt to resume
   let activeAttempt = await AssessmentAttempt.findOne({
     userId: req.user._id,

@@ -21,8 +21,7 @@ const attemptQuestionSchema = new mongoose.Schema(
     correctOptionId: { type: String, required: true, trim: true },
     selectedOptionId: { type: String, trim: true, default: '' },
     isCorrect: { type: Boolean, default: null },
-  },
-  { _id: false }
+  }
 );
 
 const assessmentAttemptSchema = new mongoose.Schema(
