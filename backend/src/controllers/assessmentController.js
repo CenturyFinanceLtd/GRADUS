@@ -602,7 +602,7 @@ const mapAttemptForResponse = (attempt, { includeCorrect = false } = {}) => {
         id: q.questionId,
         prompt: q.prompt,
         options: Array.isArray(q.options) ? q.options : [],
-        selectedOptionId: q.selectedOptionId || '',
+        selectedOptionId: status === 'submitted' ? (q.selectedOptionId || '') : '',
       };
       if (showCorrect) {
         mapped.correctOptionId = q.correctOptionId;
