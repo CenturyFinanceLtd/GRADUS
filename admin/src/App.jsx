@@ -88,10 +88,6 @@ const WidgetsPage = lazy(() => import("./pages/WidgetsPage"));
 const WizardPage = lazy(() => import("./pages/WizardPage"));
 import RouteScrollToTop from "./helper/RouteScrollToTop";
 const TextGeneratorNewPage = lazy(() => import("./pages/TextGeneratorNewPage"));
-const HomePageEight = lazy(() => import("./pages/HomePageEight"));
-const HomePageNine = lazy(() => import("./pages/HomePageNine"));
-const HomePageTen = lazy(() => import("./pages/HomePageTen"));
-const HomePageEleven = lazy(() => import("./pages/HomePageEleven"));
 const GalleryGridPage = lazy(() => import("./pages/GalleryGridPage"));
 const GalleryMasonryPage = lazy(() => import("./pages/GalleryMasonryPage"));
 const GalleryHoverPage = lazy(() => import("./pages/GalleryHoverPage"));
@@ -119,10 +115,7 @@ const CallbackRequestPage = lazy(() => import("./pages/CallbackRequestPage"));
 import useAuth from "./hook/useAuth";
 
 const RootDashboard = () => {
-  const { admin } = useAuth();
-  const normalizedRole = admin?.role ? String(admin.role).toLowerCase() : "";
-
-  return normalizedRole === "seo" ? <HomePageNine /> : <HomePageOne />;
+  return <HomePageOne />;
 };
 
 function App() {
@@ -132,12 +125,6 @@ function App() {
       <Suspense fallback={<div className="app-loading">Loading...</div>}>
         <Routes>
           <Route exact path='/' element={<RootDashboard />} />
-
-
-          <Route exact path='/index-8' element={<HomePageEight />} />
-          <Route exact path='/index-9' element={<HomePageNine />} />
-          <Route exact path='/index-10' element={<HomePageTen />} />
-          <Route exact path='/index-11' element={<HomePageEleven />} />
 
           {/* Courses Admin */}
           <Route exact path='/courses-admin' element={<CoursesAdminPage />} />

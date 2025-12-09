@@ -1,82 +1,42 @@
-import { useEffect } from "react";
-import jsVectorMap from "jsvectormap";
-import "jsvectormap/dist/maps/world.js";
-const TopCountries = () => {
-  useEffect(() => {
-    const map = new jsVectorMap({
-      selector: "#map",
-      map: "world", // Use the map name you installed
-      backgroundColor: "transparent",
-      borderColor: "#fff",
-      borderOpacity: 0.25,
-      borderWidth: 0,
-      color: "#000000",
-      regionStyle: {
-        initial: {
-          fill: "#D1D5DB",
-        },
-      },
-      markerStyle: {
-        initial: {
-          r: 5,
-          fill: "#fff",
-          "fill-opacity": 1,
-          stroke: "#000",
-          "stroke-width": 1,
-          "stroke-opacity": 0.4,
-        },
-      },
-      markers: [
-        { coords: [35.8617, 104.1954], name: "China : 250" },
-        { coords: [25.2744, 133.7751], name: "Australia : 250" },
-        { coords: [36.77, -119.41], name: "USA : 82%" },
-        { coords: [55.37, -3.41], name: "UK : 250" },
-        { coords: [25.2, 55.27], name: "UAE : 250" },
-      ],
-      series: {
-        regions: [
-          {
-            attribute: "fill",
+import React, { useState } from 'react';
+import { ComposableMap, Geographies, Geography } from "react-simple-maps";
+import { Tooltip } from 'react-tooltip';
 
-            scale: {
-              US: "#487FFF ",
-              SA: "#487FFF",
-              AU: "#487FFF",
-              CN: "#487FFF",
-              GB: "#487FFF",
-            },
-            values: {
-              // But when dealing with regions's series you should specify the region key.
-              US: "US",
-              SA: "SA",
-              AU: "AU",
-              CN: "CN",
-              GB: "GB",
-            },
-          },
-        ],
-      },
-      hoverOpacity: null,
-      normalizeFunction: "linear",
-      zoomOnScroll: false,
-      scaleColors: ["#000000", "#000000"],
-      selectedColor: "#000000",
-      selectedRegions: [],
-      enableZoom: false,
-      hoverColor: "#fff",
-    });
+// Reliable TopoJSON for India
+const INDIA_STATES_TOPO_JSON = "https://raw.githubusercontent.com/baronwatts/topojson/master/india.json";
 
-    // Cleanup the map instance when the component unmounts
-    return () => {
-      map && map.destroy();
-    };
-  }, []);
+const PROJECTION_CONFIG = {
+  scale: 1000,
+  center: [78.9629, 22.5937] // Center of India
+};
+
+
+const TopCountries = ({ analytics }) => {
+  const [tooltipContent, setTooltipContent] = useState("");
+
+  // Use real data if available, otherwise fallback to empty or mock for demo if preferred (but prompt asked for real ones)
+  // Analytics.locations is expected to be [{ state: "StateName", value: 123, country: "IN" }]
+  const realData = analytics?.locations || [];
+
+  // Aggregate data for map display - ensure matching state names with TopoJSON
+  // Note: TopoJSON names can vary. Using simple matching.
+
+  const totalVisitors = realData.reduce((acc, curr) => acc + curr.value, 0);
+
+  const data = realData.length > 0 ? realData.map((item, index) => ({
+    id: index,
+    state: item.state,
+    value: item.value,
+    percent: totalVisitors > 0 ? Math.round((item.value / totalVisitors) * 100) : 0,
+    color: ["#4F46E5", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6"][index % 5] // Cycle colors
+  })) : [];
+
   return (
     <div className='col-xxl-6 col-xl-12'>
       <div className='card h-100'>
         <div className='card-body'>
           <div className='d-flex align-items-center flex-wrap gap-2 justify-content-between mb-20'>
-            <h6 className='mb-2 fw-bold text-lg mb-0'>Top Countries</h6>
+            <h6 className='mb-2 fw-bold text-lg mb-0'>Top States (Real-time)</h6>
             <select
               className='form-select form-select-sm w-auto bg-base border text-secondary-light'
               defaultValue='Today'
@@ -89,222 +49,89 @@ const TopCountries = () => {
           </div>
           <div className='row gy-4'>
             <div className='col-lg-6'>
-              {/* world-map */}
-              <div id='map' className='h-100 border radius-8'></div>
+              {/* Map Section */}
+              <div className="h-100 border radius-8 overflow-hidden relative" style={{ minHeight: '300px' }}>
+                <ComposableMap
+                  projection="geoMercator"
+                  projectionConfig={PROJECTION_CONFIG}
+                  width={600}
+                  height={650}
+                  style={{ width: "100%", height: "100%" }}
+                >
+                  <Geographies geography={INDIA_STATES_TOPO_JSON}>
+                    {({ geographies }) =>
+                      geographies.map((geo) => {
+                        const stateName = geo.properties.st_nm || geo.properties.NAME_1 || geo.properties.name;
+                        const cur = data.find(s => s.state && stateName && s.state.toLowerCase() === stateName.toLowerCase());
+
+                        return (
+                          <Geography
+                            key={geo.rsmKey}
+                            geography={geo}
+                            fill={cur ? cur.color : "#D1D5DB"}
+                            stroke="#FFFFFF"
+                            strokeWidth={0.5}
+                            style={{
+                              default: { outline: "none" },
+                              hover: { fill: "#F53", outline: "none", cursor: "pointer" },
+                              pressed: { outline: "none" },
+                            }}
+                            onMouseEnter={() => {
+                              const visitors = cur ? cur.value : 0;
+                              setTooltipContent(`${stateName}: ${visitors} Visitors`);
+                            }}
+                            onMouseLeave={() => {
+                              setTooltipContent("");
+                            }}
+                            data-tooltip-id="my-tooltip"
+                            data-tooltip-content={tooltipContent}
+                          />
+                        );
+                      })
+                    }
+                  </Geographies>
+                </ComposableMap>
+                <Tooltip id="my-tooltip" style={{ backgroundColor: "#1F2937", color: "#F9FAFB", borderRadius: "8px", zIndex: 9999 }} />
+              </div>
             </div>
             <div className='col-lg-6'>
               <div className='h-100 border p-16 pe-0 radius-8'>
                 <div className='max-h-266-px overflow-y-auto scroll-sm pe-16'>
-                  <div className='d-flex align-items-center justify-content-between gap-3 mb-12 pb-2'>
-                    <div className='d-flex align-items-center w-100'>
-                      <img
-                        src='assets/images/flags/flag1.png'
-                        alt='Gradus'
-                        className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12'
-                      />
-                      <div className='flex-grow-1'>
-                        <h6 className='text-sm mb-0'>USA</h6>
-                        <span className='text-xs text-secondary-light fw-medium'>
-                          1,240 Users
+                  {data.length === 0 && <div className="text-center text-gray-500 py-4">No visitor location data available yet.</div>}
+                  {data.map((item) => (
+                    <div key={item.id} className='d-flex align-items-center justify-content-between gap-3 mb-12 pb-2'>
+                      <div className='d-flex align-items-center w-100'>
+                        <div className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12 d-flex align-items-center justify-content-center text-white font-bold' style={{ backgroundColor: item.color }}>
+                          {item.state ? item.state.substring(0, 2).toUpperCase() : "??"}
+                        </div>
+                        <div className='flex-grow-1'>
+                          <h6 className='text-sm mb-0'>{item.state}</h6>
+                          <span className='text-xs text-secondary-light fw-medium'>
+                            {item.value.toLocaleString()} Users
+                          </span>
+                        </div>
+                      </div>
+                      <div className='d-flex align-items-center gap-2 w-100'>
+                        <div className='w-100 max-w-66 ms-auto'>
+                          <div
+                            className='progress progress-sm rounded-pill'
+                            role='progressbar'
+                            aria-valuenow={item.percent}
+                            aria-valuemin={0}
+                            aria-valuemax={100}
+                          >
+                            <div
+                              className='progress-bar rounded-pill'
+                              style={{ width: `${item.percent}%`, backgroundColor: item.color }}
+                            />
+                          </div>
+                        </div>
+                        <span className='text-secondary-light font-xs fw-semibold'>
+                          {item.percent}%
                         </span>
                       </div>
                     </div>
-                    <div className='d-flex align-items-center gap-2 w-100'>
-                      <div className='w-100 max-w-66 ms-auto'>
-                        <div
-                          className='progress progress-sm rounded-pill'
-                          role='progressbar'
-                          aria-label='Success example'
-                          aria-valuenow={25}
-                          aria-valuemin={0}
-                          aria-valuemax={100}
-                        >
-                          <div
-                            className='progress-bar bg-primary-600 rounded-pill'
-                            style={{ width: "80%" }}
-                          />
-                        </div>
-                      </div>
-                      <span className='text-secondary-light font-xs fw-semibold'>
-                        80%
-                      </span>
-                    </div>
-                  </div>
-                  <div className='d-flex align-items-center justify-content-between gap-3 mb-12 pb-2'>
-                    <div className='d-flex align-items-center w-100'>
-                      <img
-                        src='assets/images/flags/flag2.png'
-                        alt='Gradus'
-                        className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12'
-                      />
-                      <div className='flex-grow-1'>
-                        <h6 className='text-sm mb-0'>Japan</h6>
-                        <span className='text-xs text-secondary-light fw-medium'>
-                          1,240 Users
-                        </span>
-                      </div>
-                    </div>
-                    <div className='d-flex align-items-center gap-2 w-100'>
-                      <div className='w-100 max-w-66 ms-auto'>
-                        <div
-                          className='progress progress-sm rounded-pill'
-                          role='progressbar'
-                          aria-label='Success example'
-                          aria-valuenow={25}
-                          aria-valuemin={0}
-                          aria-valuemax={100}
-                        >
-                          <div
-                            className='progress-bar bg-orange rounded-pill'
-                            style={{ width: "60%" }}
-                          />
-                        </div>
-                      </div>
-                      <span className='text-secondary-light font-xs fw-semibold'>
-                        60%
-                      </span>
-                    </div>
-                  </div>
-                  <div className='d-flex align-items-center justify-content-between gap-3 mb-12 pb-2'>
-                    <div className='d-flex align-items-center w-100'>
-                      <img
-                        src='assets/images/flags/flag3.png'
-                        alt='Gradus'
-                        className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12'
-                      />
-                      <div className='flex-grow-1'>
-                        <h6 className='text-sm mb-0'>France</h6>
-                        <span className='text-xs text-secondary-light fw-medium'>
-                          1,240 Users
-                        </span>
-                      </div>
-                    </div>
-                    <div className='d-flex align-items-center gap-2 w-100'>
-                      <div className='w-100 max-w-66 ms-auto'>
-                        <div
-                          className='progress progress-sm rounded-pill'
-                          role='progressbar'
-                          aria-label='Success example'
-                          aria-valuenow={25}
-                          aria-valuemin={0}
-                          aria-valuemax={100}
-                        >
-                          <div
-                            className='progress-bar bg-yellow rounded-pill'
-                            style={{ width: "49%" }}
-                          />
-                        </div>
-                      </div>
-                      <span className='text-secondary-light font-xs fw-semibold'>
-                        49%
-                      </span>
-                    </div>
-                  </div>
-                  <div className='d-flex align-items-center justify-content-between gap-3 mb-12 pb-2'>
-                    <div className='d-flex align-items-center w-100'>
-                      <img
-                        src='assets/images/flags/flag4.png'
-                        alt='Gradus'
-                        className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12'
-                      />
-                      <div className='flex-grow-1'>
-                        <h6 className='text-sm mb-0'>Germany</h6>
-                        <span className='text-xs text-secondary-light fw-medium'>
-                          1,240 Users
-                        </span>
-                      </div>
-                    </div>
-                    <div className='d-flex align-items-center gap-2 w-100'>
-                      <div className='w-100 max-w-66 ms-auto'>
-                        <div
-                          className='progress progress-sm rounded-pill'
-                          role='progressbar'
-                          aria-label='Success example'
-                          aria-valuenow={25}
-                          aria-valuemin={0}
-                          aria-valuemax={100}
-                        >
-                          <div
-                            className='progress-bar bg-success-main rounded-pill'
-                            style={{ width: "100%" }}
-                          />
-                        </div>
-                      </div>
-                      <span className='text-secondary-light font-xs fw-semibold'>
-                        100%
-                      </span>
-                    </div>
-                  </div>
-                  <div className='d-flex align-items-center justify-content-between gap-3 mb-12 pb-2'>
-                    <div className='d-flex align-items-center w-100'>
-                      <img
-                        src='assets/images/flags/flag5.png'
-                        alt='Gradus'
-                        className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12'
-                      />
-                      <div className='flex-grow-1'>
-                        <h6 className='text-sm mb-0'>South Korea</h6>
-                        <span className='text-xs text-secondary-light fw-medium'>
-                          1,240 Users
-                        </span>
-                      </div>
-                    </div>
-                    <div className='d-flex align-items-center gap-2 w-100'>
-                      <div className='w-100 max-w-66 ms-auto'>
-                        <div
-                          className='progress progress-sm rounded-pill'
-                          role='progressbar'
-                          aria-label='Success example'
-                          aria-valuenow={25}
-                          aria-valuemin={0}
-                          aria-valuemax={100}
-                        >
-                          <div
-                            className='progress-bar bg-info-main rounded-pill'
-                            style={{ width: "30%" }}
-                          />
-                        </div>
-                      </div>
-                      <span className='text-secondary-light font-xs fw-semibold'>
-                        30%
-                      </span>
-                    </div>
-                  </div>
-                  <div className='d-flex align-items-center justify-content-between gap-3'>
-                    <div className='d-flex align-items-center w-100'>
-                      <img
-                        src='assets/images/flags/flag1.png'
-                        alt='Gradus'
-                        className='w-40-px h-40-px rounded-circle flex-shrink-0 me-12'
-                      />
-                      <div className='flex-grow-1'>
-                        <h6 className='text-sm mb-0'>USA</h6>
-                        <span className='text-xs text-secondary-light fw-medium'>
-                          1,240 Users
-                        </span>
-                      </div>
-                    </div>
-                    <div className='d-flex align-items-center gap-2 w-100'>
-                      <div className='w-100 max-w-66 ms-auto'>
-                        <div
-                          className='progress progress-sm rounded-pill'
-                          role='progressbar'
-                          aria-label='Success example'
-                          aria-valuenow={25}
-                          aria-valuemin={0}
-                          aria-valuemax={100}
-                        >
-                          <div
-                            className='progress-bar bg-primary-600 rounded-pill'
-                            style={{ width: "80%" }}
-                          />
-                        </div>
-                      </div>
-                      <span className='text-secondary-light font-xs fw-semibold'>
-                        80%
-                      </span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>

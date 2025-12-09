@@ -413,7 +413,7 @@ const ImageGeneratorLayer = () => {
             <input
               type='text'
               name='chatMessage'
-              placeholder='Message wowdash...'
+              placeholder='Message gradus...'
             />
             <button
               type='submit'

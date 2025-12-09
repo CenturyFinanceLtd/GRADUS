@@ -32,9 +32,13 @@ export const fetchMonthlyVisitors = ({ token, months } = {}) =>
     token,
   });
 
+export const fetchVisitorLocationStats = ({ token } = {}) =>
+  apiClient('/admin/analytics/visitors/locations', { token });
+
 export default {
   fetchBlogEngagement,
   fetchPageViewStats,
   fetchVisitorSummary,
   fetchMonthlyVisitors,
+  fetchVisitorLocationStats,
 };

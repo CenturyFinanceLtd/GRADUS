@@ -6,16 +6,19 @@ import TopPerformerOne from "./child/TopPerformerOne";
 import TopCountries from "./child/TopCountries";
 import GeneratedContent from "./child/GeneratedContent";
 import UnitCountOne from "./child/UnitCountOne";
+import useVisitorAnalytics from "../hook/useVisitorAnalytics";
 
 const DashBoardLayerOne = () => {
+  const analytics = useVisitorAnalytics({ months: 14, includePageViews: true });
+
   return (
     <>
       {/* UnitCountOne */}
-      <UnitCountOne />
+      <UnitCountOne analytics={analytics} />
 
       <section className='row gy-4 mt-1'>
         {/* SalesStatisticOne */}
-        <SalesStatisticOne />
+        <SalesStatisticOne analytics={analytics} />
 
         {/* TotalSubscriberOne */}
         <TotalSubscriberOne />
@@ -30,7 +33,7 @@ const DashBoardLayerOne = () => {
         <TopPerformerOne />
 
         {/* TopCountries */}
-        <TopCountries />
+        <TopCountries analytics={analytics} />
 
         {/* GeneratedContent */}
         <GeneratedContent />

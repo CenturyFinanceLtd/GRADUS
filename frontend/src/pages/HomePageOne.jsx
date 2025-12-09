@@ -8,6 +8,7 @@ import CourseInsight from "../components/home/CourseInsight";
 import WhyGradusVideo from "../components/home/WhyGradusVideo";
 import ExpertVideos from "../components/home/ExpertVideos";
 import WhyGradusComparison from "../components/home/WhyGradusComparison";
+
 import FooterOne from "../components/FooterOne";
 import HeaderOne from "../components/HeaderOne";
 import Animation from "../helper/Animation";
@@ -46,6 +47,8 @@ const HomePageOne = () => {
 
       {/* Expert Videos */}
       <ExpertVideos />
+
+
 
       {/* CounterTwo */}
       <CounterTwo />

@@ -6,15 +6,18 @@ import EarningStaticOne from "./child/EarningStaticOne";
 import TotalTransactionsOne from "./child/TotalTransactionsOne";
 import SalesStatisticTwo from "./child/SalesStatisticTwo";
 import UsersOverviewTwo from "./child/UsersOverviewTwo";
+import useVisitorAnalytics from "../hook/useVisitorAnalytics";
 
 const WidgetsLayer = () => {
+  const analytics = useVisitorAnalytics({ months: 14, includePageViews: false });
+
   return (
     <>
       {/* Metrics */}
       <Metrics />
       <div className='row gy-4 mt-1'>
         {/* SalesStatisticOne */}
-        <SalesStatisticOne />
+        <SalesStatisticOne analytics={analytics} />
 
         {/* TopCountries */}
         <TopCountries />

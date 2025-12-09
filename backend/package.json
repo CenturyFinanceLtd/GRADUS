@@ -23,6 +23,7 @@
         "express-async-handler": "^1.2.0",
         "express-session": "^1.18.2",
         "express-validator": "^7.2.1",
+        "geoip-lite": "^1.4.10",
         "google-auth-library": "^9.15.1",
         "googleapis": "^166.0.0",
         "jsonwebtoken": "^9.0.2",

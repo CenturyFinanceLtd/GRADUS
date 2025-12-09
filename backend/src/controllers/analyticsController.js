@@ -7,6 +7,8 @@ const crypto = require('crypto');
 const Blog = require('../models/Blog');
 const SiteVisit = require('../models/SiteVisit');
 
+const geoip = require('geoip-lite');
+
 const ANALYTICS_SALT = process.env.ANALYTICS_SALT || 'gradus_analytics_salt';
 
 const normalizePath = (input) => {
@@ -53,6 +55,12 @@ const hashIpAddress = (req) => {
   return crypto.createHash('sha256').update(ipAddress + ANALYTICS_SALT).digest('hex');
 };
 
+// Helper to get raw IP for geo lookup (not hashed)
+const getRawIpAddress = (req) => {
+  const forwarded = req.headers['x-forwarded-for'];
+  return forwarded ? forwarded.split(',')[0].trim() : req.ip;
+};
+
 const ensureVisitTracker = (req) => {
   if (!req.session) {
     return null;
@@ -86,6 +94,9 @@ const recordSiteVisit = asyncHandler(async (req, res) => {
     tracker[path] = now.toISOString();
   }
 
+  const ip = getRawIpAddress(req);
+  const geo = geoip.lookup(ip);
+
   const siteVisit = new SiteVisit({
     path,
     pageTitle,
@@ -94,6 +105,9 @@ const recordSiteVisit = asyncHandler(async (req, res) => {
     ipHash: hashIpAddress(req),
     sessionId: req.sessionID || null,
     visitedAt: now,
+    country: geo ? geo.country : null,
+    region: geo ? geo.region : null,
+    city: geo ? geo.city : null,
   });
 
   await siteVisit.save();
@@ -319,12 +333,50 @@ const fetchMonthlyVisitors = asyncHandler(async (req, res) => {
       uniqueVisitors: match ? match.uniqueVisitors : 0,
     });
   }
-
   res.json({
     start,
     end: now,
     months: buckets,
   });
+});
+
+const fetchVisitorLocationStats = asyncHandler(async (req, res) => {
+  // Default to current month/year if no range provided
+  // This aggregates visits by Region (State) filtering for India if possible, or generally globally
+  // For now, let's aggregate all available data or a specific range
+  const now = new Date();
+  const start = new Date(now);
+  start.setDate(now.getDate() - 30); // Last 30 days default
+
+  const pipeline = [
+    { $match: { visitedAt: { $gte: start } } },
+    {
+      $group: {
+        _id: '$region', // Group by Region (State)
+        count: { $sum: 1 },
+        country: { $first: '$country' }
+      }
+    },
+    { $sort: { count: -1 } },
+    { $limit: 20 } // Top 20 regions
+  ];
+
+  const results = await SiteVisit.aggregate(pipeline);
+
+  // Filter for India (IN) only if we want to be strict, but for now sending all top regions
+  // Optionally client can filter.
+  // Ideally we should group by { country, region } but simplifying for the specific "Indian States" request
+
+  // Format for frontend
+  const locations = results
+    .filter(r => r._id) // Remove null regions
+    .map(r => ({
+      state: r._id,
+      value: r.count,
+      country: r.country
+    }));
+
+  res.json({ locations });
 });
 
 module.exports = {
@@ -333,4 +385,5 @@ module.exports = {
   fetchPageViewStats,
   fetchVisitorSummary,
   fetchMonthlyVisitors,
+  fetchVisitorLocationStats,
 };

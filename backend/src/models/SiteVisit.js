@@ -44,6 +44,21 @@ const siteVisitSchema = new mongoose.Schema(
       default: Date.now,
       index: true,
     },
+    country: {
+      type: String,
+      trim: true,
+      maxlength: 100,
+    },
+    region: {
+      type: String, // State/Province code or name
+      trim: true,
+      maxlength: 100,
+    },
+    city: {
+      type: String,
+      trim: true,
+      maxlength: 100,
+    },
   },
   { versionKey: false }
 );
