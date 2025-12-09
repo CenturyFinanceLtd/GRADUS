@@ -1,3 +1,4 @@
+import SignInModal from "./SignInModal";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -10,6 +11,7 @@ const HeaderOne = () => {
   let { pathname } = useLocation();
   const [scroll, setScroll] = useState(false);
   const [isMenuActive, setIsMenuActive] = useState(false);
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [hasUpcomingEvents, setHasUpcomingEvents] = useState(false);
 
@@ -92,6 +94,14 @@ const HeaderOne = () => {
     };
   }, []);
 
+  const handleSignInClick = (e) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      setIsSignInModalOpen(true);
+      closeMenu();
+    }
+  };
+
   const handleLogout = () => {
     closeUserMenu();
     const currentPath = pathname || "/";
@@ -164,8 +174,8 @@ const HeaderOne = () => {
     const rawLabel = isObject
       ? course?.name || course?.title || course?.label || ""
       : typeof course === "string"
-      ? course
-      : "";
+        ? course
+        : "";
     const label = String(rawLabel || "").trim();
     const fallbackSlug = (isObject ? course?.slug : null) || (label ? slugify(label) : "");
     const slugValue = (fallbackSlug || "course").trim();
@@ -182,8 +192,8 @@ const HeaderOne = () => {
       typeof input === "string"
         ? { label: input, slug: slugify(input) }
         : input && typeof input === "object"
-        ? input
-        : { label: "" };
+          ? input
+          : { label: "" };
     const cleaned = meta.label
       ? meta.label.replace(/\s*\([^)]*\)\s*/g, " ").trim() || meta.label
       : "";
@@ -460,109 +470,111 @@ const HeaderOne = () => {
               {/* Menu End  */}
               {/* Header Right start */}
               <div className='header-right flex-align'>
-              {/* Search removed */}
-              {isAuthenticated ? (
-                <div className='position-relative' ref={userMenuRef}>
-                  {/* Desktop: icon + name in same pill */}
-                  <button
-                    type='button'
-                    onClick={toggleUserMenu}
-                    className='account-pill d-none d-lg-inline-flex'
-                    title={profileLabel}
-                    aria-label={profileLabel}
-                    aria-haspopup='menu'
-                    aria-expanded={isUserMenuOpen}
-                  >
-                    <span className='account-pill__icon'><i className='ph ph-user-circle' /></span>
-                    <span className='account-pill__label'>{displayName}</span>
-                    <i className='ph-bold ph-caret-down account-pill__caret' aria-hidden='true' />
-                  </button>
-                  {/* Mobile: keep compact icon button */}
-                  <button
-                    type='button'
-                    onClick={toggleUserMenu}
-                    className='info-action w-52 h-52 bg-main-25 hover-bg-main-600 border border-neutral-30 rounded-circle flex-center text-2xl text-neutral-500 hover-text-white hover-border-main-600 d-lg-none'
-                    title={profileLabel}
-                    aria-label={profileLabel}
-                    aria-haspopup='menu'
-                    aria-expanded={isUserMenuOpen}
-                  >
-                    <i className='ph ph-user-circle' />
-                  </button>
-                  {isUserMenuOpen && (
-                    <div
-                      className='header-user-menu position-absolute inset-inline-end-0 mt-12 bg-white border border-neutral-30 rounded-12 box-shadow-md py-12'
-                      role='menu'
-                      style={{ minWidth: "200px", zIndex: 1100 }}
+                {/* Search removed */}
+                {isAuthenticated ? (
+                  <div className='position-relative' ref={userMenuRef}>
+                    {/* Desktop: icon + name in same pill */}
+                    <button
+                      type='button'
+                      onClick={toggleUserMenu}
+                      className='account-pill d-none d-lg-inline-flex'
+                      title={profileLabel}
+                      aria-label={profileLabel}
+                      aria-haspopup='menu'
+                      aria-expanded={isUserMenuOpen}
                     >
-                      <div className='d-flex flex-column'>
-                        <Link
-                          to='/profile'
-                          onClick={closeUserMenu}
-                          className='px-20 py-8 text-start text-md text-neutral-700 hover-bg-main-25 hover-text-main-600'
-                          role='menuitem'
-                        >
-                          My Profile
-                        </Link>
-                        <Link
-                          to='/my-courses'
-                          onClick={closeUserMenu}
-                          className='px-20 py-8 text-start text-md text-neutral-700 hover-bg-main-25 hover-text-main-600'
-                          role='menuitem'
-                        >
-                          My Courses
-                        </Link>
-                        <button
-                          type='button'
-                          onClick={() => {
-                            try {
-                              window.dispatchEvent(new CustomEvent('gradus:help-open', { detail: { mode: 'support' } }));
-                            } catch {
-                              // intentionally ignoring errors
-                            }
-                            closeUserMenu();
-                          }}
-                          className='px-20 py-8 text-start text-md text-neutral-700 hover-bg-main-25 hover-text-main-600 border-0 bg-transparent w-100 text-inherit'
-                          role='menuitem'
-                        >
-                          Customer Support
-                        </button>
-                        <button
-                          type='button'
-                          onClick={handleLogout}
-                          className='px-20 py-8 text-start text-md text-neutral-700 hover-bg-main-25 hover-text-main-600 border-0 bg-transparent w-100 text-inherit'
-                          role='menuitem'
-                        >
-                          Logout
-                        </button>
+                      <span className='account-pill__icon'><i className='ph ph-user-circle' /></span>
+                      <span className='account-pill__label'>{displayName}</span>
+                      <i className='ph-bold ph-caret-down account-pill__caret' aria-hidden='true' />
+                    </button>
+                    {/* Mobile: keep compact icon button */}
+                    <button
+                      type='button'
+                      onClick={toggleUserMenu}
+                      className='info-action w-52 h-52 bg-main-25 hover-bg-main-600 border border-neutral-30 rounded-circle flex-center text-2xl text-neutral-500 hover-text-white hover-border-main-600 d-lg-none'
+                      title={profileLabel}
+                      aria-label={profileLabel}
+                      aria-haspopup='menu'
+                      aria-expanded={isUserMenuOpen}
+                    >
+                      <i className='ph ph-user-circle' />
+                    </button>
+                    {isUserMenuOpen && (
+                      <div
+                        className='header-user-menu position-absolute inset-inline-end-0 mt-12 bg-white border border-neutral-30 rounded-12 box-shadow-md py-12'
+                        role='menu'
+                        style={{ minWidth: "200px", zIndex: 1100 }}
+                      >
+                        <div className='d-flex flex-column'>
+                          <Link
+                            to='/profile'
+                            onClick={closeUserMenu}
+                            className='px-20 py-8 text-start text-md text-neutral-700 hover-bg-main-25 hover-text-main-600'
+                            role='menuitem'
+                          >
+                            My Profile
+                          </Link>
+                          <Link
+                            to='/my-courses'
+                            onClick={closeUserMenu}
+                            className='px-20 py-8 text-start text-md text-neutral-700 hover-bg-main-25 hover-text-main-600'
+                            role='menuitem'
+                          >
+                            My Courses
+                          </Link>
+                          <button
+                            type='button'
+                            onClick={() => {
+                              try {
+                                window.dispatchEvent(new CustomEvent('gradus:help-open', { detail: { mode: 'support' } }));
+                              } catch {
+                                // intentionally ignoring errors
+                              }
+                              closeUserMenu();
+                            }}
+                            className='px-20 py-8 text-start text-md text-neutral-700 hover-bg-main-25 hover-text-main-600 border-0 bg-transparent w-100 text-inherit'
+                            role='menuitem'
+                          >
+                            Customer Support
+                          </button>
+                          <button
+                            type='button'
+                            onClick={handleLogout}
+                            className='px-20 py-8 text-start text-md text-neutral-700 hover-bg-main-25 hover-text-main-600 border-0 bg-transparent w-100 text-inherit'
+                            role='menuitem'
+                          >
+                            Logout
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <>
-                  {/* Desktop: sign-in CTA without profile icon */}
-                  <Link
-                    to={profileLink}
-                    title={profileLabel}
-                    aria-label={profileLabel}
-                    className='account-pill d-none d-lg-inline-flex account-pill--signin'
-                  >
-                    <span className='account-pill__label'>Sign in</span>
-                    <i className='ph-bold ph-arrow-up-right account-pill__caret' aria-hidden='true' />
-                  </Link>
-                  {/* Mobile/Tablet: text button instead of profile icon */}
-                  <Link
-                    to={profileLink}
-                    title={profileLabel}
-                    aria-label={profileLabel}
-                    className='header-signin-btn d-lg-none'
-                  >
-                    <span>Sign in</span>
-                    <i className='ph-bold ph-arrow-up-right' aria-hidden='true' />
-                  </Link>
-                </>
-              )}
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    {/* Desktop: sign-in CTA without profile icon */}
+                    <Link
+                      to={profileLink}
+                      onClick={handleSignInClick}
+                      title={profileLabel}
+                      aria-label={profileLabel}
+                      className='account-pill d-none d-lg-inline-flex account-pill--signin'
+                    >
+                      <span className='account-pill__label'>Sign in</span>
+                      <i className='ph-bold ph-arrow-up-right account-pill__caret' aria-hidden='true' />
+                    </Link>
+                    {/* Mobile/Tablet: text button instead of profile icon */}
+                    <Link
+                      to={profileLink}
+                      onClick={handleSignInClick}
+                      title={profileLabel}
+                      aria-label={profileLabel}
+                      className='header-signin-btn d-lg-none'
+                    >
+                      <span>Sign in</span>
+                      <i className='ph-bold ph-arrow-up-right' aria-hidden='true' />
+                    </Link>
+                  </>
+                )}
               </div>
               {/* Header Right End  */}
             </div>
@@ -595,9 +607,8 @@ const HeaderOne = () => {
                     >
                       <span className='nav-menu__link'>{item.label}</span>
                       <ul
-                        className={`nav-submenu scroll-sm nav-submenu--collapsible ${
-                          isActive ? "is-open" : ""
-                        }`}
+                        className={`nav-submenu scroll-sm nav-submenu--collapsible ${isActive ? "is-open" : ""
+                          }`}
                         aria-hidden={!isActive}
                         style={getCollapseStyle(isActive)}
                       >
@@ -635,7 +646,7 @@ const HeaderOne = () => {
                                       const courseMeta = getCourseMeta(course);
                                       const toneAttr = courseMeta.flagship
                                         ? courseMeta.tone ||
-                                          (group.slug === "gradus-finlit" ? "finlit" : "tech")
+                                        (group.slug === "gradus-finlit" ? "finlit" : "tech")
                                         : undefined;
 
                                       return (
@@ -645,9 +656,8 @@ const HeaderOne = () => {
                                         >
                                           <Link
                                             to={buildCourseLink(group, courseMeta)}
-                                            className={`nav-submenu__link hover-bg-neutral-30 ${
-                                              courseMeta.flagship ? "is-flagship" : ""
-                                            }`}
+                                            className={`nav-submenu__link hover-bg-neutral-30 ${courseMeta.flagship ? "is-flagship" : ""
+                                              }`}
                                             data-flagship-tone={toneAttr}
                                             onClick={closeMenu}
                                             tabIndex={gActive ? 0 : -1}

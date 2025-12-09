@@ -12,7 +12,7 @@ const stepKeys = {
   PASSWORD: "PASSWORD",
 };
 
-const SignInInner = () => {
+const SignInInner = ({ isModal = false, redirectPath = null }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -52,7 +52,7 @@ const SignInInner = () => {
 
     persistGoogleIntent({
       source: "signin",
-      redirectOverride: location.state?.redirectTo || null,
+      redirectOverride: redirectPath || location.state?.redirectTo || null,
       fromPath: location.state?.from?.pathname || null,
       pendingEnrollment: location.state?.pendingEnrollment || null,
     });
@@ -64,7 +64,7 @@ const SignInInner = () => {
       setGoogleBusy(false);
       setError(err.message || "Unable to start Google sign-in. Please refresh and try again.");
     }
-  }, [googleAvailable, googleRedirectUri, location.state, persistGoogleIntent]);
+  }, [googleAvailable, googleRedirectUri, location.state, persistGoogleIntent, redirectPath]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -97,7 +97,13 @@ const SignInInner = () => {
       const response = await apiClient.post("/auth/login", formData);
       setAuth({ token: response.token, user: response.user });
       const pendingEnrollment = location.state?.pendingEnrollment;
-      const redirectTo = resolvePostAuthRedirect({ locationState: location.state });
+
+      // Construct effective location state with override if provided
+      const effectiveState = redirectPath
+        ? { ...location.state, redirectOverride: redirectPath }
+        : location.state;
+
+      const redirectTo = resolvePostAuthRedirect({ locationState: effectiveState });
       const nextState =
         pendingEnrollment && redirectTo.includes("/our-courses")
           ? { pendingEnrollment }
@@ -214,27 +220,35 @@ const SignInInner = () => {
     </>
   );
 
+  const content = (
+    <div className={`signin-modern__card ${isModal ? "border-0 shadow-none p-0" : ""}`}>
+      <div className='signin-modern__logo'>
+        <img src='/assets/images/logo/logo.png' alt='Gradus logo' loading='lazy' />
+      </div>
+      <div className='signin-modern__header'>
+        <h1 className='signin-modern__title'>Welcome back</h1>
+      </div>
+      <form onSubmit={handleSubmit}>
+        {error ? (
+          <div className='signin-modern__alert signin-modern__alert--error' role='alert' aria-live='assertive'>
+            {error}
+          </div>
+        ) : null}
+        <div className='signin-modern__body'>
+          {currentStep === stepKeys.EMAIL ? renderEmailStep() : renderPasswordStep()}
+        </div>
+      </form>
+    </div>
+  );
+
+  if (isModal) {
+    return content;
+  }
+
   return (
     <section className='signin-modern'>
       <div className='signin-modern__shell'>
-        <div className='signin-modern__card'>
-          <div className='signin-modern__logo'>
-            <img src='/assets/images/logo/logo.png' alt='Gradus logo' loading='lazy' />
-          </div>
-          <div className='signin-modern__header'>
-            <h1 className='signin-modern__title'>Welcome back</h1>
-          </div>
-          <form onSubmit={handleSubmit}>
-            {error ? (
-              <div className='signin-modern__alert signin-modern__alert--error' role='alert' aria-live='assertive'>
-                {error}
-              </div>
-            ) : null}
-            <div className='signin-modern__body'>
-              {currentStep === stepKeys.EMAIL ? renderEmailStep() : renderPasswordStep()}
-            </div>
-          </form>
-        </div>
+        {content}
       </div>
     </section>
   );
