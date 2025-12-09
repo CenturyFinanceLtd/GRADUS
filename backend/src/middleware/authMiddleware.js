@@ -17,6 +17,10 @@ const resolveTokenFromRequest = (req) => {
     return req.cookies.token;
   }
 
+  if (req.query && req.query.token) {
+    return req.query.token;
+  }
+
   return null;
 };
 
