@@ -14,41 +14,6 @@ import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
 
 const HomePageOne = () => {
-  useEffect(() => {
-    const head = document.head || document.getElementsByTagName("head")[0];
-    if (!head) {
-      return undefined;
-    }
-
-    const scriptId = "gradus-organization-ldjson";
-    const existing = head.querySelector(`#${scriptId}`);
-    if (existing) {
-      existing.remove();
-    }
-
-    const ldJsonScript = document.createElement("script");
-    ldJsonScript.type = "application/ld+json";
-    ldJsonScript.id = scriptId;
-    ldJsonScript.text = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      name: "Gradus India",
-      url: "https://gradusindia.in",
-      logo: "https://gradusindia.in/assets/images/logo/logo.png",
-      sameAs: [
-        "https://www.facebook.com/people/Gradus/61583093960559/?sk=about",
-        "https://www.instagram.com/gradusindia.in/",
-        "https://www.linkedin.com/company/gradusindia/",
-        "https://www.youtube.com/@gradusindia",
-        "https://x.com/GradusIndia",
-      ],
-    });
-
-    head.appendChild(ldJsonScript);
-    return () => {
-      ldJsonScript.remove();
-    };
-  }, []);
 
   return (
     <div className='home-page'>
