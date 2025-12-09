@@ -19226,15 +19226,23 @@ table.dataTable.display>tbody>tr>* {
 .chatbot-widget__panel {
   width: 360px;
   max-width: calc(100vw - 32px);
-  height: clamp(420px, 70vh, 640px);
+  height: clamp(380px, 70vh, 640px);
   max-height: calc(100vh - 96px);
-  min-height: 380px;
+  min-height: 340px;
   background-color: #fff;
   border-radius: 26px;
   box-shadow: 0 32px 80px hsla(var(--main) / 0.28);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+/* Respect dynamic viewport when mobile keyboards are visible */
+@supports (height: 100dvh) {
+  .chatbot-widget__panel {
+    height: clamp(320px, 70dvh, 620px);
+    max-height: calc(100dvh - 96px);
+  }
 }
 
 .chatbot-widget__header {
@@ -19429,9 +19437,10 @@ table.dataTable.display>tbody>tr>* {
   border: 1px solid rgba(15, 23, 42, 0.12);
   border-radius: 12px;
   padding: 12px 14px;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.5;
   color: var(--neutral-700);
+  min-height: 48px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -19492,10 +19501,17 @@ table.dataTable.display>tbody>tr>* {
 
   .chatbot-widget__panel {
     width: min(92vw, 420px);
-    height: min(60vh, calc(100vh - 180px));
-    max-height: min(78vh, calc(100vh - 140px));
-    min-height: 320px;
+    height: min(62vh, calc(100vh - 160px));
+    max-height: calc(100vh - 120px);
+    min-height: 280px;
     margin-bottom: 12px;
+  }
+
+  @supports (height: 100dvh) {
+    .chatbot-widget__panel {
+      height: min(62dvh, calc(100dvh - 160px));
+      max-height: calc(100dvh - 120px);
+    }
   }
 
   .chatbot-widget__toggle {
@@ -19658,6 +19674,9 @@ img[src="/assets/images/shapes/shape3.png"]:hover {
   border-radius: 12px;
   border: 1px solid rgba(15, 23, 42, 0.12);
   background: #fff;
+  font-size: 16px;
+  line-height: 1.45;
+  min-height: 44px;
 }
 
 .chatbot-widget .help-input:focus {
