@@ -902,33 +902,6 @@ const cancelAssessmentJob = asyncHandler(async (req, res) => {
   });
 });
 
-const getUserAssessmentAttempts = asyncHandler(async (req, res) => {
-  if (!req.user?._id) {
-    res.status(401);
-    throw new Error('Sign in to view attempts.');
-  }
-
-  const slug = resolveCourseSlug(req);
-  const moduleIndex = parsePositiveInt(req.query?.moduleIndex);
-  const weekIndex = parsePositiveInt(req.query?.weekIndex);
-
-  if (!slug || !moduleIndex) {
-    res.status(400);
-    throw new Error('Course slug and moduleIndex are required.');
-  }
-
-  const attempts = await AssessmentAttempt.find({
-    userId: req.user._id,
-    courseSlug: slug,
-    moduleIndex,
-    ...(weekIndex ? { weekIndex } : {}),
-  }).sort({ createdAt: -1 }).lean();
-
-  res.json({
-    attempts: attempts.map(a => mapAttemptForResponse(a, { includeCorrect: a.status === 'submitted' })),
-  });
-});
-
 module.exports = {
   getCourseAssessments,
   listAssessmentsAdmin,
@@ -939,5 +912,4 @@ module.exports = {
   deleteAssessmentSet,
   getAssessmentJobStatus,
   cancelAssessmentJob,
-  getUserAssessmentAttempts,
 };
