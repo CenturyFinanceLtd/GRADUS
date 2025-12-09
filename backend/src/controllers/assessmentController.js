@@ -669,6 +669,23 @@ const startAssessmentAttempt = asyncHandler(async (req, res) => {
     });
   }
 
+  // STRICT POLICY: ONE ATTEMPT ONLY
+  // Check for previous submitted attempt to review
+  const latestSubmitted = await AssessmentAttempt.findOne({
+    userId: req.user._id,
+    courseSlug: course.slug,
+    moduleIndex,
+    weekIndex,
+    status: 'submitted'
+  }).sort({ submittedAt: -1 }).lean();
+
+  if (latestSubmitted) {
+      return res.json({
+        attempt: mapAttemptForResponse(latestSubmitted, { includeCorrect: true }),
+        isReview: true
+      });
+  }
+
   // No active attempt -> Create a NEW one with questions removed from the GLOBAL POOL
   // 1. Find the Set (without lean, we might need to update it, but better to use updateOne for atomicity)
   const set = await findFallbackSet();
