@@ -19492,7 +19492,7 @@ table.dataTable.display>tbody>tr>* {
 
   .chatbot-widget__panel {
     width: min(92vw, 420px);
-    height: min(72vh, calc(100vh - 180px));
+    height: min(60vh, calc(100vh - 180px));
     max-height: min(78vh, calc(100vh - 140px));
     min-height: 320px;
     margin-bottom: 12px;
