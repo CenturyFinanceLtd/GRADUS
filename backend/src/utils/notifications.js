@@ -60,6 +60,7 @@ const sendCourseNotification = async (courseId, { title, body, data }) => {
     for (let chunk of chunks) {
       try {
         let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+        console.log('[Notification] Expo API Response:', JSON.stringify(ticketChunk, null, 2));
         tickets.push(...ticketChunk);
       } catch (error) {
         console.error('[Notification] Error sending chunks', error);
