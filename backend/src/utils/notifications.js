@@ -12,24 +12,38 @@ let expo = new Expo();
 const sendCourseNotification = async (courseId, { title, body, data }) => {
   try {
     // 1. Find all active enrollments for the course
+    console.log(`[Notification] Querying enrollments for course: ${courseId}`);
     const enrollments = await Enrollment.find({
       course: courseId,
       status: 'ACTIVE',
       paymentStatus: 'PAID',
-    }).populate('user', 'pushToken');
+    }).populate('user', 'pushToken firstName email');
+
+    console.log(`[Notification] Found ${enrollments.length} active enrollments.`);
 
     // 2. Extract valid tokens
     let messages = [];
     for (const enrollment of enrollments) {
-      if (enrollment.user && enrollment.user.pushToken && Expo.isExpoPushToken(enrollment.user.pushToken)) {
-        messages.push({
-          to: enrollment.user.pushToken,
-          sound: 'default',
-          title: title || 'New Live Class',
-          body: body || 'A live session is starting now!',
-          data: data || {},
-        });
+      if (!enrollment.user) {
+        console.log(`[Notification] Enrollment ${enrollment._id} has no user linked.`);
+        continue;
       }
+      if (!enrollment.user.pushToken) {
+        console.log(`[Notification] User ${enrollment.user.email} (ID: ${enrollment.user._id}) has no push token.`);
+        continue;
+      }
+      if (!Expo.isExpoPushToken(enrollment.user.pushToken)) {
+        console.log(`[Notification] User ${enrollment.user.email} has invalid token: ${enrollment.user.pushToken}`);
+        continue;
+      }
+
+      messages.push({
+        to: enrollment.user.pushToken,
+        sound: 'default',
+        title: title || 'New Live Class',
+        body: body || 'A live session is starting now!',
+        data: data || {},
+      });
     }
 
     if (messages.length === 0) {
