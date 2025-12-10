@@ -14,6 +14,7 @@ const {
   startAccountDeletion,
   verifyAccountDeletion,
   getMyEnrollments,
+  registerPushToken,
 } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 const validateRequest = require('../middleware/validateRequest');
@@ -21,9 +22,11 @@ const validateRequest = require('../middleware/validateRequest');
 const router = express.Router();
 
 router.get('/me', protect, getProfile);
+router.post('/me/push-token', protect, registerPushToken); // Use explicit path
+router.post('/push-token', protect, registerPushToken); // Alias for compatibility
 router.get('/me/enrollments', protect, getMyEnrollments);
 
-router.put(
+router.patch(
   '/me',
   protect,
   [

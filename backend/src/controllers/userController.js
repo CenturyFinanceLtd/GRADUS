@@ -15,6 +15,22 @@ const getProfile = asyncHandler(async (req, res) => {
   res.json({ user: req.user });
 });
 
+const registerPushToken = asyncHandler(async (req, res) => {
+  const { pushToken } = req.body;
+  if (!pushToken) {
+    res.status(400);
+    throw new Error('Push token is required.');
+  }
+
+  const user = await User.findById(req.user._id);
+  if (user) {
+    user.pushToken = pushToken;
+    await user.save();
+  }
+  
+  res.status(200).json({ message: 'Push token registered successfully.' });
+});
+
 const updateProfile = asyncHandler(async (req, res) => {
   const { firstName, lastName, mobile, whatsappNumber, personalDetails, educationDetails, jobDetails } = req.body;
 
@@ -352,6 +368,7 @@ const getMyEnrollments = asyncHandler(async (req, res) => {
 
 module.exports = {
   getProfile,
+  registerPushToken,
   updateProfile,
   startEmailChange,
   verifyEmailChange,

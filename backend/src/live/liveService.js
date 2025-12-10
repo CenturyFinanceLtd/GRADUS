@@ -30,6 +30,7 @@ const {
 const { LiveRecording } = require('../models/LiveRecording');
 const { cloudinary, liveRecordingsFolder } = require('../config/cloudinary');
 const { Readable } = require('stream');
+const { sendCourseNotification } = require('../utils/notifications');
 
 const normalizeKey = (value) => {
   if (value === undefined || value === null) {
@@ -145,6 +146,14 @@ const createSession = async ({
     waitingRoomEnabled: Boolean(waitingRoomEnabled),
     locked: Boolean(locked),
   });
+
+  // Send Push Notification
+  // Fire and forget - do not block response
+  sendCourseNotification(String(courseId), {
+    title: 'Live Class Started! 🔴',
+    body: `${session.title} is now live. Tap to join!`,
+    data: { liveId: String(session._id), url: `/live/${String(session._id)}` },
+  }).catch(err => console.error('Failed to send live notification:', err));
 
   return {
     session: await toSessionSnapshot(session, { includeParticipants: true, includeHostSecret: true }),

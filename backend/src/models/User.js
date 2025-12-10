@@ -160,6 +160,11 @@ const userSchema = new mongoose.Schema(
       enum: ['LOCAL', 'GOOGLE'],
       default: 'LOCAL',
     },
+    pushToken: {
+      type: String,
+      trim: true,
+      default: null,
+    },
   },
   { timestamps: true }
 );
