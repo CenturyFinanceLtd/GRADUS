@@ -1,6 +1,8 @@
 const { Expo } = require('expo-server-sdk');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const Enrollment = require('../models/Enrollment');
+const Notification = require('../models/Notification'); // [NEW] Import Model
 
 let expo = new Expo();
 
@@ -44,6 +46,18 @@ const sendCourseNotification = async (courseId, { title, body, data }) => {
         body: body || 'A live session is starting now!',
         data: data || {},
       });
+
+      // [NEW] Persist to Database
+      try {
+        await Notification.create({
+          user: enrollment.user._id,
+          title: title || 'New Live Class',
+          body: body || 'A live session is starting now!',
+          data: data || {},
+        });
+      } catch (dbErr) {
+        console.error(`[Notification] Failed to save to DB for user ${enrollment.user._id}`, dbErr);
+      }
     }
 
     if (messages.length === 0) {

@@ -17,6 +17,7 @@ const adminAuthRoutes = require('./routes/adminAuthRoutes');
 const adminUserRoutes = require('./routes/adminUserRoutes');
 const adminWebsiteUserRoutes = require('./routes/adminWebsiteUserRoutes');
 const userRoutes = require('./routes/userRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const adminBlogRoutes = require('./routes/adminBlogRoutes');
 const blogRoutes = require('./routes/blogRoutes');
@@ -128,6 +129,7 @@ app.get('/api/health', (req, res) => {
 // Auth + user
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/notifications', notificationRoutes);
 // Admin area
 app.use('/api/admin/auth', adminAuthRoutes);
 app.use('/api/admin/users', adminUserRoutes);
