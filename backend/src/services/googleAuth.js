@@ -56,10 +56,17 @@ const verifyGoogleIdToken = async (idToken) => {
     throw new Error('Google identity token is missing.');
   }
 
+  // Accept both web and mobile client IDs as valid audiences
+  const validAudiences = [GOOGLE_CLIENT_ID];
+  const mobileClientId = process.env.GOOGLE_MOBILE_CLIENT_ID;
+  if (mobileClientId) {
+    validAudiences.push(mobileClientId);
+  }
+
   const oauthClient = new OAuth2Client(GOOGLE_CLIENT_ID);
   const ticket = await oauthClient.verifyIdToken({
     idToken,
-    audience: GOOGLE_CLIENT_ID,
+    audience: validAudiences,
   });
 
   return ticket.getPayload();
