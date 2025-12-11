@@ -64,7 +64,7 @@ module.exports = [
     id: 'century-finance',
     title: 'About Century Finance Limited',
     tags: ["century finance","cfl","company","parent"],
-    content: 'Century Finance Limited is Gradus\\'s parent organisation, providing institutional credibility and a strong foundation for career acceleration programs. With strategic partnerships across 178 organisations, Century Finance ensures robust placement support and industry alignment.',
+    content: 'Century Finance Limited is Gradus parent organisation, providing institutional credibility and a strong foundation for career acceleration programs. With strategic partnerships across 178 organisations, Century Finance ensures robust placement support and industry alignment.',
     source: 'curated',
   },
   {
