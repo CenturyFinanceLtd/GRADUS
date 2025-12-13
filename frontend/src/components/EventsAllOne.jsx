@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { fetchEvents } from "../services/eventService";
 
 const EVENT_LIMIT = 24;
+const PAST_EVENT_LIMIT = 12;
 const EVENT_TYPE_OPTIONS = ["All", "Live now", "Seminar", "Webinar", "Job fair", "Corporate Initiatives"];
 
 const formatSchedule = (schedule) => {
@@ -78,7 +79,7 @@ const EventTypeChips = ({ options, active, onSelect }) => (
   </div>
 );
 
-const EventCard = ({ event }) => {
+const EventCard = ({ event, isPast = false }) => {
   const { dateLabel, timeLabel, monthLabel, dayOfMonth, year } = formatSchedule(event?.schedule);
   const headline =
     event?.headline ||
@@ -120,7 +121,7 @@ const EventCard = ({ event }) => {
             to={event?.slug ? `/events/${event.slug}` : "#"}
             className='event-card__cta'
           >
-            Register now
+            {isPast ? "View details" : "Register now"}
           </Link>
         </div>
         <div className='event-card__media'>
@@ -157,9 +158,43 @@ const EventCard = ({ event }) => {
   );
 };
 
+const PastEventCard = ({ event }) => {
+  const { dateLabel, monthLabel, dayOfMonth, year } = formatSchedule(event?.schedule);
+  const eventType = event?.eventType || "Event";
+  const hostName = event?.host?.name || "Gradus Mentor";
+  const summary =
+    event?.summary ||
+    event?.subtitle ||
+    "Replay the session highlights and key learnings.";
+
+  return (
+    <article className='past-event-card'>
+      <div className='past-event-card__date'>
+        <span className='past-event-card__month'>{monthLabel || "TBA"}</span>
+        <span className='past-event-card__day'>{dayOfMonth || "--"}</span>
+        <span className='past-event-card__year'>{year || ""}</span>
+      </div>
+      <div className='past-event-card__body'>
+        <div className='past-event-card__pill'>{eventType}</div>
+        <h3 className='past-event-card__title'>
+          <Link to={event?.slug ? `/events/${event.slug}` : "#"}>{event?.title || "Past event"}</Link>
+        </h3>
+        <p className='past-event-card__meta'>
+          {hostName} • {dateLabel || "Earlier"}
+        </p>
+        <p className='past-event-card__summary'>{summary}</p>
+        <Link className='past-event-card__cta' to={event?.slug ? `/events/${event.slug}` : "#"}>
+          View details
+        </Link>
+      </div>
+    </article>
+  );
+};
+
 const EventsAllOne = () => {
   const [eventType, setEventType] = useState(EVENT_TYPE_OPTIONS[0]);
   const [events, setEvents] = useState([]);
+  const [pastEvents, setPastEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -172,14 +207,24 @@ const EventsAllOne = () => {
       setError(null);
       try {
         const isLiveFilter = eventType === "Live now";
-        const response = await fetchEvents({
-          limit: EVENT_LIMIT,
-          timeframe: "upcoming",
-          eventType: eventType === "All" || isLiveFilter ? undefined : eventType,
-          signal: controller.signal,
-        });
+        const eventTypeFilter = eventType === "All" || isLiveFilter ? undefined : eventType;
+        const [upcomingResponse, pastResponse] = await Promise.all([
+          fetchEvents({
+            limit: EVENT_LIMIT,
+            timeframe: "upcoming",
+            eventType: eventTypeFilter,
+            signal: controller.signal,
+          }),
+          fetchEvents({
+            limit: PAST_EVENT_LIMIT,
+            timeframe: "past",
+            eventType: eventTypeFilter,
+            signal: controller.signal,
+          }),
+        ]);
         if (!isMounted) return;
-        setEvents(response?.items || []);
+        setEvents(upcomingResponse?.items || []);
+        setPastEvents(pastResponse?.items || []);
       } catch (err) {
         if (!isMounted || err?.name === "AbortError") return;
         setError(err?.message || "Failed to fetch events");
@@ -195,21 +240,37 @@ const EventsAllOne = () => {
     };
   }, [eventType]);
 
-  const visibleEvents = useMemo(() => {
-    if (eventType === "Live now") {
-      return events.filter(isEventLive);
-    }
-    if (eventType === "All") return events;
-    return events.filter(
+  const filterByType = (list) => {
+    if (eventType === "All" || eventType === "Live now") return list;
+    return list.filter(
       (ev) => (ev?.eventType || "").toLowerCase() === eventType.toLowerCase()
     );
+  };
+
+  const visibleUpcomingEvents = useMemo(() => {
+    const filtered = filterByType(events);
+    if (eventType === "Live now") {
+      return filtered.filter(isEventLive);
+    }
+    return filtered;
   }, [events, eventType]);
+
+  const visiblePastEvents = useMemo(
+    () => filterByType(pastEvents),
+    [pastEvents, eventType]
+  );
 
   return (
     <section className='events-modern'>
       <div className='container container--xl events-modern__inner'>
         <header className='events-modern__head'>
-          <h1 className='events-modern__title'>Upcoming Events</h1>
+          <div className='events-modern__title-block'>
+            <p className='events-modern__eyebrow'>Events &amp; webinars</p>
+            <h1 className='events-modern__title'>Events</h1>
+            <p className='events-modern__subtitle'>
+              Join the next live session or catch up on what you missed.
+            </p>
+          </div>
           <EventTypeChips
             options={EVENT_TYPE_OPTIONS}
             active={eventType}
@@ -242,16 +303,48 @@ const EventsAllOne = () => {
               </div>
             ))}
           </div>
-        ) : visibleEvents.length === 0 ? (
-          <div className='text-center py-32 text-neutral-600 fw-semibold'>
-            More events are being scheduled. Check back soon.
-          </div>
         ) : (
-          <div className='events-modern__grid'>
-            {visibleEvents.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
-          </div>
+          <>
+            <div className='events-modern__section'>
+              <div className='events-modern__section-head'>
+                <h2 className='events-modern__section-title'>Upcoming events</h2>
+                {eventType === "Live now" ? (
+                  <span className='events-modern__section-note'>Showing sessions starting now</span>
+                ) : null}
+              </div>
+              {visibleUpcomingEvents.length === 0 ? (
+                <div className='text-center py-32 text-neutral-600 fw-semibold'>
+                  More events are being scheduled. Check back soon.
+                </div>
+              ) : (
+                <div className='events-modern__grid'>
+                  {visibleUpcomingEvents.map((event) => (
+                    <EventCard key={event.id} event={event} />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className='events-modern__section'>
+              <div className='events-modern__section-head'>
+                <h2 className='events-modern__section-title'>Past events</h2>
+                <span className='events-modern__section-note'>
+                  Recently concluded sessions you can explore.
+                </span>
+              </div>
+              {visiblePastEvents.length === 0 ? (
+                <div className='text-center py-24 text-neutral-600 fw-semibold'>
+                  No past events match this filter yet.
+                </div>
+              ) : (
+                <div className='events-modern__grid events-modern__grid--past'>
+                  {visiblePastEvents.map((event) => (
+                    <PastEventCard key={`past-${event.id}`} event={event} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
     </section>

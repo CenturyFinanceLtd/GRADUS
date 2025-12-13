@@ -373,6 +373,7 @@ const HeaderOne = () => {
     ourCoursesDropdown,
     { to: "/events", label: "Events", badge: hasUpcomingEvents ? "New" : null },
     { to: "/blogs", label: "Blogs" },
+    { to: "/gallery", label: "Gallery" },
     { to: "/contact", label: "Contact us" },
   ];
 

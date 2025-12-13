@@ -1,0 +1,85 @@
+name: Deploy CI/CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # --- FRONTEND BUILD ---
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build
+
+      # --- DEPLOYMENT ---
+      
+      # 1. Prepare Target Directory
+      - name: Prepare VPS Directories
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            mkdir -p /var/www/gradus/client
+            mkdir -p /var/www/gradus/server
+
+      # 2. Upload Frontend
+      - name: Deploy Frontend
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          source: "frontend/dist/*"
+          target: "/var/www/gradus/client"
+          strip_components: 2
+
+      # 3. Upload Backend
+      - name: Deploy Backend
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          source: "backend/*"
+          target: "/var/www/gradus/server"
+          strip_components: 1
+
+      # 4. Finalize & Restart
+      - name: Restart Services
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            # Make deploy script executable
+            chmod +x /var/www/gradus/server/scripts/deploy.sh
+            
+            # Execute backend deploy
+            /var/www/gradus/server/scripts/deploy.sh
+            
+            # Optional: Reload Nginx if configured
+            # sudo systemctl reload nginx

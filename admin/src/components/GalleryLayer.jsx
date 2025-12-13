@@ -1,1108 +1,221 @@
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import useAxiosPrivate from "../hook/useAxiosPrivate";
+
 const GalleryLayer = () => {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const axiosPrivate = useAxiosPrivate();
+  const [activeTab, setActiveTab] = useState("All");
+  const [uploading, setUploading] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+
+  const { register, handleSubmit, reset } = useForm();
+
+  const fetchItems = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosPrivate.get("/admin/gallery");
+      setItems(response.data.items || []);
+    } catch (error) {
+      console.error("Error fetching gallery items:", error);
+      toast.error("Failed to load gallery items");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this image?")) return;
+    try {
+      await axiosPrivate.delete(`/admin/gallery/${id}`);
+      toast.success("Image deleted successfully");
+      setItems(items.filter((item) => item._id !== id));
+    } catch (error) {
+      toast.error("Failed to delete image");
+    }
+  };
+
+  const onSubmit = async (data) => {
+    try {
+      setUploading(true);
+
+      let imageUrl = data.imageUrl;
+      let publicId = "";
+
+      // Handle file upload if present
+      if (data.image && data.image[0]) {
+        const formData = new FormData();
+        formData.append("file", data.image[0]);
+
+        const uploadRes = await axiosPrivate.post("/admin/uploads/image", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        if (uploadRes.data && uploadRes.data.item) {
+          imageUrl = uploadRes.data.item.url;
+          publicId = uploadRes.data.item.publicId;
+        }
+      }
+
+      if (!imageUrl) {
+        toast.error("Please provide an image URL or upload a file");
+        setUploading(false);
+        return;
+      }
+
+      await axiosPrivate.post("/admin/gallery", {
+        title: data.title,
+        category: data.category,
+        imageUrl,
+        publicId
+      });
+
+      toast.success("Gallery item added successfully");
+      reset();
+      setShowAddForm(false);
+      fetchItems();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to add gallery item");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const categories = ["Team", "University", "Tutors", "Events", "Other"];
+
+  const filteredItems = activeTab === "All"
+    ? items
+    : items.filter(item => item.category === activeTab);
+
   return (
     <div className='card h-100 p-0 radius-12 overflow-hidden'>
       <div className='card-header border-bottom-0 pb-0 pt-0 px-0'>
-        <ul
-          className='nav border-gradient-tab nav-pills mb-0 border-top-0'
-          id='pills-tab'
-          role='tablist'
-        >
-          <li className='nav-item' role='presentation'>
-            <button
-              className='nav-link active'
-              id='pills-all-tab'
-              data-bs-toggle='pill'
-              data-bs-target='#pills-all'
-              type='button'
-              role='tab'
-              aria-controls='pills-all'
-              aria-selected='true'
-            >
-              All
-            </button>
-          </li>
-          <li className='nav-item' role='presentation'>
-            <button
-              className='nav-link'
-              id='pills-ui-design-tab'
-              data-bs-toggle='pill'
-              data-bs-target='#pills-ui-design'
-              type='button'
-              role='tab'
-              aria-controls='pills-ui-design'
-              aria-selected='false'
-              tabIndex={-1}
-            >
-              UI Design
-            </button>
-          </li>
-          <li className='nav-item' role='presentation'>
-            <button
-              className='nav-link'
-              id='pills-web-design-tab'
-              data-bs-toggle='pill'
-              data-bs-target='#pills-web-design'
-              type='button'
-              role='tab'
-              aria-controls='pills-web-design'
-              aria-selected='false'
-              tabIndex={-1}
-            >
-              Web Design
-            </button>
-          </li>
-          <li className='nav-item' role='presentation'>
-            <button
-              className='nav-link'
-              id='pills-development-tab'
-              data-bs-toggle='pill'
-              data-bs-target='#pills-development'
-              type='button'
-              role='tab'
-              aria-controls='pills-development'
-              aria-selected='false'
-              tabIndex={-1}
-            >
-              Development
-            </button>
-          </li>
-          <li className='nav-item' role='presentation'>
-            <button
-              className='nav-link'
-              id='pills-presentation-tab'
-              data-bs-toggle='pill'
-              data-bs-target='#pills-presentation'
-              type='button'
-              role='tab'
-              aria-controls='pills-presentation'
-              aria-selected='false'
-              tabIndex={-1}
-            >
-              Presentations
-            </button>
-          </li>
-        </ul>
+        <div className="d-flex justify-content-between align-items-center p-24 pb-0">
+          <ul
+            className='nav border-gradient-tab nav-pills mb-0 border-top-0 gap-2'
+            id='pills-tab'
+            role='tablist'
+          >
+            <li className='nav-item'>
+              <button
+                className={`nav-link ${activeTab === "All" ? "active" : ""}`}
+                onClick={() => setActiveTab("All")}
+                type='button'
+              >
+                All
+              </button>
+            </li>
+            {categories.map(cat => (
+              <li className='nav-item' key={cat}>
+                <button
+                  className={`nav-link ${activeTab === cat ? "active" : ""}`}
+                  onClick={() => setActiveTab(cat)}
+                  type='button'
+                >
+                  {cat}
+                </button>
+              </li>
+            ))}
+          </ul>
+          <button
+            className="btn btn-primary-600 radius-8 px-20 py-11"
+            onClick={() => setShowAddForm(!showAddForm)}
+          >
+            {showAddForm ? "Cancel" : "Add New Image"}
+          </button>
+        </div>
       </div>
+
       <div className='card-body p-24'>
-        <div className='tab-content' id='pills-tabContent'>
-          <div
-            className='tab-pane fade show active'
-            id='pills-all'
-            role='tabpanel'
-            aria-labelledby='pills-all-tab'
-            tabIndex={0}
-          >
-            <div className='row gy-4'>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img1.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
+        {showAddForm && (
+          <div className="mb-40 border p-24 radius-12 bg-neutral-50" style={{ maxWidth: '600px' }}>
+            <h5 className="mb-20">Add New Gallery Image</h5>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="mb-16">
+                <label className="form-label fw-semibold text-primary-light text-sm mb-8">Title</label>
+                <input
+                  type="text"
+                  className="form-control radius-8"
+                  placeholder="Image Title"
+                  {...register("title")}
+                />
               </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img2.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
+              <div className="mb-16">
+                <label className="form-label fw-semibold text-primary-light text-sm mb-8">Category</label>
+                <select className="form-control radius-8 form-select" {...register("category", { required: true })}>
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
               </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img3.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
+              <div className="mb-16">
+                <label className="form-label fw-semibold text-primary-light text-sm mb-8">Upload Image</label>
+                <input
+                  type="file"
+                  className="form-control radius-8"
+                  accept="image/*"
+                  {...register("image")}
+                />
               </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img4.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
+              <div className="mb-24">
+                <label className="form-label fw-semibold text-primary-light text-sm mb-8">OR Image URL</label>
+                <input
+                  type="text"
+                  className="form-control radius-8"
+                  placeholder="https://..."
+                  {...register("imageUrl")}
+                />
               </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img5.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img6.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img7.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img8.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img9.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img10.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img11.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img12.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+              <button type="submit" className="btn btn-primary-600 radius-8 px-20 py-11" disabled={uploading}>
+                {uploading ? "Uploading..." : "Save Image"}
+              </button>
+            </form>
           </div>
-          <div
-            className='tab-pane fade'
-            id='pills-ui-design'
-            role='tabpanel'
-            aria-labelledby='pills-ui-design-tab'
-            tabIndex={0}
-          >
-            <div className='row gy-4'>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img3.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img4.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
+        )}
+
+        <div className='tab-content'>
+          <div className='row gy-4'>
+            {loading ? (
+              <div>Loading...</div>
+            ) : filteredItems.length === 0 ? (
+              <div>No images found.</div>
+            ) : (
+              filteredItems.map((item) => (
+                <div className='col-xxl-3 col-md-4 col-sm-6' key={item._id}>
+                  <div className='hover-scale-img border radius-16 overflow-hidden position-relative group'>
+                    <div className='max-h-266-px overflow-hidden'>
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        className='hover-scale-img__img w-100 h-100 object-fit-cover'
+                        style={{ aspectRatio: '1/1' }}
+                      />
+                    </div>
+                    <div className='py-16 px-24 d-flex justify-content-between align-items-center'>
+                      <div>
+                        <h6 className='mb-4 text-line-1'>{item.title || "Untitled"}</h6>
+                        <p className='mb-0 text-sm text-secondary-light'>
+                          {item.category}
+                        </p>
+                      </div>
+                      <button
+                        className="btn btn-danger-600 radius-8 px-12 py-6 text-sm"
+                        onClick={() => handleDelete(item._id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img5.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img6.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img7.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img8.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img9.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img10.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img11.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img12.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            className='tab-pane fade'
-            id='pills-web-design'
-            role='tabpanel'
-            aria-labelledby='pills-web-design-tab'
-            tabIndex={0}
-          >
-            <div className='row gy-4'>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img1.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img3.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img4.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img5.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img6.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img7.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img8.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img9.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img10.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img11.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img12.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            className='tab-pane fade'
-            id='pills-development'
-            role='tabpanel'
-            aria-labelledby='pills-development-tab'
-            tabIndex={0}
-          >
-            <div className='row gy-4'>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img4.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img5.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img1.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img2.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img3.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img6.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img7.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img8.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img9.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img10.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img11.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img12.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            className='tab-pane fade'
-            id='pills-presentation'
-            role='tabpanel'
-            aria-labelledby='pills-presentation-tab'
-            tabIndex={0}
-          >
-            <div className='row gy-4'>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img6.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img7.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img8.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img1.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img2.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img3.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img4.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img5.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img9.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img10.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img11.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='col-xxl-3 col-md-4 col-sm-6'>
-                <div className='hover-scale-img border radius-16 overflow-hidden'>
-                  <div className='max-h-266-px overflow-hidden'>
-                    <img
-                      src='assets/images/gallery/gallery-img12.png'
-                      alt='Gradus'
-                      className='hover-scale-img__img w-100 h-100 object-fit-cover'
-                    />
-                  </div>
-                  <div className='py-16 px-24'>
-                    <h6 className='mb-4'>This is Image title</h6>
-                    <p className='mb-0 text-sm text-secondary-light'>
-                      UI Design
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+              ))
+            )}
           </div>
         </div>
       </div>
