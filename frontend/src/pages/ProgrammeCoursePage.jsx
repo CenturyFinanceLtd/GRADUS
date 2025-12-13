@@ -426,34 +426,30 @@ function ProgrammeCoursePage() {
                 </div>
 
                 <div className='mt-24 row g-4'>
-                  <div className='col-md-6'>
-                    <div className='rounded-12 prt-0-bn border border-neutral-30 p-16 h-100 bg-neutral-10'>
-                      <h6 className='text-neutral-900 fw-semibold mb-10'>Who this is for</h6>
-                      <ul className='list-unstyled d-grid gap-10 m-0 text-neutral-700'>
-                        {(data?.targetAudience?.length ? data.targetAudience : [
-                          'Engineers and product folks upskilling into agentic AI builds',
-                          'Developers shifting from traditional backends to LLM/RAG stacks',
-                          'Professionals shipping deployable AI features end-to-end'
-                        ]).map((item, i) => (
-                          <li key={`audience-${i}`}>{item}</li>
-                        ))}
-                      </ul>
+                  {data?.targetAudience?.length > 0 && (
+                    <div className='col-md-6'>
+                      <div className='rounded-12 prt-0-bn border border-neutral-30 p-16 h-100 bg-neutral-10'>
+                        <h6 className='text-neutral-900 fw-semibold mb-10'>Who this is for</h6>
+                        <ul className='list-unstyled d-grid gap-10 m-0 text-neutral-700'>
+                          {data.targetAudience.map((item, i) => (
+                            <li key={`audience-${i}`}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                  </div>
-                  <div className='col-md-6'>
-                    <div className='rounded-12 prt-0-bn border border-neutral-30 p-16 h-100 bg-neutral-10'>
-                      <h6 className='text-neutral-900 fw-semibold mb-10'>Prerequisites</h6>
-                      <ul className='list-unstyled d-grid gap-10 m-0 text-neutral-700'>
-                        {(data?.prereqsList?.length ? data.prereqsList : [
-                          data?.details?.prerequisites || 'Comfort with Python and APIs',
-                          'Familiarity with Git and CLI workflows',
-                          `Ability to dedicate ${effortLabel} for the cohort`
-                        ]).map((item, i) => (
-                          <li key={`prereq-${i}`}>{item}</li>
-                        ))}
-                      </ul>
+                  )}
+                  {data?.prereqsList?.length > 0 && (
+                    <div className='col-md-6'>
+                      <div className='rounded-12 prt-0-bn border border-neutral-30 p-16 h-100 bg-neutral-10'>
+                        <h6 className='text-neutral-900 fw-semibold mb-10'>Prerequisites</h6>
+                        <ul className='list-unstyled d-grid gap-10 m-0 text-neutral-700'>
+                          {data.prereqsList.map((item, i) => (
+                            <li key={`prereq-${i}`}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
