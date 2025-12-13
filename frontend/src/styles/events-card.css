@@ -1,0 +1,177 @@
+/* Masterclass Card Styles */
+.masterclass-card {
+    background-color: transparent;
+    /* Or a specific dark card bg if the page isn't dark enough */
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.masterclass-card:hover {
+    transform: translateY(-4px);
+}
+
+.masterclass-card__header {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    /* 16:9 Aspect Ratio */
+    overflow: hidden;
+    border-radius: 12px;
+    /* Rounded corners on the image itself per design */
+}
+
+.masterclass-card__img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.masterclass-card:hover .masterclass-card__img {
+    transform: scale(1.05);
+}
+
+/* Overlay Elements on Image */
+.masterclass-card__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%);
+    /* Slight gradient for text readability */
+    pointer-events: none;
+}
+
+/* Optional Logo/Brand on top left */
+.masterclass-card__brand {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.875rem;
+    z-index: 2;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.masterclass-card__cta-overlay {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    z-index: 2;
+    pointer-events: auto;
+    /* Re-enable clicks for the button */
+}
+
+.masterclass-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    background-color: #F0BB1F;
+    /* Gold color from reference */
+    color: #000;
+    font-weight: 700;
+    font-size: 0.875rem;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.masterclass-btn:hover {
+    background-color: #dcb343;
+    color: #000;
+}
+
+/* Disabled State for Past Events */
+.masterclass-btn.is-disabled {
+    background-color: #4a4a4a;
+    color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+/* Content Below Image */
+.masterclass-card__body {
+    padding: 16px 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.masterclass-card__tag {
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #a0a0a0;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    width: fit-content;
+    font-weight: 500;
+}
+
+.masterclass-card__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #fff;
+    /* Assuming dark mode based on reference */
+    margin: 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.masterclass-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 8px;
+}
+
+.masterclass-card__host {
+    font-size: 0.875rem;
+    color: #9ca3af;
+}
+
+.masterclass-card__price {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #4ade80;
+    /* bright green for Free */
+}
+
+/* Responsive Grid Helper (if not handled by parent) */
+.masterclass-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 24px;
+}
+
+@media (min-width: 768px) {
+    .masterclass-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .masterclass-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

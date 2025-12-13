@@ -179,23 +179,30 @@ const startRegistrationSpreadsheetSync = async () => {
     });
 
     changeStream.on('error', (error) => {
-      console.error('[registration-sheet-sync] Change stream error', error?.message);
+      const isNetworkError = error?.message?.includes('ENOTFOUND') || error?.message?.includes('ECONNREFUSED');
+      const retryDelay = isNetworkError ? 30000 : 5000;
+
+      console.error(`[registration-sheet-sync] Change stream error (${error?.message}). Restarting in ${retryDelay / 1000}s...`);
       setWatcherStatus(false);
       changeStream = null;
+
       setTimeout(() => {
         startRegistrationSpreadsheetSync().catch((err) =>
           console.error('[registration-sheet-sync] Failed to restart watcher', err?.message)
         );
-      }, 5000);
+      }, retryDelay);
     });
 
     changeStream.on('close', () => {
-      console.warn('[registration-sheet-sync] Change stream closed. Restarting...');
+      console.warn('[registration-sheet-sync] Change stream closed. Restarting in 5s...');
       setWatcherStatus(false);
       changeStream = null;
-      startRegistrationSpreadsheetSync().catch((error) =>
-        console.error('[registration-sheet-sync] Failed to restart watcher', error?.message)
-      );
+
+      setTimeout(() => {
+        startRegistrationSpreadsheetSync().catch((error) =>
+          console.error('[registration-sheet-sync] Failed to restart watcher', error?.message)
+        );
+      }, 5000);
     });
 
     console.log('[registration-sheet-sync] Watching MongoDB for registration changes');

@@ -1,48 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchEvents } from "../services/eventService";
+import "../styles/events-card.css"; // Import new styles
 
 const EVENT_LIMIT = 24;
+const PAST_EVENT_LIMIT = 12;
 const EVENT_TYPE_OPTIONS = ["All", "Live now", "Seminar", "Webinar", "Job fair", "Corporate Initiatives"];
-
-const formatSchedule = (schedule) => {
-  if (!schedule?.start) {
-    return {
-      dateLabel: "TBA",
-      timeLabel: "",
-      dayLabel: "Any",
-      monthLabel: "",
-      dayOfMonth: "",
-      year: "",
-    };
-  }
-
-  const date = new Date(schedule.start);
-  const dateFormatter = new Intl.DateTimeFormat("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-  const timeFormatter = new Intl.DateTimeFormat("en-IN", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
-  const dayNameFormatter = new Intl.DateTimeFormat("en-US", { weekday: "long" });
-  const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "short" });
-
-  const dateLabel = dateFormatter.format(date);
-  const [dayOfMonth, monthLabel, year] = dateLabel.split(" ");
-
-  return {
-    dateLabel,
-    timeLabel: timeFormatter.format(date),
-    dayLabel: dayNameFormatter.format(date),
-    monthLabel: monthLabel || monthFormatter.format(date),
-    dayOfMonth,
-    year,
-  };
-};
 
 const isEventLive = (event) => {
   const startValue = event?.schedule?.start || null;
@@ -55,13 +18,6 @@ const isEventLive = (event) => {
   const windowAfterMs = 30 * 60 * 1000;
   return now >= startMs && now <= startMs + windowAfterMs;
 };
-
-const defaultTakeaways = [
-  "Career opportunities",
-  "High-demand skills for 2025",
-  "How to grow your career fast",
-  "Placement roadmap",
-];
 
 const EventTypeChips = ({ options, active, onSelect }) => (
   <div className='events-modern__chips'>
@@ -78,79 +34,63 @@ const EventTypeChips = ({ options, active, onSelect }) => (
   </div>
 );
 
-const EventCard = ({ event }) => {
-  const { dateLabel, timeLabel, monthLabel, dayOfMonth, year } = formatSchedule(event?.schedule);
-  const headline =
-    event?.headline ||
-    event?.subtitle ||
-    "Companies are hiring... but only skilled candidates.";
-  const desc =
-    event?.summary ||
-    "If you want a high-growth career, this is for you.";
-  const takeaways = Array.isArray(event?.takeaways) && event.takeaways.length
-    ? event.takeaways
-    : defaultTakeaways;
-  const eventType = event?.eventType || "Event";
+const MasterclassCard = ({ event, isPast = false }) => {
+  const eventLink = event?.slug ? `/events/${event.slug}` : "#";
+  const category = event?.category || event?.eventType || "General"; // Used for the tag
+  const title = event?.title || "Untitled Event";
   const hostName = event?.host?.name || "Gradus Mentor";
-  const hostTitle = event?.host?.title ? ` | ${event.host.title}` : "";
+  const priceLabel = event?.price?.isFree ? "Free" : (event?.price?.amount ? `₹${event.price.amount}` : "Free");
+
+  // Logic for button
+  const buttonText = isPast ? "Registration Closed" : (event?.cta?.label || "Join Us Live");
+  const isButtonDisabled = isPast;
 
   return (
-    <article className='event-card'>
-      <div className='event-card__hero'>
-        <div className='event-card__copy'>
-          <p className='event-card__eyebrow'>{headline}</p>
-          <p className='event-card__desc'>{desc}</p>
-          <div className='event-card__pill'>Join our webinar to learn:</div>
-          <ul className='event-card__bullets'>
-            {takeaways.map((item, idx) => (
-              <li key={`${event.id}-takeaway-${idx}`}>{item}</li>
-            ))}
-          </ul>
-          <div className='event-card__meta'>
-            <div className='event-card__meta-row'>
-              <span className='event-card__meta-icon' aria-hidden='true'>📅</span>
-              <span className='event-card__meta-text'>{dateLabel}</span>
-            </div>
-            <div className='event-card__meta-row'>
-              <span className='event-card__meta-icon' aria-hidden='true'>⏰</span>
-              <span className='event-card__meta-text'>{timeLabel || "TBA"}</span>
-            </div>
-          </div>
-          <Link
-            to={event?.slug ? `/events/${event.slug}` : "#"}
-            className='event-card__cta'
-          >
-            Register now
-          </Link>
-        </div>
-        <div className='event-card__media'>
+    <article className="masterclass-card">
+      {/* Header Image Section */}
+      <div className="masterclass-card__header">
+        <Link to={eventLink}>
           <img
             src={event?.heroImage?.url || "/assets/images/thumbs/event-img1.png"}
-            alt={event?.heroImage?.alt || event?.title || "Event speaker"}
-            loading='lazy'
+            alt={event?.heroImage?.alt || title}
+            className="masterclass-card__img"
+            loading="lazy"
           />
-          <p className='event-card__speaker'>
-            {hostName}
-            {hostTitle}
-          </p>
+        </Link>
+        <div className="masterclass-card__overlay" />
+
+        {/* Optional Logo/Brand */}
+        <div className="masterclass-card__brand">
+          {/* Add Icon/Logo here if needed */}
+          <span>Gradus</span>
+        </div>
+
+        {/* Floating CTA Button */}
+        <div className="masterclass-card__cta-overlay">
+          {isButtonDisabled ? (
+            <span className="masterclass-btn is-disabled">
+              {buttonText}
+            </span>
+          ) : (
+            <Link to={eventLink} className="masterclass-btn">
+              {buttonText}
+            </Link>
+          )}
         </div>
       </div>
 
-      <div className='event-card__footer'>
-        <div className='event-card__date'>
-          <span className='event-card__date-month'>{monthLabel || "TBA"}</span>
-          <span className='event-card__date-day'>{dayOfMonth || "--"}</span>
-          <span className='event-card__date-year'>{year || ""}</span>
-        </div>
-        <div className='event-card__info'>
-          <span className='event-card__type'>{eventType}</span>
-          <h3 className='event-card__title'>
-            <Link to={event?.slug ? `/events/${event.slug}` : "#"}>{event?.title || "Upcoming session"}</Link>
-          </h3>
-          <p className='event-card__host'>
-            {hostName}
-            {event?.host?.title ? ` | ${event.host.title}` : ""}
-          </p>
+      {/* Body Content */}
+      <div className="masterclass-card__body">
+        <span className="masterclass-card__tag">{category}</span>
+        <h3 className="masterclass-card__title">
+          <Link to={eventLink} style={{ color: 'inherit', textDecoration: 'none' }}>
+            {title}
+          </Link>
+        </h3>
+
+        <div className="masterclass-card__footer">
+          <span className="masterclass-card__host">{hostName}</span>
+          <span className="masterclass-card__price">{priceLabel}</span>
         </div>
       </div>
     </article>
@@ -160,6 +100,7 @@ const EventCard = ({ event }) => {
 const EventsAllOne = () => {
   const [eventType, setEventType] = useState(EVENT_TYPE_OPTIONS[0]);
   const [events, setEvents] = useState([]);
+  const [pastEvents, setPastEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -172,14 +113,24 @@ const EventsAllOne = () => {
       setError(null);
       try {
         const isLiveFilter = eventType === "Live now";
-        const response = await fetchEvents({
-          limit: EVENT_LIMIT,
-          timeframe: "upcoming",
-          eventType: eventType === "All" || isLiveFilter ? undefined : eventType,
-          signal: controller.signal,
-        });
+        const eventTypeFilter = eventType === "All" || isLiveFilter ? undefined : eventType;
+        const [upcomingResponse, pastResponse] = await Promise.all([
+          fetchEvents({
+            limit: EVENT_LIMIT,
+            timeframe: "upcoming",
+            eventType: eventTypeFilter,
+            signal: controller.signal,
+          }),
+          fetchEvents({
+            limit: PAST_EVENT_LIMIT,
+            timeframe: "past",
+            eventType: eventTypeFilter,
+            signal: controller.signal,
+          }),
+        ]);
         if (!isMounted) return;
-        setEvents(response?.items || []);
+        setEvents(upcomingResponse?.items || []);
+        setPastEvents(pastResponse?.items || []);
       } catch (err) {
         if (!isMounted || err?.name === "AbortError") return;
         setError(err?.message || "Failed to fetch events");
@@ -195,21 +146,34 @@ const EventsAllOne = () => {
     };
   }, [eventType]);
 
-  const visibleEvents = useMemo(() => {
-    if (eventType === "Live now") {
-      return events.filter(isEventLive);
-    }
-    if (eventType === "All") return events;
-    return events.filter(
+  const filterByType = (list) => {
+    if (eventType === "All" || eventType === "Live now") return list;
+    return list.filter(
       (ev) => (ev?.eventType || "").toLowerCase() === eventType.toLowerCase()
     );
+  };
+
+  const visibleUpcomingEvents = useMemo(() => {
+    const filtered = filterByType(events);
+    if (eventType === "Live now") {
+      return filtered.filter(isEventLive);
+    }
+    return filtered;
   }, [events, eventType]);
 
+  const visiblePastEvents = useMemo(
+    () => filterByType(pastEvents),
+    [pastEvents, eventType]
+  );
+
   return (
-    <section className='events-modern'>
+    <section className='events-modern py-80'>
       <div className='container container--xl events-modern__inner'>
-        <header className='events-modern__head'>
-          <h1 className='events-modern__title'>Upcoming Events</h1>
+        <header className='events-modern__head mb-40'>
+          <div className='events-modern__title-block'>
+            <p className='events-modern__eyebrow'>Events &amp; webinars</p>
+            <h1 className='events-modern__title'>Masterclasses</h1>
+          </div>
           <EventTypeChips
             options={EVENT_TYPE_OPTIONS}
             active={eventType}
@@ -220,38 +184,47 @@ const EventsAllOne = () => {
         {error ? (
           <div className='alert alert-danger rounded-16'>{error}</div>
         ) : loading ? (
-          <div className='events-modern__grid'>
-            {Array.from({ length: 3 }).map((_, idx) => (
-              <div key={`event-skeleton-${idx}`} className='event-card event-card--skeleton'>
-                <div className='event-card__hero'>
-                  <div className='event-card__copy'>
-                    <div className='skeleton-line w-75 mb-12' />
-                    <div className='skeleton-line w-60 mb-10' />
-                    <div className='skeleton-line w-50 mb-16' />
-                    <div className='skeleton-pill' />
-                    <div className='skeleton-line w-80 mb-8' />
-                    <div className='skeleton-line w-70 mb-8' />
-                  </div>
-                  <div className='event-card__media skeleton-box' />
-                </div>
-                <div className='event-card__footer'>
-                  <div className='skeleton-line w-25 mb-8' />
-                  <div className='skeleton-line w-60 mb-6' />
-                  <div className='skeleton-line w-40' />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : visibleEvents.length === 0 ? (
-          <div className='text-center py-32 text-neutral-600 fw-semibold'>
-            More events are being scheduled. Check back soon.
-          </div>
+          // Simple Loading State
+          <div className='text-center py-5'>Loading events...</div>
         ) : (
-          <div className='events-modern__grid'>
-            {visibleEvents.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
-          </div>
+          <>
+            <div className='events-modern__section mb-60'>
+              <div className='events-modern__section-head mb-24'>
+                <h2 className='events-modern__section-title'>Upcoming</h2>
+                {eventType === "Live now" ? (
+                  <span className='events-modern__section-note ms-2'> - Showing sessions starting now</span>
+                ) : null}
+              </div>
+              {visibleUpcomingEvents.length === 0 ? (
+                <div className='text-center py-32 text-neutral-600 fw-semibold'>
+                  More events are being scheduled. Check back soon.
+                </div>
+              ) : (
+                <div className='masterclass-grid'>
+                  {visibleUpcomingEvents.map((event) => (
+                    <MasterclassCard key={event.id} event={event} />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className='events-modern__section'>
+              <div className='events-modern__section-head mb-24'>
+                <h2 className='events-modern__section-title'>Past events</h2>
+              </div>
+              {visiblePastEvents.length === 0 ? (
+                <div className='text-center py-24 text-neutral-600 fw-semibold'>
+                  No past events match this filter yet.
+                </div>
+              ) : (
+                <div className='masterclass-grid'>
+                  {visiblePastEvents.map((event) => (
+                    <MasterclassCard key={`past-${event.id}`} event={event} isPast={true} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
     </section>

@@ -16,6 +16,7 @@
     "@fortawesome/react-fontawesome": "^3.1.0",
     "animate.css": "^4.1.1",
     "aos": "^2.3.4",
+    "axios": "^1.13.2",
     "bootstrap": "^5.3.6",
     "d3-scale": "^4.0.2",
     "lightgallery": "^2.8.3",
