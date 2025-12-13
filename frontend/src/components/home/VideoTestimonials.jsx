@@ -216,7 +216,7 @@ const VideoTestimonials = () => {
       slidesPerView: "auto",
       spaceBetween: 24,
       navigation: navigationEnabled,
-      loop: count > 2, // avoid duplicate-first slide when only a couple of reels
+      loop: count >= 4, // avoid duplicate-first slide when only a couple of reels
       centeredSlides: false,
       touchStartPreventDefault: false, // let touch gestures bubble so swipes register on mobile
       watchOverflow: true,

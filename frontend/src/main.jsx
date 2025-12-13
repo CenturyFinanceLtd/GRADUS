@@ -17,12 +17,16 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "animate.css/animate.css";
 import "swiper/css";
+import "swiper/css";
 import "swiper/css/navigation";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import "./globals.css";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
     <App />
+    <ToastContainer />
   </AuthProvider>
 );

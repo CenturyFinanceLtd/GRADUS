@@ -11,12 +11,14 @@ import { fetchActiveLiveSessionForCourse } from "../live/liveApi";
 import useLiveStudentSession from "../live/useLiveStudentSession";
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker?url";
+import CourseAssignments from "../components/CourseAssignments";
 
 GlobalWorkerOptions.workerSrc = pdfWorker;
 
 const NAV_SECTIONS = [
   { id: "info", label: "Course Info", slug: "course-info" },
   { id: "module", label: "Course Module", slug: "module" },
+  { id: "assignments", label: "Assignments", slug: "assignments" },
   { id: "resources", label: "Resources", slug: "resources" },
   { id: "notes", label: "Notes", slug: "notes" },
   { id: "assessments", label: "Assessments", slug: "assessments" },
@@ -241,12 +243,12 @@ const normalizeLectureItems = (items) => {
         const notesMeta =
           entry.notes && typeof entry.notes === "object"
             ? {
-                hasFile: Boolean(entry.notes.hasFile || entry.notes.publicId || entry.notes.url),
-                pages: Number(entry.notes.pages) || 0,
-                bytes: Number(entry.notes.bytes) || 0,
-                format: String(entry.notes.format || entry.notes.type || ""),
-                updatedAt: entry.notes.updatedAt || entry.notes.uploadedAt || "",
-              }
+              hasFile: Boolean(entry.notes.hasFile || entry.notes.publicId || entry.notes.url),
+              pages: Number(entry.notes.pages) || 0,
+              bytes: Number(entry.notes.bytes) || 0,
+              format: String(entry.notes.format || entry.notes.type || ""),
+              updatedAt: entry.notes.updatedAt || entry.notes.uploadedAt || "",
+            }
             : buildEmptyLectureNotes();
         if (!title) {
           return null;
@@ -276,17 +278,17 @@ const normalizeWeeklyStructureBlocks = (module, moduleIndex = 0) => {
         const title = entry.trim();
         return title
           ? {
-              title,
-              subtitle: "",
-              summary: "",
-              lectures: [],
-              assignments: [],
-              projects: [],
-              quizzes: [],
-              notes: [],
-              sectionId: `${moduleId}-section-${idx + 1}`,
-              moduleId,
-            }
+            title,
+            subtitle: "",
+            summary: "",
+            lectures: [],
+            assignments: [],
+            projects: [],
+            quizzes: [],
+            notes: [],
+            sectionId: `${moduleId}-section-${idx + 1}`,
+            moduleId,
+          }
           : null;
       }
       if (typeof entry !== "object") {
@@ -822,9 +824,8 @@ const CourseVideoPlayer = ({
               <button
                 type='button'
                 key={`subtitle-${option.value}`}
-                className={`course-video-player__settings-item ${
-                  subtitlePreference === option.value ? "is-active" : ""
-                }`}
+                className={`course-video-player__settings-item ${subtitlePreference === option.value ? "is-active" : ""
+                  }`}
                 onClick={() => {
                   onSubtitleChange?.(option.value);
                   setSettingsView("root");
@@ -1052,74 +1053,74 @@ const adaptDetailedModules = (detailModules = []) => {
     const moduleId = module.moduleId || module.id || `module-${index + 1}`;
     const weeklyStructure = Array.isArray(module.sections)
       ? module.sections.map((section, sectionIndex) => {
-          const sectionId = section.sectionId || section.id || `${moduleId}-section-${sectionIndex + 1}`;
-          return {
-            title: section.title || `Week ${sectionIndex + 1}`,
-            subtitle: section.subtitle || "",
-            summary: section.summary || "",
-            sectionId,
-            moduleId,
-            lectures: Array.isArray(section.lectures)
-              ? section.lectures.map((lecture, lectureIdx) => {
-                  const lectureId = lecture.lectureId || lecture.id || `${sectionId}-lecture-${lectureIdx + 1}`;
-                  const hasNotes = Boolean(
-                    lecture.notes?.hasFile || lecture.notes?.publicId || lecture.notes?.url
-                  );
-                  const notesMeta = hasNotes
-                    ? {
-                        hasFile: true,
-                        pages: Number(lecture.notes.pages) || 0,
-                        bytes: Number(lecture.notes.bytes) || 0,
-                        format: lecture.notes.format || "pdf",
-                        fileName: lecture.notes.fileName || "",
-                        updatedAt: lecture.notes.uploadedAt || lecture.notes.updatedAt || "",
-                      }
-                    : buildEmptyLectureNotes();
-                  const durationSeconds = toPositiveNumber(lecture.video?.duration);
-                  return {
-                    lectureId,
-                    moduleId,
-                    sectionId,
-                    title: lecture.title || "Lecture",
-                    duration:
-                      lecture.duration ||
-                      (durationSeconds ? formatLectureDurationLabel(durationSeconds) : ""),
-                    durationSeconds,
-                    type: lecture.video?.url ? "Video" : lecture.type || "",
-                    videoUrl:
-                      lecture.video?.url ||
-                      lecture.url ||
-                      lecture.src ||
-                      lecture.link ||
-                      "",
-                    poster:
-                      lecture.poster ||
-                      lecture.thumbnail ||
-                      lecture.cover ||
-                      lecture.video?.poster ||
-                      lecture.video?.thumbnail ||
-                      "",
-                    subtitles: Array.isArray(lecture.subtitles) ? lecture.subtitles : lecture.captions || [],
-                    notes: notesMeta,
-                  };
-                })
-              : [],
-            assignments: normalizeAssignmentUploads(section.assignments, `Assignment ${sectionIndex + 1}`),
-            quizzes: Array.isArray(section.quizzes) ? section.quizzes : toArray(section.quizzes),
-            projects: Array.isArray(section.projects) ? section.projects : toArray(section.projects),
-            notes: Array.isArray(section.notes) ? section.notes : toArray(section.notes),
-          };
-        })
+        const sectionId = section.sectionId || section.id || `${moduleId}-section-${sectionIndex + 1}`;
+        return {
+          title: section.title || `Week ${sectionIndex + 1}`,
+          subtitle: section.subtitle || "",
+          summary: section.summary || "",
+          sectionId,
+          moduleId,
+          lectures: Array.isArray(section.lectures)
+            ? section.lectures.map((lecture, lectureIdx) => {
+              const lectureId = lecture.lectureId || lecture.id || `${sectionId}-lecture-${lectureIdx + 1}`;
+              const hasNotes = Boolean(
+                lecture.notes?.hasFile || lecture.notes?.publicId || lecture.notes?.url
+              );
+              const notesMeta = hasNotes
+                ? {
+                  hasFile: true,
+                  pages: Number(lecture.notes.pages) || 0,
+                  bytes: Number(lecture.notes.bytes) || 0,
+                  format: lecture.notes.format || "pdf",
+                  fileName: lecture.notes.fileName || "",
+                  updatedAt: lecture.notes.uploadedAt || lecture.notes.updatedAt || "",
+                }
+                : buildEmptyLectureNotes();
+              const durationSeconds = toPositiveNumber(lecture.video?.duration);
+              return {
+                lectureId,
+                moduleId,
+                sectionId,
+                title: lecture.title || "Lecture",
+                duration:
+                  lecture.duration ||
+                  (durationSeconds ? formatLectureDurationLabel(durationSeconds) : ""),
+                durationSeconds,
+                type: lecture.video?.url ? "Video" : lecture.type || "",
+                videoUrl:
+                  lecture.video?.url ||
+                  lecture.url ||
+                  lecture.src ||
+                  lecture.link ||
+                  "",
+                poster:
+                  lecture.poster ||
+                  lecture.thumbnail ||
+                  lecture.cover ||
+                  lecture.video?.poster ||
+                  lecture.video?.thumbnail ||
+                  "",
+                subtitles: Array.isArray(lecture.subtitles) ? lecture.subtitles : lecture.captions || [],
+                notes: notesMeta,
+              };
+            })
+            : [],
+          assignments: normalizeAssignmentUploads(section.assignments, `Assignment ${sectionIndex + 1}`),
+          quizzes: Array.isArray(section.quizzes) ? section.quizzes : toArray(section.quizzes),
+          projects: Array.isArray(section.projects) ? section.projects : toArray(section.projects),
+          notes: Array.isArray(section.notes) ? section.notes : toArray(section.notes),
+        };
+      })
       : [];
 
     const extras =
       module.variant === "capstone" || module.capstone?.summary || module.capstone?.deliverables?.length
         ? {
-            projectTitle: module.moduleLabel || module.title || `Module ${index + 1}`,
-            projectDescription: module.capstone?.summary || module.summary || "",
-            examples: module.capstone?.rubric || [],
-            deliverables: module.capstone?.deliverables || [],
-          }
+          projectTitle: module.moduleLabel || module.title || `Module ${index + 1}`,
+          projectDescription: module.capstone?.summary || module.summary || "",
+          examples: module.capstone?.rubric || [],
+          deliverables: module.capstone?.deliverables || [],
+        }
         : undefined;
 
     return {
@@ -1144,14 +1145,14 @@ const buildOverviewFromCourse = (courseData = {}) => {
     Array.isArray(courseData.aboutProgram) && courseData.aboutProgram.length
       ? courseData.aboutProgram
       : courseData.outcomeSummary
-      ? [courseData.outcomeSummary]
-      : [];
+        ? [courseData.outcomeSummary]
+        : [];
   const learn =
     Array.isArray(courseData.learn) && courseData.learn.length
       ? courseData.learn
       : Array.isArray(courseData.outcomes)
-      ? courseData.outcomes
-      : [];
+        ? courseData.outcomes
+        : [];
   const skills = Array.isArray(courseData.skills) ? courseData.skills : [];
   const details = courseData.details || {};
   const capstone = courseData.capstone || {};
@@ -1326,6 +1327,19 @@ const CourseHomePage = () => {
     [progressState.data]
   );
   const [assessmentFocus, setAssessmentFocus] = useState(null);
+
+  const isCourseCompleted = useMemo(() => {
+    if (!modules.length) return false;
+    // Check if every lecture in every week of every module is completed
+    return modules.every(module => {
+      const weeks = module.weeklyStructure || [];
+      return weeks.every(week => {
+        const lectures = week.lectures || [];
+        return lectures.every(lecture => isLectureCompleted(lecture));
+      });
+    });
+  }, [modules, isLectureCompleted]);
+
   const [currentLectureMeta, setCurrentLectureMeta] = useState(null);
   const [resumePositionSeconds, setResumePositionSeconds] = useState(0);
   const playerContainerRef = useRef(null);
@@ -1806,33 +1820,33 @@ const CourseHomePage = () => {
   const derivedQualityOptions = useMemo(() => {
     const fromCourse = Array.isArray(state.course?.media?.qualities)
       ? state.course.media.qualities
-          .map((entry) => {
-            if (!entry) {
-              return null;
-            }
-            if (typeof entry === "string") {
-              return { value: entry.toLowerCase(), label: entry };
-            }
-            if (typeof entry === "object") {
-              const value = String(entry.value || entry.label || "")
-                .trim()
-                .toLowerCase();
-              const label = entry.label || entry.value || entry.display || "";
-              return value ? { value, label } : null;
-            }
+        .map((entry) => {
+          if (!entry) {
             return null;
-          })
-          .filter(Boolean)
+          }
+          if (typeof entry === "string") {
+            return { value: entry.toLowerCase(), label: entry };
+          }
+          if (typeof entry === "object") {
+            const value = String(entry.value || entry.label || "")
+              .trim()
+              .toLowerCase();
+            const label = entry.label || entry.value || entry.display || "";
+            return value ? { value, label } : null;
+          }
+          return null;
+        })
+        .filter(Boolean)
       : [];
     const defaults =
       fromCourse.length > 0
         ? fromCourse
         : [
-            { value: "auto", label: "Auto" },
-            { value: "1080p", label: "1080p" },
-            { value: "720p", label: "720p" },
-            { value: "480p", label: "480p" },
-          ];
+          { value: "auto", label: "Auto" },
+          { value: "1080p", label: "1080p" },
+          { value: "720p", label: "720p" },
+          { value: "480p", label: "480p" },
+        ];
     if (!defaults.find((opt) => opt.value === "auto")) {
       return [{ value: "auto", label: "Auto" }, ...defaults];
     }
@@ -1841,24 +1855,24 @@ const CourseHomePage = () => {
   const subtitleOptions = useMemo(() => {
     const languages = Array.isArray(state.course?.media?.subtitles)
       ? state.course.media.subtitles
-          .map((entry) => {
-            if (!entry) {
-              return null;
-            }
-            if (typeof entry === "string") {
-              const value = entry.trim().toLowerCase();
-              return value ? { value, label: entry } : null;
-            }
-            if (typeof entry === "object") {
-              const value = String(entry.value || entry.code || entry.language || "")
-                .trim()
-                .toLowerCase();
-              const label = entry.label || entry.name || entry.language || entry.value || "";
-              return value ? { value, label } : null;
-            }
+        .map((entry) => {
+          if (!entry) {
             return null;
-          })
-          .filter(Boolean)
+          }
+          if (typeof entry === "string") {
+            const value = entry.trim().toLowerCase();
+            return value ? { value, label: entry } : null;
+          }
+          if (typeof entry === "object") {
+            const value = String(entry.value || entry.code || entry.language || "")
+              .trim()
+              .toLowerCase();
+            const label = entry.label || entry.name || entry.language || entry.value || "";
+            return value ? { value, label } : null;
+          }
+          return null;
+        })
+        .filter(Boolean)
       : [];
     return [{ value: "off", label: "Off" }, ...languages];
   }, [state.course?.media?.subtitles]);
@@ -2218,23 +2232,23 @@ const CourseHomePage = () => {
     setNotesTarget(
       lectureHasNotes
         ? {
-            lectureId,
-            moduleId: meta.moduleId,
-            sectionId: meta.sectionId,
-            moduleTitle: meta.moduleTitle,
-            weekTitle: meta.weekTitle,
-            weekIndex: meta.weekIndex,
-            moduleIndex: meta.moduleIndex,
-            lectureIndex: meta.lectureIndex,
-            lectureTitle: lecture.title || "Lecture",
-            hasNotes: true,
-            notesMeta: lectureNotesMeta,
-            updatedLabel: formatUpdatedDate(lectureNotesMeta.updatedAt || ""),
-            sizeLabel: formatFileSize(lectureNotesMeta.bytes),
-            pageLabel: lectureNotesMeta.pages
-              ? `${lectureNotesMeta.pages} page${lectureNotesMeta.pages === 1 ? "" : "s"}`
-              : "",
-          }
+          lectureId,
+          moduleId: meta.moduleId,
+          sectionId: meta.sectionId,
+          moduleTitle: meta.moduleTitle,
+          weekTitle: meta.weekTitle,
+          weekIndex: meta.weekIndex,
+          moduleIndex: meta.moduleIndex,
+          lectureIndex: meta.lectureIndex,
+          lectureTitle: lecture.title || "Lecture",
+          hasNotes: true,
+          notesMeta: lectureNotesMeta,
+          updatedLabel: formatUpdatedDate(lectureNotesMeta.updatedAt || ""),
+          sizeLabel: formatFileSize(lectureNotesMeta.bytes),
+          pageLabel: lectureNotesMeta.pages
+            ? `${lectureNotesMeta.pages} page${lectureNotesMeta.pages === 1 ? "" : "s"}`
+            : "",
+        }
         : null
     );
     const lectureProgress = lectureId ? progressState.data[lectureId] : null;
@@ -2335,8 +2349,8 @@ const CourseHomePage = () => {
       Array.isArray(module.outcomes) && module.outcomes.length
         ? module.outcomes
         : module.outcome
-        ? [module.outcome]
-        : [];
+          ? [module.outcome]
+          : [];
     const resources = Array.isArray(module.resources) ? module.resources : [];
     const extras = module.extras;
     const hasTopics = Array.isArray(module.topics) && module.topics.length;
@@ -2344,30 +2358,30 @@ const CourseHomePage = () => {
     const renderWeekBulletGroup = (title, items, iconClass = "ph-check-circle") => {
       const normalizedItems = Array.isArray(items)
         ? items
-            .map((item, idx) => {
-              if (!item) {
+          .map((item, idx) => {
+            if (!item) {
+              return null;
+            }
+            if (typeof item === "string") {
+              const trimmed = item.trim();
+              if (!trimmed) {
                 return null;
               }
-              if (typeof item === "string") {
-                const trimmed = item.trim();
-                if (!trimmed) {
-                  return null;
-                }
-                return { key: `${title}-${idx}`, label: trimmed, url: "" };
+              return { key: `${title}-${idx}`, label: trimmed, url: "" };
+            }
+            if (typeof item === "object") {
+              const label = String(
+                item.label || item.title || item.name || item.text || item.description || ""
+              ).trim();
+              const url = String(item.url || item.href || item.link || item.file || "").trim();
+              if (!label && !url) {
+                return null;
               }
-              if (typeof item === "object") {
-                const label = String(
-                  item.label || item.title || item.name || item.text || item.description || ""
-                ).trim();
-                const url = String(item.url || item.href || item.link || item.file || "").trim();
-                if (!label && !url) {
-                  return null;
-                }
-                return { key: item.key || `${title}-${idx}`, label: label || url, url };
-              }
-              return null;
-            })
-            .filter(Boolean)
+              return { key: item.key || `${title}-${idx}`, label: label || url, url };
+            }
+            return null;
+          })
+          .filter(Boolean)
         : [];
       if (!normalizedItems.length) {
         return null;
@@ -2434,85 +2448,84 @@ const CourseHomePage = () => {
     };
 
     return (
-        <div className='course-home-panel course-info-panel module-detail-panel'>
-          <div className='course-home-panel__header mb-24 course-module-header'>
-            <div>
-              <div
-                className={`course-module-selector ${isModuleDropdownOpen ? "is-open" : ""}`}
-                ref={moduleSelectorRef}
+      <div className='course-home-panel course-info-panel module-detail-panel'>
+        <div className='course-home-panel__header mb-24 course-module-header'>
+          <div>
+            <div
+              className={`course-module-selector ${isModuleDropdownOpen ? "is-open" : ""}`}
+              ref={moduleSelectorRef}
+            >
+              <button
+                type='button'
+                id='module-selector'
+                className='course-module-selector__trigger'
+                aria-haspopup='listbox'
+                aria-expanded={isModuleDropdownOpen}
+                aria-controls='module-selector-list'
+                onClick={toggleModuleDropdown}
+                onKeyDown={handleModuleSelectorKeyDown}
               >
-                <button
-                  type='button'
-                  id='module-selector'
-                  className='course-module-selector__trigger'
-                  aria-haspopup='listbox'
-                  aria-expanded={isModuleDropdownOpen}
-                  aria-controls='module-selector-list'
-                  onClick={toggleModuleDropdown}
-                  onKeyDown={handleModuleSelectorKeyDown}
+                <span className='course-module-selector__current'>
+                  Module {safeIndex + 1}: {module.title}
+                </span>
+                <i className='ph-bold ph-caret-down' aria-hidden='true' />
+              </button>
+              <div
+                className='course-module-selector__list-wrap'
+                aria-hidden={!isModuleDropdownOpen}
+                inert={!isModuleDropdownOpen ? "true" : undefined}
+              >
+                <ul
+                  id='module-selector-list'
+                  className='course-module-selector__list'
+                  role='listbox'
+                  aria-activedescendant={`module-option-${safeIndex}`}
                 >
-                  <span className='course-module-selector__current'>
-                    Module {safeIndex + 1}: {module.title}
-                  </span>
-                  <i className='ph-bold ph-caret-down' aria-hidden='true' />
-                </button>
-                <div
-                  className='course-module-selector__list-wrap'
-                  aria-hidden={!isModuleDropdownOpen}
-                  inert={!isModuleDropdownOpen ? "true" : undefined}
-                >
-                  <ul
-                    id='module-selector-list'
-                    className='course-module-selector__list'
-                    role='listbox'
-                    aria-activedescendant={`module-option-${safeIndex}`}
-                  >
-                    {modules.map((m, idx) => {
-                      const optionId = `module-option-${idx}`;
-                      const isActive = idx === safeIndex;
-                      return (
-                        <li key={optionId}>
-                          <button
-                            type='button'
-                            id={optionId}
-                            role='option'
-                            aria-selected={isActive}
-                            className={`course-module-selector__option ${
-                              isActive ? "is-active" : ""
+                  {modules.map((m, idx) => {
+                    const optionId = `module-option-${idx}`;
+                    const isActive = idx === safeIndex;
+                    return (
+                      <li key={optionId}>
+                        <button
+                          type='button'
+                          id={optionId}
+                          role='option'
+                          aria-selected={isActive}
+                          className={`course-module-selector__option ${isActive ? "is-active" : ""
                             }`}
-                            tabIndex={isModuleDropdownOpen ? 0 : -1}
-                            onClick={() => handleModuleSelectFromDropdown(idx)}
-                            onKeyDown={(event) => {
-                              if (event.key === "Enter" || event.key === " ") {
-                                event.preventDefault();
-                                handleModuleSelectFromDropdown(idx);
-                              }
-                            }}
-                          >
-                            <div className='course-module-selector__option-text'>
-                              <span className='course-module-selector__option-title'>
-                                Module {idx + 1}: {m.title}
+                          tabIndex={isModuleDropdownOpen ? 0 : -1}
+                          onClick={() => handleModuleSelectFromDropdown(idx)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              handleModuleSelectFromDropdown(idx);
+                            }
+                          }}
+                        >
+                          <div className='course-module-selector__option-text'>
+                            <span className='course-module-selector__option-title'>
+                              Module {idx + 1}: {m.title}
+                            </span>
+                            {m.subtitle ? (
+                              <span className='course-module-selector__option-subtitle'>
+                                {m.subtitle}
                               </span>
-                              {m.subtitle ? (
-                                <span className='course-module-selector__option-subtitle'>
-                                  {m.subtitle}
-                                </span>
-                              ) : null}
-                            </div>
-                            {isActive ? (
-                              <i className='ph-bold ph-check-circle' aria-hidden='true' />
                             ) : null}
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
+                          </div>
+                          {isActive ? (
+                            <i className='ph-bold ph-check-circle' aria-hidden='true' />
+                          ) : null}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
-              <h2 className='course-home-panel__title mb-0'>{module.title}</h2>
-              {module.summary ? <p className='module-summary text-neutral-600 mb-0'>{module.summary}</p> : null}
             </div>
-            <div className='course-module-meta'>
+            <h2 className='course-home-panel__title mb-0'>{module.title}</h2>
+            {module.summary ? <p className='module-summary text-neutral-600 mb-0'>{module.summary}</p> : null}
+          </div>
+          <div className='course-module-meta'>
             {module.subtitle ? <span className='course-module-pill'>{module.subtitle}</span> : null}
             {totalLectures ? (
               <span className='course-module-pill'>
@@ -2523,6 +2536,14 @@ const CourseHomePage = () => {
               <span className='course-module-pill'>
                 <i className='ph-bold ph-checks' /> {totalAssignments} assignments
               </span>
+            ) : null}
+            {totalAssignments ? (
+              <a
+                className='course-module-pill pill-link'
+                href={`/assignments?course=${encodeURIComponent(`${programme}/${course}`)}`}
+              >
+                View assignments
+              </a>
             ) : null}
             {isCapstoneModule ? (
               <span className='course-module-pill pill-accent'>
@@ -2566,207 +2587,204 @@ const CourseHomePage = () => {
                 const weekTitle = `Week ${weekNumber}${baseTitle ? ` · ${baseTitle}` : ""}`;
                 return (
                   <div key={`module-${safeIndex}-week-${weekIdx}`} className='course-module-week'>
-                  <div className='course-module-week__header'>
-                    <div>
-                      <p className='course-module-week__title'>{weekTitle}</p>
-                      {week.subtitle ? (
-                        <span className='course-module-week__subtitle'>{week.subtitle}</span>
-                      ) : null}
+                    <div className='course-module-week__header'>
+                      <div>
+                        <p className='course-module-week__title'>{weekTitle}</p>
+                        {week.subtitle ? (
+                          <span className='course-module-week__subtitle'>{week.subtitle}</span>
+                        ) : null}
+                      </div>
+                      {week.summary ? <p className='text-neutral-600 mb-0'>{week.summary}</p> : null}
                     </div>
-                    {week.summary ? <p className='text-neutral-600 mb-0'>{week.summary}</p> : null}
-                  </div>
-                  {week.lectures?.length ? (
-                    <div className='course-module-week__group'>
-                      <p className='course-module-week__group-title'>Lectures</p>
-                      <ul className='course-module-week__list course-module-week__list--lectures'>
-                        {week.lectures.map((lecture, lectureIdx) => {
-                          const lectureKey = `module-${safeIndex}-week-${weekIdx}-lecture-${lectureIdx}`;
-                          const isPlayable = Boolean(lecture.videoUrl);
-                          const lectureMeta = {
-                            moduleTitle: module.title || `Module ${safeIndex + 1}`,
-                            weekTitle: week.title || `Week ${weekIdx + 1}`,
-                            moduleIndex: safeIndex,
-                            weekIndex: weekIdx,
-                            lectureIndex: lectureIdx,
-                            poster: lecture.poster,
-                            moduleId: module.moduleId,
-                            sectionId: week.sectionId,
-                            lectureId: lecture.lectureId,
-                            lectureTitle: lecture.title,
-                            videoUrl: lecture.videoUrl,
-                          };
-                          const lectureProgress =
-                            lecture.lectureId && progressState.data[lecture.lectureId]
-                              ? progressState.data[lecture.lectureId]
-                              : null;
-                          const completionRatio = lectureProgress?.completionRatio || 0;
-                          const durationLabel = getLectureDurationLabel(lecture, lectureProgress);
-                          const isCompleted =
-                            Boolean(lectureProgress?.completedAt) ||
-                            completionRatio >= VIDEO_COMPLETION_THRESHOLD;
-                          const isActiveLecture =
-                            activeVideo?.meta &&
-                            activeVideo.meta.moduleIndex === safeIndex &&
-                            activeVideo.meta.weekIndex === weekIdx &&
-                            activeVideo.meta.lectureIndex === lectureIdx;
-                          return (
-                            <li key={lectureKey}>
-                              <button
-                                type='button'
-                                className={`course-module-week__lecture-button ${
-                                  isPlayable ? "is-playable" : ""
-                                } ${isActiveLecture ? "is-active" : ""}`}
-                                onClick={() => handleLecturePlay(lecture, lectureMeta)}
-                                disabled={!isPlayable}
-                                aria-label={
-                                  isPlayable
-                                    ? isCompleted
-                                      ? `${lecture.title} completed`
-                                      : `Play ${lecture.title}`
-                                    : `${lecture.title} video unavailable`
-                                }
-                              >
-                                <span
-                                  className={`course-module-week__completion ${
-                                    isCompleted ? "is-completed" : ""
-                                  }`}
-                                  aria-hidden='true'
+                    {week.lectures?.length ? (
+                      <div className='course-module-week__group'>
+                        <p className='course-module-week__group-title'>Lectures</p>
+                        <ul className='course-module-week__list course-module-week__list--lectures'>
+                          {week.lectures.map((lecture, lectureIdx) => {
+                            const lectureKey = `module-${safeIndex}-week-${weekIdx}-lecture-${lectureIdx}`;
+                            const isPlayable = Boolean(lecture.videoUrl);
+                            const lectureMeta = {
+                              moduleTitle: module.title || `Module ${safeIndex + 1}`,
+                              weekTitle: week.title || `Week ${weekIdx + 1}`,
+                              moduleIndex: safeIndex,
+                              weekIndex: weekIdx,
+                              lectureIndex: lectureIdx,
+                              poster: lecture.poster,
+                              moduleId: module.moduleId,
+                              sectionId: week.sectionId,
+                              lectureId: lecture.lectureId,
+                              lectureTitle: lecture.title,
+                              videoUrl: lecture.videoUrl,
+                            };
+                            const lectureProgress =
+                              lecture.lectureId && progressState.data[lecture.lectureId]
+                                ? progressState.data[lecture.lectureId]
+                                : null;
+                            const completionRatio = lectureProgress?.completionRatio || 0;
+                            const durationLabel = getLectureDurationLabel(lecture, lectureProgress);
+                            const isCompleted =
+                              Boolean(lectureProgress?.completedAt) ||
+                              completionRatio >= VIDEO_COMPLETION_THRESHOLD;
+                            const isActiveLecture =
+                              activeVideo?.meta &&
+                              activeVideo.meta.moduleIndex === safeIndex &&
+                              activeVideo.meta.weekIndex === weekIdx &&
+                              activeVideo.meta.lectureIndex === lectureIdx;
+                            return (
+                              <li key={lectureKey}>
+                                <button
+                                  type='button'
+                                  className={`course-module-week__lecture-button ${isPlayable ? "is-playable" : ""
+                                    } ${isActiveLecture ? "is-active" : ""}`}
+                                  onClick={() => handleLecturePlay(lecture, lectureMeta)}
+                                  disabled={!isPlayable}
+                                  aria-label={
+                                    isPlayable
+                                      ? isCompleted
+                                        ? `${lecture.title} completed`
+                                        : `Play ${lecture.title}`
+                                      : `${lecture.title} video unavailable`
+                                  }
                                 >
-                                  {isCompleted ? <i className='ph-bold ph-check' /> : null}
-                                </span>
-                                <div className='course-module-week__lecture-info'>
-                                  <span className='course-module-week__lecture-title'>
-                                    {lecture.type ? (
-                                      <span className='course-module-week__lecture-type'>
-                                        {lecture.type === "Video" ? (
-                                          <>
-                                            <i className='ph-bold ph-play-circle' aria-hidden='true' />
-                                            <span className='sr-only'>Video</span>
-                                          </>
-                                        ) : (
-                                          <span className='course-module-week__lecture-type-text'>
-                                            {lecture.type}
-                                          </span>
-                                        )}
-                                      </span>
-                                    ) : null}
-                                    {lecture.title}
-                                  </span>
                                   <span
-                                    className={`course-module-week__prompt ${
-                                      !isPlayable
+                                    className={`course-module-week__completion ${isCompleted ? "is-completed" : ""
+                                      }`}
+                                    aria-hidden='true'
+                                  >
+                                    {isCompleted ? <i className='ph-bold ph-check' /> : null}
+                                  </span>
+                                  <div className='course-module-week__lecture-info'>
+                                    <span className='course-module-week__lecture-title'>
+                                      {lecture.type ? (
+                                        <span className='course-module-week__lecture-type'>
+                                          {lecture.type === "Video" ? (
+                                            <>
+                                              <i className='ph-bold ph-play-circle' aria-hidden='true' />
+                                              <span className='sr-only'>Video</span>
+                                            </>
+                                          ) : (
+                                            <span className='course-module-week__lecture-type-text'>
+                                              {lecture.type}
+                                            </span>
+                                          )}
+                                        </span>
+                                      ) : null}
+                                      {lecture.title}
+                                    </span>
+                                    <span
+                                      className={`course-module-week__prompt ${!isPlayable
                                         ? "is-muted"
                                         : isCompleted && !isActiveLecture
-                                        ? "is-completed"
-                                        : ""
-                                    }`}
-                                  >
-                                    {!isPlayable
-                                      ? "Video unavailable"
-                                      : isActiveLecture
-                                      ? "Now playing"
-                                      : isCompleted
-                                      ? "Completed"
-                                      : "Play in player"}
-                                  </span>
-                                </div>
-                                {durationLabel ? (
-                                  <span className='course-module-week__badge'>{durationLabel}</span>
-                                ) : null}
-                              </button>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </div>
-                  ) : null}
-                  {renderWeekBulletGroup("Assignments", week.assignments, "ph-pencil-simple")}
-                  {renderWeekBulletGroup("Quizzes", week.quizzes, "ph-list-checks")}
-                  {renderWeekBulletGroup("Projects & practice", week.projects, "ph-flask")}
-                  {weekNotes.length ? (
-                    <div className='course-module-week__notes'>
-                      <div className='course-module-week__notes-header'>
-                        <div className='course-module-week__notes-icon' aria-hidden='true'>
-                          <i className='ph-bold ph-notebook' />
+                                          ? "is-completed"
+                                          : ""
+                                        }`}
+                                    >
+                                      {!isPlayable
+                                        ? "Video unavailable"
+                                        : isActiveLecture
+                                          ? "Now playing"
+                                          : isCompleted
+                                            ? "Completed"
+                                            : "Play in player"}
+                                    </span>
+                                  </div>
+                                  {durationLabel ? (
+                                    <span className='course-module-week__badge'>{durationLabel}</span>
+                                  ) : null}
+                                </button>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {renderWeekBulletGroup("Assignments", week.assignments, "ph-pencil-simple")}
+                    {renderWeekBulletGroup("Quizzes", week.quizzes, "ph-list-checks")}
+                    {renderWeekBulletGroup("Projects & practice", week.projects, "ph-flask")}
+                    {weekNotes.length ? (
+                      <div className='course-module-week__notes'>
+                        <div className='course-module-week__notes-header'>
+                          <div className='course-module-week__notes-icon' aria-hidden='true'>
+                            <i className='ph-bold ph-notebook' />
+                          </div>
+                          <div>
+                            <p className='course-module-week__notes-title'>Class notes</p>
+                            <p className='course-module-week__notes-text'>
+                              Download the notes shared for these classes or keep them handy while you learn.
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className='course-module-week__notes-title'>Class notes</p>
-                          <p className='course-module-week__notes-text'>
-                            Download the notes shared for these classes or keep them handy while you learn.
-                          </p>
+                        <div className='course-module-week__notes-links'>
+                          {weekNotes.map((note, noteIdx) => {
+                            const key = `module-${safeIndex}-week-${weekIdx}-note-${noteIdx}`;
+                            if (note.url) {
+                              return (
+                                <a
+                                  key={key}
+                                  href={note.url}
+                                  target='_blank'
+                                  rel='noopener noreferrer'
+                                  className='course-module-week__note-chip'
+                                >
+                                  <i className='ph-bold ph-arrow-square-out' aria-hidden='true' />
+                                  <span>{note.label}</span>
+                                </a>
+                              );
+                            }
+                            return (
+                              <span key={key} className='course-module-week__note-chip is-static'>
+                                <i className='ph-bold ph-note' aria-hidden='true' />
+                                <span>{note.label}</span>
+                              </span>
+                            );
+                          })}
                         </div>
                       </div>
-                      <div className='course-module-week__notes-links'>
-                        {weekNotes.map((note, noteIdx) => {
-                          const key = `module-${safeIndex}-week-${weekIdx}-note-${noteIdx}`;
-                          if (note.url) {
-                            return (
-                              <a
-                                key={key}
-                                href={note.url}
-                                target='_blank'
-                                rel='noopener noreferrer'
-                                className='course-module-week__note-chip'
-                              >
-                                <i className='ph-bold ph-arrow-square-out' aria-hidden='true' />
-                                <span>{note.label}</span>
-                              </a>
-                            );
-                          }
-                          return (
-                            <span key={key} className='course-module-week__note-chip is-static'>
-                              <i className='ph-bold ph-note' aria-hidden='true' />
-                          <span>{note.label}</span>
-                        </span>
-                      );
-                    })}
-                    </div>
-                  </div>
-                  ) : null}
-                  <div
-                    className='course-module-week__assessment-cta'
-                    style={{
-                      border: "1px dashed #d7e3ff",
-                      background: "#f7f9ff",
-                      borderRadius: 12,
-                      padding: 16,
-                      marginTop: 12,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      gap: 12,
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <div>
-                      <p className='mb-4 fw-semibold text-neutral-800'>Assessment checkpoint</p>
-                      <p className='mb-0 text-neutral-600'>
-                        {isWeekUnlocked
-                          ? "Test yourself on this week's concepts before moving on."
-                          : totalLectures
-                          ? `Complete all ${totalLectures} lecture${totalLectures === 1 ? "" : "s"} to unlock the assessment.`
-                          : "Watch this week's lectures to unlock the assessment."}
-                      </p>
-                    </div>
-                    <button
-                      type='button'
-                      className='btn btn-main'
-                      disabled={!isWeekUnlocked}
-                      onClick={() =>
-                        handleWeekAssessmentClick(
-                          safeIndex,
-                          weekIdx,
-                          weekTitle,
-                          module.title || `Module ${safeIndex + 1}`
-                        )
-                      }
+                    ) : null}
+                    <div
+                      className='course-module-week__assessment-cta'
+                      style={{
+                        border: "1px dashed #d7e3ff",
+                        background: "#f7f9ff",
+                        borderRadius: 12,
+                        padding: 16,
+                        marginTop: 12,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        flexWrap: "wrap",
+                      }}
                     >
-                      {isWeekUnlocked ? "Go to assessment" : "Locked"}
-                    </button>
+                      <div>
+                        <p className='mb-4 fw-semibold text-neutral-800'>Assessment checkpoint</p>
+                        <p className='mb-0 text-neutral-600'>
+                          {isWeekUnlocked
+                            ? "Test yourself on this week's concepts before moving on."
+                            : totalLectures
+                              ? `Complete all ${totalLectures} lecture${totalLectures === 1 ? "" : "s"} to unlock the assessment.`
+                              : "Watch this week's lectures to unlock the assessment."}
+                        </p>
+                      </div>
+                      <button
+                        type='button'
+                        className='btn btn-main'
+                        disabled={!isWeekUnlocked}
+                        onClick={() =>
+                          handleWeekAssessmentClick(
+                            safeIndex,
+                            weekIdx,
+                            weekTitle,
+                            module.title || `Module ${safeIndex + 1}`
+                          )
+                        }
+                      >
+                        {isWeekUnlocked ? "Go to assessment" : "Locked"}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
             </div>
           </div>
         ) : null}
@@ -3051,7 +3069,7 @@ const CourseHomePage = () => {
             {availableNotes.length ? (
               <div className='d-flex flex-column gap-3'>
                 {availableNotes.map((note) => (
-                    <div
+                  <div
                     key={note.lectureId}
                     className='border rounded-4 p-16 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-12'
                   >
@@ -3112,6 +3130,15 @@ const CourseHomePage = () => {
             focusContext={assessmentFocus}
           />
         );
+      case "assignments":
+        return (
+          <div className='course-home-panel'>
+            <div className='course-home-panel__header mb-16'>
+              <h2 className='course-home-panel__title mb-4'>Assignments</h2>
+            </div>
+            <CourseAssignments courseSlug={course} locked={!isCourseCompleted} />
+          </div>
+        );
       case "resources":
         return (
           <SectionPlaceholder
@@ -3128,14 +3155,14 @@ const CourseHomePage = () => {
     }
   };
 
-const liveStatusText = useMemo(() => {
-  if (embeddedStageStatus === "live") {
-    return "Connected";
-  }
-  if (embeddedStageStatus === "waiting-room") {
-    return "Waiting for host";
-  }
-  if (embeddedStageStatus === "joining" || embeddedStageStatus === "connecting") {
+  const liveStatusText = useMemo(() => {
+    if (embeddedStageStatus === "live") {
+      return "Connected";
+    }
+    if (embeddedStageStatus === "waiting-room") {
+      return "Waiting for host";
+    }
+    if (embeddedStageStatus === "joining" || embeddedStageStatus === "connecting") {
       return "Connecting…";
     }
     if (embeddedStageStatus === "error") {
@@ -3205,10 +3232,10 @@ const liveStatusText = useMemo(() => {
       const mainVideoLabel = showSelfPrimary
         ? "You"
         : hasInstructorVideo
-        ? instructorIsScreen
-          ? "Screen share"
-          : "Instructor"
-        : null;
+          ? instructorIsScreen
+            ? "Screen share"
+            : "Instructor"
+          : null;
       return (
         <div className='course-home-video mb-20 live-embed-card' ref={playerContainerRef}>
           <div className='d-flex align-items-center justify-content-between flex-wrap gap-2 mb-12'>
@@ -3280,7 +3307,7 @@ const liveStatusText = useMemo(() => {
                   </p>
                 </div>
               )}
-            {showSelfPrimary ? (
+              {showSelfPrimary ? (
                 hasInstructorVideo ? (
                   <div className='live-embed-pip live-embed-pip--instructor'>
                     <div className='live-embed-pip__label'>{instructorIsScreen ? "Screen share" : "Instructor"}</div>
@@ -3456,8 +3483,8 @@ const liveStatusText = useMemo(() => {
                 !screenShareAllowed
                   ? "Screen share blocked by instructor"
                   : screenShareActive
-                  ? "Stop share"
-                  : "Share screen"
+                    ? "Stop share"
+                    : "Share screen"
               }
             >
               <i className={`ri-computer-line${!screenShareAllowed ? ' blocked' : ''}`} />
@@ -3532,9 +3559,8 @@ const liveStatusText = useMemo(() => {
             <button
               key={section.id}
               type='button'
-              className={`course-home-nav__item ${
-                activeSection === section.id ? "is-active" : ""
-              }`}
+              className={`course-home-nav__item ${activeSection === section.id ? "is-active" : ""
+                }`}
               onClick={() =>
                 isModuleTab ? handleModuleClick(lastModuleIndex) : handleSectionChange(section.id)
               }
@@ -3751,7 +3777,6 @@ const liveStatusText = useMemo(() => {
 };
 
 export default CourseHomePage;
-
 
 
 

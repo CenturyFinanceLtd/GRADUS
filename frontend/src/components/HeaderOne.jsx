@@ -7,6 +7,7 @@ import { API_BASE_URL } from "../services/apiClient";
 import { fetchEvents } from "../services/eventService";
 import { slugify } from "../utils/slugify.js";
 import isProtectedPath from "../utils/isProtectedPath.js";
+import NotificationBell from "./NotificationBell.jsx";
 const HeaderOne = () => {
   let { pathname } = useLocation();
   const [scroll, setScroll] = useState(false);
@@ -371,9 +372,12 @@ const HeaderOne = () => {
       ],
     },
     ourCoursesDropdown,
+
+
+
     { to: "/events", label: "Events", badge: hasUpcomingEvents ? "New" : null },
     { to: "/blogs", label: "Blogs" },
-    { to: "/gallery", label: "Gallery" },
+
     { to: "/contact", label: "Contact us" },
   ];
 
@@ -471,7 +475,7 @@ const HeaderOne = () => {
               {/* Menu End  */}
               {/* Header Right start */}
               <div className='header-right flex-align'>
-                {/* Search removed */}
+                <NotificationBell />
                 {isAuthenticated ? (
                   <div className='position-relative' ref={userMenuRef}>
                     {/* Desktop: icon + name in same pill */}
@@ -705,14 +709,12 @@ const HeaderOne = () => {
           </div>
         </div>
       </div>
+      <SignInModal isOpen={isSignInModalOpen} onClose={() => setIsSignInModalOpen(false)} />
     </>
   );
 };
 
 export default HeaderOne;
-
-
-
 
 
 

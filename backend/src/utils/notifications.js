@@ -85,4 +85,24 @@ const sendCourseNotification = async (courseId, { title, body, data }) => {
   }
 };
 
-module.exports = { sendCourseNotification };
+/**
+ * Send a simple in-app notification to a single user (no push).
+ * Safe to call from anywhere; errors are swallowed with a console log.
+ */
+const sendUserNotification = async (userId, { title, body, data }) => {
+  if (!userId || !title || !body) {
+    return;
+  }
+  try {
+    await Notification.create({
+      user: userId,
+      title,
+      body,
+      data: data || {},
+    });
+  } catch (error) {
+    console.error('[Notification] Failed to create user notification', { userId, error });
+  }
+};
+
+module.exports = { sendCourseNotification, sendUserNotification };

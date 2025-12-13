@@ -88,9 +88,9 @@ const OverviewTab = ({ event, overviewText }) => {
   const eventTypeLabel = event?.eventType || "Live session";
   const paragraphs = overviewText
     ? overviewText
-        .split(/\n+/)
-        .map((text) => text.trim())
-        .filter(Boolean)
+      .split(/\n+/)
+      .map((text) => text.trim())
+      .filter(Boolean)
     : [];
 
   return (
@@ -197,13 +197,16 @@ const RegistrationCard = ({ event }) => {
   const [status, setStatus] = useState({ submitting: false, success: false, error: null });
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const { dateLabel, timeLabel } = useMemo(
-    () => ({
-      dateLabel: formatDate(event?.schedule?.start),
-      timeLabel: formatTime(event?.schedule?.start, event?.schedule?.timezone),
-    }),
-    [event?.schedule?.start, event?.schedule?.timezone]
-  );
+  const { dateLabel, timeLabel, isPast } = useMemo(() => {
+    const startIso = event?.schedule?.start;
+    const now = Date.now();
+    const startMs = startIso ? new Date(startIso).getTime() : null;
+    return {
+      dateLabel: formatDate(startIso),
+      timeLabel: formatTime(startIso, event?.schedule?.timezone),
+      isPast: startMs ? now > startMs : false,
+    };
+  }, [event?.schedule?.start, event?.schedule?.timezone]);
 
   const joinUrl = event?.cta?.url?.trim();
   const liveWindow = isWithinJoinWindow(event);
@@ -307,112 +310,118 @@ const RegistrationCard = ({ event }) => {
           loading='lazy'
         />
       </div>
-      <div className='event-register-card__slot'>
+      <div className={`event-register-card__slot ${isPast ? "bg-danger-50 text-danger-600" : ""}`}>
         <i className='ph ph-info' />
         <span>
-          Upcoming slot is {dateLabel} at {timeLabel}
+          {isPast ? "This event has ended" : `Upcoming slot is ${dateLabel} at ${timeLabel}`}
         </span>
       </div>
       <form className='event-register-card__form' id='event-register-form' onSubmit={handleSubmit}>
-        <label className='form-label text-sm fw-semibold'>Name *</label>
-        <input
-          className='form-control'
-          name='name'
-          value={form.name}
-          onChange={handleChange}
-          placeholder='Enter your full name'
-          required
-        />
-        <label className='form-label text-sm fw-semibold mt-16'>Email *</label>
-        <input
-          className='form-control'
-          type='email'
-          name='email'
-          value={form.email}
-          onChange={handleChange}
-          placeholder='you@email.com'
-          required
-        />
-        <label className='form-label text-sm fw-semibold mt-16'>Phone *</label>
-        <input
-          className='form-control'
-          name='phone'
-          value={form.phone}
-          onChange={handleChange}
-          placeholder='WhatsApp number'
-          required
-        />
-        <label className='form-label text-sm fw-semibold mt-16'>State *</label>
-        <select
-          className='form-select'
-          name='state'
-          value={form.state}
-          onChange={handleChange}
-          required
-        >
-          <option value=''>Select state</option>
-          {STATE_OPTIONS.map((stateName) => (
-            <option key={stateName} value={stateName}>
-              {stateName}
-            </option>
-          ))}
-        </select>
-        <label className='form-label text-sm fw-semibold mt-16'>Qualification *</label>
-        <select
-          className='form-select'
-          name='qualification'
-          value={form.qualification}
-          onChange={handleChange}
-          required
-        >
-          <option value=''>Select qualification</option>
-          {QUALIFICATION_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-        <div className='form-check event-register-card__consent mt-16'>
+        <fieldset disabled={isPast} className='border-0 p-0 m-0'>
+          <label className='form-label text-sm fw-semibold'>Name *</label>
           <input
-            className='form-check-input'
-            type='checkbox'
-            id='event-consent'
-            name='consent'
-            checked={form.consent}
+            className='form-control'
+            name='name'
+            value={form.name}
             onChange={handleChange}
+            placeholder='Enter your full name'
             required
           />
-          <label className='form-check-label text-sm text-neutral-700' htmlFor='event-consent'>
-            I authorize Gradus Team to reach out to me with updates and notifications via
-            Email, SMS, WhatsApp and RCS.
-          </label>
-        </div>
-        {liveWindow && joinUrl ? (
-          <button
-            type='button'
-            className='btn btn-main w-100 rounded-pill mt-20'
-            onClick={handleJoinNow}
-            disabled={status.submitting}
+          <label className='form-label text-sm fw-semibold mt-16'>Email *</label>
+          <input
+            className='form-control'
+            type='email'
+            name='email'
+            value={form.email}
+            onChange={handleChange}
+            placeholder='you@email.com'
+            required
+          />
+          <label className='form-label text-sm fw-semibold mt-16'>Phone *</label>
+          <input
+            className='form-control'
+            name='phone'
+            value={form.phone}
+            onChange={handleChange}
+            placeholder='WhatsApp number'
+            required
+          />
+          <label className='form-label text-sm fw-semibold mt-16'>State *</label>
+          <select
+            className='form-select'
+            name='state'
+            value={form.state}
+            onChange={handleChange}
+            required
           >
-            {status.submitting ? "Please wait..." : "Join now"}
-          </button>
-        ) : (
-          <button
-            type='submit'
-            className='btn btn-main w-100 rounded-pill mt-20'
-            disabled={status.submitting}
+            <option value=''>Select state</option>
+            {STATE_OPTIONS.map((stateName) => (
+              <option key={stateName} value={stateName}>
+                {stateName}
+              </option>
+            ))}
+          </select>
+          <label className='form-label text-sm fw-semibold mt-16'>Qualification *</label>
+          <select
+            className='form-select'
+            name='qualification'
+            value={form.qualification}
+            onChange={handleChange}
+            required
           >
-            {status.submitting ? "Registering..." : "Register for free"}
-          </button>
-        )}
-        {status.success ? (
-          <p className='text-success-600 text-sm mt-12 mb-0'>
-            You’re in! Our team will reach out with joining details.
-          </p>
-        ) : null}
-        {status.error ? (
-          <p className='text-danger text-sm mt-12 mb-0'>{status.error}</p>
-        ) : null}
+            <option value=''>Select qualification</option>
+            {QUALIFICATION_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+          <div className='form-check event-register-card__consent mt-16'>
+            <input
+              className='form-check-input'
+              type='checkbox'
+              id='event-consent'
+              name='consent'
+              checked={form.consent}
+              onChange={handleChange}
+              required
+            />
+            <label className='form-check-label text-sm text-neutral-700' htmlFor='event-consent'>
+              I authorize Gradus Team to reach out to me with updates and notifications via
+              Email, SMS, WhatsApp and RCS.
+            </label>
+          </div>
+          {isPast ? (
+            <button type='button' className='btn btn-outline-secondary w-100 rounded-pill mt-20' disabled>
+              Registration Closed
+            </button>
+          ) : liveWindow && joinUrl ? (
+            <button
+              type='button'
+              className='btn btn-main w-100 rounded-pill mt-20'
+              onClick={handleJoinNow}
+              disabled={status.submitting}
+            >
+              {status.submitting ? "Please wait..." : "Join now"}
+            </button>
+          ) : (
+            <button
+              type='submit'
+              className='btn btn-main w-100 rounded-pill mt-20'
+              disabled={status.submitting}
+            >
+              {status.submitting ? "Registering..." : "Register for free"}
+            </button>
+          )}
+          {status.success ? (
+            <p className='text-success-600 text-sm mt-12 mb-0'>
+              You’re in! Our team will reach out with joining details.
+            </p>
+          ) : null}
+          {status.error ? (
+            <p className='text-danger text-sm mt-12 mb-0'>{status.error}</p>
+          ) : null}
+        </fieldset>
       </form>
       <p className='event-register-card__foot text-sm text-neutral-500'>
         200+ students have already registered!
@@ -496,15 +505,15 @@ const EventDetailsOne = ({ event, loading, error }) => {
                 <div className='d-flex gap-8 flex-wrap align-items-center mb-12'>
                   <span className='badge badge--category'>{event?.category || "Event"}</span>
                   {event?.badge ? <span className='badge badge--accent ms-2'>{event.badge}</span> : null}
-                {event?.eventType ? (
-                  <span className='event-type-chip'>{event.eventType}</span>
-                ) : null}
+                  {event?.eventType ? (
+                    <span className='event-type-chip'>{event.eventType}</span>
+                  ) : null}
+                </div>
+                <h1 className='display-5 fw-semibold mb-8 mt-16'>{event?.title}</h1>
+                {heroLead ? <p className='text-neutral-600 mb-24'>{heroLead}</p> : null}
+                <EventTabs active={activeTab} onChange={setActiveTab} />
+                <div className='event-tab-content'>{renderTab()}</div>
               </div>
-              <h1 className='display-5 fw-semibold mb-8 mt-16'>{event?.title}</h1>
-              {heroLead ? <p className='text-neutral-600 mb-24'>{heroLead}</p> : null}
-              <EventTabs active={activeTab} onChange={setActiveTab} />
-              <div className='event-tab-content'>{renderTab()}</div>
-            </div>
             </div>
             <div className='col-lg-4'>
               <RegistrationCard event={event} />

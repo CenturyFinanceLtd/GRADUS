@@ -7,10 +7,16 @@
   - Registers 404 and centralized error handlers
 */
 const express = require('express');
+const http = require('http');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const helmet = require('helmet');
+const xss = require('xss-clean');
+const mongoSanitize = require('express-mongo-sanitize');
+const hpp = require('hpp');
+const rateLimit = require('express-rate-limit');
 const config = require('./config/env');
 const authRoutes = require('./routes/authRoutes');
 const adminAuthRoutes = require('./routes/adminAuthRoutes');
@@ -54,7 +60,14 @@ const eventRegistrationRoutes = require('./routes/eventRegistrationRoutes');
 const partnerRoutes = require('./routes/partnerRoutes');
 const pageMetaRoutes = require('./routes/pageMetaRoutes');
 const liveRoutes = require('./live/routes');
+const assignmentRoutes = require('./routes/assignmentRoutes');
+const adminAssignmentRoutes = require('./routes/adminAssignmentRoutes');
+const resumeRoutes = require('./routes/resumeRoutes');
+const jobRoutes = require('./routes/jobRoutes');
+const adminJobRoutes = require('./routes/adminJobRoutes');
 const { blogImagesDirectory } = require('./middleware/uploadMiddleware');
+
+
 
 const app = express();
 
@@ -89,6 +102,20 @@ if (config.nodeEnv !== 'production') {
 // Core middleware: body parsers, cookies, lightweight session
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Security Middleware
+app.use(helmet()); // Set security headers
+// app.use(mongoSanitize()); // Prevent NoSQL injection
+// app.use(xss()); // Prevent XSS attacks
+// app.use(hpp()); // Prevent HTTP Param Pollution
+
+// Rate Limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 3000,
+});
+app.use('/api', limiter);
+
 app.use(cookieParser());
 const sessionOptions = {
     secret: config.sessionSecret || 'gradus_secret',
@@ -143,6 +170,7 @@ app.use('/api/admin/tickets', adminTicketRoutes);
 app.use('/api/admin/courses', adminCourseRoutes);
 app.use('/api/admin/course-details', adminCourseDetailRoutes);
 app.use('/api/admin/assessments', adminAssessmentRoutes);
+app.use('/api/admin/assignments', adminAssignmentRoutes);
 app.use('/api/admin/testimonials', adminTestimonialRoutes);
 app.use('/api/admin/expert-videos', adminExpertVideoRoutes);
 app.use('/api/admin/why-gradus-video', adminWhyGradusVideoRoutes);
@@ -154,6 +182,7 @@ app.use('/api/admin/email', adminEmailRoutes);
 app.use('/api/admin/partners', adminPartnerRoutes);
 app.use('/api/admin/page-meta', adminPageMetaRoutes);
 app.use('/api/admin/gallery', adminGalleryRoutes);
+app.use('/api/admin/jobs', adminJobRoutes);
 // Public content + services
 app.use('/api/blogs', blogRoutes);
 app.use('/api/gallery', galleryRoutes);
@@ -173,6 +202,9 @@ app.use('/api/tickets', ticketRoutes);
 app.use('/api/live', liveRoutes);
 app.use('/api/page-meta', pageMetaRoutes);
 app.use('/api/callback-requests', require('./routes/callbackRequestRoutes'));
+app.use('/api/assignments', assignmentRoutes);
+app.use('/api/resume', resumeRoutes);
+app.use('/api/jobs', jobRoutes);
 
 // 404 and error handling (must be last)
 app.use(notFound);

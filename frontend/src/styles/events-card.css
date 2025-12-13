@@ -1,7 +1,9 @@
 /* Masterclass Card Styles */
 .masterclass-card {
-    background-color: transparent;
-    /* Or a specific dark card bg if the page isn't dark enough */
+    background-color: #fff;
+    /* White background for visibility */
+    border: 1px solid #e5e7eb;
+    /* Light border */
     border-radius: 12px;
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -10,18 +12,22 @@
     height: 100%;
 }
 
+
 .masterclass-card:hover {
-    transform: translateY(-4px);
+    transform: none;
+    box-shadow: none;
 }
 
 .masterclass-card__header {
     position: relative;
     width: 100%;
-    padding-top: 56.25%;
-    /* 16:9 Aspect Ratio */
+    aspect-ratio: 16/9;
     overflow: hidden;
-    border-radius: 12px;
-    /* Rounded corners on the image itself per design */
+    background-color: #f3f4f6;
+    margin: 0;
+    /* Ensure no margin */
+    border-bottom: 1px solid #f3f4f6;
+    /* Optional separator if needed */
 }
 
 .masterclass-card__img {
@@ -31,11 +37,10 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
 }
 
 .masterclass-card:hover .masterclass-card__img {
-    transform: scale(1.05);
+    transform: none;
 }
 
 /* Overlay Elements on Image */
@@ -45,8 +50,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%);
-    /* Slight gradient for text readability */
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.6) 100%);
     pointer-events: none;
 }
 
@@ -71,7 +75,6 @@
     left: 16px;
     z-index: 2;
     pointer-events: auto;
-    /* Re-enable clicks for the button */
 }
 
 .masterclass-btn {
@@ -80,7 +83,6 @@
     justify-content: center;
     padding: 8px 16px;
     background-color: #F0BB1F;
-    /* Gold color from reference */
     color: #000;
     font-weight: 700;
     font-size: 0.875rem;
@@ -98,14 +100,15 @@
 
 /* Disabled State for Past Events */
 .masterclass-btn.is-disabled {
-    background-color: #4a4a4a;
-    color: #a0a0a0;
+    background-color: #4b5563;
+    color: #d1d5db;
     cursor: not-allowed;
 }
 
 /* Content Below Image */
 .masterclass-card__body {
-    padding: 16px 0;
+    padding: 16px;
+    /* Added horizontal padding */
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -114,8 +117,8 @@
 
 .masterclass-card__tag {
     display: inline-block;
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #a0a0a0;
+    background-color: #f3f4f6;
+    color: #4b5563;
     font-size: 0.75rem;
     padding: 4px 8px;
     border-radius: 4px;
@@ -126,8 +129,8 @@
 .masterclass-card__title {
     font-size: 1.125rem;
     font-weight: 700;
-    color: #fff;
-    /* Assuming dark mode based on reference */
+    color: #111827;
+    /* Dark text */
     margin: 0;
     line-height: 1.4;
     display: -webkit-box;
@@ -142,19 +145,19 @@
     align-items: center;
     justify-content: space-between;
     margin-top: auto;
-    padding-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #f3f4f6;
 }
 
 .masterclass-card__host {
     font-size: 0.875rem;
-    color: #9ca3af;
+    color: #6b7280;
 }
 
 .masterclass-card__price {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #4ade80;
-    /* bright green for Free */
+    color: #059669;
 }
 
 /* Responsive Grid Helper (if not handled by parent) */

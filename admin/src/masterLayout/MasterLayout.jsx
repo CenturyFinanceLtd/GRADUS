@@ -417,6 +417,24 @@ const MasterLayout = ({ children }) => {
             </li>
             <li>
               <NavLink
+                to='/assignments-admin'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='material-symbols:assignment-turned-in-outline' className='menu-icon' />
+                <span>Assignments & Grading</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to='/jobs-admin'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='material-symbols:work-outline' className='menu-icon' />
+                <span>Jobs & Applications</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
                 to='/live/classes'
                 className={(navData) => (navData.isActive ? "active-page" : "")}
               >

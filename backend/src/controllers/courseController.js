@@ -17,7 +17,7 @@ const { cloudinary } = require('../config/cloudinary');
 
 const pipeline = promisify(stream.pipeline);
 
-const PROGRESS_COMPLETION_THRESHOLD = 0.9;
+const PROGRESS_COMPLETION_THRESHOLD = 0.75;
 const resolveUserDisplayName = (user) => {
   if (!user || typeof user !== 'object') {
     return 'Unknown learner';
@@ -791,6 +791,7 @@ const mapProgressDoc = (doc) => ({
   watchedSeconds: doc.watchedSeconds,
   completionRatio: doc.completionRatio,
   completedAt: doc.completedAt,
+  attended: Boolean(doc.completedAt) || (doc.completionRatio || 0) >= PROGRESS_COMPLETION_THRESHOLD,
   updatedAt: doc.updatedAt,
 });
 
@@ -810,7 +811,12 @@ const getCourseProgress = asyncHandler(async (req, res) => {
     acc[doc.lectureId] = mapProgressDoc(doc);
     return acc;
   }, {});
-  res.json({ progress });
+  const attendance = {
+    totalLectures: docs.length,
+    attendedLectures: docs.filter((d) => (d.completedAt || (d.completionRatio || 0) >= PROGRESS_COMPLETION_THRESHOLD)).length,
+    threshold: PROGRESS_COMPLETION_THRESHOLD,
+  };
+  res.json({ progress, attendance });
 });
 
 const recordCourseProgress = asyncHandler(async (req, res) => {
@@ -1115,14 +1121,19 @@ const getCourseProgressAdmin = asyncHandler(async (req, res) => {
         role: doc.user?.role || '',
         totalLectures: 0,
         completedLectures: 0,
+        attendedLectures: 0,
         lectures: [],
       };
     }
     const ratio = doc.completionRatio || 0;
     const isCompleted = Boolean(doc.completedAt) || ratio >= PROGRESS_COMPLETION_THRESHOLD;
+    const isAttended = isCompleted;
     grouped[key].totalLectures += 1;
     if (isCompleted) {
       grouped[key].completedLectures += 1;
+    }
+    if (isAttended) {
+      grouped[key].attendedLectures += 1;
     }
     const resolvedModuleLabel = resolveModuleLabel(doc.moduleId);
     const resolvedSectionLabel = resolveSectionLabel(doc.sectionId);
@@ -1165,6 +1176,7 @@ const getCourseProgressAdmin = asyncHandler(async (req, res) => {
         sectionLabel: resolvedSectionLabel,
         learners: 0,
         completed: 0,
+        attended: 0,
         avgCompletion: 0,
       };
     }
@@ -1174,6 +1186,7 @@ const getCourseProgressAdmin = asyncHandler(async (req, res) => {
     entry.avgCompletion += ratio;
     if (doc.completedAt || ratio >= PROGRESS_COMPLETION_THRESHOLD) {
       entry.completed += 1;
+      entry.attended += 1;
     }
   });
 

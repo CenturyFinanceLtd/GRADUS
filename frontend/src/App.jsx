@@ -62,6 +62,9 @@ const GoogleAuthCallback = lazy(() => import("./pages/GoogleAuthCallback.jsx"));
 const OurCoursesPage = lazy(() => import("./pages/OurCoursesPage.jsx"));
 const LiveStudentPage = lazy(() => import("./live/LiveStudentPage.jsx"));
 
+
+const JobsPage = lazy(() => import("./pages/JobsPage.jsx"));
+
 const GradusXRedirect = () => {
   const { course } = useParams();
   return <Navigate to={`/gradus-x/${course}`} replace />;
@@ -100,14 +103,14 @@ function App() {
           <Route exact path='/contact' element={<ContactPage />} />
           <Route exact path='/course-grid-view' element={<Navigate to='/our-courses' replace />} />
           <Route exact path='/our-courses' element={<OurCoursesPage />} />
-          { /* Programmes page removed */ }
+          { /* Programmes page removed */}
           <Route exact path='/course-list-view' element={<Navigate to='/our-courses' replace />} />
           <Route exact path='/course-details' element={<CourseDetailsPage />} />
-          
+
           <Route exact path='/events' element={<EventsPage />} />
           <Route exact path='/events/:slug' element={<EventDetailsPage />} />
           <Route exact path='/event-details/:slug?' element={<EventDetailsPage />} />
-          { /* FAQ page removed */ }
+          { /* FAQ page removed */}
           <Route
             exact
             path='/my-courses'
@@ -199,6 +202,9 @@ function App() {
               </RequireAuth>
             }
           />
+
+
+          <Route exact path='/jobs' element={<JobsPage />} />
           <Route
             exact
             path='/payment'
@@ -239,4 +245,3 @@ function App() {
 }
 
 export default App;
-

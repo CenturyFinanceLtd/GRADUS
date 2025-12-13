@@ -5,7 +5,7 @@ import "../styles/events-card.css"; // Import new styles
 
 const EVENT_LIMIT = 24;
 const PAST_EVENT_LIMIT = 12;
-const EVENT_TYPE_OPTIONS = ["All", "Live now", "Seminar", "Webinar", "Job fair", "Corporate Initiatives"];
+const EVENT_TYPE_OPTIONS = ["All", "Upcoming", "Seminar", "Webinar", "Job fair", "Corporate Initiatives"];
 
 const isEventLive = (event) => {
   const startValue = event?.schedule?.start || null;
@@ -15,8 +15,7 @@ const isEventLive = (event) => {
 
   const now = Date.now();
   const startMs = start.getTime();
-  const windowAfterMs = 30 * 60 * 1000;
-  return now >= startMs && now <= startMs + windowAfterMs;
+  return now < startMs;
 };
 
 const EventTypeChips = ({ options, active, onSelect }) => (
@@ -36,7 +35,7 @@ const EventTypeChips = ({ options, active, onSelect }) => (
 
 const MasterclassCard = ({ event, isPast = false }) => {
   const eventLink = event?.slug ? `/events/${event.slug}` : "#";
-  const category = event?.category || event?.eventType || "General"; // Used for the tag
+  const category = event?.eventType || event?.category || "General"; // Prioritize eventType (Seminar, Webinar, etc.)
   const title = event?.title || "Untitled Event";
   const hostName = event?.host?.name || "Gradus Mentor";
   const priceLabel = event?.price?.isFree ? "Free" : (event?.price?.amount ? `₹${event.price.amount}` : "Free");
@@ -60,10 +59,7 @@ const MasterclassCard = ({ event, isPast = false }) => {
         <div className="masterclass-card__overlay" />
 
         {/* Optional Logo/Brand */}
-        <div className="masterclass-card__brand">
-          {/* Add Icon/Logo here if needed */}
-          <span>Gradus</span>
-        </div>
+
 
         {/* Floating CTA Button */}
         <div className="masterclass-card__cta-overlay">
@@ -112,7 +108,7 @@ const EventsAllOne = () => {
       setLoading(true);
       setError(null);
       try {
-        const isLiveFilter = eventType === "Live now";
+        const isLiveFilter = eventType === "Upcoming";
         const eventTypeFilter = eventType === "All" || isLiveFilter ? undefined : eventType;
         const [upcomingResponse, pastResponse] = await Promise.all([
           fetchEvents({
@@ -147,7 +143,7 @@ const EventsAllOne = () => {
   }, [eventType]);
 
   const filterByType = (list) => {
-    if (eventType === "All" || eventType === "Live now") return list;
+    if (eventType === "All" || eventType === "Upcoming") return list;
     return list.filter(
       (ev) => (ev?.eventType || "").toLowerCase() === eventType.toLowerCase()
     );
@@ -155,7 +151,7 @@ const EventsAllOne = () => {
 
   const visibleUpcomingEvents = useMemo(() => {
     const filtered = filterByType(events);
-    if (eventType === "Live now") {
+    if (eventType === "Upcoming") {
       return filtered.filter(isEventLive);
     }
     return filtered;
@@ -188,42 +184,46 @@ const EventsAllOne = () => {
           <div className='text-center py-5'>Loading events...</div>
         ) : (
           <>
-            <div className='events-modern__section mb-60'>
-              <div className='events-modern__section-head mb-24'>
-                <h2 className='events-modern__section-title'>Upcoming</h2>
-                {eventType === "Live now" ? (
-                  <span className='events-modern__section-note ms-2'> - Showing sessions starting now</span>
-                ) : null}
+            {(visibleUpcomingEvents.length > 0 || eventType === "Upcoming") && (
+              <div className='events-modern__section mb-60'>
+                <div className='events-modern__section-head mb-24'>
+                  <h2 className='events-modern__section-title'>Upcoming</h2>
+                  {eventType === "Upcoming" ? (
+                    <span className='events-modern__section-note ms-2'> - Showing sessions starting now</span>
+                  ) : null}
+                </div>
+                {visibleUpcomingEvents.length === 0 ? (
+                  <div className='text-center py-32 text-neutral-600 fw-semibold'>
+                    No upcoming event is scheduled yet
+                  </div>
+                ) : (
+                  <div className='masterclass-grid'>
+                    {visibleUpcomingEvents.map((event) => (
+                      <MasterclassCard key={event.id} event={event} />
+                    ))}
+                  </div>
+                )}
               </div>
-              {visibleUpcomingEvents.length === 0 ? (
-                <div className='text-center py-32 text-neutral-600 fw-semibold'>
-                  More events are being scheduled. Check back soon.
-                </div>
-              ) : (
-                <div className='masterclass-grid'>
-                  {visibleUpcomingEvents.map((event) => (
-                    <MasterclassCard key={event.id} event={event} />
-                  ))}
-                </div>
-              )}
-            </div>
+            )}
 
-            <div className='events-modern__section'>
-              <div className='events-modern__section-head mb-24'>
-                <h2 className='events-modern__section-title'>Past events</h2>
+            {eventType !== "Upcoming" && (
+              <div className='events-modern__section'>
+                <div className='events-modern__section-head mb-24'>
+                  <h2 className='events-modern__section-title'>Past events</h2>
+                </div>
+                {visiblePastEvents.length === 0 ? (
+                  <div className='text-center py-24 text-neutral-600 fw-semibold'>
+                    No past events match this filter yet.
+                  </div>
+                ) : (
+                  <div className='masterclass-grid'>
+                    {visiblePastEvents.map((event) => (
+                      <MasterclassCard key={`past-${event.id}`} event={event} isPast={true} />
+                    ))}
+                  </div>
+                )}
               </div>
-              {visiblePastEvents.length === 0 ? (
-                <div className='text-center py-24 text-neutral-600 fw-semibold'>
-                  No past events match this filter yet.
-                </div>
-              ) : (
-                <div className='masterclass-grid'>
-                  {visiblePastEvents.map((event) => (
-                    <MasterclassCard key={`past-${event.id}`} event={event} isPast={true} />
-                  ))}
-                </div>
-              )}
-            </div>
+            )}
           </>
         )}
       </div>

@@ -78,6 +78,8 @@ const TypographyPage = lazy(() => import("./pages/TypographyPage"));
 const UsersGridPage = lazy(() => import("./pages/UsersGridPage"));
 const UsersListPage = lazy(() => import("./pages/UsersListPage"));
 const WebsiteUsersPage = lazy(() => import("./pages/WebsiteUsersPage"));
+const AdminAssignmentsPage = lazy(() => import("./pages/AdminAssignmentsPage"));
+const AdminJobsPage = lazy(() => import("./pages/AdminJobsPage"));
 const ViewDetailsPage = lazy(() => import("./pages/ViewDetailsPage"));
 const VideoGeneratorPage = lazy(() => import("./pages/VideoGeneratorPage"));
 const VideosPage = lazy(() => import("./pages/VideosPage"));
@@ -133,6 +135,8 @@ function App() {
           <Route exact path='/course-assessments' element={<CourseAssessmentsPage />} />
           <Route exact path='/course-progress' element={<CourseProgressPage />} />
           <Route exact path='/course-enrollments' element={<CourseEnrollmentsPage />} />
+          <Route exact path='/assignments-admin' element={<AdminAssignmentsPage />} />
+          <Route exact path='/jobs-admin' element={<AdminJobsPage />} />
           <Route
             path='/customize-courses/:courseKey/detailed-course-data'
             element={<CourseDetailDataPage />}
