@@ -1334,7 +1334,7 @@ const validateRawCourse = (input) => {
     'name','programme','programmeSlug','courseSlug','slug',
     'hero','stats','aboutProgram','learn','skills','details','capstone',
     'careerOutcomes','toolsFrameworks','modules','instructors','offeredBy',
-    'image','media'
+    'image','media','targetAudience','prereqsList'
   ]);
 
   const unexpected = Object.keys(input || {}).filter((k) => !allowRoot.has(k));
@@ -1465,6 +1465,8 @@ const validateRawCourse = (input) => {
   out.skills = strArr(input.skills || [], 'skills');
   out.careerOutcomes = strArr(input.careerOutcomes || [], 'careerOutcomes');
   out.toolsFrameworks = strArr(input.toolsFrameworks || [], 'toolsFrameworks');
+  out.targetAudience = strArr(input.targetAudience || [], 'targetAudience');
+  out.prereqsList = strArr(input.prereqsList || [], 'prereqsList');
 
   // details
   const detailsAllowed = new Set(['effort','language','prerequisites']);
@@ -1603,7 +1605,8 @@ const getRawCourseBySlug = asyncHandler(async (req, res) => {
   const allowRoot = new Set([
     'name','programme','programmeSlug','courseSlug','slug',
     'hero','stats','aboutProgram','learn','skills','details','capstone',
-    'careerOutcomes','toolsFrameworks','modules','instructors','offeredBy','image','media'
+    'careerOutcomes','toolsFrameworks','modules','instructors','offeredBy','image','media',
+    'targetAudience','prereqsList'
   ]);
   const sanitized = {};
   for (const key of allowRoot) {

@@ -81,10 +81,10 @@ function ProgrammeCoursePage() {
           // Prefer new "modules" shape. Only fall back to legacy "weeks" if it has items.
           const weeksFromModel = (Array.isArray(c.weeks) && c.weeks.length)
             ? c.weeks.map((w, idx) => ({
-                title: w?.title || `Module ${idx + 1}`,
-                weeksLabel: w?.hours || `Weeks ${idx + 1}`,
-                topics: Array.isArray(w?.points) ? w.points : [],
-              }))
+              title: w?.title || `Module ${idx + 1}`,
+              weeksLabel: w?.hours || `Weeks ${idx + 1}`,
+              topics: Array.isArray(w?.points) ? w.points : [],
+            }))
             : null;
           const toArray = (val) => {
             if (Array.isArray(val)) return val;
@@ -93,19 +93,19 @@ function ProgrammeCoursePage() {
           };
           const weeksFromModules = Array.isArray(c.modules)
             ? c.modules.map((m, idx) => ({
-                title: m?.title || `Module ${idx + 1}`,
-                weeksLabel: m?.weeksLabel || m?.hours || `Weeks ${idx + 1}`,
-                topics: toArray(m?.topics?.length !== undefined ? m.topics : (Array.isArray(m?.points) ? m.points : m?.topics)),
-                outcome: m?.outcome || '',
-                extras: m?.extras
-                  ? {
-                      projectTitle: m.extras.projectTitle || '',
-                      projectDescription: m.extras.projectDescription || '',
-                      examples: toArray(m.extras.examples),
-                      deliverables: toArray(m.extras.deliverables),
-                    }
-                  : undefined,
-              }))
+              title: m?.title || `Module ${idx + 1}`,
+              weeksLabel: m?.weeksLabel || m?.hours || `Weeks ${idx + 1}`,
+              topics: toArray(m?.topics?.length !== undefined ? m.topics : (Array.isArray(m?.points) ? m.points : m?.topics)),
+              outcome: m?.outcome || '',
+              extras: m?.extras
+                ? {
+                  projectTitle: m.extras.projectTitle || '',
+                  projectDescription: m.extras.projectDescription || '',
+                  examples: toArray(m.extras.examples),
+                  deliverables: toArray(m.extras.deliverables),
+                }
+                : undefined,
+            }))
             : null;
           const modules = weeksFromModules || weeksFromModel || [];
 
@@ -122,6 +122,8 @@ function ProgrammeCoursePage() {
           const toolsFrameworks = Array.isArray(c.toolsFrameworks) ? c.toolsFrameworks : [];
           const instructors = Array.isArray(c.instructors) ? c.instructors : [];
           const offeredBy = c.offeredBy && typeof c.offeredBy === 'object' ? c.offeredBy : { name: 'Gradus India', subtitle: 'A subsidiary of Century Finance Limited', logo: '/assets/images/cfl.png' };
+          const targetAudience = Array.isArray(c.targetAudience) && c.targetAudience.length ? c.targetAudience : [];
+          const prereqsList = Array.isArray(c.prereqsList) && c.prereqsList.length ? c.prereqsList : [];
 
           if (!cancelled) setData({
             name: c.name || '',
@@ -137,6 +139,8 @@ function ProgrammeCoursePage() {
             modules,
             instructors,
             offeredBy,
+            targetAudience,
+            prereqsList,
             isEnrolled: Boolean(c.isEnrolled),
           });
         } else {
@@ -162,8 +166,8 @@ function ProgrammeCoursePage() {
     const v = Number(data?.stats?.modules);
     return Number.isFinite(v) && v > 0 ? v : 5;
   }, [data?.modules, data?.stats?.modules]);
-  const learnLeft = useMemo(() => { const l = data?.learn || []; return l.slice(0, Math.ceil(l.length/2)); }, [data?.learn]);
-  const learnRight = useMemo(() => { const l = data?.learn || []; return l.slice(Math.ceil(l.length/2)); }, [data?.learn]);
+  const learnLeft = useMemo(() => { const l = data?.learn || []; return l.slice(0, Math.ceil(l.length / 2)); }, [data?.learn]);
+  const learnRight = useMemo(() => { const l = data?.learn || []; return l.slice(Math.ceil(l.length / 2)); }, [data?.learn]);
 
   if (loading) {
     return (
@@ -251,7 +255,7 @@ function ProgrammeCoursePage() {
       <HeaderOne />
 
       <section className='py-40 bg-main-25 border-bottom border-neutral-40'>
-          <div className='container padding-mob-5'>
+        <div className='container padding-mob-5'>
           <div className='d-flex flex-wrap align-items-start justify-content-between gap-16'>
             <div className='flex-grow-1 min-w-0'>
               {(() => {
@@ -282,7 +286,7 @@ function ProgrammeCoursePage() {
                   </nav>
                 );
               })()}
-              <h1 className='mb-12 text-neutral-900'>{data?.name || ((course || '').split('-').map((w)=>w.charAt(0).toUpperCase()+w.slice(1)).join(' '))}</h1>
+              <h1 className='mb-12 text-neutral-900'>{data?.name || ((course || '').split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '))}</h1>
               <p className='text-neutral-600 mb-0'>{data?.hero?.subtitle}</p>
             </div>
             <div className='d-flex flex-column gap-12'>
@@ -422,26 +426,30 @@ function ProgrammeCoursePage() {
                 </div>
 
                 <div className='mt-24 row g-4'>
-                  <div className='col-md-6'>
-                    <div className='rounded-12 prt-0-bn border border-neutral-30 p-16 h-100 bg-neutral-10'>
-                      <h6 className='text-neutral-900 fw-semibold mb-10'>Who this is for</h6>
-                      <ul className='list-unstyled d-grid gap-10 m-0 text-neutral-700'>
-                        <li>Engineers and product folks upskilling into agentic AI builds</li>
-                        <li>Developers shifting from traditional backends to LLM/RAG stacks</li>
-                        <li>Professionals shipping deployable AI features end-to-end</li>
-                      </ul>
+                  {data?.targetAudience?.length > 0 && (
+                    <div className='col-md-6'>
+                      <div className='rounded-12 prt-0-bn border border-neutral-30 p-16 h-100 bg-neutral-10'>
+                        <h6 className='text-neutral-900 fw-semibold mb-10'>Who this is for</h6>
+                        <ul className='list-unstyled d-grid gap-10 m-0 text-neutral-700'>
+                          {data.targetAudience.map((item, i) => (
+                            <li key={`audience-${i}`}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                  </div>
-                  <div className='col-md-6'>
-                    <div className='rounded-12 prt-0-bn border border-neutral-30 p-16 h-100 bg-neutral-10'>
-                      <h6 className='text-neutral-900 fw-semibold mb-10'>Prerequisites</h6>
-                      <ul className='list-unstyled d-grid gap-10 m-0 text-neutral-700'>
-                        <li>{data?.details?.prerequisites || 'Comfort with Python and APIs'}</li>
-                        <li>Familiarity with Git and CLI workflows</li>
-                        <li>Ability to dedicate {effortLabel} for the cohort</li>
-                      </ul>
+                  )}
+                  {data?.prereqsList?.length > 0 && (
+                    <div className='col-md-6'>
+                      <div className='rounded-12 prt-0-bn border border-neutral-30 p-16 h-100 bg-neutral-10'>
+                        <h6 className='text-neutral-900 fw-semibold mb-10'>Prerequisites</h6>
+                        <ul className='list-unstyled d-grid gap-10 m-0 text-neutral-700'>
+                          {data.prereqsList.map((item, i) => (
+                            <li key={`prereq-${i}`}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
 

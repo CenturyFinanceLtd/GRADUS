@@ -99,6 +99,7 @@ const DEFAULT_ADMIN_INBOXES = [
   { email: 'no-reply@gradusindia.in', displayName: 'No Reply' },
   { email: 'hr@gradusindia.in', displayName: 'HR' },
   { email: 'hrishant.singh@gradusindia.in', displayName: 'HRishant' },
+  { email: 'deepak.kumar@gradusindia.in', displayName: 'Deepak Kumar' },
 ];
 
 const parseAdminMailboxes = (rawValue) => {

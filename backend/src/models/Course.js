@@ -180,6 +180,8 @@ const courseSchema = new mongoose.Schema(
     },
     aboutProgram: { type: [String], default: [] },
     learn: { type: [String], default: [] },
+    targetAudience: { type: [String], default: [] },
+    prereqsList: { type: [String], default: [] },
     modules: { type: [moduleSchema], default: [] },
     instructors: { type: [instructorSchema], default: [] },
     offeredBy: {
