@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import useAxiosPrivate from "../hook/useAxiosPrivate";
+import apiClient from "../services/apiClient";
 
 const GalleryLayer = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const axiosPrivate = useAxiosPrivate();
   const [activeTab, setActiveTab] = useState("All");
   const [uploading, setUploading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -16,8 +15,8 @@ const GalleryLayer = () => {
   const fetchItems = async () => {
     try {
       setLoading(true);
-      const response = await axiosPrivate.get("/admin/gallery");
-      setItems(response.data.items || []);
+      const response = await apiClient("/admin/gallery");
+      setItems(response.items || []);
     } catch (error) {
       console.error("Error fetching gallery items:", error);
       toast.error("Failed to load gallery items");
@@ -33,7 +32,7 @@ const GalleryLayer = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this image?")) return;
     try {
-      await axiosPrivate.delete(`/admin/gallery/${id}`);
+      await apiClient(`/admin/gallery/${id}`, { method: "DELETE" });
       toast.success("Image deleted successfully");
       setItems(items.filter((item) => item._id !== id));
     } catch (error) {
@@ -53,13 +52,14 @@ const GalleryLayer = () => {
         const formData = new FormData();
         formData.append("file", data.image[0]);
 
-        const uploadRes = await axiosPrivate.post("/admin/uploads/image", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
+        const uploadRes = await apiClient("/admin/uploads/image", {
+          method: "POST",
+          data: formData,
         });
 
-        if (uploadRes.data && uploadRes.data.item) {
-          imageUrl = uploadRes.data.item.url;
-          publicId = uploadRes.data.item.publicId;
+        if (uploadRes.item) {
+          imageUrl = uploadRes.item.url;
+          publicId = uploadRes.item.publicId;
         }
       }
 
@@ -69,11 +69,14 @@ const GalleryLayer = () => {
         return;
       }
 
-      await axiosPrivate.post("/admin/gallery", {
-        title: data.title,
-        category: data.category,
-        imageUrl,
-        publicId
+      await apiClient("/admin/gallery", {
+        method: "POST",
+        data: {
+          title: data.title,
+          category: data.category,
+          imageUrl,
+          publicId
+        }
       });
 
       toast.success("Gallery item added successfully");
