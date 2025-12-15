@@ -7,6 +7,7 @@
   - Registers 404 and centralized error handlers
 */
 const express = require('express');
+const path = require('path');
 const http = require('http');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -205,6 +206,18 @@ app.use('/api/callback-requests', require('./routes/callbackRequestRoutes'));
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/resume', resumeRoutes);
 app.use('/api/jobs', jobRoutes);
+
+// Serve Static Frontend Files (Must be after API routes)
+const frontendPath = path.join(__dirname, '../../frontend/dist');
+app.use(express.static(frontendPath));
+
+// SPA Fallback: Serve index.html for any unknown route NOT starting with /api
+app.get(/.*/, (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+        return next();
+    }
+    res.sendFile(path.join(frontendPath, 'index.html'));
+});
 
 // 404 and error handling (must be last)
 app.use(notFound);
