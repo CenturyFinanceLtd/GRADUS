@@ -1,49 +1,88 @@
-name: Deploy CI/CD
+name: Deploy to VPS
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+    paths:
+      - "admin/**"
+      - "frontend/**"
+      - "backend/**"
+      - "shared/**"
 
 jobs:
-  build-and-deploy:
+  detect-changes:
     runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      frontend-pkg: ${{ steps.filter.outputs.frontend-pkg }}
+      admin: ${{ steps.filter.outputs.admin }}
+      admin-pkg: ${{ steps.filter.outputs.admin-pkg }}
+      backend: ${{ steps.filter.outputs.backend }}
+      backend-pkg: ${{ steps.filter.outputs.backend-pkg }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+            frontend-pkg:
+              - 'frontend/package.json'
+            admin:
+              - 'admin/**'
+            admin-pkg:
+              - 'admin/package.json'
+            backend:
+              - 'backend/**'
+            backend-pkg:
+              - 'backend/package.json'
+
+  build-and-deploy:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    if: needs.detect-changes.outputs.frontend == 'true' || needs.detect-changes.outputs.admin == 'true' || needs.detect-changes.outputs.backend == 'true'
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # --- FRONTEND BUILD ---
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
 
+      # --- FRONTEND ---
       - name: Install Frontend Dependencies
+        if: needs.detect-changes.outputs.frontend == 'true' && needs.detect-changes.outputs.frontend-pkg == 'true'
         run: |
           cd frontend
           npm install
 
       - name: Build Frontend
+        if: needs.detect-changes.outputs.frontend == 'true'
         run: |
           cd frontend
+          npm install
           npm run build
 
-      # --- DEPLOYMENT ---
-      
-      # 1. Prepare Target Directory
-      - name: Prepare VPS Directories
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT }}
-          script: |
-            mkdir -p /var/www/gradus/client
-            mkdir -p /var/www/gradus/server
+      # --- ADMIN ---
+      - name: Install Admin Dependencies
+        if: needs.detect-changes.outputs.admin == 'true' && needs.detect-changes.outputs.admin-pkg == 'true'
+        run: |
+          cd admin
+          npm install
 
-      # 2. Upload Frontend
+      - name: Build Admin
+        if: needs.detect-changes.outputs.admin == 'true'
+        run: |
+          cd admin
+          npm install
+          npm run build
+
+      # --- DEPLOY FRONTEND ---
       - name: Deploy Frontend
+        if: needs.detect-changes.outputs.frontend == 'true'
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -51,11 +90,25 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT }}
           source: "frontend/dist/*"
-          target: "/var/www/gradus/client"
+          target: "/var/www/GRADUS/frontend"
           strip_components: 2
 
-      # 3. Upload Backend
+      # --- DEPLOY ADMIN ---
+      - name: Deploy Admin
+        if: needs.detect-changes.outputs.admin == 'true'
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          source: "admin/dist/*"
+          target: "/var/www/GRADUS/admin"
+          strip_components: 2
+
+      # --- DEPLOY BACKEND ---
       - name: Deploy Backend
+        if: needs.detect-changes.outputs.backend == 'true'
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -63,11 +116,12 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT }}
           source: "backend/*"
-          target: "/var/www/gradus/server"
+          target: "/var/www/GRADUS/backend"
           strip_components: 1
 
-      # 4. Finalize & Restart
-      - name: Restart Services
+      # --- RESTART BACKEND ---
+      - name: Restart Backend Services
+        if: needs.detect-changes.outputs.backend == 'true'
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -75,11 +129,8 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT }}
           script: |
-            # Make deploy script executable
-            chmod +x /var/www/gradus/server/scripts/deploy.sh
-            
-            # Execute backend deploy
-            /var/www/gradus/server/scripts/deploy.sh
-            
-            # Optional: Reload Nginx if configured
-            # sudo systemctl reload nginx
+            cd /var/www/GRADUS/backend
+            if [ "${{ needs.detect-changes.outputs.backend-pkg }}" == "true" ]; then
+              npm install
+            fi
+            pm2 restart all
