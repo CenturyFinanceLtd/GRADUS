@@ -33,7 +33,14 @@ jobs:
         cd backend
         npm install --legacy-peer-deps
 
-    # 5. Deploy to VPS (Only on main branch push)
+    # 5. Build Admin (Test)
+    - name: Admin - Install & Build
+      run: |
+        cd admin
+        npm install --legacy-peer-deps
+        npm run build
+
+    # 6. Deploy to VPS (Only on main branch push)
     - name: Deploy via SSH
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       uses: appleboy/ssh-action@v1.0.3
@@ -56,6 +63,12 @@ jobs:
 
           # Frontend: Install & Build
           cd frontend
+          npm install --legacy-peer-deps
+          npm run build
+          cd ..
+
+          # Admin: Install & Build
+          cd admin
           npm install --legacy-peer-deps
           npm run build
           cd ..
