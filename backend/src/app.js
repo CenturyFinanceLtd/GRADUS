@@ -71,6 +71,7 @@ const { blogImagesDirectory } = require('./middleware/uploadMiddleware');
 
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (Nginx)
 
 // Allowed CORS methods/headers and a strict origin allow‑list
 const corsOptions = {
