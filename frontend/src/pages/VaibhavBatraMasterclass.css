@@ -1,0 +1,26 @@
+/* Custom scrollbar to match clean aesthetic */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.tab-active {
+  color: #0056d2;
+  border-bottom: 2px solid #0056d2;
+}
+.tab-inactive {
+  color: #5a5a5a;
+  border-bottom: 2px solid transparent;
+}
+.tab-inactive:hover {
+  color: #1c1c1c;
+}
