@@ -1,0 +1,49 @@
+name: CI - Build & Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        
+    - name: Install Frontend Dependencies
+      run: |
+        cd frontend
+        npm ci --legacy-peer-deps
+
+    - name: Build Frontend
+      run: |
+        cd frontend
+        npm run build
+
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        
+    - name: Install Backend Dependencies
+      run: |
+        cd backend
+        npm ci --legacy-peer-deps
+    
+    # Add test scripts here if available
+    # - name: Run Tests
+    #   run: |
+    #     cd backend
+    #     npm test
