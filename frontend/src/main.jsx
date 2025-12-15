@@ -23,6 +23,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import "./globals.css";
+import "./styles/events-card.css";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
