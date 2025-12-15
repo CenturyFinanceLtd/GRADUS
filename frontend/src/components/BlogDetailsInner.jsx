@@ -32,7 +32,7 @@ const formatCommentDate = (value) => {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
-const BlogDetailsInner = ({ onBlogLoaded = null }) => {
+const BlogDetailsInner = ({ onBlogLoaded }) => {
   const { slug } = useParams();
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -294,12 +294,12 @@ const BlogDetailsInner = ({ onBlogLoaded = null }) => {
       setBlog((prev) =>
         prev
           ? {
-            ...prev,
-            meta: {
-              ...(prev.meta || {}),
-              comments: (prev.meta?.comments || 0) + 1,
-            },
-          }
+              ...prev,
+              meta: {
+                ...(prev.meta || {}),
+                comments: (prev.meta?.comments || 0) + 1,
+              },
+            }
           : prev
       );
     } catch (err) {
@@ -374,8 +374,9 @@ const BlogDetailsInner = ({ onBlogLoaded = null }) => {
   const renderComment = (comment, depth = 0) => (
     <div
       key={comment.id}
-      className={`comment-item px-32 py-20 align-items-start border-bottom border-neutral-40 blog-details__comment-item ${depth > 0 ? 'comment-item--reply' : ''
-        }`}
+      className={`comment-item px-32 py-20 align-items-start border-bottom border-neutral-40 blog-details__comment-item ${
+        depth > 0 ? 'comment-item--reply' : ''
+      }`}
     >
       <div className='comment-avatar rounded-circle bg-main-50 text-main-600 d-flex align-items-center justify-content-center'>
         <i className='ph ph-user' />
@@ -643,6 +644,8 @@ const BlogDetailsInner = ({ onBlogLoaded = null }) => {
   );
 };
 
-
+BlogDetailsInner.defaultProps = {
+  onBlogLoaded: null,
+};
 
 export default BlogDetailsInner;
