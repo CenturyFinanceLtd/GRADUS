@@ -49,8 +49,10 @@ jobs:
           # Navigate to project
           cd /var/www/GRADUS
 
-          # Pull latest code
-          git pull origin main
+          # Ensure a clean tree and pull latest code (avoid autostash conflicts)
+          git fetch origin main
+          git reset --hard origin/main
+          git clean -fd
 
           # Frontend: Install & Build
           cd frontend
