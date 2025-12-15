@@ -1422,10 +1422,9 @@ const MasterLayout = ({ children }) => {
                     type='button'
                     data-bs-toggle='dropdown'
                   >
-                    <img
-                      src='assets/images/user.png'
-                      alt='image_user'
-                      className='w-40-px h-40-px object-fit-cover rounded-circle'
+                    <Icon
+                      icon='solar:user-circle-bold'
+                      className='w-40-px h-40-px text-secondary-light'
                     />
                   </button>
                   <div className='dropdown-menu to-top dropdown-menu-sm'>
