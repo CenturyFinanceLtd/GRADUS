@@ -77,6 +77,9 @@ const BlogGridInner = () => {
       const date = publishedDate ? new Date(publishedDate) : null;
       const day = date ? String(date.getDate()).padStart(2, "0") : "--";
       const month = date ? date.toLocaleString("en-US", { month: "short" }).toUpperCase() : "";
+      const dateString = date
+        ? date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+        : "";
       const featuredImage = blog.featuredImage
         ? blog.featuredImage.startsWith("http")
           ? blog.featuredImage
@@ -84,23 +87,24 @@ const BlogGridInner = () => {
         : FALLBACK_IMAGE;
       const excerpt = blog.excerpt || blog.content?.replace(/<[^>]+>/g, "").slice(0, 150) || "";
 
-     return {
-       id: blog._id,
-       slug: blog.slug,
-       title: blog.title,
-       author: blog.author || "Admin",
+      return {
+        id: blog._id,
+        slug: blog.slug,
+        title: blog.title,
+        author: blog.author || "Admin",
         views: blog.meta?.views ?? 0,
         comments: blog.meta?.comments ?? 0,
         excerpt,
         day,
         month,
+        dateString,
         featuredImage,
       };
     });
   }, [blogs]);
 
   return (
-    <div className='blog-page-section py-120'>
+    <div className='blog-page-section pt-60 pb-120'>
       <div className='container'>
         <div className='flex-between gap-16 flex-wrap mb-40'>
           <span className='text-neutral-500'>
@@ -146,60 +150,28 @@ const BlogGridInner = () => {
           <div className='row gy-4'>
             {formattedBlogs.map((blog) => (
               <div key={blog.id} className='col-lg-4 col-sm-6'>
-                <div className='scale-hover-item bg-main-25 rounded-16 p-12 h-100 border border-neutral-30'>
+                <div className='blog-item bg-white rounded-16 p-12 h-100 border border-neutral-30 hover-shadow-lg transition-all-300 hover-translate-y--5'>
                   <div className='course-item__thumb rounded-12 overflow-hidden position-relative'>
                     <Link to={`/blog/${blog.slug}`} className='w-100 h-100 d-block'>
                       <img
                         src={blog.featuredImage}
                         alt={blog.title}
-                        className=' rounded-12 cover-img transition-2'
+                        className='rounded-12 cover-img transition-all-500 hover-scale-105'
                       />
                     </Link>
-                    <div className='position-absolute inset-inline-end-0 inset-block-end-0 me-16 mb-16 py-12 px-24 rounded-8 bg-main-three-600 text-white fw-medium text-center'>
-                      <h3 className='mb-0 text-white fw-medium'>{blog.day}</h3>
-                      {blog.month}
-                    </div>
                   </div>
-                  <div className='pt-32 pb-24 px-16 position-relative'>
-                    <h4 className='mb-28'>
+                  <div className='p-24 position-relative'>
+                    <h4 className='mb-16'>
                       <Link
                         to={`/blog/${blog.slug}`}
-                        className='link text-line-2 text-start text-main-600 hover-text-decoration-underline'
+                        className='link text-line-2 text-start text-neutral-700 hover-text-main-600 fw-bold'
                       >
                         {blog.title}
                       </Link>
                     </h4>
-                    <p className='text-neutral-500 text-sm mb-20'>{blog.excerpt}</p>
-                    <div className='flex-align gap-14 flex-wrap my-20'>
-                      <div className='flex-align gap-8'>
-                        <span className='text-neutral-500 text-2xl d-flex'>
-                          <i className='ph ph-user-circle' />
-                        </span>
-                        <span className='text-neutral-500 text-lg'>By {blog.author}</span>
-                      </div>
-                      <span className='w-8 h-8 bg-neutral-100 rounded-circle' />
-                      <div className='flex-align gap-8'>
-                        <span className='text-neutral-500 text-2xl d-flex'>
-                          <i className='ph-bold ph-eye' />
-                        </span>
-                        <span className='text-neutral-500 text-lg'>{blog.views}</span>
-                      </div>
-                      <span className='w-8 h-8 bg-neutral-100 rounded-circle' />
-                      <div className='flex-align gap-8'>
-                        <span className='text-neutral-500 text-2xl d-flex'>
-                          <i className='ph ph-chat-dots' />
-                        </span>
-                        <span className='text-neutral-500 text-lg'>{blog.comments}</span>
-                      </div>
-                    </div>
-                    <div className='flex-between gap-8 pt-24 border-top border-neutral-50 mt-28 border-dashed border-0'>
-                      <Link
-                        to={`/blog/${blog.slug}`}
-                        className='flex-align gap-8 text-main-600 hover-text-decoration-underline transition-1 fw-semibold'
-                      >
-                        Read More
-                        <i className='ph ph-arrow-right' />
-                      </Link>
+                    <div className='flex-between gap-8 pt-12 border-top border-neutral-50 mt-12 border-dashed border-0'>
+                      <span className='text-neutral-500 text-sm fw-medium'>By {blog.author}</span>
+                      <span className='text-neutral-500 text-sm'>{blog.dateString}</span>
                     </div>
                   </div>
                 </div>
