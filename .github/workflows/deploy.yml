@@ -57,13 +57,13 @@ jobs:
         if: needs.detect-changes.outputs.frontend == 'true' && needs.detect-changes.outputs.frontend-pkg == 'true'
         run: |
           cd frontend
-          npm install
+          npm install --legacy-peer-deps
 
       - name: Build Frontend
         if: needs.detect-changes.outputs.frontend == 'true'
         run: |
           cd frontend
-          npm install
+          npm install --legacy-peer-deps
           npm run build
 
       # --- ADMIN ---
@@ -71,13 +71,13 @@ jobs:
         if: needs.detect-changes.outputs.admin == 'true' && needs.detect-changes.outputs.admin-pkg == 'true'
         run: |
           cd admin
-          npm install
+          npm install --legacy-peer-deps
 
       - name: Build Admin
         if: needs.detect-changes.outputs.admin == 'true'
         run: |
           cd admin
-          npm install
+          npm install --legacy-peer-deps
           npm run build
 
       # --- DEPLOY FRONTEND ---
