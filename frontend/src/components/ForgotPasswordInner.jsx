@@ -91,7 +91,7 @@ const ForgotPasswordInner = () => {
       } else {
         setInfo(
           response.message ||
-            "If the email matches an account, we have sent a verification code."
+          "If the email matches an account, we have sent a verification code."
         );
       }
     } catch (err) {
@@ -204,7 +204,7 @@ const ForgotPasswordInner = () => {
   };
 
   return (
-    <div className='account py-120 position-relative'>
+    <div className='account pt-60 pb-120 position-relative'>
       <div className='container'>
         <div className='row gy-4 align-items-center'>
           <div className='col-lg-6'>
@@ -304,8 +304,8 @@ const ForgotPasswordInner = () => {
                       {resendLoading
                         ? "Resending..."
                         : resendCooldown
-                        ? `Resend in ${resendCooldown}s`
-                        : "Resend Code"}
+                          ? `Resend in ${resendCooldown}s`
+                          : "Resend Code"}
                     </button>
                   </div>
                   <div className='mt-40'>
