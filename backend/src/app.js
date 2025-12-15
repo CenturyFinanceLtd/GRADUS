@@ -210,14 +210,24 @@ app.use('/api/jobs', jobRoutes);
 
 // Serve Static Frontend Files (Must be after API routes)
 const frontendPath = path.join(__dirname, '../../frontend/dist');
-app.use(express.static(frontendPath));
+
+// Serve built assets with aggressive caching; index will be handled separately
+app.use(
+  express.static(frontendPath, {
+    maxAge: '1y',
+    index: false,
+    immutable: true,
+  })
+);
 
 // SPA Fallback: Serve index.html for any unknown route NOT starting with /api
 app.get(/.*/, (req, res, next) => {
-    if (req.path.startsWith('/api')) {
-        return next();
-    }
-    res.sendFile(path.join(frontendPath, 'index.html'));
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  // Always serve the latest HTML to avoid stale chunk references in browsers/CDNs
+  res.set('Cache-Control', 'no-store');
+  res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
 // 404 and error handling (must be last)

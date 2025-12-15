@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchEvents } from "../services/eventService";
-import "../styles/events-card.css"; // Import new styles
+
 
 const EVENT_LIMIT = 24;
 const PAST_EVENT_LIMIT = 12;

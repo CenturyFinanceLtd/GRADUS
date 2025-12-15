@@ -1,0 +1,70 @@
+name: Deploy Full Stack
+# Triggering new build...
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    # 1. Checkout Code
+    - uses: actions/checkout@v4
+
+    # 2. Setup Node.js
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+
+    # 3. Build Frontend (Test)
+    - name: Frontned - Install & Build
+      run: |
+        cd frontend
+        npm install --legacy-peer-deps
+        npm run build
+
+    # 4. Build Backend (Test)
+    - name: Backend - Install
+      run: |
+        cd backend
+        npm install --legacy-peer-deps
+
+    # 5. Deploy to VPS (Only on main branch push)
+    - name: Deploy via SSH
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        script: |
+          # Stop on first error
+          set -e
+
+          # Navigate to project
+          cd /var/www/GRADUS
+
+          # Ensure a clean tree and pull latest code (avoid autostash conflicts)
+          git fetch origin main
+          git reset --hard origin/main
+          git clean -fd
+
+          # Frontend: Install & Build
+          cd frontend
+          npm install --legacy-peer-deps
+          npm run build
+          cd ..
+
+          # Backend: Install
+          cd backend
+          npm install --legacy-peer-deps
+          cd ..
+
+          # Restart PM2
+          pm2 reload all || pm2 start ecosystem.config.js
+          echo "Deployment Successful!"
