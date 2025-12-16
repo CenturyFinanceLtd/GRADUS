@@ -8,8 +8,8 @@ const __dirname = path.dirname(__filename);
 
 // https://vite.dev/config/
 export default defineConfig({
-  // Use relative URLs so the app works when served from sub-paths or behind proxies
-  base: "./",
+  // Use absolute URLs to ensure assets are loaded from root regardless of the current path
+  base: "/",
   plugins: [react()],
   css: {
     // disables CSS source maps in dev mode
