@@ -195,13 +195,7 @@ const MasterclassIntradayPage = () => {
                         </div>
                     </div>
 
-                    {/* Centered 5th Card */}
-                    <div className="learning-card learning-card-centered">
-                        <div className="card-text">
-                            Acquire crucial skills in <span className="text-highlight">Risk Management and Money Management</span> to safeguard your investments.
-                        </div>
-                    </div>
-
+                   
                     <a href="#register" className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>
                         Register Now For Free
                     </a>
