@@ -63,6 +63,7 @@ const OurCoursesPage = lazy(() => import("./pages/OurCoursesPage.jsx"));
 const LiveStudentPage = lazy(() => import("./live/LiveStudentPage.jsx"));
 const VaibhavBatraMasterclass = lazy(() => import("./pages/VaibhavBatraMasterclass.jsx"));
 const MasterclassIntradayPage = lazy(() => import("./pages/MasterclassIntradayPage.jsx"));
+const MasterclassAkhilPage = lazy(() => import("./pages/MasterclassAkhilPage.jsx"));
 
 
 const JobsPage = lazy(() => import("./pages/JobsPage.jsx"));
@@ -91,6 +92,7 @@ function App() {
           <Route exact path='/' element={<HomePageOne />} />
           <Route exact path='/masterclass-on-forex-trading-with-vaibhav-batra' element={<VaibhavBatraMasterclass />} />
           <Route exact path='/vaibhav' element={<MasterclassIntradayPage />} />
+          <Route exact path='/akhil' element={<MasterclassAkhilPage />} />
           <Route exact path='/about-us' element={<AboutPage />} />
           <Route exact path='/know-CFL' element={<KnowCFLPage />} />
           <Route exact path='/apply-admission' element={<ApplyAdmissionPage />} />
