@@ -62,6 +62,7 @@ const GoogleAuthCallback = lazy(() => import("./pages/GoogleAuthCallback.jsx"));
 const OurCoursesPage = lazy(() => import("./pages/OurCoursesPage.jsx"));
 const LiveStudentPage = lazy(() => import("./live/LiveStudentPage.jsx"));
 const VaibhavBatraMasterclass = lazy(() => import("./pages/VaibhavBatraMasterclass.jsx"));
+const MasterclassIntradayPage = lazy(() => import("./pages/MasterclassIntradayPage.jsx"));
 
 
 const JobsPage = lazy(() => import("./pages/JobsPage.jsx"));
@@ -89,6 +90,7 @@ function App() {
         <Routes>
           <Route exact path='/' element={<HomePageOne />} />
           <Route exact path='/masterclass-on-forex-trading-with-vaibhav-batra' element={<VaibhavBatraMasterclass />} />
+          <Route exact path='/masterclass-intraday' element={<MasterclassIntradayPage />} />
           <Route exact path='/about-us' element={<AboutPage />} />
           <Route exact path='/know-CFL' element={<KnowCFLPage />} />
           <Route exact path='/apply-admission' element={<ApplyAdmissionPage />} />

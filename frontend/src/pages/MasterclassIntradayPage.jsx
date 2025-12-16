@@ -1,0 +1,388 @@
+import React, { useEffect } from 'react';
+import '../styles/masterclass-intraday.css';
+
+// Ideally these icons would come from a library like react-icons or lucide-react
+// Using simple SVG placeholders or emoji if icons aren't available to keep it self-contained for now without deps
+
+
+const MasterclassIntradayPage = () => {
+
+    useEffect(() => {
+        document.title = "Masterclass on Intraday Trading | Gradus";
+    }, []);
+
+    return (
+        <div className="masterclass-intraday-page">
+
+
+            <main className="hero-section">
+
+                {/* Header Title */}
+                <div className="hero-header">
+                    <h1 className="hero-title">
+                        Masterclass on <span className="text-orange">Intraday Trading</span>
+                    </h1>
+                    <p className="hero-subtitle">
+                        Over <span className="highlight-count">100k learners</span> already enrolled in the masterclass.
+                    </p>
+                </div>
+
+                <div className="hero-content-grid">
+
+                    {/* Left Column: Info & CTA */}
+                    <div className="left-column">
+                        <div className="info-cards-grid">
+                            {/* Date Card */}
+                            <div className="info-card">
+                                <div className="info-icon-wrapper">
+                                    📅
+                                </div>
+                                <div className="info-text">
+                                    <h4>DATE</h4>
+                                    <p>16 December 2025</p>
+                                </div>
+                            </div>
+
+                            {/* Time Card */}
+                            <div className="info-card">
+                                <div className="info-icon-wrapper">
+                                    ⏰
+                                </div>
+                                <div className="info-text">
+                                    <h4>TIME</h4>
+                                    <p>11:55 AM</p>
+                                </div>
+                            </div>
+
+                            {/* Language Card */}
+                            <div className="info-card">
+                                <div className="info-icon-wrapper">
+                                    🗣️
+                                </div>
+                                <div className="info-text">
+                                    <h4>Language</h4>
+                                    <p>Hindi</p>
+                                </div>
+                            </div>
+
+                            {/* Duration Card */}
+                            <div className="info-card">
+                                <div className="info-icon-wrapper">
+                                    ⏳
+                                </div>
+                                <div className="info-text">
+                                    <h4>Duration</h4>
+                                    <p>2+ Hours</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* CTA & Social Proof */}
+                        <div className="cta-container">
+                            <a href="#register" className="cta-button">
+                                Register Now For Free
+                            </a>
+
+                            <div className="social-proof">
+                                <div className="user-avatars">
+                                    {/* Placeholders for user avatars */}
+                                    <img src="https://ui-avatars.com/api/?name=User+One&background=random" alt="User" />
+                                    <img src="https://ui-avatars.com/api/?name=User+Two&background=random" alt="User" />
+                                    <img src="https://ui-avatars.com/api/?name=User+Three&background=random" alt="User" />
+                                    <div style={{
+                                        width: '32px', height: '32px', borderRadius: '50%', background: '#ff6b00', color: 'white',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', marginLeft: '-10px', border: '2px solid white'
+                                    }}>
+                                        48K+
+                                    </div>
+                                </div>
+                                <div className="rating-info">
+                                    <div className="stars">
+                                        ⭐⭐⭐⭐⭐
+                                    </div>
+                                    <span className="rating-text">14k+ reviews (4.9 of 5)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right Column: Hero Image Card */}
+                    <div className="right-column">
+                        <div className="hero-image-container">
+                            <img
+                                src="/assets/masterclass-hero.png"
+                                alt="Mastering Intraday Trading - Jagpreet Singh"
+                                className="hero-main-image"
+                            />
+                        </div>
+                    </div>
+
+                </div>
+
+                {/* Bottom Info Bar */}
+                <div className="bottom-info-bar">
+                    <p>
+                        Learn from <strong>Jagpreet Singh Narula's</strong> expertise in trading, having taught over 10,000+ students and accumulated <strong>13+ years of experience</strong>.
+                    </p>
+                </div>
+            </main>
+
+            {/* Middle Dark Section */}
+            <section className="dark-section">
+                <div className="section-container">
+
+                    {/* Part 1: Designed For You */}
+                    <h2 className="designed-for-you-title">
+                        This <span className="text-orange">masterclass</span> is designed for You!
+                    </h2>
+
+                    <div className="designed-items-row">
+                        <div className="designed-item">
+                            <div className="orange-diamond-icon"><span className="icon-inner">✨</span></div>
+                            <span>If you are looking to start your <strong>Intraday trading journey</strong>.</span>
+                        </div>
+                        <div className="designed-item">
+                            <div className="orange-diamond-icon"><span className="icon-inner">✨</span></div>
+                            <span>If you want to create a <strong>passive source of income</strong>.</span>
+                        </div>
+                        <div className="designed-item">
+                            <div className="orange-diamond-icon"><span className="icon-inner">✨</span></div>
+                            <span>If you want to become a <strong>full time trader</strong>.</span>
+                        </div>
+                    </div>
+
+                    <a href="#register" className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>
+                        Register Now For Free
+                    </a>
+
+
+                    {/* Part 2: What Will You Learn */}
+                    <h2 className="learning-section-title">
+                        What Will You <span className="text-orange">Learn?</span>
+                    </h2>
+
+                    <div className="learning-cards-grid">
+                        <div className="learning-card">
+                            <div className="card-number">1</div>
+                            <div className="card-text">
+                                Master <span className="text-orange">the principles of Dow Theory</span> and its application in trading.
+                            </div>
+                        </div>
+                        <div className="learning-card">
+                            <div className="card-number">2</div>
+                            <div className="card-text">
+                                Identify and interpret <span className="text-orange">Candlestick Patterns and Chart Patterns</span> with precision.
+                            </div>
+                        </div>
+                        <div className="learning-card">
+                            <div className="card-number">3</div>
+                            <div className="card-text">
+                                Harness the power of <span className="text-orange">Intraday Trading</span> for informed decision-making.
+                            </div>
+                        </div>
+                        <div className="learning-card">
+                            <div className="card-number">4</div>
+                            <div className="card-text">
+                                Develop <span className="text-orange">effective strategies</span> for both Intraday and Swing Trading.
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Centered 5th Card */}
+                    <div className="learning-card learning-card-centered">
+                        <div className="card-text">
+                            Acquire crucial skills in <span className="text-orange">Risk Management and Money Management</span> to safeguard your investments.
+                        </div>
+                    </div>
+
+                    <a href="#register" className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>
+                        Register Now For Free
+                    </a>
+
+
+                    {/* --- Meet Your Mentor Section --- */}
+                    <div className="mentor-grid">
+
+                        {/* Left Column: Image (Cutout typically) */}
+                        <div className="mentor-image-col">
+                            {/* Using the image provided by user */}
+                            <img
+                                src="/assets/mentor-image-transparent.png"
+                                alt="Jagpreet Singh Narula"
+                                className="mentor-image"
+                                style={{ maxHeight: '500px' }} // Restrict height to prevent it being huge
+                            />
+                        </div>
+
+                        {/* Right Column: Info Card */}
+                        <div className="mentor-content-col">
+                            <h2 className="mentor-title">
+                                Meet Your <span className="text-orange">Mentor</span>
+                            </h2>
+
+                            <div className="mentor-info-card">
+                                <ul className="mentor-points-list">
+                                    <li className="mentor-point">
+                                        <span className="mentor-bullet"></span>
+                                        <span>
+                                            With an <strong>MBA in Finance and 18 years in the Automobile Industry</strong>, Jagpreet Singh Narula blends sector-specific insight with trading expertise.
+                                        </span>
+                                    </li>
+                                    <li className="mentor-point">
+                                        <span className="mentor-bullet"></span>
+                                        <span>
+                                            Jagpreet's <span className="text-orange">13+ years of successful trading span</span> Intraday, Swing, Price Action, and Index Options, showcasing his adaptability across diverse market strategies.
+                                        </span>
+                                    </li>
+                                    <li className="mentor-point">
+                                        <span className="mentor-bullet"></span>
+                                        <span>
+                                            Jagpreet mentored <span className="text-orange">10000+ students</span>, empowering traders, while his free masterclasses reached <span className="text-orange">100,000 eager learners</span>, fostering a collaborative trading community.
+                                        </span>
+                                    </li>
+                                    <li className="mentor-point">
+                                        <span className="mentor-bullet"></span>
+                                        <span>
+                                            Jagpreet blends professional acumen with trading expertise, delivering <span className="text-orange">comprehensive strategies</span> for success.
+                                        </span>
+                                    </li>
+                                    <li className="mentor-point">
+                                        <span className="mentor-bullet"></span>
+                                        <span>
+                                            Jagpreet's free masterclasses foster learning and collaboration among traders of all levels.
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <a href="#register" className="cta-button" style={{ marginTop: '0' }}>
+                                Register Now For Free
+                            </a>
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+
+            {/* Certificate Section */}
+            <section className="certificate-section">
+                <div className="section-container">
+                    <h2 className="certificate-headline">
+                        Yes! You will be <span className="text-orange-underline">certified</span> for this Masterclass.
+                    </h2>
+
+                    <div className="certificate-image-wrapper">
+                        {/* 
+                           I'm using the screenshot provided as a preview. 
+                           Ideally, we would separate the background text from the certificate image, 
+                           but for now, displaying the provided asset as the 'preview'.
+                        */}
+                        <img
+                            src="/assets/certificate-preview.png"
+                            alt="Certificate of Participation"
+                            className="certificate-image"
+                        />
+                    </div>
+
+                    <a href="#register" className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>
+                        Register Now For Free
+                    </a>
+                </div>
+            </section>
+
+            {/* FAQ Section */}
+            <section className="faq-section">
+                <div className="section-container faq-container">
+                    <h2 className="faq-headline">
+                        Frequently Asked <span className="text-orange-underline">Questions</span>
+                    </h2>
+
+                    <div className="faq-list">
+                        <FAQItem
+                            question="Is it a live or pre-recorded workshop?"
+                            answer="It is a live workshop."
+                        />
+                        <FAQItem
+                            question="Is this class for beginners?"
+                            answer="Yes! This masterclass is designed to help beginners understand the fundamentals of Intraday trading while also providing advanced strategies for experienced traders."
+                        />
+                        <FAQItem
+                            question="Will recording be provided?"
+                            answer="Yes, a recording of the session will be provided to all registered participants for revision purposes."
+                        />
+                        <FAQItem
+                            question="How much capital is required?"
+                            answer="You can start with a small capital. The strategies taught focus on risk management to help you grow your capital steadily."
+                        />
+                        <FAQItem
+                            question="Will there be a QnA session in the class?"
+                            answer="Absolutely! There will be a dedicated Q&A session at the end of the masterclass to clarify all your doubts."
+                        />
+                    </div>
+                </div>
+            </section>
+            {/* Sticky Footer */}
+            <StickyFooter />
+        </div>
+    );
+};
+
+// Simple internal component for FAQ Item
+const FAQItem = ({ question, answer }) => {
+    const [isOpen, setIsOpen] = React.useState(false);
+
+    return (
+        <div className="faq-item">
+            <div className="faq-question" onClick={() => setIsOpen(!isOpen)}>
+                <span>Q: {question}</span>
+                <span className="faq-icon">
+                    {isOpen ? "−" : "+"}
+                </span>
+            </div>
+            <div className={`faq-answer ${isOpen ? 'open' : ''}`}>
+                {answer}
+            </div>
+        </div>
+    );
+};
+
+// Internal Sticky Footer Component
+const StickyFooter = () => {
+    // 15 minute countdown timer state
+    const [timeLeft, setTimeLeft] = React.useState(15 * 60); // 15 minutes in seconds
+
+    React.useEffect(() => {
+        const timer = setInterval(() => {
+            setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const formatTime = (seconds) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
+
+    return (
+        <div className="sticky-footer">
+            <div className="sticky-footer-content">
+                <div className="footer-left-info">
+                    <div className="footer-price-row">
+                        FREE <span className="footer-old-price">₹999</span>
+                    </div>
+                    <div className="footer-timer-row">
+                        Offer Expires in <strong>{formatTime(timeLeft)}</strong>
+                    </div>
+                </div>
+
+                <a href="#register" className="cta-button" style={{ margin: 0, width: 'auto', padding: '0.8rem 2rem' }}>
+                    Register Now For Free
+                </a>
+            </div>
+        </div>
+    );
+};
+
+export default MasterclassIntradayPage;
