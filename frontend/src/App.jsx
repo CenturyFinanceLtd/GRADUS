@@ -90,7 +90,7 @@ function App() {
         <Routes>
           <Route exact path='/' element={<HomePageOne />} />
           <Route exact path='/masterclass-on-forex-trading-with-vaibhav-batra' element={<VaibhavBatraMasterclass />} />
-          <Route exact path='/masterclass-intraday' element={<MasterclassIntradayPage />} />
+          <Route exact path='/vaibhav' element={<MasterclassIntradayPage />} />
           <Route exact path='/about-us' element={<AboutPage />} />
           <Route exact path='/know-CFL' element={<KnowCFLPage />} />
           <Route exact path='/apply-admission' element={<ApplyAdmissionPage />} />

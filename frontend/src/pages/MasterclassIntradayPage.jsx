@@ -20,10 +20,10 @@ const MasterclassIntradayPage = () => {
                 {/* Header Title */}
                 <div className="hero-header">
                     <h1 className="hero-title">
-                        Masterclass on <span className="text-orange">Intraday Trading</span>
+                        Masterclass on <span className="text-highlight">Intraday Trading</span> with <span className="text-orange">Vaibhav Batra</span>
                     </h1>
                     <p className="hero-subtitle">
-                        Over <span className="highlight-count">100k learners</span> already enrolled in the masterclass.
+                        India’s most practical financial literacy program for students & working professionals
                     </p>
                 </div>
 
@@ -90,7 +90,7 @@ const MasterclassIntradayPage = () => {
                                     <img src="https://ui-avatars.com/api/?name=User+Two&background=random" alt="User" />
                                     <img src="https://ui-avatars.com/api/?name=User+Three&background=random" alt="User" />
                                     <div style={{
-                                        width: '32px', height: '32px', borderRadius: '50%', background: '#ff6b00', color: 'white',
+                                        width: '32px', height: '32px', borderRadius: '50%', background: '#6cbc49', color: 'white',
                                         display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', marginLeft: '-10px', border: '2px solid white'
                                     }}>
                                         48K+
@@ -110,7 +110,7 @@ const MasterclassIntradayPage = () => {
                     <div className="right-column">
                         <div className="hero-image-container">
                             <img
-                                src="/assets/masterclass-hero.png"
+                                src="/assets/masterclass-vaibhav.jpg"
                                 alt="Mastering Intraday Trading - Jagpreet Singh"
                                 className="hero-main-image"
                             />
@@ -122,7 +122,10 @@ const MasterclassIntradayPage = () => {
                 {/* Bottom Info Bar */}
                 <div className="bottom-info-bar">
                     <p>
-                        Learn from <strong>Jagpreet Singh Narula's</strong> expertise in trading, having taught over 10,000+ students and accumulated <strong>13+ years of experience</strong>.
+                        Learn from <strong>Vaibhav Batra's</strong> expertise in trading, having taught over 10,000+ students and accumulated <strong>13+ years of experience</strong>.
+                    </p>
+                    <p>
+                        Learn money basics, investing, budgeting & wealth mindset the way schools never taught — simple, practical, and India‑focused.
                     </p>
                 </div>
             </main>
@@ -133,21 +136,25 @@ const MasterclassIntradayPage = () => {
 
                     {/* Part 1: Designed For You */}
                     <h2 className="designed-for-you-title">
-                        This <span className="text-orange">masterclass</span> is designed for You!
+                        Who is <span className="text-highlight">Gradus FINLIT</span> for?
                     </h2>
 
                     <div className="designed-items-row">
                         <div className="designed-item">
-                            <div className="orange-diamond-icon"><span className="icon-inner">✨</span></div>
-                            <span>If you are looking to start your <strong>Intraday trading journey</strong>.</span>
+                            <div className="diamond-icon"><span className="icon-inner">✨</span></div>
+                            <span>College students who want money clarity early</span>
                         </div>
                         <div className="designed-item">
-                            <div className="orange-diamond-icon"><span className="icon-inner">✨</span></div>
-                            <span>If you want to create a <strong>passive source of income</strong>.</span>
+                            <div className="diamond-icon"><span className="icon-inner">✨</span></div>
+                            <span>Freshers earning their first salary</span>
                         </div>
                         <div className="designed-item">
-                            <div className="orange-diamond-icon"><span className="icon-inner">✨</span></div>
-                            <span>If you want to become a <strong>full time trader</strong>.</span>
+                            <div className="diamond-icon"><span className="icon-inner">✨</span></div>
+                            <span>Working professionals stuck in salary‑to‑salary cycle</span>
+                        </div>
+                        <div className="designed-item">
+                            <div className="diamond-icon"><span className="icon-inner">✨</span></div>
+                            <span>Anyone scared of investing or confused about finance</span>
                         </div>
                     </div>
 
@@ -158,32 +165,32 @@ const MasterclassIntradayPage = () => {
 
                     {/* Part 2: What Will You Learn */}
                     <h2 className="learning-section-title">
-                        What Will You <span className="text-orange">Learn?</span>
+                        What Will You learn in <span className="text-highlight">Gradus FINLIT</span>?
                     </h2>
 
                     <div className="learning-cards-grid">
                         <div className="learning-card">
                             <div className="card-number">1</div>
                             <div className="card-text">
-                                Master <span className="text-orange">the principles of Dow Theory</span> and its application in trading.
+                              <span className="text-highlight">Financial Foundations</span>
                             </div>
                         </div>
                         <div className="learning-card">
                             <div className="card-number">2</div>
                             <div className="card-text">
-                                Identify and interpret <span className="text-orange">Candlestick Patterns and Chart Patterns</span> with precision.
+                                <span className="text-highlight">Personal Finance</span>
                             </div>
                         </div>
                         <div className="learning-card">
                             <div className="card-number">3</div>
                             <div className="card-text">
-                                Harness the power of <span className="text-orange">Intraday Trading</span> for informed decision-making.
+                                <span className="text-highlight"> Investing Basics (Beginner-Friendly)</span>
                             </div>
                         </div>
                         <div className="learning-card">
                             <div className="card-number">4</div>
                             <div className="card-text">
-                                Develop <span className="text-orange">effective strategies</span> for both Intraday and Swing Trading.
+                              <span className="text-highlight">Money Mindset</span>
                             </div>
                         </div>
                     </div>
@@ -191,7 +198,7 @@ const MasterclassIntradayPage = () => {
                     {/* Centered 5th Card */}
                     <div className="learning-card learning-card-centered">
                         <div className="card-text">
-                            Acquire crucial skills in <span className="text-orange">Risk Management and Money Management</span> to safeguard your investments.
+                            Acquire crucial skills in <span className="text-highlight">Risk Management and Money Management</span> to safeguard your investments.
                         </div>
                     </div>
 
@@ -217,7 +224,7 @@ const MasterclassIntradayPage = () => {
                         {/* Right Column: Info Card */}
                         <div className="mentor-content-col">
                             <h2 className="mentor-title">
-                                Meet Your <span className="text-orange">Mentor</span>
+                                Meet Your <span className="text-highlight">Mentor</span>
                             </h2>
 
                             <div className="mentor-info-card">
@@ -231,19 +238,19 @@ const MasterclassIntradayPage = () => {
                                     <li className="mentor-point">
                                         <span className="mentor-bullet"></span>
                                         <span>
-                                            Jagpreet's <span className="text-orange">13+ years of successful trading span</span> Intraday, Swing, Price Action, and Index Options, showcasing his adaptability across diverse market strategies.
+                                            Jagpreet's <span className="text-highlight">13+ years of successful trading span</span> Intraday, Swing, Price Action, and Index Options, showcasing his adaptability across diverse market strategies.
                                         </span>
                                     </li>
                                     <li className="mentor-point">
                                         <span className="mentor-bullet"></span>
                                         <span>
-                                            Jagpreet mentored <span className="text-orange">10000+ students</span>, empowering traders, while his free masterclasses reached <span className="text-orange">100,000 eager learners</span>, fostering a collaborative trading community.
+                                            Jagpreet mentored <span className="text-highlight">10000+ students</span>, empowering traders, while his free masterclasses reached <span className="text-highlight">100,000 eager learners</span>, fostering a collaborative trading community.
                                         </span>
                                     </li>
                                     <li className="mentor-point">
                                         <span className="mentor-bullet"></span>
                                         <span>
-                                            Jagpreet blends professional acumen with trading expertise, delivering <span className="text-orange">comprehensive strategies</span> for success.
+                                            Jagpreet blends professional acumen with trading expertise, delivering <span className="text-highlight">comprehensive strategies</span> for success.
                                         </span>
                                     </li>
                                     <li className="mentor-point">
@@ -269,7 +276,7 @@ const MasterclassIntradayPage = () => {
             <section className="certificate-section">
                 <div className="section-container">
                     <h2 className="certificate-headline">
-                        Yes! You will be <span className="text-orange-underline">certified</span> for this Masterclass.
+                        Yes! You will be <span className="text-highlight-underline">certified</span> for this Masterclass.
                     </h2>
 
                     <div className="certificate-image-wrapper">
@@ -295,7 +302,7 @@ const MasterclassIntradayPage = () => {
             <section className="faq-section">
                 <div className="section-container faq-container">
                     <h2 className="faq-headline">
-                        Frequently Asked <span className="text-orange-underline">Questions</span>
+                        Frequently Asked <span className="text-highlight-underline">Questions</span>
                     </h2>
 
                     <div className="faq-list">

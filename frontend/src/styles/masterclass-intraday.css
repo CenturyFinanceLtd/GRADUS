@@ -12,8 +12,8 @@
 }
 
 /* --- Typography Utilities --- */
-.text-orange {
-    color: #ff6b00;
+.text-highlight {
+    color: #6cbc49;
 }
 
 .text-dark-blue {
@@ -54,7 +54,7 @@
 }
 
 .highlight-count {
-    color: #ff6b00;
+    color: #6cbc49;
     font-weight: 700;
 }
 
@@ -89,14 +89,14 @@
 
 .info-card {
     background: #fff;
-    border: 1px solid #ffebb8;
+    border: 1px solid #d4eed0;
     border-radius: 12px;
     padding: 1rem;
     display: flex;
     align-items: center;
     gap: 1rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    background-color: #fffaf0;
+    background-color: #f5fdf2;
 }
 
 .info-icon-wrapper {
@@ -105,7 +105,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #ff6b00;
+    background: #6cbc49;
     border-radius: 8px;
     color: #fff;
     font-size: 1.2rem;
@@ -138,7 +138,7 @@
 }
 
 .cta-button {
-    background: #ff6b00;
+    background: #6cbc49;
     color: white;
     border: none;
     padding: 1rem 2rem;
@@ -150,11 +150,11 @@
     transition: transform 0.2s, background-color 0.2s;
     text-align: center;
     text-decoration: none;
-    box-shadow: 0 4px 14px 0 rgba(255, 107, 0, 0.39);
+    box-shadow: 0 4px 14px 0 rgba(108, 188, 73, 0.39);
 }
 
 .cta-button:hover {
-    background: #e66000;
+    background: #57a03d;
     transform: translateY(-2px);
 }
 
@@ -186,6 +186,7 @@
 
 .stars {
     color: #ffb400;
+    /* Keeping stars gold */
     margin-right: 5px;
 }
 
@@ -209,8 +210,8 @@
 .bottom-info-bar {
     max-width: 1200px;
     margin: 3rem auto;
-    background: #fff5eb;
-    border: 1px dashed #ff6b00;
+    background: #f0f9ed;
+    border: 1px dashed #6cbc49;
     border-radius: 12px;
     padding: 1.5rem;
     text-align: center;
@@ -241,6 +242,7 @@
 .designed-for-you-title {
     font-size: 2rem;
     font-weight: 700;
+    color: #fff;
     margin-bottom: 2.5rem;
 }
 
@@ -262,8 +264,8 @@
     line-height: 1.4;
 }
 
-.orange-diamond-icon {
-    background: #ff6b00;
+.diamond-icon {
+    background: #6cbc49;
     color: white;
     width: 24px;
     height: 24px;
@@ -288,6 +290,7 @@
 .learning-section-title {
     font-size: 2rem;
     font-weight: 700;
+    color: #fff;
     margin-top: 4rem;
     margin-bottom: 3rem;
 }
@@ -318,8 +321,8 @@
 }
 
 .card-number {
-    background: #ffe0cc;
-    color: #ff6b00;
+    background: #daf2d4;
+    color: #6cbc49;
     font-weight: 700;
     min-width: 30px;
     height: 30px;
@@ -439,8 +442,8 @@
     /* Dark Blue title */
 }
 
-.text-orange-underline {
-    color: #ff6b00;
+.text-highlight-underline {
+    color: #6cbc49;
     text-decoration: underline;
     text-decoration-thickness: 3px;
     text-underline-offset: 4px;
@@ -566,7 +569,7 @@
 .footer-price-row {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #ff6b00;
+    color: #6cbc49;
     display: flex;
     align-items: baseline;
     gap: 0.5rem;
