@@ -453,6 +453,15 @@ const MasterLayout = ({ children }) => {
             </li>
             <li>
               <NavLink
+                to='/landing-pages'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='ri-layout-line' className='menu-icon' />
+                <span>Landing Pages</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
                 to='/testimonials'
                 className={(navData) => (navData.isActive ? "active-page" : "")}
               >

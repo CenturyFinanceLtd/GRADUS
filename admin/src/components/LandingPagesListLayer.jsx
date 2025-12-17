@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Icon } from '@phosphor-icons/react';
-import axios from 'axios';
+import { Icon } from '@iconify/react';
 import { toast } from 'react-toastify';
+import apiClient from '../services/apiClient';
 
 const LandingPagesListLayer = () => {
     const [pages, setPages] = useState([]);
@@ -10,8 +10,8 @@ const LandingPagesListLayer = () => {
 
     const fetchPages = async () => {
         try {
-            const response = await axios.get('/api/landing-pages');
-            setPages(response.data);
+            const data = await apiClient('/landing-pages');
+            setPages(data);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching landing pages:', error);
@@ -23,7 +23,7 @@ const LandingPagesListLayer = () => {
     const deletePage = async (id) => {
         if (!window.confirm('Are you sure you want to delete this page?')) return;
         try {
-            await axios.delete(`/api/landing-pages/${id}`);
+            await apiClient(`/landing-pages/${id}`, { method: 'DELETE' });
             toast.success('Landing page deleted successfully');
             setPages(pages.filter(page => page._id !== id));
         } catch (error) {

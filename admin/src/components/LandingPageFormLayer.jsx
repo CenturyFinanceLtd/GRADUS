@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
-import axios from 'axios';
+import apiClient from '../services/apiClient';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
@@ -54,9 +54,8 @@ const LandingPageFormLayer = ({ slug }) => {
     useEffect(() => {
         if (isEdit && slug) {
             setLoading(true);
-            axios.get(`/api/landing-pages/${slug}`)
-                .then(res => {
-                    const data = res.data;
+            apiClient(`/landing-pages/${slug}`)
+                .then(data => {
                     // Transform flat arrays to object arrays for RHF if needed
                     // mentor.points: ["a", "b"] -> [{val: "a"}, {val: "b"}]
                     if (data.mentor && data.mentor.points) {
@@ -86,16 +85,16 @@ const LandingPageFormLayer = ({ slug }) => {
             if (isEdit) {
                 // We need ID for update, but we fetched by slug.
                 // The data object from reset(res.data) should contain _id.
-                await axios.put(`/api/landing-pages/${data._id}`, data);
+                await apiClient(`/landing-pages/${data._id}`, { method: 'PUT', data });
                 toast.success('Landing Page updated successfully');
             } else {
-                await axios.post('/api/landing-pages', data);
+                await apiClient('/landing-pages', { method: 'POST', data });
                 toast.success('Landing Page created successfully');
             }
             navigate('/landing-pages');
         } catch (error) {
             console.error(error);
-            toast.error(error.response?.data?.message || 'Something went wrong');
+            toast.error(error.message || 'Something went wrong');
         } finally {
             setLoading(false);
         }
