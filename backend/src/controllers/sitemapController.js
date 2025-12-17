@@ -16,10 +16,37 @@ const ensureDir = async () => {
 // @desc    Get all available sitemaps
 // @route   GET /api/admin/sitemaps
 // @access  Private/Admin
+// @desc    Get all available sitemaps
+// @route   GET /api/admin/sitemaps
+// @access  Private/Admin
 const listSitemaps = asyncHandler(async (req, res) => {
     await ensureDir();
-    const files = await fs.readdir(SITEMAP_DIR);
-    const xmlFiles = files.filter(file => file.endsWith('.xml'));
+    let files = await fs.readdir(SITEMAP_DIR);
+    let xmlFiles = files.filter(file => file.endsWith('.xml'));
+
+    // Auto-seed if empty
+    if (xmlFiles.length === 0) {
+        try {
+            const frontendPublicDir = path.join(__dirname, '../../frontend/public');
+            const sourceFiles = await fs.readdir(frontendPublicDir);
+            const sourceXmlFiles = sourceFiles.filter(file => file.startsWith('sitemap') && file.endsWith('.xml'));
+
+            for (const file of sourceXmlFiles) {
+                await fs.copyFile(
+                    path.join(frontendPublicDir, file),
+                    path.join(SITEMAP_DIR, file)
+                );
+            }
+
+            // Re-read after seeding
+            files = await fs.readdir(SITEMAP_DIR);
+            xmlFiles = files.filter(file => file.endsWith('.xml'));
+        } catch (error) {
+            console.error('Failed to seed sitemaps:', error);
+            // Continue with empty list if seeding fails
+        }
+    }
+
     res.json(xmlFiles);
 });
 
