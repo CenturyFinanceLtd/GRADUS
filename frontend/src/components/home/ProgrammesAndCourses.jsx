@@ -399,9 +399,9 @@ const ProgrammesAndCourses = () => {
           }
            /* Gradient Fade Effect - Fixed width for consistent visibility */
           .programmes-courses-carousel {
-            mask-image: linear-gradient(to right, transparent, black 80px, black calc(100% - 80px), transparent);
-            -webkit-mask-image: linear-gradient(to right, transparent, black 80px, black calc(100% - 80px), transparent);
-          }
+    mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent);
+}
           .programmes-courses-slider .slick-list {
             overflow: visible !important;
           }
