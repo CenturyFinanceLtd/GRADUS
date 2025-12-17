@@ -5,10 +5,10 @@ const {
     getSitemapContent,
     updateSitemapContent
 } = require('../controllers/sitemapController');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protectAdmin } = require('../middleware/adminAuthMiddleware');
 
 // Admin routes
-router.use(protect, admin);
+router.use(protectAdmin);
 router.get('/', listSitemaps);
 router.get('/:filename', getSitemapContent);
 router.put('/:filename', updateSitemapContent);

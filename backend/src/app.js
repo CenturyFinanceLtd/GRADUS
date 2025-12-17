@@ -185,6 +185,7 @@ app.use('/api/admin/partners', adminPartnerRoutes);
 app.use('/api/admin/page-meta', adminPageMetaRoutes);
 app.use('/api/admin/gallery', adminGalleryRoutes);
 app.use('/api/admin/jobs', adminJobRoutes);
+app.use('/api/admin/sitemaps', require('./routes/adminSitemapRoutes'));
 // Public content + services
 app.use('/api/blogs', blogRoutes);
 app.use('/api/gallery', galleryRoutes);
@@ -207,6 +208,14 @@ app.use('/api/callback-requests', require('./routes/callbackRequestRoutes'));
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/resume', resumeRoutes);
 app.use('/api/jobs', jobRoutes);
+
+// Sitemap routes (Public) - Must be before static files
+const { serveSitemap } = require('./controllers/sitemapController');
+// Use regex to match sitemap*.xml and map capture group to filename param
+app.get(/^\/(sitemap.*\.xml)$/, (req, res, next) => {
+    req.params.filename = req.params[0];
+    next();
+}, serveSitemap);
 
 // Serve Static Frontend Files (Must be after API routes)
 const frontendPath = path.join(__dirname, '../../frontend/dist');
@@ -234,14 +243,6 @@ app.get(/.*/, (req, res, next) => {
 app.use(notFound);
 app.use(errorHandler);
 
-// Sitemap routes
-const adminSitemapRoutes = require('./routes/adminSitemapRoutes');
-const { serveSitemap } = require('./controllers/sitemapController');
 
-// Admin sitemap management
-app.use('/api/admin/sitemaps', adminSitemapRoutes);
-
-// Public sitemap serving (before static files to take precedence)
-app.get('/sitemap*.xml', serveSitemap);
 
 module.exports = app;
