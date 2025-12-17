@@ -1292,6 +1292,8 @@ img {
   .programmes-courses-section {
     margin-top: 32px;
     padding-inline: clamp(16px, 5vw, 28px);
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .programmes-courses-frame {
@@ -1306,7 +1308,7 @@ img {
   }
 
   .programmes-courses-section .container {
-    padding-inline: 6px;
+    padding-inline: 20px;
     /* slight inset so first card sits close to edge */
   }
 
@@ -1401,6 +1403,8 @@ img {
   padding: clamp(16px, 2vw, 32px);
 
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 .programme-card-wrapper {
@@ -1563,7 +1567,7 @@ img {
 
 .programme-card__summary {
   color: #4f5b75;
-  margin-bottom: 4px;
+  margin-bottom: 0px;
   min-height: clamp(48px, 8vw, 72px);
 }
 
@@ -1717,10 +1721,6 @@ img {
 }
 
 @media (max-width: 767.98px) {
-  .programme-card-wrapper {
-    padding: 0 6px;
-  }
-
   .programme-card__summary {
     min-height: clamp(32px, 12vw, 60px);
   }
@@ -26806,7 +26806,7 @@ video:-ms-fullscreen {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 4px;
+  padding-top: 0px;
 }
 
 .programme-card__program-type {
@@ -26874,7 +26874,7 @@ video:-ms-fullscreen {
 .programme-card__meta-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0px;
 }
 
 .programme-card__meta-item .meta-icon {
@@ -26887,4 +26887,49 @@ video:-ms-fullscreen {
 .programme-card__cta,
 .programme-card__pill {
   display: none !important;
+}
+
+@media (max-width: 767.98px) {
+  .programme-card__summary {
+    font-size: 0.625rem;
+    line-height: 1.3;
+  }
+
+  .programme-card {
+    padding: 6px 6px 12px;
+  }
+
+  .programme-card__body {
+    padding: 10px 8px 0px;
+    gap: 10px;
+  }
+
+  .programme-card-wrapper {
+    width: 170px;
+    min-width: 170px;
+    max-width: 170px;
+    height: 100%;
+  }
+
+  .programme-card__footer {
+    padding: 8px 12px;
+    font-size: 0.555rem;
+    line-height: 1.4;
+  }
+
+  .programme-card__program-type {
+    font-size: 0.625rem;
+  }
+
+  .programme-card__rating {
+    font-size: 0.625rem;
+  }
+
+  .programme-card__title a {
+    font-size: 0.67rem;
+  }
+
+  .programme-card__text-area {
+    height: 87px;
+}
 }
