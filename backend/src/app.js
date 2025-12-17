@@ -213,25 +213,35 @@ const frontendPath = path.join(__dirname, '../../frontend/dist');
 
 // Serve built assets with aggressive caching; index will be handled separately
 app.use(
-  express.static(frontendPath, {
-    maxAge: '1y',
-    index: false,
-    immutable: true,
-  })
+    express.static(frontendPath, {
+        maxAge: '1y',
+        index: false,
+        immutable: true,
+    })
 );
 
 // SPA Fallback: Serve index.html for any unknown route NOT starting with /api
 app.get(/.*/, (req, res, next) => {
-  if (req.path.startsWith('/api')) {
-    return next();
-  }
-  // Always serve the latest HTML to avoid stale chunk references in browsers/CDNs
-  res.set('Cache-Control', 'no-store');
-  res.sendFile(path.join(frontendPath, 'index.html'));
+    if (req.path.startsWith('/api')) {
+        return next();
+    }
+    // Always serve the latest HTML to avoid stale chunk references in browsers/CDNs
+    res.set('Cache-Control', 'no-store');
+    res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
 // 404 and error handling (must be last)
 app.use(notFound);
 app.use(errorHandler);
+
+// Sitemap routes
+const adminSitemapRoutes = require('./routes/adminSitemapRoutes');
+const { serveSitemap } = require('./controllers/sitemapController');
+
+// Admin sitemap management
+app.use('/api/admin/sitemaps', adminSitemapRoutes);
+
+// Public sitemap serving (before static files to take precedence)
+app.get('/sitemap*.xml', serveSitemap);
 
 module.exports = app;

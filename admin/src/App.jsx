@@ -114,6 +114,7 @@ const BlankPagePage = lazy(() => import("./pages/BlankPagePage"));
 const InquiryPage = lazy(() => import("./pages/InquiryPage"));
 const PermissionPage = lazy(() => import("./pages/PermissionPage"));
 const CallbackRequestPage = lazy(() => import("./pages/CallbackRequestPage"));
+const SitemapManager = lazy(() => import("./pages/SitemapManager"));
 import useAuth from "./hook/useAuth";
 
 const RootDashboard = () => {
@@ -127,6 +128,9 @@ function App() {
       <Suspense fallback={<div className="app-loading">Loading...</div>}>
         <Routes>
           <Route exact path='/' element={<RootDashboard />} />
+          <Route exact path='/permission' element={<PermissionPage />} />
+          <Route exact path='/callback-requests' element={<CallbackRequestPage />} />
+          <Route exact path='/sitemaps' element={<SitemapManager />} />
 
           {/* Courses Admin */}
           <Route exact path='/courses-admin' element={<CoursesAdminPage />} />
@@ -281,3 +285,6 @@ function App() {
 }
 
 export default App;
+
+
+
