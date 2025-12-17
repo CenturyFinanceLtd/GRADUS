@@ -38,12 +38,25 @@ const listSitemaps = asyncHandler(async (req, res) => {
                 );
             }
 
-            // Re-read after seeding
             files = await fs.readdir(SITEMAP_DIR);
             xmlFiles = files.filter(file => file.endsWith('.xml'));
         } catch (error) {
             console.error('Failed to seed sitemaps:', error);
-            // Continue with empty list if seeding fails
+            // Fallback: Create a default sitemap.xml if seeding fails
+            try {
+                const defaultContent = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://gradusindia.in/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>`;
+                await fs.writeFile(path.join(SITEMAP_DIR, 'sitemap.xml'), defaultContent);
+                xmlFiles = ['sitemap.xml'];
+            } catch (writeError) {
+                console.error('Failed to create default sitemap:', writeError);
+            }
         }
     }
 

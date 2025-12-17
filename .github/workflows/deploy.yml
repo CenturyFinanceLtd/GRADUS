@@ -76,6 +76,14 @@ jobs:
           # Backend: Install
           cd backend
           npm install --legacy-peer-deps
+          
+          # Create data directory and seed sitemaps if empty (preserves edits)
+          mkdir -p data/sitemaps
+          if [ -z "$(ls -A data/sitemaps)" ]; then
+              echo "Seeding sitemaps..."
+              cp ../frontend/public/sitemap*.xml data/sitemaps/ || echo "Warning: Could not seed sitemaps"
+          fi
+          
           cd ..
 
           # Restart PM2
