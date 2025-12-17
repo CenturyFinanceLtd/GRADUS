@@ -20,8 +20,11 @@ const ensureDir = async () => {
 // @route   GET /api/admin/sitemaps
 // @access  Private/Admin
 const listSitemaps = asyncHandler(async (req, res) => {
+    console.log('List Sitemaps Request Received');
     await ensureDir();
+    console.log('Sitemap Dir ensured');
     let files = await fs.readdir(SITEMAP_DIR);
+    console.log('Files in dir:', files);
     let xmlFiles = files.filter(file => file.endsWith('.xml'));
 
     // Auto-seed if empty
