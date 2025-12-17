@@ -421,13 +421,18 @@ const BlogDetailsInner = ({ onBlogLoaded = null }) => {
             <div className='bg-main-25 rounded-16 p-12 border border-neutral-30 blog-details__main'>
               <div className='rounded-12 overflow-hidden position-relative blog-details__cover'>
                 <img src={featuredImage} alt={blog.title} className='rounded-12 cover-img transition-2' />
-                <div className='position-absolute inset-inline-end-0 inset-block-end-0 me-16 mb-16 py-12 px-24 rounded-8 bg-main-two-600 text-white fw-medium text-center blog-details__date-badge'>
-                  <h3 className='mb-0 text-white fw-medium'>{publishedMeta.day}</h3>
-                  {publishedMeta.month}
-                </div>
               </div>
               <div className='pt-32 pb-24 px-16 position-relative'>
                 <div className='flex-align gap-14 flex-wrap mb-20 blog-details__meta'>
+                  <div className='flex-align gap-8 blog-details__meta-item'>
+                    <span className='text-neutral-500 text-2xl d-flex'>
+                      <i className='ph-bold ph-calendar-blank' />
+                    </span>
+                    <span className='text-neutral-500 text-lg'>
+                      {publishedMeta.day} {publishedMeta.month}
+                    </span>
+                  </div>
+                  <span className='w-8 h-8 bg-neutral-100 rounded-circle blog-details__meta-separator' />
                   <div className='flex-align gap-8 blog-details__meta-item'>
                     <span className='text-neutral-500 text-2xl d-flex'>
                       <i className='ph ph-user-circle' />
@@ -449,7 +454,7 @@ const BlogDetailsInner = ({ onBlogLoaded = null }) => {
                     <span className='text-neutral-500 text-lg'>{commentsCount}</span>
                   </div>
                 </div>
-                <h2 className='mb-16'>{blog.title}</h2>
+                {/* Title removed as per request (shown in breadcrumb) */}
                 {blog.excerpt ? <p className='text-neutral-500 mb-24'>{blog.excerpt}</p> : null}
                 <div className='text-neutral-500 blog-content' dangerouslySetInnerHTML={{ __html: blog.content }} />
                 {tags.length > 0 ? (

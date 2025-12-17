@@ -339,6 +339,8 @@ const FooterOne = () => {
                 type='email'
                 className='gradus-footer__newsletter-input'
                 placeholder='Email'
+                name='email'
+                id='footer-email'
               />
               <button type='submit' className='gradus-footer__newsletter-button'>
                 Submit
@@ -388,7 +390,7 @@ const FooterOne = () => {
         </div>
       </div>
     </footer>
-);
+  );
 
 };
 

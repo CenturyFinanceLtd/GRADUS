@@ -208,6 +208,7 @@ app.use('/api/callback-requests', require('./routes/callbackRequestRoutes'));
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/resume', resumeRoutes);
 app.use('/api/jobs', jobRoutes);
+app.use('/api/landing-pages', require('./routes/landingPageRoutes'));
 
 // Sitemap routes (Public) - Must be before static files
 const { serveSitemap } = require('./controllers/sitemapController');

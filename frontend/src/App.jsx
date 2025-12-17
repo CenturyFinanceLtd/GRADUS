@@ -62,11 +62,10 @@ const GoogleAuthCallback = lazy(() => import("./pages/GoogleAuthCallback.jsx"));
 const OurCoursesPage = lazy(() => import("./pages/OurCoursesPage.jsx"));
 const LiveStudentPage = lazy(() => import("./live/LiveStudentPage.jsx"));
 const VaibhavBatraMasterclass = lazy(() => import("./pages/VaibhavBatraMasterclass.jsx"));
-const MasterclassIntradayPage = lazy(() => import("./pages/MasterclassIntradayPage.jsx"));
-const MasterclassAkhilPage = lazy(() => import("./pages/MasterclassAkhilPage.jsx"));
 
 
 const JobsPage = lazy(() => import("./pages/JobsPage.jsx"));
+const DynamicLandingPage = lazy(() => import("./pages/DynamicLandingPage.jsx"));
 
 const GradusXRedirect = () => {
   const { course } = useParams();
@@ -91,8 +90,6 @@ function App() {
         <Routes>
           <Route exact path='/' element={<HomePageOne />} />
           <Route exact path='/masterclass-on-forex-trading-with-vaibhav-batra' element={<VaibhavBatraMasterclass />} />
-          <Route exact path='/vaibhav' element={<MasterclassIntradayPage />} />
-          <Route exact path='/akhil' element={<MasterclassAkhilPage />} />
           <Route exact path='/about-us' element={<AboutPage />} />
           <Route exact path='/know-CFL' element={<KnowCFLPage />} />
           <Route exact path='/apply-admission' element={<ApplyAdmissionPage />} />
@@ -244,6 +241,7 @@ function App() {
             }
           />
           <Route path='/:programme/:course' element={<ProgrammeCoursePage />} />
+          <Route path='/:slug' element={<DynamicLandingPage />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

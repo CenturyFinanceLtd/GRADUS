@@ -26,6 +26,8 @@ const JoinCommunityOne = () => {
                         type='text'
                         className='bg-white text-black border border-transparent focus-border-main-600 h-48 rounded-pill px-16 ps-60 outline-0 w-100'
                         placeholder='Enter Name...'
+                        name='name'
+                        id='community-name'
                       />
                       <span className='bg-white text-neutral-200 text-2xl flex-center w-48 h-48 rounded-circle border border-main-25 border-4 position-absolute inset-inline-start-0 top-50 translate-middle-y'>
                         <i className='ph-bold ph-user-circle' />
@@ -40,6 +42,8 @@ const JoinCommunityOne = () => {
                         type='email'
                         className='bg-white text-black border border-transparent focus-border-main-600 h-48 rounded-pill px-16 ps-60 outline-0 w-100'
                         placeholder='Enter Email'
+                        name='email'
+                        id='community-email'
                       />
                       <span className='bg-white text-neutral-200 text-2xl flex-center w-48 h-48 rounded-circle border border-main-25 border-4 position-absolute inset-inline-start-0 top-50 translate-middle-y'>
                         <i className='ph-bold ph-envelope-open' />
@@ -50,7 +54,11 @@ const JoinCommunityOne = () => {
                       data-aos='fade-up-left'
                       data-aos-duration={800}
                     >
-                      <select className='bg-white text-black border border-transparent focus-border-main-600 h-48 rounded-pill px-16 ps-60 outline-0 w-100 text-neutral-300'>
+                      <select
+                        className='bg-white text-black border border-transparent focus-border-main-600 h-48 rounded-pill px-16 ps-60 outline-0 w-100 text-neutral-300'
+                        name='role'
+                        id='community-role'
+                      >
                         <option value={1}>Front End Developer</option>
                         <option value={1}>Back End Developer</option>
                         <option value={1}>UX/UI Designer</option>

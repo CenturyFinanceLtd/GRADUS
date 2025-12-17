@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { slugify } from "../utils/slugify.js";
+import "./Breadcrumb.css";
 
 // Compact breadcrumb with optional programme link in the trail
 // Props:
