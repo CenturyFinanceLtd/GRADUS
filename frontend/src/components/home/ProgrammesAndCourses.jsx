@@ -274,7 +274,8 @@ const ProgrammesAndCourses = () => {
       // Small timeout to allow layout to settle
       setTimeout(() => {
         if (!scrollRef.current) return;
-        const singleSetWidth = courses.length * (237 + 10); // card width + gap
+        const cardWidth = window.innerWidth < 768 ? 170 : 237;
+        const singleSetWidth = courses.length * (cardWidth + 10); // card width + gap
         // Only set if we are near 0 (initial load)
         if (scrollRef.current.scrollLeft < 100) {
           scrollRef.current.scrollLeft = singleSetWidth;
@@ -286,7 +287,8 @@ const ProgrammesAndCourses = () => {
   const handleScroll = () => {
     if (!scrollRef.current || !courses.length) return;
     const scrollLeft = scrollRef.current.scrollLeft;
-    const singleSetWidth = courses.length * (237 + 10); // 237px width + 10px gap
+    const cardWidth = window.innerWidth < 768 ? 170 : 237;
+    const singleSetWidth = courses.length * (cardWidth + 10); // card width + gap
 
     // Teleport logic
     // We add a small buffer (e.g., 50px) to prevent flickering at exact boundary
@@ -510,8 +512,7 @@ const ProgrammesAndCourses = () => {
                       className='programme-card-wrapper'
                       style={{
                         flex: '0 0 auto',
-                        width: '237px', // Fixed width as requested
-                        minWidth: '237px',
+                        // Widths handled by CSS now (mobile: 170px, desktop: 237px)
                         // scrollSnapAlign removed for free-flowing smooth scroll
                       }}
                     >
@@ -539,7 +540,7 @@ const ProgrammesAndCourses = () => {
                             <h3 className='programme-card__title'>
                               <Link to={course.href}>{course.title}</Link>
                             </h3>
-                            <p className='programme-card__summary text-sm'>{course.summary}</p>
+                            <p className='programme-card__summary'>{course.summary}</p>
                           </div>
 
                           <div className='programme-card__rating-row'>
