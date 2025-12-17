@@ -544,7 +544,14 @@ html::-webkit-scrollbar-corner {
 /***********dashbord settimgs start***********/
 body {
   background: whitesmoke;
-  font-family: "Open Sans", sans-serif;
+  font-family: var(--body-font);
+  color: var(--body-color);
+}
+
+@media (max-width: 575.98px) {
+  body {
+    font-size: 14px !important;
+  }
 }
 
 .avatar-upload {
