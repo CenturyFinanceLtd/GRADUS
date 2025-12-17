@@ -27,7 +27,7 @@ const listSitemaps = asyncHandler(async (req, res) => {
     // Auto-seed if empty
     if (xmlFiles.length === 0) {
         try {
-            const frontendPublicDir = path.join(__dirname, '../../frontend/public');
+            const frontendPublicDir = path.join(__dirname, '../../../frontend/public');
             const sourceFiles = await fs.readdir(frontendPublicDir);
             const sourceXmlFiles = sourceFiles.filter(file => file.startsWith('sitemap') && file.endsWith('.xml'));
 
