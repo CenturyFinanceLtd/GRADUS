@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://gradusindia.in/</loc>
+    <priority>1.00</priority>
+    <changefreq>Daily</changefreq>
+  </url>
+
+  <url>
+    <loc>https://gradusindia.in/sitemap.gradus-x.xml</loc>
+    <priority>1.00</priority>
+    <changefreq>Daily</changefreq>
+  </url>
+
+ <url>
+    <loc>https://gradusindia.in/sitemap.gradus-finlit.xml</loc>
+    <priority>1.00</priority>
+    <changefreq>Daily</changefreq>
+  </url>
+
+<url>
+    <loc>https://gradusindia.in/sitemap.blogs.xml</loc>
+    <priority>1.00</priority>
+    <changefreq>Daily</changefreq>
+  </url>
+
+  <url>
+    <loc>https://gradusindia.in/about-us</loc>
+    <priority>0.90</priority>
+    <changefreq>Weekly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://gradusindia.in/contact</loc>
+    <priority>0.80</priority>
+    <changefreq>Weekly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://gradusindia.in/privacy-policy</loc>
+    <priority>0.80</priority>
+    <changefreq>Weekly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://gradusindia.in/visitor-policy</loc>
+    <priority>0.80</priority>
+    <changefreq>Weekly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://gradusindia.in/vendors</loc>
+    <priority>0.80</priority>
+    <changefreq>Weekly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://gradusindia.in/candidates-interns</loc>
+    <priority>0.80</priority>
+    <changefreq>Weekly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://gradusindia.in/employee-alumni</loc>
+    <priority>0.80</priority>
+    <changefreq>Weekly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://gradusindia.in/investors</loc>
+    <priority>0.80</priority>
+    <changefreq>Weekly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://gradusindia.in/shareholders</loc>
+    <priority>0.80</priority>
+    <changefreq>Weekly</changefreq>
+  </url>
+
+</urlset>
