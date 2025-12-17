@@ -61,6 +61,7 @@ export default defineConfig({
       interval: 200,
       awaitWriteFinish: { stabilityThreshold: 200, pollInterval: 100 },
     },
+    host: true,
     hmr: {
       overlay: false,
     },

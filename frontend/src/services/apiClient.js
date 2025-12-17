@@ -21,6 +21,11 @@ const isLocalhost = (hostname) => {
 };
 
 const resolveApiBaseUrl = () => {
+  // In development, dynamic hostname to support network access (e.g., 192.168.x.x)
+  if (import.meta.env.DEV && typeof window !== 'undefined') {
+    return `http://${window.location.hostname}:5000/api`;
+  }
+
   const envValue = import.meta.env.VITE_API_BASE_URL;
   const forceRemoteOnLocal = String(import.meta.env.VITE_API_FORCE_REMOTE || '').toLowerCase() === 'true';
 
@@ -32,6 +37,7 @@ const resolveApiBaseUrl = () => {
       if (forceRemoteOnLocal && envValue) {
         return envValue;
       }
+      // If hardcoded localhost env var exists, use it, otherwise default
       if (envValue && /^https?:\/\/localhost(?::\d+)?\/.*/i.test(envValue)) {
         return envValue;
       }
