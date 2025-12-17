@@ -79,5 +79,5 @@ jobs:
           cd ..
 
           # Restart PM2
-          pm2 reload all || pm2 start ecosystem.config.js
+          pm2 restart all || pm2 start ecosystem.config.js
           echo "Deployment Successful!"
