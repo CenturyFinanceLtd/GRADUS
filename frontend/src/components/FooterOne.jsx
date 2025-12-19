@@ -367,7 +367,7 @@ const FooterOne = () => {
       </div>
       <div className='gradus-footer__meta container container-two'>
         <p className='gradus-footer__copyright'>
-          &copy; 2025 | All Rights Reserved by Century finance limited
+          &copy; 2025 | All Rights Reserved by MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED
         </p>
         <div className='gradus-footer__bottom'>
           <div className='gradus-footer__legal'>

@@ -136,10 +136,10 @@ const AboutOne = () => {
                       Gradus, an ambitious initiative of
                       {" "}
                       <Link
-                        to='/know-CFL'
+                        to='/know-MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED'
                         className='text-main-600 fw-semibold hover-text-decoration-underline'
                       >
-                        Century Finance Limited
+                        MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED
                       </Link>
                       , is conceived as a premier career accelerator that forges a decisive link between academic instruction and professional ascendancy. Every pathway is meticulously curated for management aspirants, engineering graduates, and finance enthusiasts, transforming theoretical acumen into demonstrable competence.
                     </p>
@@ -151,7 +151,7 @@ const AboutOne = () => {
                         We operate on the conviction that careers are neither sustained by theory nor advanced by rote learning. They are instead fortified by practical immersion, empirical learning, and critical mentorship. Hence, every Gradus module is suffused with live projects, experiential tasks, and incisive guidance from erudite industry experts, professionals rigorously selected for their pedagogical depth and experiential authority.
                       </p>
                       <p className='text-neutral-500 mb-0'>
-                        Endowed with the institutional credibility of Century Finance Limited, Gradus is not merely an educational initiative but a transformative crucible wherein ambition is refined into expertise, and potential is inexorably elevated into accomplishment. For those who dare to aspire, Gradus does not merely offer training; it architects a definitive passage to professional eminence.
+                        Endowed with the institutional credibility of MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED, Gradus is not merely an educational initiative but a transformative crucible wherein ambition is refined into expertise, and potential is inexorably elevated into accomplishment. For those who dare to aspire, Gradus does not merely offer training; it architects a definitive passage to professional eminence.
                       </p>
                     </AnimatedSpoiler>
                   </div>

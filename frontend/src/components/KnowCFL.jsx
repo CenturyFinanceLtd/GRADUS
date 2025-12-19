@@ -56,7 +56,7 @@ const socialInitiatives = [
 
 const differentiators = [
   "52 Years of Excellence – An unbroken record of reliability and results.",
-  "1.45 Million Customers – A vibrant community of investors who trust CFL.",
+  "1.45 Million Customers – A vibrant community of investors who trust MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED.",
   "Innovation at Core – Among the first NBFCs to harness quantitative computing for trading.",
   "Holistic Financial Ecosystem – Comprehensive investment and protection services under one roof.",
   "Strong Governance – Regulated by India's most respected financial institutions: RBI, SEBI, NSE, BSE, and CDSL.",
@@ -83,13 +83,13 @@ const KnowCFL = () => {
               <div className='pe-xl-5'>
                 <div className='flex-align gap-8 mb-16'>
                   <span className='w-8 h-8 bg-main-600 rounded-circle' />
-                  <p className='mb-0 text-main-600 fw-semibold text-uppercase letter-spacing-2'>Know CFL</p>
+                  <p className='mb-0 text-main-600 fw-semibold text-uppercase letter-spacing-2'>Know MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED</p>
                 </div>
-                <h2 className='mb-24 text-neutral-900'>Century Finance Limited (CFL) — Where Legacy Meets Leadership</h2>
+                <h2 className='mb-24 text-neutral-900'>MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED  — Where Legacy Meets Leadership</h2>
                 <p className='text-neutral-500 mb-16'>
-                  Since its inception in 1974, Century Finance Limited (CFL) has remained synonymous with credibility, foresight,
+                  Since its inception in 1974, MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED  has remained synonymous with credibility, foresight,
                   and excellence in India's financial services ecosystem. As a licensed NBFC regulated by the Reserve Bank of India
-                  and registered with the Ministry of Corporate Affairs, CFL blends integrity with innovation to empower
+                  and registered with the Ministry of Corporate Affairs, MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED blends integrity with innovation to empower
                   generations of investors.
                 </p>
                 <p className='text-neutral-500 mb-0'>
@@ -151,7 +151,7 @@ const KnowCFL = () => {
             <p className='text-main-600 fw-semibold text-uppercase letter-spacing-2 mb-12'>Our Service Portfolio</p>
             <h2 className='mb-16 text-neutral-900'>Comprehensive, Innovative, Trusted</h2>
             <p className='text-neutral-500 mb-0'>
-              CFL is a one-stop destination for a wide spectrum of financial solutions that balance future-ready innovation with
+              MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED is a one-stop destination for a wide spectrum of financial solutions that balance future-ready innovation with
               steadfast governance. Discover the pillars that power our clients' success.
             </p>
           </div>
@@ -202,7 +202,7 @@ const KnowCFL = () => {
             </div>
             <div className='col-lg-6'>
               <div className='bg-main-two-50 border border-neutral-30 rounded-16 px-32 py-40 h-100'>
-                <p className='text-main-600 fw-semibold text-uppercase letter-spacing-2 mb-16'>Why CFL Stands Apart</p>
+                <p className='text-main-600 fw-semibold text-uppercase letter-spacing-2 mb-16'>Why MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED Stands Apart</p>
                 <h3 className='mb-24 text-neutral-900'>A vision guided by purpose and precision</h3>
                 <ul className='list-unstyled d-flex flex-column gap-16 mb-32'>
                   {differentiators.map((point) => (
@@ -218,7 +218,7 @@ const KnowCFL = () => {
                   <h4 className='mb-16 text-neutral-900'>Our Vision and Philosophy</h4>
                   <p className='text-neutral-500 mb-16'>
                     To remain at the forefront of financial innovation while safeguarding the trust, transparency, and
-                    accountability that define us. CFL envisions finance as a catalyst for inclusive growth — empowering
+                    accountability that define us. MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED envisions finance as a catalyst for inclusive growth — empowering
                     individuals, businesses, and communities to prosper together.
                   </p>
                   <p className='text-main-600 fw-semibold mb-0'>
@@ -237,7 +237,7 @@ const KnowCFL = () => {
             <div className='col-xl-8'>
               <h2 className='text-white mb-16'>A Message of Assurance</h2>
               <p className='text-white-75 mb-32'>
-                Century Finance Limited is a trusted partner for generations of investors, a trailblazer in modern finance, and a
+                MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED is a trusted partner for generations of investors, a trailblazer in modern finance, and a
                 torchbearer of social responsibility. With every service rendered and every life touched, we reaffirm our promise
                 to protect, grow, and empower — today, tomorrow, and for every century to come.
               </p>

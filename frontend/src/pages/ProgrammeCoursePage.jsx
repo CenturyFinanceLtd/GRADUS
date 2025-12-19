@@ -121,7 +121,7 @@ function ProgrammeCoursePage() {
           const careerOutcomes = Array.isArray(c.careerOutcomes) ? c.careerOutcomes : [];
           const toolsFrameworks = Array.isArray(c.toolsFrameworks) ? c.toolsFrameworks : [];
           const instructors = Array.isArray(c.instructors) ? c.instructors : [];
-          const offeredBy = c.offeredBy && typeof c.offeredBy === 'object' ? c.offeredBy : { name: 'Gradus India', subtitle: 'A subsidiary of Century Finance Limited', logo: '/assets/images/cfl.png' };
+          const offeredBy = c.offeredBy && typeof c.offeredBy === 'object' ? c.offeredBy : { name: 'Gradus India', subtitle: 'A subsidiary of MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED', logo: '/assets/images/cfl.png' };
           const targetAudience = Array.isArray(c.targetAudience) && c.targetAudience.length ? c.targetAudience : [];
           const prereqsList = Array.isArray(c.prereqsList) && c.prereqsList.length ? c.prereqsList : [];
 
@@ -563,7 +563,7 @@ function ProgrammeCoursePage() {
                       <img src={data?.offeredBy?.logo || '/assets/images/cfl.png'} alt='' style={{ width: 36, height: 36 }} className='rounded-8' />
                       <div>
                         <div className='fw-semibold text-neutral-900'>{data?.offeredBy?.name || 'Gradus India'}</div>
-                        <div className='text-neutral-600 text-sm'>{data?.offeredBy?.subtitle || 'A subsidiary of Century Finance Limited'}</div>
+                        <div className='text-neutral-600 text-sm'>{data?.offeredBy?.subtitle || 'A subsidiary of MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED'}</div>
                       </div>
                     </div>
                   </div>

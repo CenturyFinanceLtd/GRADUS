@@ -30,7 +30,7 @@ const GradusAmbition = () => {
             <span className="gradus-ambition__tag">Know Gradus</span>
             <h2 className="gradus-ambition__title">Where Ambition Becomes Proven Expertise</h2>
             <p className="gradus-ambition__lead">
-              Gradus, the career acceleration initiative by Century Finance Limited, forges a decisive
+              Gradus, the career acceleration initiative by MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED, forges a decisive
               bridge between academic instruction and industry.
             </p>
             <p className="gradus-ambition__body">

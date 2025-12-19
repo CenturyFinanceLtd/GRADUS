@@ -10,7 +10,7 @@ import {
 } from "../services/adminEvents";
 import { uploadImage } from "../services/uploads";
 
-const EVENT_TYPE_OPTIONS = ["Seminar", "Webinar", "Job fair", "Corporate Initiatives"];
+const EVENT_TYPE_OPTIONS = ["Masterclass", "Seminar", "Webinar", "Job fair", "Corporate Initiatives"];
 
 const defaultForm = {
   title: "",
@@ -40,6 +40,20 @@ const defaultForm = {
   tags: "",
   highlights: "",
   agenda: "",
+  // Masterclass fields
+  isMasterclass: false,
+  mcWhyTitle: "",
+  mcWhyDesc: "",
+  mcWhoIsFor: "", // as newline separated string for edit
+  mcOutcomes: "",
+  mcTools: "",
+  mcBonuses: "",
+  mcCommunity: "",
+  // We will handle array-of-objects (curriculum/howItWorks/FAQs) as JSON strings or simplified text for this pass, 
+  // or simple line-based formats if complex UI is too large. 
+  // For simplicity MVP: JSON text areas for complex arrays
+  mcCurriculumJson: "[]",
+  mcFaqsJson: "[]",
 };
 
 const toDatetimeLocal = (iso) => {
@@ -129,6 +143,17 @@ const EventsAdminPage = () => {
     tags: (event?.tags || []).join(", "),
     highlights: (event?.meta?.highlights || []).join("\n"),
     agenda: (event?.meta?.agenda || []).join("\n"),
+    // Masterclass props
+    isMasterclass: Boolean(event?.isMasterclass),
+    mcWhyTitle: event?.masterclassDetails?.overview?.whyMatters?.title || "",
+    mcWhyDesc: event?.masterclassDetails?.overview?.whyMatters?.description || "",
+    mcWhoIsFor: (event?.masterclassDetails?.overview?.whoIsFor || []).join("\n"),
+    mcOutcomes: (event?.masterclassDetails?.overview?.outcomes || []).join("\n"),
+    mcTools: (event?.masterclassDetails?.overview?.tools || []).join("\n"),
+    mcBonuses: (event?.masterclassDetails?.overview?.bonuses || []).join("\n"),
+    mcCommunity: (event?.masterclassDetails?.overview?.community || []).join("\n"),
+    mcCurriculumJson: JSON.stringify(event?.masterclassDetails?.curriculum || [], null, 2),
+    mcFaqsJson: JSON.stringify(event?.masterclassDetails?.faqs || [], null, 2),
   });
 
   const handleInputChange = (event) => {
@@ -158,12 +183,12 @@ const EventsAdminPage = () => {
       category: form.category.trim() || "General",
       badge: form.badge.trim(),
       eventType: form.eventType || EVENT_TYPE_OPTIONS[0],
-    hostName: form.hostName.trim(),
-    hostTitle: form.hostTitle.trim(),
-    hostBio: form.hostBio.trim(),
-    hostAvatarUrl: form.hostAvatarUrl.trim(),
-    heroImageUrl: form.heroImageUrl.trim(),
-    heroImageAlt: form.heroImageAlt.trim(),
+      hostName: form.hostName.trim(),
+      hostTitle: form.hostTitle.trim(),
+      hostBio: form.hostBio.trim(),
+      hostAvatarUrl: form.hostAvatarUrl.trim(),
+      heroImageUrl: form.heroImageUrl.trim(),
+      heroImageAlt: form.heroImageAlt.trim(),
       startDate: fromDatetimeLocal(form.startDate),
       endDate: fromDatetimeLocal(form.endDate),
       timezone: form.timezone.trim() || "Asia/Kolkata",
@@ -179,7 +204,33 @@ const EventsAdminPage = () => {
       tags: form.tags,
       highlights: form.highlights,
       agenda: form.agenda,
+      isMasterclass: Boolean(form.isMasterclass),
     };
+
+    if (form.isMasterclass) {
+      let curriculum = [];
+      let faqs = [];
+      try {
+        curriculum = JSON.parse(form.mcCurriculumJson || "[]");
+        faqs = JSON.parse(form.mcFaqsJson || "[]");
+      } catch (e) {
+        throw new Error("Invalid JSON in Curriculum or FAQs");
+      }
+
+      payload.masterclassDetails = {
+        overview: {
+          whyMatters: { title: form.mcWhyTitle, description: form.mcWhyDesc },
+          whoIsFor: form.mcWhoIsFor.split("\n").map(s => s.trim()).filter(Boolean),
+          howItWorks: [], // Keeping simple for now, can implement later if needed
+          outcomes: form.mcOutcomes.split("\n").map(s => s.trim()).filter(Boolean),
+          tools: form.mcTools.split("\n").map(s => s.trim()).filter(Boolean),
+          bonuses: form.mcBonuses.split("\n").map(s => s.trim()).filter(Boolean),
+          community: form.mcCommunity.split("\n").map(s => s.trim()).filter(Boolean),
+        },
+        curriculum,
+        faqs
+      };
+    }
 
     if (form.priceAmount !== "" && form.priceAmount !== null) {
       payload.priceAmount = Number(form.priceAmount);
@@ -444,6 +495,72 @@ const EventsAdminPage = () => {
                     <option value='hybrid'>Hybrid</option>
                   </select>
                 </div>
+                <div className='col-12'>
+                  <div className='form-check bg-light p-3 rounded'>
+                    <input
+                      type='checkbox'
+                      className='form-check-input'
+                      id='isMasterclass'
+                      name='isMasterclass'
+                      checked={form.isMasterclass}
+                      onChange={handleInputChange}
+                    />
+                    <label className='form-check-label fw-bold' htmlFor='isMasterclass'>
+                      Use Masterclass Template
+                    </label>
+                    <small className='d-block text-muted'>Enables rich content sections: Outcomes, Curriculum, FAQs, etc.</small>
+                  </div>
+                </div>
+
+                {form.isMasterclass && (
+                  <div className='col-12 border p-3 rounded bg-white'>
+                    <h6 className='mb-3 text-primary'>Masterclass Details</h6>
+
+                    <div className='mb-3'>
+                      <label className='form-label'>Why It Matters (Title)</label>
+                      <input className='form-control' name='mcWhyTitle' value={form.mcWhyTitle} onChange={handleInputChange} placeholder='e.g. Why Financial Literacy Matters' />
+                    </div>
+                    <div className='mb-3'>
+                      <label className='form-label'>Why It Matters (Description)</label>
+                      <textarea className='form-control' rows={3} name='mcWhyDesc' value={form.mcWhyDesc} onChange={handleInputChange} />
+                    </div>
+
+                    <div className='row g-3'>
+                      <div className='col-md-6'>
+                        <label className='form-label'>Who Is For (One per line)</label>
+                        <textarea className='form-control' rows={4} name='mcWhoIsFor' value={form.mcWhoIsFor} onChange={handleInputChange} placeholder='College students...' />
+                      </div>
+                      <div className='col-md-6'>
+                        <label className='form-label'>Outcomes (One per line)</label>
+                        <textarea className='form-control' rows={4} name='mcOutcomes' value={form.mcOutcomes} onChange={handleInputChange} placeholder='Clear understanding...' />
+                      </div>
+                      <div className='col-md-6'>
+                        <label className='form-label'>Tools Included (One per line)</label>
+                        <textarea className='form-control' rows={4} name='mcTools' value={form.mcTools} onChange={handleInputChange} placeholder='Budget templates...' />
+                      </div>
+                      <div className='col-md-6'>
+                        <label className='form-label'>Bonuses (One per line)</label>
+                        <textarea className='form-control' rows={4} name='mcBonuses' value={form.mcBonuses} onChange={handleInputChange} placeholder='PDF Guide...' />
+                      </div>
+                      <div className='col-12'>
+                        <label className='form-label'>Community Features (One per line)</label>
+                        <textarea className='form-control' rows={2} name='mcCommunity' value={form.mcCommunity} onChange={handleInputChange} placeholder='Weekly Q&A...' />
+                      </div>
+                    </div>
+
+                    <div className='mt-3'>
+                      <label className='form-label'>Curriculum (JSON Array)</label>
+                      <textarea className='form-control font-monospace text-xs' rows={5} name='mcCurriculumJson' value={form.mcCurriculumJson} onChange={handleInputChange} />
+                      <small className='text-muted'>Example: {`[{"title":"Module 1", "description":"Intro...", "icon":"fa-solid fa-book"}]`}</small>
+                    </div>
+
+                    <div className='mt-3'>
+                      <label className='form-label'>FAQs (JSON Array)</label>
+                      <textarea className='form-control font-monospace text-xs' rows={5} name='mcFaqsJson' value={form.mcFaqsJson} onChange={handleInputChange} />
+                      <small className='text-muted'>Example: {`[{"question":"Is it free?", "answer":"Yes."}]`}</small>
+                    </div>
+                  </div>
+                )}
                 <div className='col-12'>
                   <label className='form-label'>Location / Link</label>
                   <input className='form-control' name='location' value={form.location} onChange={handleInputChange} />

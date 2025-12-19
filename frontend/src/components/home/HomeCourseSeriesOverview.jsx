@@ -16,7 +16,7 @@ const FALLBACK_COURSES = [
   {
     id: "gradusquity",
     name: "GradusQuity",
-    subtitle: "By Gradus India (a 100% Subsidiary of Century Finance Limited)",
+    subtitle: "By Gradus India (a 100% Subsidiary of MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED)",
     focus:
       "Capital markets mastery designed for future-ready equity, debt, and derivative professionals.",
     approvals: [
@@ -30,7 +30,7 @@ const FALLBACK_COURSES = [
   {
     id: "gradusx",
     name: "GradusX",
-    subtitle: "By Gradus India (a 100% Subsidiary of Century Finance Limited)",
+    subtitle: "By Gradus India (a 100% Subsidiary of MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED)",
     focus:
       "Full-stack technology, AI, and digital growth curriculum that unites software engineering with data storytelling.",
     approvals: [
@@ -44,7 +44,7 @@ const FALLBACK_COURSES = [
   {
     id: "graduslead",
     name: "GradusLead",
-    subtitle: "By Gradus India (a 100% Subsidiary of Century Finance Limited)",
+    subtitle: "By Gradus India (a 100% Subsidiary of MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED)",
     focus:
       "Business and leadership journey that cultivates emerging CXOs with finance, strategy, and people excellence.",
     approvals: [

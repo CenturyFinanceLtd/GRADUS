@@ -91,6 +91,34 @@ const EventSchema = new mongoose.Schema(
       highlights: { type: [String], default: [] },
       agenda: { type: [String], default: [] },
     },
+    isMasterclass: { type: Boolean, default: false },
+    masterclassDetails: {
+      overview: {
+        whyMatters: {
+          title: { type: String, default: '' },
+          description: { type: String, default: '' },
+        },
+        whoIsFor: { type: [String], default: [] },
+        howItWorks: [{
+          step: Number,
+          title: String,
+          description: String
+        }],
+        outcomes: { type: [String], default: [] },
+        tools: { type: [String], default: [] },
+        bonuses: { type: [String], default: [] },
+        community: { type: [String], default: [] },
+      },
+      curriculum: [{
+        title: String,
+        description: String,
+        icon: { type: String, default: 'fa-solid fa-book' } // FontAwesome icon class
+      }],
+      faqs: [{
+        question: String,
+        answer: String
+      }]
+    }
   },
   {
     timestamps: true,

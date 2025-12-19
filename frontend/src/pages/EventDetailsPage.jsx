@@ -7,6 +7,7 @@ import HeaderOne from "../components/HeaderOne";
 import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
 import { fetchEventBySlug } from "../services/eventService";
+import MasterclassTemplate from "./MasterclassTemplate";
 
 const EventDetailsPage = () => {
   const { slug } = useParams();
@@ -57,10 +58,18 @@ const EventDetailsPage = () => {
     <>
       <Preloader />
       <Animation />
-      <HeaderOne />
-      <EventDetailsOne event={state.event} loading={state.loading} error={state.error} />
-      <CertificateOne />
-      <FooterOne />
+      <Animation />
+      {/* If it is a Masterclass, we skip standard Header/Footer here because the Template has them */}
+      {state.event?.isMasterclass ? (
+        <MasterclassTemplate event={state.event} />
+      ) : (
+        <>
+          <HeaderOne />
+          <EventDetailsOne event={state.event} loading={state.loading} error={state.error} />
+          <CertificateOne />
+          <FooterOne />
+        </>
+      )}
     </>
   );
 };

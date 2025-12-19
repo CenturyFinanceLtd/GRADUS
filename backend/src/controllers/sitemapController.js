@@ -27,27 +27,38 @@ const listSitemaps = asyncHandler(async (req, res) => {
     console.log('Files in dir:', files);
     let xmlFiles = files.filter(file => file.endsWith('.xml'));
 
-    // Auto-seed if empty
-    if (xmlFiles.length === 0) {
-        try {
-            const frontendPublicDir = path.join(__dirname, '../../../frontend/public');
-            const sourceFiles = await fs.readdir(frontendPublicDir);
-            const sourceXmlFiles = sourceFiles.filter(file => file.startsWith('sitemap') && file.endsWith('.xml'));
+    // Check for missing sitemaps and sync from frontend
+    try {
+        const frontendPublicDir = path.join(__dirname, '../../../frontend/public');
+        const sourceFiles = await fs.readdir(frontendPublicDir);
+        const sourceXmlFiles = sourceFiles.filter(file => file.startsWith('sitemap') && file.endsWith('.xml'));
 
-            for (const file of sourceXmlFiles) {
+        for (const file of sourceXmlFiles) {
+            const targetPath = path.join(SITEMAP_DIR, file);
+            try {
+                // Check if file exists in target
+                await fs.access(targetPath);
+            } catch {
+                // File doesn't exist, copy it
+                console.log(`Syncing missing sitemap: ${file}`);
                 await fs.copyFile(
                     path.join(frontendPublicDir, file),
-                    path.join(SITEMAP_DIR, file)
+                    targetPath
                 );
             }
+        }
 
-            files = await fs.readdir(SITEMAP_DIR);
-            xmlFiles = files.filter(file => file.endsWith('.xml'));
-        } catch (error) {
-            console.error('Failed to seed sitemaps:', error);
-            // Fallback: Create a default sitemap.xml if seeding fails
-            try {
-                const defaultContent = `<?xml version="1.0" encoding="UTF-8"?>
+        // Refresh file list after sync
+        files = await fs.readdir(SITEMAP_DIR);
+        xmlFiles = files.filter(file => file.endsWith('.xml'));
+    } catch (error) {
+        console.error('Failed to sync sitemaps:', error);
+    }
+
+    // Fallback: Create a default sitemap.xml if still empty
+    if (xmlFiles.length === 0) {
+        try {
+            const defaultContent = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://gradusindia.in/</loc>
@@ -55,11 +66,10 @@ const listSitemaps = asyncHandler(async (req, res) => {
     <priority>1.0</priority>
   </url>
 </urlset>`;
-                await fs.writeFile(path.join(SITEMAP_DIR, 'sitemap.xml'), defaultContent);
-                xmlFiles = ['sitemap.xml'];
-            } catch (writeError) {
-                console.error('Failed to create default sitemap:', writeError);
-            }
+            await fs.writeFile(path.join(SITEMAP_DIR, 'sitemap.xml'), defaultContent);
+            xmlFiles = ['sitemap.xml'];
+        } catch (writeError) {
+            console.error('Failed to create default sitemap:', writeError);
         }
     }
 
@@ -132,6 +142,10 @@ const serveSitemap = asyncHandler(async (req, res) => {
     try {
         const content = await fs.readFile(filePath, 'utf-8');
         res.header('Content-Type', 'application/xml');
+        // Prevent caching to ensure updates are seen immediately
+        res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.header('Pragma', 'no-cache');
+        res.header('Expires', '0');
         res.send(content);
     } catch (error) {
         return res.status(404).send('Not found');

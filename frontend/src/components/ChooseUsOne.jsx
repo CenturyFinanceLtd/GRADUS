@@ -32,7 +32,7 @@ const ChooseUsOne = () => {
                   </h2>
                   <div className='text-neutral-500 wow bounceInUp'>
                     <p className='mb-16'>
-                      Gradus, an ambitious initiative of Century Finance Limited, is conceived as a premier career accelerator that forges a decisive link between academic instruction and professional ascendancy. Every pathway is meticulously curated for management aspirants, engineering graduates, and finance enthusiasts, transforming theoretical acumen into demonstrable competence.
+                      Gradus, an ambitious initiative of MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED, is conceived as a premier career accelerator that forges a decisive link between academic instruction and professional ascendancy. Every pathway is meticulously curated for management aspirants, engineering graduates, and finance enthusiasts, transforming theoretical acumen into demonstrable competence.
                     </p>
                     <p className='mb-0'>
                       Our learning ecosystem is anchored in live projects, experiential immersion, and incisive mentorship from erudite industry experts so that ambition is refined into expertise and potential is elevated into accomplishment.

@@ -228,7 +228,7 @@ const BannerThree = () => {
                       </span>
                     </h1>
                     <p className='text-white text-line-2 wow bounceInDown'>
-                      Accelerate into high-impact roles with nationwide recruiter drives, on-ground immersion, and lifelong alumni support from Century Finance Limited.
+                      Accelerate into high-impact roles with nationwide recruiter drives, on-ground immersion, and lifelong alumni support from MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED.
                     </p>
                   </div>
                   <div className='buttons-wrapper flex-align flex-wrap gap-24 mt-40'>

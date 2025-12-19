@@ -169,14 +169,14 @@ const ByCflAndPartners = () => {
               marginBottom: 12,
             }}
           >
-            
+
           </div>
           <img
             src="/assets/images/cfl.png"
-            alt="CFL Logo"
+            alt="MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED Logo"
             style={{ maxHeight: 56, width: "auto" }}
           />
-         
+
         </div>
 
         <div

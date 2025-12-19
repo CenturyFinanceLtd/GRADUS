@@ -5,7 +5,7 @@ import { fetchEvents } from "../services/eventService";
 
 const EVENT_LIMIT = 24;
 const PAST_EVENT_LIMIT = 12;
-const EVENT_TYPE_OPTIONS = ["All", "Upcoming", "Seminar", "Webinar", "Job fair", "Corporate Initiatives"];
+const EVENT_TYPE_OPTIONS = ["All", "Upcoming", "Masterclass", "Seminar", "Webinar", "Job fair", "Corporate Initiatives"];
 
 const isEventLive = (event) => {
   const startValue = event?.schedule?.start || null;

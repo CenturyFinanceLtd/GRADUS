@@ -75,7 +75,7 @@ const AboutThree = () => {
                     Where Ambition Becomes Proven Expertise
                   </h2>
                   <p className='text-neutral-500 text-line-2 wow bounceInUp mb-16'>
-                    Gradus, the career acceleration initiative by Century Finance Limited, forges a decisive bridge between academic instruction and industry ascendancy. Our pathways are meticulously designed for management aspirants, engineering graduates, and finance enthusiasts so that theoretical acumen translates into demonstrable competence.
+                    Gradus, the career acceleration initiative by MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED, forges a decisive bridge between academic instruction and industry ascendancy. Our pathways are meticulously designed for management aspirants, engineering graduates, and finance enthusiasts so that theoretical acumen translates into demonstrable competence.
                   </p>
                   <p className='text-neutral-500 text-line-2 wow bounceInUp mb-0'>
                     Backed by immersive internships, guaranteed placement trajectories, and mentors rigorously selected for their experiential authority, Gradus transforms ambition into expertise for professionals ready to excel.

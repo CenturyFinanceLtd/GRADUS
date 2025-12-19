@@ -14046,6 +14046,7 @@ button:focus {
   .header .header-inner {
     /* header-content-wrapper will handle internal layout */
     min-height: 80px;
+    position: relative;
   }
 
   .header-content-wrapper {
@@ -17261,10 +17262,15 @@ a.footer-item__logo img {
 
   .nav-mega {
     position: absolute;
+    /* Align from the left as requested */
     left: 50%;
+    right: auto;
     top: 100%;
-    transform: translate(-50%, 12px);
+    transform: translateX(-50%) translateY(12px);
+    max-width: calc(100vw - 24px);
     width: min(1080px, 92vw);
+    min-height: 480px;
+    /* Enforce min-height for consistent look */
     /* Panel height limit, columns will scroll inside */
     --megaH: 72vh;
     --megaTitleH: 44px;
@@ -17277,17 +17283,17 @@ a.footer-item__logo img {
     /* opaque */
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
-    border: 1px solid transparent;
+    border: none !important;
     /* remove visible outline on hover */
-    outline: none;
+    outline: none !important;
     border-radius: 22px;
     box-shadow: 0 32px 80px rgba(15, 23, 42, 0.18),
       0 6px 14px rgba(15, 23, 42, 0.08);
-    padding: 20px 18px 24px;
+    padding: 0;
+    /* Remove padding for split view */
     /* extra bottom room to avoid clipping */
-    display: grid;
-    grid-template-columns: repeat(3, minmax(260px, 1fr));
-    gap: 8px 28px;
+    display: flex;
+    /* Flex layout for sidebar + content */
     opacity: 0;
     visibility: hidden;
     z-index: 2000;
@@ -17298,19 +17304,51 @@ a.footer-item__logo img {
     background-clip: padding-box;
   }
 
+
+  /* Ensure the list item doesn't trap the absolute positioning */
+  .nav-menu__item.has-mega {
+    position: static;
+  }
+
   .has-mega:hover>.nav-mega,
   .has-mega:focus-within>.nav-mega,
   .nav-mega:hover {
     opacity: 1;
     visibility: visible;
-    transform: translate(-50%, 0);
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Megamenu New Layout - Cleaned up to simple 3-column flex */
+  .nav-mega__wrapper {
+    display: flex;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Columns are direct children of nav-mega in the React component now, 
+     but sometimes wrapped. The React code maps independent divs. 
+     HeaderOne.jsx structure: .nav-mega > .nav-mega__col 
+  */
+
+  .badge-flagship {
+    margin-left: 8px;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #fce283;
+    color: #0b2745;
+    font-weight: 700;
+    text-transform: uppercase;
+    vertical-align: middle;
   }
 
   .nav-mega__col {
-    padding: 6px 8px;
-    border-radius: 14px;
+    padding: 24px;
+    border-radius: 0;
     display: flex;
     flex-direction: column;
+    /* Ensure equal width for 3 cols */
+    flex: 1;
   }
 
   .nav-mega__col+.nav-mega__col {
@@ -17478,6 +17516,8 @@ a.footer-item__logo img {
     right: 0;
     top: -14px;
     height: 14px;
+    background: transparent !important;
+    border: none !important;
   }
 
   /* Caret on trigger (use ::before so it doesn't clash with the glass ::after) */
@@ -25423,7 +25463,10 @@ video:-ms-fullscreen {
   .nav-mega:focus,
   .nav-mega:focus-within {
     outline: none !important;
-    border-color: transparent !important;
+    border: none !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+    /* Keep the soft shadow, remove any colored border/shadow */
+    background-color: #fff !important;
   }
 
   .contact-form-field btn {

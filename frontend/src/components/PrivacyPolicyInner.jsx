@@ -25,7 +25,7 @@ const PrivacyPolicyInner = () => {
                   rel='noreferrer'>www.gradusindia.com</a>, <a href='https://www.gradusindia.in' target='_blank'
                   rel='noreferrer'>www.gradusindia.in</a>, <a href='https://www.centuryfinancelimited.com'
                   target='_blank' rel='noreferrer'>www.centuryfinancelimited.com</a>, and their sub-domains (collectively
-                  referred to as "GRADUS & CFL Websites"), our adherence to the below mentioned principles remain across
+                  referred to as "GRADUS & MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED Websites"), our adherence to the below mentioned principles remain across
                   the organization towards personal data processing. Depending on the purposes of processing and your
                   relationship with us as a data subject, we may provide additional customized privacy statements, more
                   information on which can be found below.
