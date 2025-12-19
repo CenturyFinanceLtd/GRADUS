@@ -8,6 +8,7 @@ const Blog = require('../models/Blog');
 const BlogComment = require('../models/BlogComment');
 const slugify = require('../utils/slugify');
 const { cloudinary, blogImagesFolder } = require('../config/cloudinary');
+const { addBlogToSitemap, updateBlogInSitemap, removeBlogFromSitemap } = require('../services/sitemapService');
 
 const buildUniqueSlug = async (title, currentId) => {
   const baseSlug = slugify(title);
@@ -245,6 +246,9 @@ const createBlog = asyncHandler(async (req, res) => {
     publishedAt: publishedAt ? new Date(publishedAt) : undefined,
   });
 
+  // Update sitemap
+  addBlogToSitemap(slug).catch(err => console.error(err));
+
   res.status(201).json(blog);
 });
 
@@ -314,7 +318,11 @@ const updateBlog = asyncHandler(async (req, res) => {
   blog.featuredImage = nextFeaturedImage || undefined;
   blog.featuredImagePublicId = nextFeaturedImagePublicId || undefined;
 
+  const oldSlug = blog.slug;
   const updatedBlog = await blog.save();
+
+  // Update sitemap if slug changed or just to ensure it's there
+  updateBlogInSitemap(oldSlug, updatedBlog.slug).catch(err => console.error(err));
 
   res.json({
     blog: {
@@ -598,7 +606,7 @@ const createAdminBlogComment = asyncHandler(async (req, res) => {
     parentComment: parentComment ? parentComment._id : null,
   });
 
-  await Blog.updateOne({ _id: blog._id }, { $inc: { 'meta.comments': 1 } }).catch(() => {});
+  await Blog.updateOne({ _id: blog._id }, { $inc: { 'meta.comments': 1 } }).catch(() => { });
 
   res.status(201).json({
     id: comment._id.toString(),
@@ -658,14 +666,14 @@ const deleteAdminBlogComment = asyncHandler(async (req, res) => {
 
   await BlogComment.deleteMany({ _id: { $in: idsToDelete } });
   const totalComments = await BlogComment.countDocuments({ blog: blog._id });
-  await Blog.updateOne({ _id: blog._id }, { 'meta.comments': totalComments }).catch(() => {});
+  await Blog.updateOne({ _id: blog._id }, { 'meta.comments': totalComments }).catch(() => { });
 
   res.json({ removed: idsToDelete.length });
 });
 
 const deleteAdminBlog = asyncHandler(async (req, res) => {
   const { blogId } = req.params;
-  const blog = await findBlogByIdentifier(blogId, '_id featuredImagePublicId');
+  const blog = await findBlogByIdentifier(blogId, '_id featuredImagePublicId slug');
 
   if (!blog) {
     res.status(404);
@@ -674,7 +682,10 @@ const deleteAdminBlog = asyncHandler(async (req, res) => {
 
   await destroyFeaturedImage(blog.featuredImagePublicId);
   await Blog.deleteOne({ _id: blog._id });
-  await BlogComment.deleteMany({ blog: blog._id }).catch(() => {});
+  await BlogComment.deleteMany({ blog: blog._id }).catch(() => { });
+
+  // Remove from sitemap
+  removeBlogFromSitemap(blog.slug).catch(err => console.error(err));
 
   res.json({ success: true });
 });
