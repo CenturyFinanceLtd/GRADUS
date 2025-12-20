@@ -1,8 +1,8 @@
 import Breadcrumb from "../components/Breadcrumb";
-import CertificateOne from "../components/CertificateOne";
 import FooterOne from "../components/FooterOne";
-import GallerySection from "../components/GallerySection";
+import WeAreGradus from "../components/WeAreGradus";
 import GalleryHeroSection from "../components/GalleryHeroSection";
+import MeetOurTeam from "../components/MeetOurTeam";
 import HeaderOne from "../components/HeaderOne";
 import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
@@ -22,14 +22,11 @@ const GalleryPage = () => {
       {/* Breadcrumb */}
       <Breadcrumb title={"Gallery"} />
 
-      {/* GalleryHeroSection */}
-      <GalleryHeroSection />
+      {/* WeAreGradus */}
+      <WeAreGradus />
 
-      {/* GallerySection */}
-      <GallerySection />
-
-      {/* CertificateOne */}
-      <CertificateOne />
+      {/* MeetOurTeam */}
+      <MeetOurTeam />
 
       {/* FooterOne */}
       <FooterOne />
