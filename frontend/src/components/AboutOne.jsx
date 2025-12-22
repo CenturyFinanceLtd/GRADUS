@@ -145,7 +145,7 @@ const AboutOne = () => {
                     </p>
                     <AnimatedSpoiler isExpanded={isExpanded}>
                       <p className='text-neutral-500 mb-16'>
-                        The Gradus paradigm is architected with a dual advantage: an immersive two-month remunerated internship, affording unmediated exposure to real-world complexities, and a guaranteed placement trajectory with some of the nation's most prestigious organizations. This construct ensures that theoretical acumen is invariably transfigured into demonstrable competence.
+                        The Gradus paradigm is architected with a dual advantage: an immersive two-month remunerated internship, affording unmediated exposure to real-world complexities, and an assured placement trajectory with some of the nation's most prestigious organizations. This construct ensures that theoretical acumen is invariably transfigured into demonstrable competence.
                       </p>
                       <p className='text-neutral-500 mb-16'>
                         We operate on the conviction that careers are neither sustained by theory nor advanced by rote learning. They are instead fortified by practical immersion, empirical learning, and critical mentorship. Hence, every Gradus module is suffused with live projects, experiential tasks, and incisive guidance from erudite industry experts, professionals rigorously selected for their pedagogical depth and experiential authority.
@@ -193,7 +193,7 @@ const AboutOne = () => {
                     <h4 className='text-neutral-500 mb-12'>Our Vision</h4>
                     <div className='text-neutral-500'>
                       <p className='mb-16'>
-                        Gradus goes beyond conventional learning by integrating paid internships and guaranteed placements into its framework, offering learners a pathway that is both experiential and assured. By merging academic rigor with practical exposure, we empower our students to evolve into professionals who are confident, competent, and committed to making meaningful contributions in their chosen fields.
+                        Gradus goes beyond conventional learning by integrating paid internships and assured placements into its framework, offering learners a pathway that is both experiential and assured. By merging academic rigor with practical exposure, we empower our students to evolve into professionals who are confident, competent, and committed to making meaningful contributions in their chosen fields.
                       </p>
                       <AnimatedSpoiler isExpanded={isExpanded}>
                         <p className='mb-0'>

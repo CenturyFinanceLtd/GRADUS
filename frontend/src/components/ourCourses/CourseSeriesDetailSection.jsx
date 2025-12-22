@@ -51,17 +51,17 @@ const CourseSeriesDetailSection = ({
       .map((week) => {
         const normalizedPoints = Array.isArray(week?.points)
           ? week.points.map((point) => {
-              if (typeof point === 'string') {
-                return { text: point, isLocked: false };
-              }
-              if (point && typeof point === 'object') {
-                return {
-                  text: typeof point.text === 'string' ? point.text : '',
-                  isLocked: Boolean(point.isLocked),
-                };
-              }
-              return { text: '', isLocked: false };
-            })
+            if (typeof point === 'string') {
+              return { text: point, isLocked: false };
+            }
+            if (point && typeof point === 'object') {
+              return {
+                text: typeof point.text === 'string' ? point.text : '',
+                isLocked: Boolean(point.isLocked),
+              };
+            }
+            return { text: '', isLocked: false };
+          })
           : [];
 
         const isLocked =
@@ -232,7 +232,7 @@ const CourseSeriesDetailSection = ({
               ) : null}
               {placementRange ? (
                 <div className='p-24 rounded-20 bg-main-25 border border-main-100 mb-24'>
-                  <h6 className='text-neutral-800 text-lg fw-semibold mb-8'>Guaranteed Placement Pathway</h6>
+                  <h6 className='text-neutral-800 text-lg fw-semibold mb-8'>Assured Placement Pathway</h6>
                   <p className='text-neutral-600 mb-0'>{placementRange}</p>
                 </div>
               ) : null}
@@ -274,9 +274,8 @@ const CourseSeriesDetailSection = ({
                 </div>
                 <div
                   id={`${courseAnchorId}-week-list`}
-                  className={`our-courses-week-cards d-grid gap-24 mt-32 ${
-                    showAllWeeks ? 'our-courses-week-cards--expanded' : 'our-courses-week-cards--collapsed'
-                  } ${hasOverflowWeeks ? 'our-courses-week-cards--interactive' : ''}`}
+                  className={`our-courses-week-cards d-grid gap-24 mt-32 ${showAllWeeks ? 'our-courses-week-cards--expanded' : 'our-courses-week-cards--collapsed'
+                    } ${hasOverflowWeeks ? 'our-courses-week-cards--interactive' : ''}`}
                   style={!showAllWeeks && collapsedHeight ? { maxHeight: `${collapsedHeight}px` } : undefined}
                 >
                   {weeks.map((week, weekIndex) => {
@@ -304,15 +303,13 @@ const CourseSeriesDetailSection = ({
                               <ul className='list-unstyled d-grid gap-10 mb-0'>
                                 {week.points.map((point, pointIndex) => (
                                   <li
-                                    className={`d-flex align-items-start gap-10 text-neutral-600 ${
-                                      point.isLocked ? 'opacity-75' : ''
-                                    }`}
+                                    className={`d-flex align-items-start gap-10 text-neutral-600 ${point.isLocked ? 'opacity-75' : ''
+                                      }`}
                                     key={`course-${courseAnchorId}-week-${weekIndex}-point-${pointIndex}`}
                                   >
                                     <i
-                                      className={`ph-bold ${
-                                        point.isLocked ? 'ph-lock' : 'ph-circle-wavy-check'
-                                      } text-main-500 mt-1 d-inline-flex`}
+                                      className={`ph-bold ${point.isLocked ? 'ph-lock' : 'ph-circle-wavy-check'
+                                        } text-main-500 mt-1 d-inline-flex`}
                                     />
                                     <span>
                                       {point.isLocked
@@ -421,7 +418,7 @@ const CourseSeriesDetailSection = ({
               <div className='d-flex flex-wrap justify-content-between align-items-start gap-16 mb-24'>
                 <h4 className='text-neutral-900 mb-0'>Placement Partners</h4>
                 <span className='text-neutral-500 text-md'>
-                  Guaranteed access to {partners.length} leading organizations
+                  Assured access to {partners.length} leading organizations
                 </span>
               </div>
               <PlacementPartnersCarousel partners={partners} carouselId={`${courseAnchorId}-partners`} />

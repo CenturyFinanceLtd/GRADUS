@@ -123,7 +123,7 @@ const OverviewTab = ({ event, overviewText }) => {
 
 const InstructorTab = ({ event }) => {
   const defaultBio =
-    "Hello, my name is Vaibhav Batra. With 6 years of trading and training experience, I’m here to guide you through the course details and help you build real-world financial market skills. At Gradus, we bridge the gap between academics and industry, preparing you for real market-ready opportunities.";
+    "Hello, my name is Vaibhav Batra. With 6 years of market analysis and training experience, I’m here to guide you through the course details and help you build real-world financial market skills. At Gradus, we bridge the gap between academics and industry, preparing you for real market-ready opportunities.";
   const name = event?.host?.name || "Gradus Mentor";
   const title = event?.host?.title || "Lead Instructor";
   const bio = event?.host?.bio || defaultBio;

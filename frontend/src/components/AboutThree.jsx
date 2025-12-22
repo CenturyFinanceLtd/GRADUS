@@ -46,7 +46,7 @@ const AboutThree = () => {
                       <span className='text-white'>
                         Strategic Hiring Partners
                       </span>
-                      
+
                     </div>
                     <img
                       src='/assets/images/thumbs/about-three-img2.png'
@@ -78,7 +78,7 @@ const AboutThree = () => {
                     Gradus, the career acceleration initiative by MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED, forges a decisive bridge between academic instruction and industry ascendancy. Our pathways are meticulously designed for management aspirants, engineering graduates, and finance enthusiasts so that theoretical acumen translates into demonstrable competence.
                   </p>
                   <p className='text-neutral-500 text-line-2 wow bounceInUp mb-0'>
-                    Backed by immersive internships, guaranteed placement trajectories, and mentors rigorously selected for their experiential authority, Gradus transforms ambition into expertise for professionals ready to excel.
+                    Backed by immersive internships, assured placement trajectories, and mentors rigorously selected for their experiential authority, Gradus transforms ambition into expertise for professionals ready to excel.
                   </p>
                 </div>
                 <div className='grid-cols-2'>
@@ -117,7 +117,7 @@ const AboutThree = () => {
                     </span>
                     <div className='flex-grow-1'>
                       <h6 className='text-neutral-800 text-xl fw-medium mb-8'>
-                        Guaranteed Placements
+                        Placement Assurance
                       </h6>
                       <div className='text-neutral-500'>
                         Structured placement pathways with prestigious organisations nationwide.

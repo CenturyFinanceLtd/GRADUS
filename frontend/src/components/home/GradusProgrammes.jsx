@@ -50,7 +50,7 @@ const GradusProgrammes = () => {
           flagshipTone: "finlit",
         },
         { slug: "derivatives-mastery", title: "Derivatives Mastery" },
-        { slug: "forex-trading-mastery", title: "Forex Trading Mastery" },
+        { slug: "forex-market-mastery", title: "Forex Market Mastery" },
         { slug: "technical-analysis", title: "Technical Analysis" },
       ],
     },
@@ -126,7 +126,7 @@ const GradusProgrammes = () => {
             }
           }
           // hide “Data Structures & Algorithms” and “Database Management”
-          const HIDE = new Set(['data-structures-algorithms','database-management','database-management-sql-mongodb']);
+          const HIDE = new Set(['data-structures-algorithms', 'database-management', 'database-management-sql-mongodb']);
           const shouldHide = (item) => {
             const slug = String(item?.slug || '').toLowerCase();
             const norm = slugify(item?.title || item?.name || '');
@@ -178,28 +178,28 @@ const GradusProgrammes = () => {
                           const isFlagship = !!course.flagship;
                           const tone = course.flagshipTone;
                           return (
-                          <Link
-                            key={`${c.id}-${course.slug}`}
-                            to={`/${c.programmeSlug || slugify(c.badge)}/${course.slug || slugify(course.title)}`}
-                            className={`gp-course-item ${isFlagship ? "is-flagship" : ""}`}
-                            data-flagship-tone={isFlagship && tone ? tone : undefined}
-                          >
-                            <span className="gp-course-text">
-                              <span className="gp-course-title">{course.title}</span>
-                            </span>
-                          </Link>
+                            <Link
+                              key={`${c.id}-${course.slug}`}
+                              to={`/${c.programmeSlug || slugify(c.badge)}/${course.slug || slugify(course.title)}`}
+                              className={`gp-course-item ${isFlagship ? "is-flagship" : ""}`}
+                              data-flagship-tone={isFlagship && tone ? tone : undefined}
+                            >
+                              <span className="gp-course-text">
+                                <span className="gp-course-title">{course.title}</span>
+                              </span>
+                            </Link>
                           );
                         })}
                       </div>
                     ) : null}
                     <Link to={`/our-courses?programme=${c.programmeSlug || slugify(c.badge || c.title)}`}
-                          className="btn btn-main rounded-pill flex-align gap-8 px-24 py-12 gp-cta">
+                      className="btn btn-main rounded-pill flex-align gap-8 px-24 py-12 gp-cta">
                       Explore Courses <i className="ph-bold ph-arrow-up-right d-flex text-lg" />
                     </Link>
                   </div>
-                  </div>
                 </div>
               </div>
+            </div>
           ))}
         </div>
       </div>

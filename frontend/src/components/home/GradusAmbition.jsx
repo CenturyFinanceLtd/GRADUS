@@ -5,7 +5,7 @@ const HIGHLIGHTS = [
     icon: "ph ph-briefcase",
   },
   {
-    title: "Guaranteed Placements",
+    title: "Placement Assurance",
     description: "Structured placement pathways with prestigious organizations nationwide.",
     icon: "ph ph-medal-military",
   },
@@ -34,7 +34,7 @@ const GradusAmbition = () => {
               bridge between academic instruction and industry.
             </p>
             <p className="gradus-ambition__body">
-              Backed by immersive internships, guaranteed placement trajectories, and mentors rigorously
+              Backed by immersive internships, assured placement trajectories, and mentors rigorously
               selected for their experiential authority, Gradus elevates potential into measurable outcomes.
             </p>
           </div>

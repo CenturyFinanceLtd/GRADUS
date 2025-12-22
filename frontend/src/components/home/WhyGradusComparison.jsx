@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const FEATURES = [
-  "Job Guarantee",
+  "Career Assurance",
   "Paid Internship",
   "Industry Level Projects",
   "Top Industry Mentors",

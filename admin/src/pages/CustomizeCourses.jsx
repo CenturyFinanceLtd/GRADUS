@@ -487,8 +487,9 @@ const CustomizeCourses = () => {
                   <table className='table align-middle mb-0'>
                     <thead className='text-muted text-uppercase small'>
                       <tr>
-                        <th style={{ width: '35%' }}>Name</th>
+                        <th style={{ width: '25%' }}>Name</th>
                         <th style={{ width: '35%' }}>Slug</th>
+                        <th style={{ width: '10%' }}>Visible</th>
                         <th className='text-end' style={{ width: '30%' }}>
                           Actions
                         </th>
@@ -503,20 +504,53 @@ const CustomizeCourses = () => {
                         </tr>
                       ) : filteredItems.length ? (
                         filteredItems.map((it) => (
-                      <tr
-                        key={it._id || it.id || it.slug}
-                        className={`saved-course-row ${selectedSlug === it.slug ? 'table-active' : ''}`}
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => setSelectedSlug(it.slug)}
-                      >
-                        <td className='text-truncate' style={{ maxWidth: 160 }}>
-                          <div className='fw-semibold'>{it.name}</div>
-                          <div className='text-muted small'>{it.programme || it.programmeSlug}</div>
-                        </td>
-                        <td className='text-truncate text-muted small' style={{ maxWidth: 200 }}>
-                          {it.slug}
+                          <tr
+                            key={it._id || it.id || it.slug}
+                            className={`saved-course-row ${selectedSlug === it.slug ? 'table-active' : ''}`}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => setSelectedSlug(it.slug)}
+                          >
+                            <td className='text-truncate' style={{ maxWidth: 160 }}>
+                              <div className='fw-semibold'>{it.name}</div>
+                              <div className='text-muted small'>{it.programme || it.programmeSlug}</div>
                             </td>
-                        <td className='text-end'>
+                            <td className='text-truncate text-muted small' style={{ maxWidth: 200 }}>
+                              {it.slug}
+                            </td>
+                            <td>
+                              <div
+                                className='form-check form-switch'
+                                onClick={(e) => e.stopPropagation()} // prevent row click
+                              >
+                                <input
+                                  className='form-check-input'
+                                  type='checkbox'
+                                  checked={it.isVisible !== false}
+                                  onChange={async () => {
+                                    try {
+                                      // Optimistic update
+                                      const nextState = !(it.isVisible !== false);
+                                      const updatedItems = items.map(x => x.slug === it.slug ? { ...x, isVisible: nextState } : x);
+                                      setItems(updatedItems);
+
+                                      // Prepare minimal payload or specific update if supported,
+                                      // or just upsert the whole object with the new field.
+                                      // Since upsertRawCourse expects { data, token }, we use the current item + new field.
+                                      await upsertRawCourse({
+                                        data: { ...it, isVisible: nextState },
+                                        token
+                                      });
+                                      toast.success(`Course ${nextState ? 'visible' : 'hidden'}`);
+                                    } catch (e) {
+                                      console.error(e);
+                                      toast.error('Failed to update visibility');
+                                      load(); // Revert
+                                    }
+                                  }}
+                                />
+                              </div>
+                            </td>
+                            <td className='text-end'>
                               <div className='btn-group btn-group-sm'>
                                 <button
                                   type='button'
@@ -531,23 +565,23 @@ const CustomizeCourses = () => {
                                 <button
                                   type='button'
                                   className='btn btn-outline-primary'
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                onSelectForEdit(it.slug);
-                              }}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              type='button'
-                              className='btn btn-outline-danger'
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                onDelete(it.slug);
-                              }}
-                            >
-                              Delete
-                            </button>
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    onSelectForEdit(it.slug);
+                                  }}
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type='button'
+                                  className='btn btn-outline-danger'
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    onDelete(it.slug);
+                                  }}
+                                >
+                                  Delete
+                                </button>
                               </div>
                             </td>
                           </tr>

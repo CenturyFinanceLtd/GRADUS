@@ -212,6 +212,7 @@ const courseSchema = new mongoose.Schema(
 
     // Assessment settings
     assessmentMaxAttempts: { type: Number, default: 3 },
+    isVisible: { type: Boolean, default: true },
 
     order: { type: Number },
   },

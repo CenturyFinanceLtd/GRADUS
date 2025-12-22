@@ -3,15 +3,15 @@ import { Link } from "react-router-dom";
 const serviceHighlights = [
   {
     icon: "ph-trend-up",
-    title: "Stock Broking",
+    title: "Equity Markets",
     description:
-      "Seamless access to equity and derivative markets powered by intuitive, high-performance trading platforms.",
+      "Seamless access to equity and derivative markets powered by intuitive, high-performance market platforms.",
   },
   {
     icon: "ph-brain",
-    title: "Quantitative Computing-Based Trading",
+    title: "Quantitative Computing-Based Analysis",
     description:
-      "Advanced algorithms, AI, and data analytics converge to craft precision-led, scientific trading strategies.",
+      "Advanced algorithms, AI, and data analytics converge to craft precision-led, scientific analysis strategies.",
   },
   {
     icon: "ph-shield-check",
@@ -23,13 +23,13 @@ const serviceHighlights = [
     icon: "ph-chart-pie",
     title: "Mutual Funds",
     description:
-      "Balanced, diversified portfolios that harmonise safety, liquidity, and growth for every financial aspiration.",
+      "Balanced, diversified holdings that harmonise safety, liquidity, and growth for every financial aspiration.",
   },
   {
     icon: "ph-briefcase",
-    title: "Portfolio Management Services (PMS)",
+    title: "Assets Management Services (AMS)",
     description:
-      "Exclusive, insight-driven investment strategies curated for discerning investors seeking sustained excellence.",
+      "Exclusive, insight-driven wealth strategies curated for discerning investors seeking sustained excellence.",
   },
 ];
 
@@ -57,8 +57,8 @@ const socialInitiatives = [
 const differentiators = [
   "52 Years of Excellence – An unbroken record of reliability and results.",
   "1.45 Million Customers – A vibrant community of investors who trust MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED.",
-  "Innovation at Core – Among the first NBFCs to harness quantitative computing for trading.",
-  "Holistic Financial Ecosystem – Comprehensive investment and protection services under one roof.",
+  "Innovation at Core – Among the first NBFCs to harness quantitative computing for market analysis.",
+  "Holistic Financial Ecosystem – Comprehensive wealth and protection services under one roof.",
   "Strong Governance – Regulated by India's most respected financial institutions: RBI, SEBI, NSE, BSE, and CDSL.",
   "Social Stewardship – Meaningful contributions to society through Satyam Sri and ABSS Foundation.",
 ];
@@ -94,7 +94,7 @@ const KnowCFL = () => {
                 </p>
                 <p className='text-neutral-500 mb-0'>
                   What began as a modest financial enterprise more than five decades ago has evolved into a pioneering institution
-                  that has guided investment journeys for over 1.45 million clients. Our 52-year legacy is a living promise of trust,
+                  that has guided financial journeys for over 1.45 million clients. Our 52-year legacy is a living promise of trust,
                   consistency, and financial empowerment.
                 </p>
               </div>

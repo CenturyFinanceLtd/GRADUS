@@ -165,7 +165,7 @@ const BannerThree = () => {
                       </span>
                     </h1>
                     <p className='text-white text-line-2 wow bounceInDown'>
-                      Learn from SEBI-certified experts through case clinics, trading simulations, and coaching that ignites interview-ready confidence.
+                      Learn from SEBI-certified experts through case clinics, market simulations, and coaching that ignites interview-ready confidence.
                     </p>
                   </div>
                   <div className='buttons-wrapper flex-align flex-wrap gap-24 mt-40'>
@@ -224,7 +224,7 @@ const BannerThree = () => {
                         data-wow-duration='2s'
                         data-wow-delay='.5s'
                       >
-                        Guaranteed Placements
+                        Placement Assurance
                       </span>
                     </h1>
                     <p className='text-white text-line-2 wow bounceInDown'>

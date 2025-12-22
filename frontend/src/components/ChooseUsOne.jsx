@@ -49,7 +49,7 @@ const ChooseUsOne = () => {
                       <i className='ph-bold ph-checks' />
                     </span>
                     <span className='flex-grow-1 text-neutral-500'>
-                      Immersive two-month paid internships paired with guaranteed placement trajectories at prestigious organisations.
+                      Immersive two-month paid internships paired with assured placement trajectories at prestigious organisations.
                     </span>
                   </li>
                   <li
@@ -98,7 +98,7 @@ const ChooseUsOne = () => {
                     <span className='text-lg text-neutral-700 d-block'>
                       Paid Internships
                     </span>
-                    <span className='text-neutral-500'>Guaranteed placement pathway</span>
+                    <span className='text-neutral-500'>Placement assurance pathway</span>
                   </div>
                 </div>
                 <div

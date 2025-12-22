@@ -32,7 +32,7 @@ const testimonials = [
     role: "Parent of GradusQuity Alum",
     // avatar: "/assets/images/thumbs/testimonials-three-img3.png",
     quote:
-      "Watching my daughter transform into a confident investment advisor has been incredible. Gradus India's faculty ensured she mastered markets and communication before stepping into Kotak's trading floor.",
+      "Watching my daughter transform into a confident financial advisor has been incredible. Gradus India's faculty ensured she mastered markets and communication before stepping into Kotak's market analysis role.",
   },
 ];
 

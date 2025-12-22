@@ -94,7 +94,7 @@ const VaibhavBatraMasterclass = () => {
                                 India’s most practical financial literacy program for students & working professionals.
                             </p>
                             <p className="text-brand-muted text-base leading-relaxed mb-8 border-l-4 border-brand-orange pl-4">
-                                Learn money basics, investing, budgeting & wealth mindset the way schools never taught — simple, practical, and India‑focused.
+                                Learn money basics, financial planning, budgeting & wealth mindset the way schools never taught — simple, practical, and India‑focused.
                             </p>
 
                             {/* Navigation Tabs */}
@@ -129,7 +129,7 @@ const VaibhavBatraMasterclass = () => {
                                             Why? <span className="font-semibold text-slate-900">Because no one taught us how money actually works.</span>
                                         </p>
                                         <div className="bg-white p-4 rounded-xl border border-blue-100 shadow-sm">
-                                            <p className="text-brand-blue font-medium">Gradus FINLIT exists to fix this gap. Earning money is important. Managing and growing it is life‑changing.</p>
+                                            <p className="text-brand-blue font-medium">Gradus FINLIT exists to fix this gap. Increasing income is important. Managing and growing it is life‑changing.</p>
                                         </div>
                                     </div>
 
@@ -171,7 +171,7 @@ const VaibhavBatraMasterclass = () => {
                                                 </div>
                                             ))}
                                         </div>
-                                        <p className="mt-4 text-center text-sm font-bold text-slate-500 bg-gray-50 py-2 rounded-lg">No jargon. No stock tips. Just clarity.</p>
+                                        <p className="mt-4 text-center text-sm font-bold text-slate-500 bg-gray-50 py-2 rounded-lg">No jargon. No market tips. Just clarity.</p>
                                     </div>
 
                                     {/* Outcomes & Tools Grid */}
@@ -203,10 +203,10 @@ const VaibhavBatraMasterclass = () => {
                                             <ul className="space-y-3">
                                                 {[
                                                     "Monthly budgeting templates",
-                                                    "SIP & investment calculators",
+                                                    "SIP & wealth calculators",
                                                     "Expense trackers",
                                                     "Money checklists",
-                                                    "Beginner investment roadmap"
+                                                    "Beginner wealth roadmap"
                                                 ].map((item, i) => (
                                                     <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
                                                         <i className="fa-solid fa-angle-right text-brand-orange mt-1"></i> {item}
@@ -323,7 +323,7 @@ const VaibhavBatraMasterclass = () => {
                                     <div className="space-y-4">
                                         {[
                                             { q: "Do I need prior finance knowledge?", a: "No. This is beginner‑friendly." },
-                                            { q: "Is this about stock trading?", a: "No. This is about long‑term financial stability." },
+                                            { q: "Is this about market analysis?", a: "No. This is about long‑term financial stability." },
                                             { q: "Is this safe for students?", a: "Yes. We focus on habits, not risky moves." },
                                             { q: "How long is the program?", a: "Self‑paced with guided milestones." }
                                         ].map((item, i) => (
@@ -354,7 +354,7 @@ const VaibhavBatraMasterclass = () => {
                                     </div>
 
                                     <p className="text-slate-600 leading-relaxed">
-                                        Hello, I'm Vaibhav Batra. With six years of experience in trading and training, I help you master practical financial market skills. At Gradus, I focus on bridging academics with industry, preparing you to seize real, market-ready opportunities.
+                                        Hello, I'm Vaibhav Batra. With six years of experience in market analysis and training, I help you master practical financial market skills. At Gradus, I focus on bridging academics with industry, preparing you to seize real, market-ready opportunities.
                                     </p>
                                 </div>
                             )}

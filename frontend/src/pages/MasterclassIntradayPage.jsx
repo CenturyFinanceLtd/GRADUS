@@ -8,7 +8,7 @@ import '../styles/masterclass-intraday.css';
 const MasterclassIntradayPage = () => {
 
     useEffect(() => {
-        document.title = "Masterclass on Intraday Trading | Gradus";
+        document.title = "Masterclass on Intraday Market Analysis | Gradus";
     }, []);
 
     return (
@@ -20,7 +20,7 @@ const MasterclassIntradayPage = () => {
                 {/* Header Title */}
                 <div className="hero-header">
                     <h1 className="hero-title">
-                        Masterclass on <span className="text-highlight">Intraday Trading</span> with <span className="text-orange">Vaibhav Batra</span>
+                        Masterclass on <span className="text-highlight">Intraday Market Analysis</span> with <span className="text-orange">Vaibhav Batra</span>
                     </h1>
                     <p className="hero-subtitle">
                         India’s most practical financial literacy program for students & working professionals
@@ -111,7 +111,7 @@ const MasterclassIntradayPage = () => {
                         <div className="hero-image-container">
                             <img
                                 src="/assets/masterclass-vaibhav.jpg"
-                                alt="Mastering Intraday Trading - Jagpreet Singh"
+                                alt="Mastering Intraday Market Analysis - Jagpreet Singh"
                                 className="hero-main-image"
                             />
                         </div>
@@ -122,10 +122,10 @@ const MasterclassIntradayPage = () => {
                 {/* Bottom Info Bar */}
                 <div className="bottom-info-bar">
                     <p>
-                        Learn from <strong>Vaibhav Batra's</strong> expertise in trading, having taught over 10,000+ students and accumulated <strong>13+ years of experience</strong>.
+                        Learn from <strong>Vaibhav Batra's</strong> expertise in market analysis, having taught over 10,000+ students and accumulated <strong>13+ years of experience</strong>.
                     </p>
                     <p>
-                        Learn money basics, investing, budgeting & wealth mindset the way schools never taught — simple, practical, and India‑focused.
+                        Learn money basics, financial planning, budgeting & wealth mindset the way schools never taught — simple, practical, and India‑focused.
                     </p>
                 </div>
             </main>
@@ -172,7 +172,7 @@ const MasterclassIntradayPage = () => {
                         <div className="learning-card">
                             <div className="card-number">1</div>
                             <div className="card-text">
-                              <span className="text-highlight">Financial Foundations</span>
+                                <span className="text-highlight">Financial Foundations</span>
                             </div>
                         </div>
                         <div className="learning-card">
@@ -190,12 +190,12 @@ const MasterclassIntradayPage = () => {
                         <div className="learning-card">
                             <div className="card-number">4</div>
                             <div className="card-text">
-                              <span className="text-highlight">Money Mindset</span>
+                                <span className="text-highlight">Money Mindset</span>
                             </div>
                         </div>
                     </div>
 
-                   
+
                     <a href="#register" className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>
                         Register Now For Free
                     </a>
@@ -226,25 +226,25 @@ const MasterclassIntradayPage = () => {
                                     <li className="mentor-point">
                                         <span className="mentor-bullet"></span>
                                         <span>
-                                            With an <strong>MBA in Finance and 18 years in the Automobile Industry</strong>, Jagpreet Singh Narula blends sector-specific insight with trading expertise.
+                                            With an <strong>MBA in Finance and 18 years in the Automobile Industry</strong>, Jagpreet Singh Narula blends sector-specific insight with market expertise.
                                         </span>
                                     </li>
                                     <li className="mentor-point">
                                         <span className="mentor-bullet"></span>
                                         <span>
-                                            Jagpreet's <span className="text-highlight">13+ years of successful trading span</span> Intraday, Swing, Price Action, and Index Options, showcasing his adaptability across diverse market strategies.
+                                            Jagpreet's <span className="text-highlight">13+ years of successful market analysis span</span> Intraday, Swing, Price Action, and Index Options, showcasing his adaptability across diverse market strategies.
                                         </span>
                                     </li>
                                     <li className="mentor-point">
                                         <span className="mentor-bullet"></span>
                                         <span>
-                                            Jagpreet mentored <span className="text-highlight">10000+ students</span>, empowering traders, while his free masterclasses reached <span className="text-highlight">100,000 eager learners</span>, fostering a collaborative trading community.
+                                            Jagpreet mentored <span className="text-highlight">10000+ students</span>, empowering learners, while his free masterclasses reached <span className="text-highlight">100,000 eager learners</span>, fostering a collaborative learning community.
                                         </span>
                                     </li>
                                     <li className="mentor-point">
                                         <span className="mentor-bullet"></span>
                                         <span>
-                                            Jagpreet blends professional acumen with trading expertise, delivering <span className="text-highlight">comprehensive strategies</span> for success.
+                                            Jagpreet blends professional acumen with market expertise, delivering <span className="text-highlight">comprehensive strategies</span> for success.
                                         </span>
                                     </li>
                                     <li className="mentor-point">
@@ -306,7 +306,7 @@ const MasterclassIntradayPage = () => {
                         />
                         <FAQItem
                             question="Is this class for beginners?"
-                            answer="Yes! This masterclass is designed to help beginners understand the fundamentals of Intraday trading while also providing advanced strategies for experienced traders."
+                            answer="Yes! This masterclass is designed to help beginners understand the fundamentals of Intraday markets while also providing advanced strategies for experienced participants."
                         />
                         <FAQItem
                             question="Will recording be provided?"

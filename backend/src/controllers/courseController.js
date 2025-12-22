@@ -230,8 +230,8 @@ const buildCoursePayload = (body, existingCourse) => {
   const assessmentMaxAttempts = Number.isFinite(maxAttemptsInput)
     ? Math.max(1, Math.floor(maxAttemptsInput))
     : Number.isFinite(existingCourse?.assessmentMaxAttempts)
-    ? existingCourse.assessmentMaxAttempts
-    : 3;
+      ? existingCourse.assessmentMaxAttempts
+      : 3;
 
   return {
     name,
@@ -264,6 +264,7 @@ const buildCoursePayload = (body, existingCourse) => {
     image: nextImage,
     order,
     assessmentMaxAttempts,
+    isVisible: typeof body?.isVisible === 'boolean' ? body.isVisible : (existingCourse?.isVisible ?? true),
   };
 };
 
@@ -288,10 +289,10 @@ const mapCourseForPublic = (course, enrollment) => {
     slug: course.slug,
     name: course.name,
     imageUrl: (course?.image && course.image.url) || '',
-  programme: course.programme,
-  level: course.level,
-  duration: course.duration,
-  mode: course.mode,
+    programme: course.programme,
+    level: course.level,
+    duration: course.duration,
+    mode: course.mode,
     subtitle: course.subtitle,
     programme: course.programme,
     level: course.level,
@@ -302,15 +303,15 @@ const mapCourseForPublic = (course, enrollment) => {
     placementRange: course.placementRange,
     price: course.price,
     outcomeSummary: course.outcomeSummary,
-  skills: ensureArray(course.skills),
-  details: {
-    effort: course.details?.effort || '',
-    language: course.details?.language || '',
-    prerequisites: course.details?.prerequisites || '',
-  },
-  capstonePoints: ensureArray(course.capstonePoints),
-  careerOutcomes: ensureArray(course.careerOutcomes),
-  toolsFrameworks: ensureArray(course.toolsFrameworks),
+    skills: ensureArray(course.skills),
+    details: {
+      effort: course.details?.effort || '',
+      language: course.details?.language || '',
+      prerequisites: course.details?.prerequisites || '',
+    },
+    capstonePoints: ensureArray(course.capstonePoints),
+    careerOutcomes: ensureArray(course.careerOutcomes),
+    toolsFrameworks: ensureArray(course.toolsFrameworks),
     skills: ensureArray(course.skills),
     details: {
       effort: course.details?.effort || '',
@@ -346,11 +347,11 @@ const mapCourseForPublic = (course, enrollment) => {
     isEnrolled,
     enrollment: enrollment
       ? {
-          id: enrollment._id.toString(),
-          status: enrollment.status,
-          paymentStatus: enrollment.paymentStatus,
-          enrolledAt: enrollment.createdAt,
-        }
+        id: enrollment._id.toString(),
+        status: enrollment.status,
+        paymentStatus: enrollment.paymentStatus,
+        enrolledAt: enrollment.createdAt,
+      }
       : null,
   };
 };
@@ -367,10 +368,10 @@ const mapCourseForAdmin = (course) => ({
   duration: course.duration,
   mode: course.mode,
   subtitle: course.subtitle,
-    programme: course.programme,
-    level: course.level,
-    duration: course.duration,
-    mode: course.mode,
+  programme: course.programme,
+  level: course.level,
+  duration: course.duration,
+  mode: course.mode,
   focus: course.focus,
   approvals: ensureArray(course.approvals),
   placementRange: course.placementRange,
@@ -385,15 +386,15 @@ const mapCourseForAdmin = (course) => ({
   capstonePoints: ensureArray(course.capstonePoints),
   careerOutcomes: ensureArray(course.careerOutcomes),
   toolsFrameworks: ensureArray(course.toolsFrameworks),
-    skills: ensureArray(course.skills),
-    details: {
-      effort: course.details?.effort || '',
-      language: course.details?.language || '',
-      prerequisites: course.details?.prerequisites || '',
-    },
-    capstonePoints: ensureArray(course.capstonePoints),
-    careerOutcomes: ensureArray(course.careerOutcomes),
-    toolsFrameworks: ensureArray(course.toolsFrameworks),
+  skills: ensureArray(course.skills),
+  details: {
+    effort: course.details?.effort || '',
+    language: course.details?.language || '',
+    prerequisites: course.details?.prerequisites || '',
+  },
+  capstonePoints: ensureArray(course.capstonePoints),
+  careerOutcomes: ensureArray(course.careerOutcomes),
+  toolsFrameworks: ensureArray(course.toolsFrameworks),
   deliverables: ensureArray(course.deliverables),
   outcomes: ensureArray(course.outcomes),
   finalAward: course.finalAward,
@@ -411,6 +412,7 @@ const mapCourseForAdmin = (course) => ({
   order: course.order,
   createdAt: course.createdAt,
   updatedAt: course.updatedAt,
+  isVisible: course.isVisible,
 });
 
 const getCoursePage = asyncHandler(async (req, res) => {
@@ -440,7 +442,7 @@ const getCoursePage = asyncHandler(async (req, res) => {
 const listCourses = asyncHandler(async (req, res) => {
   const sort = typeof req.query?.sort === 'string' ? req.query.sort.trim().toLowerCase() : '';
   const sortSpec = sort === 'new' ? { updatedAt: -1 } : { order: 1, createdAt: 1 };
-  const courses = await Course.find()
+  const courses = await Course.find({})
     .sort(sortSpec)
     .select(['name', 'slug', 'programme', 'updatedAt', 'createdAt', 'hero', 'stats', 'mode', 'level', 'duration', 'weeks', 'modules', 'price', 'image', 'aboutProgram'])
     .lean();
@@ -668,20 +670,20 @@ const listEnrollments = asyncHandler(async (req, res) => {
       paidAt: enrollment.paidAt || null,
       course: enrollment.course
         ? {
-            id: enrollment.course._id?.toString?.() || '',
-            slug: enrollment.course.slug || '',
-            name: enrollment.course.name || '',
-            price: enrollment.course.price || '',
-          }
+          id: enrollment.course._id?.toString?.() || '',
+          slug: enrollment.course.slug || '',
+          name: enrollment.course.name || '',
+          price: enrollment.course.price || '',
+        }
         : null,
       student: enrollment.user
         ? {
-            id: enrollment.user._id?.toString?.() || '',
-            firstName: enrollment.user.firstName || '',
-            lastName: enrollment.user.lastName || '',
-            email: enrollment.user.email || '',
-            mobile: enrollment.user.mobile || '',
-          }
+          id: enrollment.user._id?.toString?.() || '',
+          firstName: enrollment.user.firstName || '',
+          lastName: enrollment.user.lastName || '',
+          email: enrollment.user.email || '',
+          mobile: enrollment.user.mobile || '',
+        }
         : null,
     })),
   });
@@ -757,14 +759,14 @@ const getCourseModulesDetail = asyncHandler(async (req, res) => {
     ...module,
     sections: Array.isArray(module.sections)
       ? module.sections.map((section) => ({
-          ...section,
-          lectures: Array.isArray(section.lectures)
-            ? section.lectures.map((lecture) => ({
-                ...lecture,
-                notes: sanitizeLectureNotes(lecture.notes),
-              }))
-            : [],
-        }))
+        ...section,
+        lectures: Array.isArray(section.lectures)
+          ? section.lectures.map((lecture) => ({
+            ...lecture,
+            notes: sanitizeLectureNotes(lecture.notes),
+          }))
+          : [],
+      }))
       : [],
   }));
 
@@ -1331,13 +1333,16 @@ module.exports = {
 // Strictly validate the only accepted shape for raw courses
 const validateRawCourse = (input) => {
   const allowRoot = new Set([
-    'name','programme','programmeSlug','courseSlug','slug',
-    'hero','stats','aboutProgram','learn','skills','details','capstone',
-    'careerOutcomes','toolsFrameworks','modules','instructors','offeredBy',
-    'image','media','targetAudience','prereqsList'
+    'name', 'programme', 'programmeSlug', 'courseSlug', 'slug',
+    'hero', 'stats', 'aboutProgram', 'learn', 'skills', 'details', 'capstone',
+    'careerOutcomes', 'toolsFrameworks', 'modules', 'instructors', 'offeredBy',
+    'image', 'media', 'targetAudience', 'prereqsList', 'isVisible'
   ]);
 
-  const unexpected = Object.keys(input || {}).filter((k) => !allowRoot.has(k));
+  const unexpected = Object.keys(input || {})
+    .filter((k) => k !== '_id' && k !== '__v' && k !== 'createdAt' && k !== 'updatedAt')
+    .filter((k) => !allowRoot.has(k));
+
   if (unexpected.length) {
     const err = new Error(`Unexpected fields at root: ${unexpected.join(', ')}`);
     err.status = 400; throw err;
@@ -1345,9 +1350,9 @@ const validateRawCourse = (input) => {
 
   const str = (v) => (typeof v === 'string' ? v.trim() : '');
   const strArr = (v, path) => {
-    if (!Array.isArray(v)) { const e = new Error(`${path} must be an array of strings`); e.status=400; throw e; }
+    if (!Array.isArray(v)) { const e = new Error(`${path} must be an array of strings`); e.status = 400; throw e; }
     const out = [];
-    for (let i=0;i<v.length;i++) { if (typeof v[i] !== 'string') { const e = new Error(`${path}[${i}] must be a string`); e.status=400; throw e; } const s = v[i].trim(); if (s) out.push(s); }
+    for (let i = 0; i < v.length; i++) { if (typeof v[i] !== 'string') { const e = new Error(`${path}[${i}] must be a string`); e.status = 400; throw e; } const s = v[i].trim(); if (s) out.push(s); }
     return out;
   };
   const optionalNumber = (value) => {
@@ -1357,8 +1362,17 @@ const validateRawCourse = (input) => {
     const num = Number(value);
     return Number.isFinite(num) ? num : undefined;
   };
-  const obj = (v, path) => { if (v && typeof v === 'object' && !Array.isArray(v)) return v; const e = new Error(`${path} must be an object`); e.status=400; throw e; };
-  const requireKeysOnly = (o, allowed, path) => { const bad = Object.keys(o).filter((k) => !allowed.has(k)); if (bad.length) { const e = new Error(`Unexpected fields in ${path}: ${bad.join(', ')}`); e.status=400; throw e; } };
+  const obj = (v, path) => { if (v && typeof v === 'object' && !Array.isArray(v)) return v; const e = new Error(`${path} must be an object`); e.status = 400; throw e; };
+  const requireKeysOnly = (o, allowed, path) => {
+    const bad = Object.keys(o)
+      .filter((k) => k !== '_id' && k !== '__v' && k !== 'createdAt' && k !== 'updatedAt')
+      .filter((k) => !allowed.has(k));
+    if (bad.length) {
+      const e = new Error(`Unexpected fields in ${path}: ${bad.join(', ')}`);
+      e.status = 400;
+      throw e;
+    }
+  };
   const normalizeLectureItems = (value, path) => {
     if (value === undefined) {
       return [];
@@ -1404,15 +1418,15 @@ const validateRawCourse = (input) => {
           const title = str(entry);
           return title
             ? {
-                title,
-                subtitle: '',
-                summary: '',
-                lectures: [],
-                assignments: [],
-                projects: [],
-                quizzes: [],
-                notes: [],
-              }
+              title,
+              subtitle: '',
+              summary: '',
+              lectures: [],
+              assignments: [],
+              projects: [],
+              quizzes: [],
+              notes: [],
+            }
             : null;
         }
         const block = obj(entry, `${path}[${idx}]`);
@@ -1434,30 +1448,30 @@ const validateRawCourse = (input) => {
   };
 
   const out = {};
-  out.name = str(input.name); if (!out.name) { const e = new Error('name is required'); e.status=400; throw e; }
+  out.name = str(input.name); if (!out.name) { const e = new Error('name is required'); e.status = 400; throw e; }
   out.programme = str(input.programme);
   out.programmeSlug = str(input.programmeSlug);
   out.courseSlug = str(input.courseSlug);
   out.slug = str(input.slug);
   if (!out.slug) {
     const built = buildCombinedSlug({ programmeSlug: out.programmeSlug, courseSlug: out.courseSlug, name: out.name, programme: out.programme });
-    if (!built) { const e = new Error('slug or (programmeSlug & courseSlug) required'); e.status=400; throw e; }
+    if (!built) { const e = new Error('slug or (programmeSlug & courseSlug) required'); e.status = 400; throw e; }
     out.slug = built;
   }
 
   // hero
-  const heroAllowed = new Set(['subtitle','priceINR','enrolledText']);
+  const heroAllowed = new Set(['subtitle', 'priceINR', 'enrolledText']);
   const hero = obj(input.hero || {}, 'hero');
   requireKeysOnly(hero, heroAllowed, 'hero');
   out.hero = { subtitle: str(hero.subtitle), priceINR: hero.priceINR === undefined ? 0 : Number(hero.priceINR), enrolledText: str(hero.enrolledText) };
-  if (!Number.isFinite(out.hero.priceINR)) { const e = new Error('hero.priceINR must be a number'); e.status=400; throw e; }
+  if (!Number.isFinite(out.hero.priceINR)) { const e = new Error('hero.priceINR must be a number'); e.status = 400; throw e; }
 
   // stats
-  const statsAllowed = new Set(['modules','mode','level','duration']);
+  const statsAllowed = new Set(['modules', 'mode', 'level', 'duration']);
   const stats = obj(input.stats || {}, 'stats');
   requireKeysOnly(stats, statsAllowed, 'stats');
   out.stats = { modules: stats.modules === undefined ? 0 : Number(stats.modules), mode: str(stats.mode), level: str(stats.level), duration: str(stats.duration) };
-  if (!Number.isFinite(out.stats.modules)) { const e = new Error('stats.modules must be a number'); e.status=400; throw e; }
+  if (!Number.isFinite(out.stats.modules)) { const e = new Error('stats.modules must be a number'); e.status = 400; throw e; }
 
   // text arrays
   out.aboutProgram = strArr(input.aboutProgram || [], 'aboutProgram');
@@ -1469,27 +1483,27 @@ const validateRawCourse = (input) => {
   out.prereqsList = strArr(input.prereqsList || [], 'prereqsList');
 
   // details
-  const detailsAllowed = new Set(['effort','language','prerequisites']);
+  const detailsAllowed = new Set(['effort', 'language', 'prerequisites']);
   const details = obj(input.details || {}, 'details');
   requireKeysOnly(details, detailsAllowed, 'details');
   out.details = { effort: str(details.effort), language: str(details.language), prerequisites: str(details.prerequisites) };
 
   // capstone
-  const capAllowed = new Set(['summary','bullets']);
+  const capAllowed = new Set(['summary', 'bullets']);
   const cap = obj(input.capstone || {}, 'capstone');
   requireKeysOnly(cap, capAllowed, 'capstone');
   out.capstone = { summary: str(cap.summary), bullets: strArr(cap.bullets || [], 'capstone.bullets') };
 
   // modules
-  if (!Array.isArray(input.modules)) { const e = new Error('modules must be an array'); e.status=400; throw e; }
+  if (!Array.isArray(input.modules)) { const e = new Error('modules must be an array'); e.status = 400; throw e; }
   out.modules = input.modules.map((m, i) => {
     const mod = obj(m, `modules[${i}]`);
-    const modAllowed = new Set(['title','weeksLabel','topics','outcome','extras','weeklyStructure','structure','outcomes','resources']);
+    const modAllowed = new Set(['title', 'weeksLabel', 'topics', 'outcome', 'extras', 'weeklyStructure', 'structure', 'outcomes', 'resources']);
     requireKeysOnly(mod, modAllowed, `modules[${i}]`);
     const extras = mod.extras === undefined ? undefined : obj(mod.extras, `modules[${i}].extras`);
     let extrasOut;
     if (extras) {
-      const exAllowed = new Set(['projectTitle','projectDescription','examples','deliverables']);
+      const exAllowed = new Set(['projectTitle', 'projectDescription', 'examples', 'deliverables']);
       requireKeysOnly(extras, exAllowed, `modules[${i}].extras`);
       extrasOut = {
         projectTitle: str(extras.projectTitle),
@@ -1515,23 +1529,23 @@ const validateRawCourse = (input) => {
   });
 
   // instructors
-  if (!Array.isArray(input.instructors)) { const e = new Error('instructors must be an array'); e.status=400; throw e; }
+  if (!Array.isArray(input.instructors)) { const e = new Error('instructors must be an array'); e.status = 400; throw e; }
   out.instructors = input.instructors.map((ins, i) => {
     const o = obj(ins, `instructors[${i}]`);
-    const allowed = new Set(['name','subtitle']);
+    const allowed = new Set(['name', 'subtitle']);
     requireKeysOnly(o, allowed, `instructors[${i}]`);
     return { name: str(o.name), subtitle: str(o.subtitle) };
   });
 
   // offeredBy
-  const obAllowed = new Set(['name','subtitle','logo']);
+  const obAllowed = new Set(['name', 'subtitle', 'logo']);
   const offered = obj(input.offeredBy || {}, 'offeredBy');
   requireKeysOnly(offered, obAllowed, 'offeredBy');
   out.offeredBy = { name: str(offered.name), subtitle: str(offered.subtitle), logo: str(offered.logo) };
 
   // optional image
   if (typeof input.image !== 'undefined') {
-    const imgAllowed = new Set(['url','alt','publicId']);
+    const imgAllowed = new Set(['url', 'alt', 'publicId']);
     const img = obj(input.image || {}, 'image');
     requireKeysOnly(img, imgAllowed, 'image');
     out.image = { url: str(img.url), alt: str(img.alt), publicId: str(img.publicId) };
@@ -1543,7 +1557,7 @@ const validateRawCourse = (input) => {
     requireKeysOnly(media, mediaAllowed, 'media');
     const mediaOut = {};
     if (typeof media.banner !== 'undefined') {
-      const bannerAllowed = new Set(['url','publicId','width','height','format']);
+      const bannerAllowed = new Set(['url', 'publicId', 'width', 'height', 'format']);
       const banner = obj(media.banner || {}, 'media.banner');
       requireKeysOnly(banner, bannerAllowed, 'media.banner');
       const bannerOut = {
@@ -1562,6 +1576,11 @@ const validateRawCourse = (input) => {
     }
   }
 
+
+  if (typeof input.isVisible === 'boolean') {
+    out.isVisible = input.isVisible;
+  }
+
   return out;
 };
 
@@ -1570,8 +1589,8 @@ const upsertRawCourse = asyncHandler(async (req, res) => {
   validated.slug = String(validated.slug).trim().toLowerCase();
 
   const legacyToUnset = [
-    'subtitle','focus','approvals','placementRange','price','level','duration','mode',
-    'outcomeSummary','deliverables','outcomes','capstonePoints','finalAward','partners','weeks','certifications','order'
+    'subtitle', 'focus', 'approvals', 'placementRange', 'price', 'level', 'duration', 'mode',
+    'outcomeSummary', 'deliverables', 'outcomes', 'capstonePoints', 'finalAward', 'partners', 'weeks', 'certifications', 'order'
   ];
   const unsetObj = legacyToUnset.reduce((acc, k) => { acc[k] = ''; return acc; }, {});
 
@@ -1603,10 +1622,10 @@ const getRawCourseBySlug = asyncHandler(async (req, res) => {
   }
   // Return only the editable fields expected by the JSON editor
   const allowRoot = new Set([
-    'name','programme','programmeSlug','courseSlug','slug',
-    'hero','stats','aboutProgram','learn','skills','details','capstone',
-    'careerOutcomes','toolsFrameworks','modules','instructors','offeredBy','image','media',
-    'targetAudience','prereqsList'
+    'name', 'programme', 'programmeSlug', 'courseSlug', 'slug',
+    'hero', 'stats', 'aboutProgram', 'learn', 'skills', 'details', 'capstone',
+    'careerOutcomes', 'toolsFrameworks', 'modules', 'instructors', 'offeredBy', 'image', 'media',
+    'targetAudience', 'prereqsList'
   ]);
   const sanitized = {};
   for (const key of allowRoot) {

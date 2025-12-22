@@ -8,7 +8,7 @@ const FALLBACK_HERO = {
   tagText: "Gradus Series Overview",
   title: "Build Your Future with Gradus Course Series",
   description:
-    "Each flagship program is crafted by Gradus India to combine industry credibility, immersive project work, and assured career outcomes through our guaranteed placement MoUs.",
+    "Each flagship program is crafted by Gradus India to combine industry credibility, immersive project work, and assured career outcomes through our placement assurance MoUs.",
 };
 
 // Emergency fallback courses used only if API fails or returns empty
@@ -21,10 +21,10 @@ const FALLBACK_COURSES = [
       "Capital markets mastery designed for future-ready equity, debt, and derivative professionals.",
     approvals: [
       "GradusQuity is approved by Skill India & NSDC.",
-      "MoU with each student for Guaranteed Placement.",
+      "MoU with each student for Assured Placement.",
     ],
     placementRange:
-      "Guaranteed placement on package of 6 lac/Annum to 14 lac/Annum with our partnered companies.",
+      "Assured placement on package of 6 lac/Annum to 14 lac/Annum with our partnered companies.",
     price: "₹63700",
   },
   {
@@ -35,10 +35,10 @@ const FALLBACK_COURSES = [
       "Full-stack technology, AI, and digital growth curriculum that unites software engineering with data storytelling.",
     approvals: [
       "GradusX is approved by Skill India & NSDC.",
-      "MoU with each student for Guaranteed Placement.",
+      "MoU with each student for Assured Placement.",
     ],
     placementRange:
-      "Guaranteed placement on package of 6 lac/Annum to 14 lac/Annum with our partnered companies.",
+      "Assured placement on package of 6 lac/Annum to 14 lac/Annum with our partnered companies.",
     price: "₹63700",
   },
   {
@@ -49,10 +49,10 @@ const FALLBACK_COURSES = [
       "Business and leadership journey that cultivates emerging CXOs with finance, strategy, and people excellence.",
     approvals: [
       "GradusLead is approved by Skill India & NSDC.",
-      "MoU with each student for Guaranteed Placement.",
+      "MoU with each student for Assured Placement.",
     ],
     placementRange:
-      "Guaranteed placement on package of 6 lac/Annum to 14 lac/Annum with our partnered companies.",
+      "Assured placement on package of 6 lac/Annum to 14 lac/Annum with our partnered companies.",
     price: "₹63700",
   },
 ];

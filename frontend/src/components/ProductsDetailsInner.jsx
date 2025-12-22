@@ -136,7 +136,7 @@ const ProductsDetailsInner = () => {
                   Sale
                 </span>
                 <span className='text-uppercase text-md text-success-600 fw-semibold'>
-                  IN STOCK
+                  AVAILABLE
                 </span>
                 <h3 className='mb-0'>Dressy Chair Trendy look.</h3>
                 <div className='flex-align gap-8'>
@@ -176,37 +176,32 @@ const ProductsDetailsInner = () => {
                   <div className='color-list d-flex flex-wrap align-items-center gap-12'>
                     <button
                       type='button'
-                      className={`color-list__button w-24 h-24 rounded-circle bg-primary-600 ${
-                        activeIndex === 0 ? "active" : "border-neutral-50"
-                      }`}
+                      className={`color-list__button w-24 h-24 rounded-circle bg-primary-600 ${activeIndex === 0 ? "active" : "border-neutral-50"
+                        }`}
                       onClick={() => handleButtonClick(0)}
                     ></button>
                     <button
                       type='button'
-                      className={`color-list__button w-24 h-24 rounded-circle bg-color-deep-green ${
-                        activeIndex === 1 ? "active" : "border-neutral-50"
-                      }`}
+                      className={`color-list__button w-24 h-24 rounded-circle bg-color-deep-green ${activeIndex === 1 ? "active" : "border-neutral-50"
+                        }`}
                       onClick={() => handleButtonClick(1)}
                     ></button>
                     <button
                       type='button'
-                      className={`color-list__button w-24 h-24 rounded-circle bg-color-violet ${
-                        activeIndex === 2 ? "active" : "border-neutral-50"
-                      }`}
+                      className={`color-list__button w-24 h-24 rounded-circle bg-color-violet ${activeIndex === 2 ? "active" : "border-neutral-50"
+                        }`}
                       onClick={() => handleButtonClick(2)}
                     ></button>
                     <button
                       type='button'
-                      className={`color-list__button w-24 h-24 rounded-circle bg-color-warning ${
-                        activeIndex === 3 ? "active" : "border-neutral-50"
-                      }`}
+                      className={`color-list__button w-24 h-24 rounded-circle bg-color-warning ${activeIndex === 3 ? "active" : "border-neutral-50"
+                        }`}
                       onClick={() => handleButtonClick(3)}
                     ></button>
                     <button
                       type='button'
-                      className={`color-list__button w-24 h-24 rounded-circle bg-color-black ${
-                        activeIndex === 4 ? "active" : "border-neutral-50"
-                      }`}
+                      className={`color-list__button w-24 h-24 rounded-circle bg-color-black ${activeIndex === 4 ? "active" : "border-neutral-50"
+                        }`}
                       onClick={() => handleButtonClick(4)}
                     ></button>
                   </div>
@@ -323,7 +318,7 @@ const ProductsDetailsInner = () => {
                 for long hours of work. Invest in a chair made from durable
                 materials. A high-quality chair not only provides comfort but is
                 also built to withstand daily use, ensuring longevity and value
-                for your investment.
+                for your commitment.
               </p>
             </div>
             <span className='d-block border border-neutral-30 border-dashed my-32' />

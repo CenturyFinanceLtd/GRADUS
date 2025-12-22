@@ -38,8 +38,8 @@ const POPULAR = [
     accent: "linear-gradient(135deg, #ddf7f0, #c6efe3)",
   },
   {
-    title: "Complete Trading & Investment Mastery Program",
-    to: "/gradus-finlit/complete-trading-and-investment-mastery-program",
+    title: "Complete Market & Finance Mastery Program",
+    to: "/gradus-finlit/complete-market-and-finance-mastery-program",
     category: "",
     focus: "",
     description: "Real market strategies..",

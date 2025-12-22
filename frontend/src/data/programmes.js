@@ -42,7 +42,7 @@ export const PROGRAMMES = [
         flagshipTone: "finlit",
       },
       "Derivatives Mastery",
-      "Forex Trading Mastery",
+      "Forex Market Mastery",
       "Technical Analysis",
     ],
   },

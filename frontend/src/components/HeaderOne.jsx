@@ -280,29 +280,50 @@ const HeaderOne = () => {
           const fromApi = grouped.get(group.slug) || [];
           const existing = Array.isArray(group.items) ? group.items : [];
 
-          // Build a robust dedupe set using both explicit slugs and
-          // normalized names so that minor slug differences don't duplicate.
-          const seen = new Set();
-          for (const e of existing) {
-            const isString = typeof e === 'string';
-            const s1 = isString ? slugify(e) : (e?.slug || '');
-            const s2 = isString ? slugify(e) : slugify(e?.name || e?.title || '');
-            if (s1) seen.add(s1);
-            if (s2) seen.add(s2);
-          }
+          // Create index of API items for this group
+          // Create maps for API items
+          const apiMap = new Map();
+          fromApi.forEach((item) => {
+            if (item.slug) apiMap.set(item.slug, item);
+            apiMap.set(slugify(item.title || item.name || ''), item);
+          });
 
-          const filtered = [];
+          // 1. Filter existing static items:
+          //    Show if:
+          //    a) It is NOT in the API (static only)
+          //    b) It IS in the API and isVisible !== false
+          const existingKept = existing.filter((e) => {
+            const isString = typeof e === 'string';
+            const s1 = isString ? slugify(e) : (e.slug || '');
+            const s2 = isString ? slugify(e) : slugify(e.name || e.title || '');
+
+            const match1 = apiMap.get(s1);
+            const match2 = apiMap.get(s2);
+
+            const apiItem = match1 || match2;
+
+            if (!apiItem) return true;
+            return apiItem.isVisible !== false;
+          });
+
+          // 2. Identify and append NEW items from API (that are visible)
+          const seenSlugs = new Set();
+          existingKept.forEach(e => {
+            const isString = typeof e === 'string';
+            const s1 = isString ? slugify(e) : (e.slug || '');
+            seenSlugs.add(s1);
+          });
+
+          const newFromApi = [];
           for (const e of fromApi) {
-            const cands = [e?.slug, slugify(e?.title || e?.name || '')].filter(Boolean);
-            const isDup = cands.some((c) => seen.has(c));
-            if (!isDup) {
-              filtered.push(e);
-              // guard against further duplicates within API list
-              cands.forEach((c) => seen.add(c));
+            const s = e.slug || slugify(e.title || '');
+            if (!seenSlugs.has(s) && e.isVisible !== false) {
+              newFromApi.push(e);
+              seenSlugs.add(s);
             }
           }
 
-          const merged = existing.concat(filtered);
+          const merged = existingKept.concat(newFromApi);
           return { ...group, items: merged };
         });
 
@@ -395,7 +416,7 @@ const HeaderOne = () => {
     links: [
       { to: "/our-courses", label: "All courses" },
       { to: "/our-courses?programme=gradus-x", label: "Tech Courses" },
-      { to: "/our-courses?programme=gradus-finlit", label: "Capital Market Courses" },
+      { to: "/our-courses?programme=gradus-finlit", label: "Financial Awareness" },
     ],
   };
 
