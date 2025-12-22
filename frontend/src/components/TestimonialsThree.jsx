@@ -8,7 +8,7 @@ const testimonials = [
     role: "GradusQuity Scholar",
     // avatar: "/assets/images/thumbs/testimonials-three-img2.png",
     quote:
-      "GradusQuity turned macroeconomics into boardroom-ready conversations. The market labs and mentor reviews helped me ace the research analyst interview at HDFC Securities within weeks of the placement drive.",
+      "GradusQuity turned macroeconomics into boardroom-ready conversations. The market labs and mentor reviews helped me ace the research analyst interview at a leading BFSI firm within weeks of the placement drive.",
   },
   {
     id: "rahul-mehta",
@@ -32,7 +32,7 @@ const testimonials = [
     role: "Parent of GradusQuity Alum",
     // avatar: "/assets/images/thumbs/testimonials-three-img3.png",
     quote:
-      "Watching my daughter transform into a confident financial advisor has been incredible. Gradus India's faculty ensured she mastered markets and communication before stepping into Kotak's market analysis role.",
+      "Watching my daughter transform into a confident finance professional has been incredible. Gradus India's faculty ensured she mastered markets and communication before stepping into Kotak's market analysis role.",
   },
 ];
 

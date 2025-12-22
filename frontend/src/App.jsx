@@ -91,7 +91,7 @@ function App() {
       <Suspense fallback={<div className='page-loading'>Loading...</div>}>
         <Routes>
           <Route exact path='/' element={<HomePageOne />} />
-          <Route exact path='/masterclass-on-forex-market-with-vaibhav-batra' element={<VaibhavBatraMasterclass />} />
+          <Route exact path='/masterclass-on-currency-market-with-vaibhav-batra' element={<VaibhavBatraMasterclass />} />
           <Route exact path='/about-us' element={<AboutPage />} />
           <Route exact path='/know-CFL' element={<KnowCFLPage />} />
           <Route exact path='/apply-admission' element={<ApplyAdmissionPage />} />

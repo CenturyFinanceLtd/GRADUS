@@ -124,16 +124,16 @@ const TestimonialsOne = () => {
                       data-aos-duration={1200}
                     >
                       "GradusQuity gave me a clear blueprint for breaking into
-                      investment banking. Weekend market labs, mentorship, and
+                      corporate finance. Weekend market labs, mentorship, and
                       placement coaching meant I could keep my Mumbai job while
                       preparing for interviews—and land an offer at ICICI
-                      Securities."
+                      a top financial institution."
                     </p>
                     <h4 className='mt-48 mb-8' data-aos='fade-left'>
                       Priya Verma
                     </h4>
                     <span className='text-neutral-700' data-aos='fade-left'>
-                      GradusQuity Alum, ICICI Securities
+                      GradusQuity Alum, Top Financial Institution
                     </span>
                   </div>
                   <div className='testimonials-item'>

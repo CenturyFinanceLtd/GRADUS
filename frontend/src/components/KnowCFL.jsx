@@ -148,7 +148,7 @@ const KnowCFL = () => {
       <section className='py-120 bg-main-25 position-relative overflow-hidden'>
         <div className='container'>
           <div className='text-center mb-56 mx-auto col-xl-8'>
-            <p className='text-main-600 fw-semibold text-uppercase letter-spacing-2 mb-12'>Our Service Portfolio</p>
+            <p className='text-main-600 fw-semibold text-uppercase letter-spacing-2 mb-12'>Our Service Offerings</p>
             <h2 className='mb-16 text-neutral-900'>Comprehensive, Innovative, Trusted</h2>
             <p className='text-neutral-500 mb-0'>
               MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED is a one-stop destination for a wide spectrum of financial solutions that balance future-ready innovation with

@@ -136,7 +136,7 @@ const AboutOne = () => {
                       Gradus, an ambitious initiative of
                       {" "}
                       <Link
-                        to='/know-MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED'
+                        to='/know-CFL'
                         className='text-main-600 fw-semibold hover-text-decoration-underline'
                       >
                         MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED
@@ -175,7 +175,7 @@ const AboutOne = () => {
                           Backed by strategic partnerships with 178 leading companies across India, every module, session, and experiential learning component at Gradus is designed in direct correlation with the skills, competencies, and behavioral attributes sought by employers. This ensures that our learners are not merely job-ready but industry-ready, equipped to excel, adapt, and lead in dynamic environments.
                         </p>
                         <p className='mb-0'>
-                          Our training ecosystem is powered by excellence, driven by a distinguished faculty of trainers carefully handpicked through a stringent selection process. These mentors, with proven expertise in finance, management, engineering, and the capital market, impart not only technical knowledge but also cultivate problem-solving abilities, critical thinking, and professional resilience.
+                          Our training ecosystem is powered by excellence, driven by a distinguished faculty of trainers carefully handpicked through a stringent selection process. These mentors, with proven expertise in finance, management, engineering, and the financial markets, impart not only technical knowledge but also cultivate problem-solving abilities, critical thinking, and professional resilience.
                         </p>
                       </AnimatedSpoiler>
                     </div>

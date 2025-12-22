@@ -18,7 +18,7 @@ const FALLBACK_COURSES = [
     name: "GradusQuity",
     subtitle: "By Gradus India (a 100% Subsidiary of MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED)",
     focus:
-      "Capital markets mastery designed for future-ready equity, debt, and derivative professionals.",
+      "Financial markets mastery designed for future-ready equity, debt, and advanced instrument professionals.",
     approvals: [
       "GradusQuity is approved by Skill India & NSDC.",
       "MoU with each student for Assured Placement.",

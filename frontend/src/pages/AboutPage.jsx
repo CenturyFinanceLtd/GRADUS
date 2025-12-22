@@ -43,7 +43,7 @@ const AboutPage = () => {
                 <h3 className='about-hero__panel-title'>Outcomes, not promises.</h3>
                 <ul className='about-hero__list'>
                   <li>Live, mentor-led sessions tuned to employer rubrics</li>
-                  <li>Portfolio-grade projects vetted by industry reviewers</li>
+                  <li>Industry-grade projects vetted by industry reviewers</li>
                   <li>Interview prep sprints aligned to real hiring loops</li>
                   <li>Career pods with weekly feedback and referrals</li>
                 </ul>
@@ -185,7 +185,7 @@ const AboutPage = () => {
                 <p className='about-cta__eyebrow'>Ready to see outcomes?</p>
                 <h3>Join the best-in-market pathway to your next role.</h3>
                 <p className='about-cta__sub'>
-                  Talk to our advisors and pick the cohort that fits your goals. We will map your route from today to hired.
+                  Talk to our counsellors and pick the cohort that fits your goals. We will map your route from today to hired.
                 </p>
               </div>
               <div className='about-cta__actions'>
