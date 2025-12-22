@@ -41,9 +41,6 @@ export const PROGRAMMES = [
         flagship: true,
         flagshipTone: "finlit",
       },
-      "Advanced Markets Mastery",
-      "Global Currency Market Mastery",
-      "Technical Analysis",
     ],
   },
   {

@@ -121,7 +121,8 @@ const FooterOne = () => {
     const loadCourses = async () => {
       try {
         const response = await fetchCourseOptions();
-        const items = Array.isArray(response?.items) ? response.items : [];
+        const rawItems = Array.isArray(response?.items) ? response.items : [];
+        const items = rawItems.filter(c => c.isVisible !== false);
         const grouped = PROGRAMMES.reduce((acc, { slug }) => {
           acc[slug] = [];
           return acc;

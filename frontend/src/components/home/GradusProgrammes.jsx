@@ -49,9 +49,6 @@ const GradusProgrammes = () => {
           flagship: true,
           flagshipTone: "finlit",
         },
-        { slug: "advanced-markets-mastery", title: "Advanced Markets Mastery" },
-        { slug: "global-currency-market-mastery", title: "Global Currency Market Mastery" },
-        { slug: "technical-analysis", title: "Technical Analysis" },
       ],
     },
     {

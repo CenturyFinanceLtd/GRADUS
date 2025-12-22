@@ -444,7 +444,7 @@ const listCourses = asyncHandler(async (req, res) => {
   const sortSpec = sort === 'new' ? { updatedAt: -1 } : { order: 1, createdAt: 1 };
   const courses = await Course.find({})
     .sort(sortSpec)
-    .select(['name', 'slug', 'programme', 'updatedAt', 'createdAt', 'hero', 'stats', 'mode', 'level', 'duration', 'weeks', 'modules', 'price', 'image', 'aboutProgram'])
+    .select(['name', 'slug', 'programme', 'updatedAt', 'createdAt', 'hero', 'stats', 'mode', 'level', 'duration', 'weeks', 'modules', 'price', 'image', 'aboutProgram', 'isVisible'])
     .lean();
 
   const parsePrice = (rawPrice) => {
@@ -483,6 +483,7 @@ const listCourses = asyncHandler(async (req, res) => {
         modulesCount,
         aboutProgram: ensureArray(course.aboutProgram),
         enrolledCount,
+        isVisible: course.isVisible,
       };
     }),
   });
