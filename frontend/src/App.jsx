@@ -66,6 +66,8 @@ const VaibhavBatraMasterclass = lazy(() => import("./pages/VaibhavBatraMastercla
 
 const JobsPage = lazy(() => import("./pages/JobsPage.jsx"));
 const DynamicLandingPage = lazy(() => import("./pages/DynamicLandingPage.jsx"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage.jsx"));
+
 
 const GradusXRedirect = () => {
   const { course } = useParams();
@@ -241,7 +243,11 @@ function App() {
             }
           />
           <Route path='/:programme/:course' element={<ProgrammeCoursePage />} />
+          <Route path='/404' element={<NotFoundPage />} />
           <Route path='/:slug' element={<DynamicLandingPage />} />
+
+          <Route path='*' element={<NotFoundPage />} />
+
         </Routes>
       </Suspense>
     </BrowserRouter>

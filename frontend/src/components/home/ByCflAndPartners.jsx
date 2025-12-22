@@ -160,22 +160,7 @@ const ByCflAndPartners = () => {
       <style>{skeletonKeyframes}</style>
       <div className="container container--lg">
         <div className="text-center mb-32">
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 12,
-              marginBottom: 12,
-            }}
-          >
-
-          </div>
-          <img
-            src="/assets/images/cfl.png"
-            alt="MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED Logo"
-            style={{ maxHeight: 56, width: "auto" }}
-          />
+          <h3 className="mb-0">Our Placement Partners</h3>
 
         </div>
 

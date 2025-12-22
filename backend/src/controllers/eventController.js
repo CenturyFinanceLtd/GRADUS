@@ -240,6 +240,8 @@ const serializeEvent = (event) => {
       highlights: Array.isArray(meta.highlights) ? meta.highlights : [],
       agenda: Array.isArray(meta.agenda) ? meta.agenda : [],
     },
+    isMasterclass: Boolean(event.isMasterclass),
+    masterclassDetails: event.masterclassDetails || {},
   };
 };
 
@@ -541,6 +543,14 @@ const listPublicEvents = asyncHandler(async (req, res) => {
     const isFeatured = boolFromInput(featured, null);
     if (isFeatured !== null) {
       filter.isFeatured = isFeatured;
+    }
+  }
+
+  const { isMasterclass } = req.query;
+  if (isMasterclass !== undefined) {
+    const isMc = boolFromInput(isMasterclass, null);
+    if (isMc !== null) {
+      filter.isMasterclass = isMc;
     }
   }
 

@@ -84,7 +84,7 @@ const ProjectStatusOne = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td>Stock Market</td>
+                  <td>Capital Market</td>
                   <td>1 Months</td>
                   <td>
                     <div className='max-w-112 mx-auto'>

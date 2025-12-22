@@ -351,12 +351,51 @@ const HeaderOne = () => {
     };
   }, []);
 
+  // Fetch Masterclasses to add to Mega Menu
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await fetchEvents({
+          timeframe: "upcoming",
+          isMasterclass: true,
+          limit: 5
+        });
+        if (cancelled) return;
+
+        const items = Array.isArray(response?.items) ? response.items : [];
+        if (items.length > 0) {
+          setProgrammeMega(prev => {
+            // Check if Masterclasses group already exists
+            if (prev.find(p => p.slug === 'masterclasses')) return prev;
+
+            const masterclassGroup = {
+              title: "Masterclasses",
+              slug: "masterclasses",
+              anchor: "/events",
+              items: items.map(mc => ({
+                name: mc.title,
+                slug: mc.slug, // These are event slugs, usually navigated via /events/:slug
+                // We need to handle linking differently for events vs courses
+                isEvent: true
+              }))
+            };
+            return [...prev, masterclassGroup];
+          });
+        }
+      } catch (e) {
+        console.warn("Failed to fetch masterclasses for menu", e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const ourCoursesDropdown = {
     label: "Courses",
     links: [
       { to: "/our-courses", label: "All courses" },
       { to: "/our-courses?programme=gradus-x", label: "Tech Courses" },
-      { to: "/our-courses?programme=gradus-finlit", label: "Stock Market Courses" },
+      { to: "/our-courses?programme=gradus-finlit", label: "Capital Market Courses" },
     ],
   };
 
@@ -428,7 +467,7 @@ const HeaderOne = () => {
                                     return (
                                       <li key={`mega-${gIdx}-${cIdx}`} className='nav-mega__item'>
                                         <Link
-                                          to={`/${group.slug || slugify(group.title)}/${courseMeta.slug}`}
+                                          to={course.isEvent ? `/events/${course.slug}` : `/${group.slug || slugify(group.title)}/${courseMeta.slug}`}
                                           className={`nav-mega__link ${courseMeta.flagship ? "is-flagship" : ""}`}
                                           data-flagship-tone={toneAttr}
                                         >
@@ -661,7 +700,7 @@ const HeaderOne = () => {
                                           className='nav-submenu__item'
                                         >
                                           <Link
-                                            to={buildCourseLink(group, courseMeta)}
+                                            to={course.isEvent ? `/events/${course.slug}` : buildCourseLink(group, courseMeta)}
                                             className={`nav-submenu__link hover-bg-neutral-30 ${courseMeta.flagship ? "is-flagship" : ""
                                               }`}
                                             data-flagship-tone={toneAttr}

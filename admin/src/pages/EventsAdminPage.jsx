@@ -102,7 +102,7 @@ const EventsAdminPage = () => {
       setLoading(true);
       setError(null);
       const data = await listAdminEvents({ token });
-      setItems(data);
+      setItems(data.filter((e) => !e.isMasterclass));
     } catch (err) {
       setError(err?.message || "Failed to load events");
     } finally {

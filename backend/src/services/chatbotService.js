@@ -361,10 +361,10 @@ const buildContextPrompt = (contexts) => {
 const getCourseRecommendations = async () => {
   try {
     const courses = await Course.find(
-      {}, 
+      {},
       'programme programmeSlug courseSlug name slug hero stats aboutProgram learn skills careerOutcomes toolsFrameworks details modules instructors'
     ).lean();
-    
+
     if (!courses || !courses.length) {
       return 'No course data available.';
     }
@@ -376,48 +376,48 @@ const getCourseRecommendations = async () => {
 
     const formatCourses = (programCourses) => {
       if (!programCourses.length) return 'No courses available';
-      
+
       return programCourses.map(c => {
         const parts = [`**${c.name}**`];
-        
+
         // Add hero/stats info
         if (c.hero?.subtitle) parts.push(c.hero.subtitle);
         if (c.stats?.duration) parts.push(`Duration: ${c.stats.duration}`);
         if (c.stats?.level) parts.push(`Level: ${c.stats.level}`);
         if (c.hero?.priceINR) parts.push(`₹${c.hero.priceINR}`);
-        
+
         // What students will learn
         if (c.learn && c.learn.length) {
           parts.push(`\n   Learn: ${c.learn.slice(0, 3).join(' | ')}`);
         }
-        
+
         // Skills taught
         if (c.skills && c.skills.length) {
           parts.push(`Skills: ${c.skills.join(', ')}`);
         }
-        
+
         // Career outcomes
         if (c.careerOutcomes && c.careerOutcomes.length) {
           parts.push(`Careers: ${c.careerOutcomes.join(', ')}`);
         }
-        
+
         // Tools/frameworks
         if (c.toolsFrameworks && c.toolsFrameworks.length) {
           parts.push(`Tools: ${c.toolsFrameworks.slice(0, 2).join(' | ')}`);
         }
-        
+
         // Effort/prerequisites
         if (c.details?.effort) parts.push(`Effort: ${c.details.effort}`);
         if (c.details?.prerequisites) parts.push(`Prerequisites: ${c.details.prerequisites}`);
-        
+
         // Module count
         if (c.modules && c.modules.length) {
           parts.push(`${c.modules.length} modules`);
         }
-        
+
         // Slug for navigation
         if (c.slug) parts.push(`(${c.slug})`);
-        
+
         return '   ' + parts.join(' | ');
       }).join('\n\n');
     };
@@ -487,7 +487,7 @@ GRADUS PROGRAMS - RECOMMEND BASED ON USER PROFILE:
 1. **GradusFinlit** - Financial Literacy & Capital Markets Mastery
    - **Best for**: Commerce students, finance enthusiasts, economics graduates, aspiring traders, investment analysts
    - **Career paths**: Equity research analyst, portfolio manager, investment banker, financial advisor, derivatives trader
-   - **Key skills**: Stock market analysis, portfolio management, derivatives trading, risk management, financial modeling
+   - **Key skills**: Capital market analysis, portfolio management, derivatives trading, risk management, financial modeling
    - **Recommend when user mentions**: finance, trading, stocks, markets, investment, banking, commerce, economics, CFA
    - **Placement range**: 6-14 LPA
    - **Example pitch**: "Perfect for you! 🎯 With your background in [field], GradusFinlit will transform you into a market-ready finance professional. You'll master equity research, derivatives trading, and portfolio management - skills that top firms actively seek!"
@@ -648,7 +648,7 @@ const callOpenAI = async (messages) => {
     model,
     messages,
     temperature: 0.2,
-    
+
   };
 
   const response = await fetchImpl(`${baseUrl}/chat/completions`, {

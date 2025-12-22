@@ -37,9 +37,9 @@ const EventsScreen: React.FC<Props> = ({ navigation }) => {
             setEvents([
                 {
                     _id: '1',
-                    title: 'Stock Market Masterclass',
+                    title: 'Capital Market Masterclass',
                     slug: 'stock-market-masterclass',
-                    description: 'Learn the fundamentals of stock market investing from industry experts.',
+                    description: 'Learn the fundamentals of capital market investing from industry experts.',
                     image: 'https://picsum.photos/400/200?random=10',
                     startDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
                     location: 'Online',

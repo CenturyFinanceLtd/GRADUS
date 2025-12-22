@@ -525,6 +525,15 @@ const MasterLayout = ({ children }) => {
             </li>
             <li>
               <NavLink
+                to='/masterclasses-admin'
+                className={(navData) => (navData.isActive ? "active-page" : "")}
+              >
+                <Icon icon='solar:star-bold-duotone' className='menu-icon' />
+                <span>Masterclasses</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
                 to='/event-registrations'
                 className={(navData) => (navData.isActive ? "active-page" : "")}
               >
