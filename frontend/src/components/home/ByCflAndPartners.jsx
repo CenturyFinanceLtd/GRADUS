@@ -3,7 +3,7 @@ import Slider from "react-slick";
 import usePartnerLogos from "../../hooks/usePartnerLogos";
 import { buildPartnerDisplayItems } from "../../utils/partners";
 
-const preferredPartnerNames = ["century finance"];
+const preferredPartnerNames = ["mdm madhubani technologies private limited"];
 const itProgramKeys = ["gradusx"];
 const itNameKeywords = [
   " tech",

@@ -506,7 +506,7 @@ GRADUS PROGRAMS - RECOMMEND BASED ON USER PROFILE:
    - **Key skills**: Strategic thinking, leadership, financial planning, operations management, business strategy, people management
    - **Recommend when user mentions**: management, business, MBA, leadership, strategy, consulting, operations, entrepreneurship
    - **Placement range**: 6-14 LPA
-   - **Example pitch**: "Excellent choice! 🚀 GradusLead cultivates future leaders. With your interest in [field], you'll develop strategic thinking, leadership skills, and business acumen that prepares you for management roles and the CXO track. Century Finance's network opens doors to top companies!"
+   - **Example pitch**: "Excellent choice! 🚀 GradusLead cultivates future leaders. With your interest in [field], you'll develop strategic thinking, leadership skills, and business acumen that prepares you for management roles and the CXO track. MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED's network opens doors to top companies!"
 
 **MULTI-PROGRAM RECOMMENDATIONS**:
 - **Commerce + Tech interest** → Suggest GradusFinlit (primary) + mention GradusX for fintech roles

@@ -87,7 +87,7 @@ const BannerThree = () => {
                         <i className='ph-bold ph-book-open' />
                       </span>
                       <h5 className='text-yellow-600 mb-0 fw-medium'>
-                        Career Acceleration by Century Finance
+                        Career Acceleration by MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED
                       </h5>
                     </div>
                     <h1 className='display2 mb-24 text-white fw-medium wow bounceInLeft'>
@@ -127,7 +127,7 @@ const BannerThree = () => {
                       >
                         <i className='ph-fill ph-play' />
                       </span> */}
-                      
+
                     </div>
                   </div>
                 </div>
@@ -189,7 +189,7 @@ const BannerThree = () => {
                       >
                         <i className='ph-fill ph-play' />
                       </span> */}
-                      
+
                     </div>
                   </div>
                 </div>
@@ -252,7 +252,7 @@ const BannerThree = () => {
                       >
                         <i className='ph-fill ph-play' />
                       </span> */}
-                      
+
                     </div>
                   </div>
                 </div>

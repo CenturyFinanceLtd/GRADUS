@@ -24,7 +24,7 @@ const testimonials = [
     role: "GradusLead Fellow",
     // avatar: "/assets/images/thumbs/testimonials-three-img3.png",
     quote:
-      "The GradusLead journey paired leadership coaching with hands-on consulting sprints. My capstone with Century Finance sharpened my strategy toolkit and resulted in a management trainee offer.",
+      "The GradusLead journey paired leadership coaching with hands-on consulting sprints. My capstone with MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED sharpened my strategy toolkit and resulted in a management trainee offer.",
   },
   {
     id: "sanjay-patel",
@@ -95,7 +95,7 @@ const TestimonialsThree = () => {
                   key={testimonial.id}
                   className='testimonials-three-item bg-white p-24 rounded-12 box-shadow-md'
                 >
-                  
+
                   <p className='text-neutral-500 my-24'>{testimonial.quote}</p>
                   <ul className='flex-align gap-8 mb-16'>
                     <li className='text-warning-600 text-xl d-flex'>
