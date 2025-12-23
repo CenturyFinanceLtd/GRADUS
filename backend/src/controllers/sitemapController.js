@@ -109,6 +109,9 @@ const updateSitemapContent = asyncHandler(async (req, res) => {
     const { filename } = req.params;
     const { content } = req.body;
 
+    console.log(`[sitemap] Update request for: ${filename}`);
+    console.log(`[sitemap] Content length: ${content?.length || 0} bytes`);
+
     if (filename.includes('..') || !filename.endsWith('.xml')) {
         res.status(400);
         throw new Error('Invalid filename');
@@ -122,6 +125,17 @@ const updateSitemapContent = asyncHandler(async (req, res) => {
     const filePath = path.join(SITEMAP_DIR, filename);
     await ensureDir();
     await fs.writeFile(filePath, content, 'utf-8');
+
+    console.log(`[sitemap] Written to: ${filePath}`);
+
+    // Also sync to frontend/public for static deployments
+    try {
+        const frontendPath = path.join(__dirname, '../../../frontend/public', filename);
+        await fs.writeFile(frontendPath, content, 'utf-8');
+        console.log(`[sitemap] Synced to frontend: ${frontendPath}`);
+    } catch (syncError) {
+        console.warn(`[sitemap] Could not sync to frontend:`, syncError.message);
+    }
 
     res.json({ message: 'Sitemap updated successfully', filename });
 });
