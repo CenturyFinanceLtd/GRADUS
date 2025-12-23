@@ -569,10 +569,10 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
           setTitle(nextTitle);
           setSlug(updatedSlug || autoSlug);
           setSlugManuallyEdited(!!updatedSlug && updatedSlug !== autoSlug);
-        setAuthor(resultingBlog.author || defaultAuthor);
-        setCategory(resultingBlog.category || "");
-        setExcerpt(resultingBlog.excerpt || "");
-        setTagsInput((resultingBlog.tags || []).join(", "));
+          setAuthor(resultingBlog.author || defaultAuthor);
+          setCategory(resultingBlog.category || "");
+          setExcerpt(resultingBlog.excerpt || "");
+          setTagsInput((resultingBlog.tags || []).join(", "));
           setContent(resultingBlog.content || "");
           setExistingImageUrl(resolveImagePath(resultingBlog.featuredImage));
           setRemoveExistingImage(false);
@@ -662,454 +662,493 @@ const AddBlogLayer = ({ mode = "create", blogId = undefined }) => {
     <>
       <style>{previewListStyles}</style>
       <div className='row gy-4'>
-      <div className='col-lg-8'>
-        <div className='card mt-24'>
-        <div className='card-header border-bottom'>
-            <h6 className='text-xl mb-0'>{isEditMode ? "Edit Post" : "Add New Post"}</h6>
-          </div>
-          <div className='card-body p-24'>
-            {isEditMode && loadingBlog ? (
-              <div className='d-flex justify-content-center py-5'>
-                <div className='spinner-border text-primary' role='status'>
-                  <span className='visually-hidden'>Loading...</span>
-                </div>
-              </div>
-            ) : loadError ? (
-              <div className='alert alert-danger d-flex flex-wrap gap-12 align-items-center' role='alert'>
-                <span className='flex-grow-1'>{loadError}</span>
-                {isEditMode ? (
-                  <button
-                    type='button'
-                    className='btn btn-sm btn-outline-primary'
-                    onClick={handleReloadBlog}
-                    disabled={submitting}
-                  >
-                    Retry
-                  </button>
-                ) : null}
-              </div>
-            ) : (
-              <form className='d-flex flex-column gap-20' onSubmit={handleSubmit} noValidate>
-                {feedback ? (
-                  <div className={alertClass} role='alert'>
-                    <div>{feedback.message}</div>
-                    {feedback.type === "success" && lastPublishedBlog?.id ? (
-                      <div className='d-flex flex-wrap gap-8 mt-12'>
-                        <Link to={`/edit-blog/${lastPublishedBlog.id}`} className='btn btn-sm btn-outline-light'>
-                          Edit Published Post
-                        </Link>
-                        {buildPublicBlogUrl(lastPublishedBlog.slug, lastPublishedBlog.title) ? (
-                          <a
-                            href={buildPublicBlogUrl(lastPublishedBlog.slug, lastPublishedBlog.title)}
-                            target='_blank'
-                            rel='noreferrer'
-                            className='btn btn-sm btn-outline-light'
-                          >
-                            View Public Page
-                          </a>
-                        ) : null}
-                      </div>
-                    ) : null}
-                  </div>
-                ) : null}
-                <div>
-                  <label className='form-label fw-bold text-neutral-900' htmlFor='title'>
-                    Post Title:{" "}
-                  </label>
-                  <input
-                    type='text'
-                    className='form-control border border-neutral-200 radius-8'
-                    id='title'
-                    placeholder='Enter Post Title'
-                    value={title}
-                    onChange={handleTitleChange}
-                    disabled={submitting}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className='form-label fw-bold text-neutral-900' htmlFor='slug'>
-                    Post Slug:
-                  </label>
-                  <div className='d-flex gap-12 align-items-start flex-wrap'>
-                    <input
-                      type='text'
-                      className='form-control border border-neutral-200 radius-8 flex-grow-1'
-                      id='slug'
-                      value={slug}
-                      onChange={handleSlugChange}
-                      onBlur={handleSlugBlur}
-                      placeholder='custom-url-slug'
-                      disabled={submitting}
-                    />
-                    <button
-                      type='button'
-                      className='btn btn-outline-secondary btn-sm'
-                      onClick={handleResetSlug}
-                      disabled={submitting}
-                    >
-                      Reset from title
-                    </button>
-                  </div>
-                  <small className='text-neutral-500'>
-                    Slug auto-syncs with the title unless you edit it. Use reset to regenerate from the current title.
-                  </small>
-                </div>
-                <div>
-                  <label className='form-label fw-bold text-neutral-900' htmlFor='author'>
-                    Author
-                  </label>
-                  <input
-                    type='text'
-                    className='form-control border border-neutral-200 radius-8'
-                    id='author'
-                    placeholder='Enter author name'
-                    value={author}
-                    onChange={(event) => setAuthor(event.target.value)}
-                    disabled={submitting}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className='form-label fw-bold text-neutral-900' htmlFor='category'>
-                    Post Category:
-                  </label>
-                  <input
-                    type='text'
-                    className='form-control border border-neutral-200 radius-8'
-                    id='category'
-                    placeholder='Enter Category'
-                    value={category}
-                    onChange={(event) => setCategory(event.target.value)}
-                    disabled={submitting}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className='form-label fw-bold text-neutral-900' htmlFor='excerpt'>
-                    Short Description
-                  </label>
-                  <textarea
-                    className='form-control border border-neutral-200 radius-8'
-                    id='excerpt'
-                    placeholder='Enter a short description (optional)'
-                    rows={3}
-                    value={excerpt}
-                    onChange={(event) => setExcerpt(event.target.value)}
-                    disabled={submitting}
-                  />
-                </div>
-                <div>
-                  <label className='form-label fw-bold text-neutral-900' htmlFor='tags'>
-                    Tags
-                  </label>
-                  <input
-                    type='text'
-                    className='form-control border border-neutral-200 radius-8'
-                    id='tags'
-                    placeholder='Add tags separated by commas (e.g. #tag1, #tag2)'
-                    value={tagsInput}
-                    onChange={(event) => setTagsInput(event.target.value)}
-                    disabled={submitting}
-                  />
-                </div>
-                <div>
-                  <label className='form-label fw-bold text-neutral-900'>
-                    Post Content
-                  </label>
-                  <div className='d-flex flex-wrap gap-12 justify-content-between align-items-center mb-12'>
-                    <div className='d-flex flex-wrap gap-12 align-items-center'>
-                      <div className='btn-group' role='group' aria-label='Content mode toggle'>
-                        <button
-                          type='button'
-                          className={`btn btn-sm ${contentMode === "visual" ? "btn-primary-600" : "btn-outline-secondary"}`}
-                          onClick={() => switchContentMode("visual")}
-                          disabled={submitting}
-                        >
-                          Visual Editor
-                        </button>
-                        <button
-                          type='button'
-                          className={`btn btn-sm ${contentMode === "html" ? "btn-primary-600" : "btn-outline-secondary"}`}
-                          onClick={() => switchContentMode("html")}
-                          disabled={submitting}
-                        >
-                          HTML / Text
-                        </button>
-                      </div>
-                      <button
-                        type='button'
-                        className='btn btn-sm btn-outline-primary'
-                        onClick={handleFormatHtml}
-                        disabled={!canFormatHtml || submitting}
-                      >
-                        Format HTML
-                      </button>
-                    </div>
-                    <span className='text-sm text-neutral-500'>
-                      Use Visual for rich formatting or switch to HTML to write clean markup and embeds.
-                    </span>
-                  </div>
-                  {formattingMessage ? (
-                    <div className='alert alert-info py-2 px-3 mb-12'>
-                      {formattingMessage}
-                    </div>
-                  ) : null}
-                  <div className='border border-neutral-200 radius-8 overflow-hidden'>
-                    <div style={{ display: contentMode === "visual" ? "block" : "none" }}>
-                      <Editor
-                        apiKey='81qrnbgkcadey6vzliszp67sut8lreadzvfkpdicpi2sw8ez'
-                        onInit={(_evt, editor) => {
-                          editorRef.current = editor;
-                        }}
-                        value={content}
-                        onEditorChange={(value) => setContent(value)}
-                        init={{
-                          plugins: tinyPlugins,
-                          toolbar: tinyToolbar,
-                          menubar: "file edit view insert format tools table help",
-                          toolbar_mode: "wrap",
-                          toolbar_sticky: true,
-                          quickbars_insert_toolbar: "image media table hr | codesample",
-                          quickbars_selection_toolbar: "bold italic underline | h2 h3 blockquote | link",
-                          branding: false,
-                          height: 520,
-                          statusbar: true,
-                          content_style:
-                            "body { background: #ffffff; font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 16px; color: #0f172a; line-height: 1.7; } code, pre { background: #0f172a0d; padding: 4px 6px; border-radius: 6px; }",
-                          link_default_target: "_blank",
-                          link_assume_external_targets: true,
-                          image_caption: true,
-                        }}
-                        disabled={submitting || contentMode !== "visual"}
-                      />
-                    </div>
-                    <textarea
-                      ref={sourceTextareaRef}
-                      className='form-control border-0 rounded-0'
-                      style={{
-                        display: contentMode === "html" ? "block" : "none",
-                        minHeight: 520,
-                        fontFamily:
-                          "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-                        fontSize: 14,
-                        backgroundColor: "#ffffff",
-                        color: "#0f172a",
-                        caretColor: "#0f172a",
-                      }}
-                      value={content}
-                      onChange={(event) => setContent(event.target.value)}
-                      placeholder='Write or paste HTML here...'
-                      spellCheck={false}
-                      disabled={submitting}
-                    />
-                  </div>
-                  <small className='d-block mt-8 text-neutral-500'>
-                    Content stays in sync between Visual and HTML modes so you can switch whenever you need.
-                  </small>
-                </div>
-                <div>
-                  <label className='form-label fw-bold text-neutral-900'>
-                    Upload Thumbnail
-                  </label>
-                  <div className='upload-image-wrapper'>
-                    {displayedImage ? (
-                      <div className='uploaded-img position-relative h-160-px w-100 border input-form-light radius-8 overflow-hidden border-dashed bg-neutral-50'>
-                        <button
-                          type='button'
-                          className='uploaded-img__remove position-absolute top-0 end-0 z-1 text-2xxl line-height-1 me-8 mt-8 d-flex bg-danger-600 w-40-px h-40-px justify-content-center align-items-center rounded-circle'
-                          onClick={handleRemoveImage}
-                          disabled={submitting}
-                        >
-                          <iconify-icon icon='radix-icons:cross-2' className='text-2xl text-white'></iconify-icon>
-                        </button>
-                        <img
-                          id='uploaded-img__preview'
-                          className='w-100 h-100 object-fit-cover'
-                          src={displayedImage}
-                          alt='Uploaded'
-                        />
-                      </div>
-                    ) : (
-                      <label
-                        className={dropZoneClassName}
-                        htmlFor='upload-file'
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
-                      >
-                        <iconify-icon
-                          icon='solar:camera-outline'
-                          className={isDragging ? "text-xl" : "text-xl text-secondary-light"}
-                        ></iconify-icon>
-                        <span className='fw-semibold'>
-                          {isDragging ? "Drop image to upload" : "Click or drag an image here"}
-                        </span>
-                        <small className='text-neutral-500'>
-                          JPG, PNG, or WebP up to 5MB
-                        </small>
-                        <input
-                          id='upload-file'
-                          type='file'
-                          hidden
-                          accept='image/*'
-                          onChange={handleFileChange}
-                          disabled={submitting}
-                        />
-                      </label>
-                    )}
-                  </div>
-                </div>
-                <div className='d-flex flex-wrap gap-12 justify-content-end'>
-                  <button
-                    type='button'
-                    className='btn btn-outline-secondary radius-8'
-                    onClick={handlePreview}
-                    disabled={submitting}
-                  >
-                    Preview
-                  </button>
-                  <button type='submit' className='btn btn-primary-600 radius-8' disabled={submitting}>
-                    {submitting ? (isEditMode ? "Saving..." : "Submitting...") : isEditMode ? "Save Changes" : "Submit"}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      </div>
-      {/* Sidebar Start */}
-      <div className='col-lg-4'>
-        <div className='d-flex flex-column gap-24'>
-          {/* Latest Blog */}
-          <div className='card'>
+        <div className='col-lg-8'>
+          <div className='card mt-24'>
             <div className='card-header border-bottom'>
-              <h6 className='text-xl mb-0'>Latest Posts</h6>
+              <h6 className='text-xl mb-0'>{isEditMode ? "Edit Post" : "Add New Post"}</h6>
             </div>
-            <div className='card-body d-flex flex-column gap-24 p-24'>
-              {recentLoading ? (
-                <div className='d-flex justify-content-center py-32'>
+            <div className='card-body p-24'>
+              {isEditMode && loadingBlog ? (
+                <div className='d-flex justify-content-center py-5'>
                   <div className='spinner-border text-primary' role='status'>
                     <span className='visually-hidden'>Loading...</span>
                   </div>
                 </div>
-              ) : recentError ? (
-                <div className='alert alert-danger mb-0'>{recentError}</div>
-              ) : recentBlogs.length === 0 ? (
-                <div className='alert alert-info mb-0'>No other posts found.</div>
+              ) : loadError ? (
+                <div className='alert alert-danger d-flex flex-wrap gap-12 align-items-center' role='alert'>
+                  <span className='flex-grow-1'>{loadError}</span>
+                  {isEditMode ? (
+                    <button
+                      type='button'
+                      className='btn btn-sm btn-outline-primary'
+                      onClick={handleReloadBlog}
+                      disabled={submitting}
+                    >
+                      Retry
+                    </button>
+                  ) : null}
+                </div>
               ) : (
-                recentBlogs.map((blog) => {
-                  const previewImage = resolveImagePath(blog.featuredImage) || FALLBACK_IMAGE;
-                  const publicUrl = buildPublicBlogUrl(blog.slug, blog.title);
-                  return (
-                    <div className='d-flex align-items-start gap-12 p-12 radius-12 border border-neutral-50 bg-neutral-10' key={blog.id}>
-                      <a
-                        href={publicUrl || '#'}
-                        target='_blank'
-                        rel={publicUrl ? 'noreferrer' : undefined}
-                        className='blog__thumb overflow-hidden flex-shrink-0 rounded-12'
-                        style={{ width: '96px', height: '96px' }}
-                      >
-                        <img src={previewImage} alt={blog.title} className='w-100 h-100 object-fit-cover' />
-                      </a>
-                      <div className='blog__content flex-grow-1'>
-                        <h6 className='mb-8 text-lg'>
-                          <a href={publicUrl} target='_blank' rel='noreferrer' className='text-hover-primary-600 transition-2'>
-                            {blog.title}
-                          </a>
-                        </h6>
-                        <p className='text-sm text-neutral-500 mb-0 text-line-2'>
-                          {blog.excerpt || 'View blog details'}
-                        </p>
-                      </div>
+                <form className='d-flex flex-column gap-20' onSubmit={handleSubmit} noValidate>
+                  {feedback ? (
+                    <div className={alertClass} role='alert'>
+                      <div>{feedback.message}</div>
+                      {feedback.type === "success" && lastPublishedBlog?.id ? (
+                        <div className='d-flex flex-wrap gap-8 mt-12'>
+                          <Link to={`/edit-blog/${lastPublishedBlog.id}`} className='btn btn-sm btn-outline-light'>
+                            Edit Published Post
+                          </Link>
+                          {buildPublicBlogUrl(lastPublishedBlog.slug, lastPublishedBlog.title) ? (
+                            <a
+                              href={buildPublicBlogUrl(lastPublishedBlog.slug, lastPublishedBlog.title)}
+                              target='_blank'
+                              rel='noreferrer'
+                              className='btn btn-sm btn-outline-light'
+                            >
+                              View Public Page
+                            </a>
+                          ) : null}
+                        </div>
+                      ) : null}
                     </div>
-                  );
-                })
+                  ) : null}
+                  <div>
+                    <label className='form-label fw-bold text-neutral-900' htmlFor='title'>
+                      Post Title:{" "}
+                    </label>
+                    <input
+                      type='text'
+                      className='form-control border border-neutral-200 radius-8'
+                      id='title'
+                      placeholder='Enter Post Title'
+                      value={title}
+                      onChange={handleTitleChange}
+                      disabled={submitting}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className='form-label fw-bold text-neutral-900' htmlFor='slug'>
+                      Post Slug:
+                    </label>
+                    <div className='d-flex gap-12 align-items-start flex-wrap'>
+                      <input
+                        type='text'
+                        className='form-control border border-neutral-200 radius-8 flex-grow-1'
+                        id='slug'
+                        value={slug}
+                        onChange={handleSlugChange}
+                        onBlur={handleSlugBlur}
+                        placeholder='custom-url-slug'
+                        disabled={submitting}
+                      />
+                      <button
+                        type='button'
+                        className='btn btn-outline-secondary btn-sm'
+                        onClick={handleResetSlug}
+                        disabled={submitting}
+                      >
+                        Reset from title
+                      </button>
+                    </div>
+                    <small className='text-neutral-500'>
+                      Slug auto-syncs with the title unless you edit it. Use reset to regenerate from the current title.
+                    </small>
+                  </div>
+                  <div>
+                    <label className='form-label fw-bold text-neutral-900' htmlFor='author'>
+                      Author
+                    </label>
+                    <input
+                      type='text'
+                      className='form-control border border-neutral-200 radius-8'
+                      id='author'
+                      placeholder='Enter author name'
+                      value={author}
+                      onChange={(event) => setAuthor(event.target.value)}
+                      disabled={submitting}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className='form-label fw-bold text-neutral-900' htmlFor='category'>
+                      Post Category:
+                    </label>
+                    <input
+                      type='text'
+                      className='form-control border border-neutral-200 radius-8'
+                      id='category'
+                      placeholder='Enter Category'
+                      value={category}
+                      onChange={(event) => setCategory(event.target.value)}
+                      disabled={submitting}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className='form-label fw-bold text-neutral-900' htmlFor='excerpt'>
+                      Short Description
+                    </label>
+                    <textarea
+                      className='form-control border border-neutral-200 radius-8'
+                      id='excerpt'
+                      placeholder='Enter a short description (optional)'
+                      rows={3}
+                      value={excerpt}
+                      onChange={(event) => setExcerpt(event.target.value)}
+                      disabled={submitting}
+                    />
+                  </div>
+                  <div>
+                    <label className='form-label fw-bold text-neutral-900' htmlFor='tags'>
+                      Tags
+                    </label>
+                    <input
+                      type='text'
+                      className='form-control border border-neutral-200 radius-8'
+                      id='tags'
+                      placeholder='Add tags separated by commas (e.g. #tag1, #tag2)'
+                      value={tagsInput}
+                      onChange={(event) => setTagsInput(event.target.value)}
+                      disabled={submitting}
+                    />
+                  </div>
+                  <div>
+                    <label className='form-label fw-bold text-neutral-900'>
+                      Post Content
+                    </label>
+                    <div className='d-flex flex-wrap gap-12 justify-content-between align-items-center mb-12'>
+                      <div className='d-flex flex-wrap gap-12 align-items-center'>
+                        <div className='btn-group' role='group' aria-label='Content mode toggle'>
+                          <button
+                            type='button'
+                            className={`btn btn-sm ${contentMode === "visual" ? "btn-primary-600" : "btn-outline-secondary"}`}
+                            onClick={() => switchContentMode("visual")}
+                            disabled={submitting}
+                          >
+                            Visual Editor
+                          </button>
+                          <button
+                            type='button'
+                            className={`btn btn-sm ${contentMode === "html" ? "btn-primary-600" : "btn-outline-secondary"}`}
+                            onClick={() => switchContentMode("html")}
+                            disabled={submitting}
+                          >
+                            HTML / Text
+                          </button>
+                        </div>
+                        <button
+                          type='button'
+                          className='btn btn-sm btn-outline-primary'
+                          onClick={handleFormatHtml}
+                          disabled={!canFormatHtml || submitting}
+                        >
+                          Format HTML
+                        </button>
+                      </div>
+                      <span className='text-sm text-neutral-500'>
+                        Use Visual for rich formatting or switch to HTML to write clean markup and embeds.
+                      </span>
+                    </div>
+                    {formattingMessage ? (
+                      <div className='alert alert-info py-2 px-3 mb-12'>
+                        {formattingMessage}
+                      </div>
+                    ) : null}
+                    <div className='border border-neutral-200 radius-8 overflow-hidden'>
+                      <div style={{ display: contentMode === "visual" ? "block" : "none" }}>
+                        <Editor
+                          apiKey='81qrnbgkcadey6vzliszp67sut8lreadzvfkpdicpi2sw8ez'
+                          onInit={(_evt, editor) => {
+                            editorRef.current = editor;
+                          }}
+                          value={content}
+                          onEditorChange={(value) => setContent(value)}
+                          init={{
+                            plugins: tinyPlugins,
+                            toolbar: tinyToolbar,
+                            menubar: "file edit view insert format tools table help",
+                            toolbar_mode: "wrap",
+                            toolbar_sticky: true,
+                            quickbars_insert_toolbar: "image media table hr | codesample",
+                            quickbars_selection_toolbar: "bold italic underline | h2 h3 blockquote | link",
+                            branding: false,
+                            height: 520,
+                            statusbar: true,
+                            content_style:
+                              "body { background: #ffffff; font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 16px; color: #0f172a; line-height: 1.7; } code, pre { background: #0f172a0d; padding: 4px 6px; border-radius: 6px; }",
+                            link_default_target: "_blank",
+                            link_assume_external_targets: true,
+                            image_caption: true,
+                          }}
+                          disabled={submitting || contentMode !== "visual"}
+                        />
+                      </div>
+                      <textarea
+                        ref={sourceTextareaRef}
+                        className='form-control border-0 rounded-0'
+                        style={{
+                          display: contentMode === "html" ? "block" : "none",
+                          minHeight: 520,
+                          fontFamily:
+                            "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+                          fontSize: 14,
+                          backgroundColor: "#ffffff",
+                          color: "#0f172a",
+                          caretColor: "#0f172a",
+                        }}
+                        value={content}
+                        onChange={(event) => setContent(event.target.value)}
+                        placeholder='Write or paste HTML here...'
+                        spellCheck={false}
+                        disabled={submitting}
+                      />
+                    </div>
+                    <small className='d-block mt-8 text-neutral-500'>
+                      Content stays in sync between Visual and HTML modes so you can switch whenever you need.
+                    </small>
+                  </div>
+                  <div>
+                    <label className='form-label fw-bold text-neutral-900'>
+                      Upload Thumbnail
+                    </label>
+                    <div className='upload-image-wrapper'>
+                      {displayedImage ? (
+                        <div className='uploaded-img position-relative h-160-px w-100 border input-form-light radius-8 overflow-hidden border-dashed bg-neutral-50'>
+                          <button
+                            type='button'
+                            className='uploaded-img__remove position-absolute top-0 end-0 z-1 text-2xxl line-height-1 me-8 mt-8 d-flex bg-danger-600 w-40-px h-40-px justify-content-center align-items-center rounded-circle'
+                            onClick={handleRemoveImage}
+                            disabled={submitting}
+                          >
+                            <iconify-icon icon='radix-icons:cross-2' className='text-2xl text-white'></iconify-icon>
+                          </button>
+                          <img
+                            id='uploaded-img__preview'
+                            className='w-100 h-100 object-fit-cover'
+                            src={displayedImage}
+                            alt='Uploaded'
+                          />
+                        </div>
+                      ) : (
+                        <label
+                          className={dropZoneClassName}
+                          htmlFor='upload-file'
+                          onDragOver={handleDragOver}
+                          onDragLeave={handleDragLeave}
+                          onDrop={handleDrop}
+                        >
+                          <iconify-icon
+                            icon='solar:camera-outline'
+                            className={isDragging ? "text-xl" : "text-xl text-secondary-light"}
+                          ></iconify-icon>
+                          <span className='fw-semibold'>
+                            {isDragging ? "Drop image to upload" : "Click or drag an image here"}
+                          </span>
+                          <small className='text-neutral-500'>
+                            JPG, PNG, or WebP up to 5MB
+                          </small>
+                          <input
+                            id='upload-file'
+                            type='file'
+                            hidden
+                            accept='image/*'
+                            onChange={handleFileChange}
+                            disabled={submitting}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                  <div className='d-flex flex-wrap gap-12 justify-content-end'>
+                    <button
+                      type='button'
+                      className='btn btn-outline-secondary radius-8'
+                      onClick={handlePreview}
+                      disabled={submitting}
+                    >
+                      Preview
+                    </button>
+                    <button type='submit' className='btn btn-primary-600 radius-8' disabled={submitting}>
+                      {submitting ? (isEditMode ? "Saving..." : "Submitting...") : isEditMode ? "Save Changes" : "Submit"}
+                    </button>
+                  </div>
+                </form>
               )}
             </div>
           </div>
-          <div className='card'>
-            <div className='card-header border-bottom'>
-              <h6 className='text-xl mb-0'>Tags</h6>
+        </div>
+        {/* Sidebar Start */}
+        <div className='col-lg-4'>
+          <div className='d-flex flex-column gap-24'>
+            {/* Latest Blog */}
+            <div className='card'>
+              <div className='card-header border-bottom'>
+                <h6 className='text-xl mb-0'>Latest Posts</h6>
+              </div>
+              <div className='card-body d-flex flex-column gap-24 p-24'>
+                {recentLoading ? (
+                  <div className='d-flex justify-content-center py-32'>
+                    <div className='spinner-border text-primary' role='status'>
+                      <span className='visually-hidden'>Loading...</span>
+                    </div>
+                  </div>
+                ) : recentError ? (
+                  <div className='alert alert-danger mb-0'>{recentError}</div>
+                ) : recentBlogs.length === 0 ? (
+                  <div className='alert alert-info mb-0'>No other posts found.</div>
+                ) : (
+                  recentBlogs.map((blog) => {
+                    const previewImage = resolveImagePath(blog.featuredImage) || FALLBACK_IMAGE;
+                    const publicUrl = buildPublicBlogUrl(blog.slug, blog.title);
+                    return (
+                      <div className='d-flex align-items-start gap-12 p-12 radius-12 border border-neutral-50 bg-neutral-10' key={blog.id}>
+                        <a
+                          href={publicUrl || '#'}
+                          target='_blank'
+                          rel={publicUrl ? 'noreferrer' : undefined}
+                          className='blog__thumb overflow-hidden flex-shrink-0 rounded-12'
+                          style={{ width: '96px', height: '96px' }}
+                        >
+                          <img src={previewImage} alt={blog.title} className='w-100 h-100 object-fit-cover' />
+                        </a>
+                        <div className='blog__content flex-grow-1'>
+                          <h6 className='mb-8 text-lg'>
+                            <a href={publicUrl} target='_blank' rel='noreferrer' className='text-hover-primary-600 transition-2'>
+                              {blog.title}
+                            </a>
+                          </h6>
+                          <p className='text-sm text-neutral-500 mb-0 text-line-2'>
+                            {blog.excerpt || 'View blog details'}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
-            <div className='card-body p-24'>
-              <ul className='flex-wrap d-flex gap-12 mb-0 list-unstyled'>
-                <li>
-                  <button type='button' className='btn btn-sm border border-neutral-200 radius-8'>
-                    Business
-                  </button>
-                </li>
-                <li>
-                  <button type='button' className='btn btn-sm border border-neutral-200 radius-8'>
-                    Finance
-                  </button>
-                </li>
-                <li>
-                  <button type='button' className='btn btn-sm border border-neutral-200 radius-8'>
-                    Marketing
-                  </button>
-                </li>
-                <li>
-                  <button type='button' className='btn btn-sm border border-neutral-200 radius-8'>
-                    Strategy
-                  </button>
-                </li>
-                <li>
-                  <button type='button' className='btn btn-sm border border-neutral-200 radius-8'>
-                    AI
-                  </button>
-                </li>
-              </ul>
+            <div className='card'>
+              <div className='card-header border-bottom'>
+                <h6 className='text-xl mb-0'>Tags</h6>
+              </div>
+              <div className='card-body p-24'>
+                <ul className='flex-wrap d-flex gap-12 mb-0 list-unstyled'>
+                  <li>
+                    <button type='button' className='btn btn-sm border border-neutral-200 radius-8'>
+                      Business
+                    </button>
+                  </li>
+                  <li>
+                    <button type='button' className='btn btn-sm border border-neutral-200 radius-8'>
+                      Finance
+                    </button>
+                  </li>
+                  <li>
+                    <button type='button' className='btn btn-sm border border-neutral-200 radius-8'>
+                      Marketing
+                    </button>
+                  </li>
+                  <li>
+                    <button type='button' className='btn btn-sm border border-neutral-200 radius-8'>
+                      Strategy
+                    </button>
+                  </li>
+                  <li>
+                    <button type='button' className='btn btn-sm border border-neutral-200 radius-8'>
+                      AI
+                    </button>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      {previewOpen && previewPayload ? (
-        <>
-          <div style={modalBackdropStyle} onClick={closePreview} />
-          <div style={modalPanelStyle} className='preview-card shadow-lg'>
-            <div className='p-24 border-bottom d-flex justify-content-between align-items-center'>
-              <h4 className='mb-0'>Preview</h4>
-              <button type='button' className='btn btn-sm btn-outline-secondary' onClick={closePreview}>
-                Close
-              </button>
-            </div>
-            <div className='p-24'>
-              <div className='mb-20'>
-                <span className='badge bg-main-100 text-main-600 px-16 py-6 radius-pill fw-semibold text-sm'>
-                  {previewPayload.category}
-                </span>
-                <h3 className='mt-16 mb-12'>{previewPayload.title}</h3>
-                <p className='text-neutral-500 mb-2'>
-                  By {previewPayload.author} • {new Date().toLocaleDateString()}
-                </p>
-                {previewPayload.excerpt ? <p className='text-neutral-600'>{previewPayload.excerpt}</p> : null}
+        {previewOpen && previewPayload ? (
+          <>
+            <div style={modalBackdropStyle} onClick={closePreview} />
+            <div style={modalPanelStyle} className='preview-card shadow-lg'>
+              <div className='p-24 border-bottom d-flex justify-content-between align-items-center'>
+                <h4 className='mb-0'>Article Preview</h4>
+                <button type='button' className='btn btn-sm btn-outline-secondary' onClick={closePreview}>
+                  Close
+                </button>
               </div>
-              <div className='rounded-16 overflow-hidden mb-20' style={{ maxHeight: 360 }}>
-                <img
-                  src={previewPayload.image}
-                  alt={previewPayload.title}
-                  className='w-100 h-100 object-fit-cover'
-                  style={{ maxHeight: 360 }}
-                />
-              </div>
-              <div
-                className='blog-preview-content text-neutral-900'
-                dangerouslySetInnerHTML={{ __html: previewPayload.content }}
-              />
-              {previewPayload.tags.length ? (
-                <div className='d-flex flex-wrap gap-8 mt-20'>
-                  {previewPayload.tags.map((tag) => (
-                    <span key={tag} className='badge bg-neutral-100 text-neutral-700 px-12 py-6 radius-pill'>
-                      {tag.startsWith("#") ? tag : `#${tag}`}
-                    </span>
-                  ))}
+              {/* Blog Details Style Container */}
+              <div className='p-24' style={{ background: '#f7f8fc' }}>
+                {/* Category Label */}
+                <div className='mb-16'>
+                  <span className='text-neutral-500'>
+                    Published in <strong className='text-neutral-700'>{previewPayload.category || 'Uncategorized'}</strong>
+                  </span>
                 </div>
-              ) : null}
+                {/* Main Article Card */}
+                <div style={{ background: '#eef1f8', borderRadius: 16, padding: 12, border: '1px solid #e2e8f0' }}>
+                  {/* Cover Image */}
+                  <div className='rounded-12 overflow-hidden mb-0' style={{ borderRadius: 12 }}>
+                    <img
+                      src={previewPayload.image}
+                      alt={previewPayload.title}
+                      className='w-100'
+                      style={{ maxHeight: 400, objectFit: 'cover', display: 'block', borderRadius: 12 }}
+                    />
+                  </div>
+                  {/* Article Content Area */}
+                  <div className='pt-24 pb-16 px-16'>
+                    {/* Metadata Bar with Icons */}
+                    <div className='d-flex flex-wrap gap-16 mb-20 align-items-center' style={{ color: '#6b7280' }}>
+                      <div className='d-flex align-items-center gap-8'>
+                        <i className='ph-bold ph-calendar-blank' style={{ fontSize: 20 }} />
+                        <span>{new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'short' }).toUpperCase()}</span>
+                      </div>
+                      <span style={{ width: 6, height: 6, background: '#d1d5db', borderRadius: '50%' }} />
+                      <div className='d-flex align-items-center gap-8'>
+                        <i className='ph ph-user-circle' style={{ fontSize: 20 }} />
+                        <span>By {previewPayload.author}</span>
+                      </div>
+                      <span style={{ width: 6, height: 6, background: '#d1d5db', borderRadius: '50%' }} />
+                      <div className='d-flex align-items-center gap-8'>
+                        <i className='ph-bold ph-eye' style={{ fontSize: 20 }} />
+                        <span>0</span>
+                      </div>
+                      <span style={{ width: 6, height: 6, background: '#d1d5db', borderRadius: '50%' }} />
+                      <div className='d-flex align-items-center gap-8'>
+                        <i className='ph ph-chat-dots' style={{ fontSize: 20 }} />
+                        <span>0</span>
+                      </div>
+                    </div>
+                    {/* Excerpt */}
+                    {previewPayload.excerpt ? (
+                      <p className='text-neutral-500 mb-24' style={{ fontSize: 16, lineHeight: 1.6 }}>
+                        {previewPayload.excerpt}
+                      </p>
+                    ) : null}
+                    {/* Content */}
+                    <div
+                      className='blog-preview-content text-neutral-600'
+                      style={{ lineHeight: 1.8 }}
+                      dangerouslySetInnerHTML={{ __html: previewPayload.content }}
+                    />
+                    {/* Tags */}
+                    {previewPayload.tags.length ? (
+                      <div className='d-flex flex-wrap gap-12 mt-24'>
+                        {previewPayload.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className='badge px-12 py-6 fw-semibold'
+                            style={{ background: '#7c3aed', color: '#fff', borderRadius: 8 }}
+                          >
+                            {tag.startsWith("#") ? tag : tag}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </>
-      ) : null}
+          </>
+        ) : null}
       </div>
     </>
   );
