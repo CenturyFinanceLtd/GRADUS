@@ -8,6 +8,15 @@ import { fetchEvents } from "../services/eventService";
 import { slugify } from "../utils/slugify.js";
 import isProtectedPath from "../utils/isProtectedPath.js";
 import NotificationBell from "./NotificationBell.jsx";
+
+const HIDDEN_COURSES = [
+  "technical-analysis",
+  "advanced-markets-mastery",
+  "global-currency-market-mastery",
+  "finance-and-market-excellence-programme",
+  "nism-certification"
+];
+
 const HeaderOne = () => {
   let { pathname } = useLocation();
   const [scroll, setScroll] = useState(false);
@@ -323,7 +332,10 @@ const HeaderOne = () => {
             }
           }
 
-          const merged = existingKept.concat(newFromApi);
+          const merged = existingKept.concat(newFromApi).filter(item => {
+            const slug = typeof item === 'string' ? slugify(item) : (item.slug || slugify(item.title || ''));
+            return !HIDDEN_COURSES.includes(slug);
+          });
           return { ...group, items: merged };
         });
 
@@ -416,7 +428,6 @@ const HeaderOne = () => {
     links: [
       { to: "/our-courses", label: "All courses" },
       { to: "/our-courses?programme=gradus-x", label: "Tech Courses" },
-      { to: "/our-courses?programme=gradus-finlit", label: "Financial Awareness" },
     ],
   };
 
@@ -485,15 +496,22 @@ const HeaderOne = () => {
                                   {group.items.map((course, cIdx) => {
                                     const courseMeta = getCourseMeta(course);
                                     const toneAttr = courseMeta.flagship ? (courseMeta.tone || (group.slug === "gradus-finlit" ? "finlit" : "tech")) : undefined;
+                                    const isComingSoon = courseMeta.slug === "coming-soon" || courseMeta.label === "Coming Soon";
                                     return (
                                       <li key={`mega-${gIdx}-${cIdx}`} className='nav-mega__item'>
-                                        <Link
-                                          to={course.isEvent ? `/events/${course.slug}` : `/${group.slug || slugify(group.title)}/${courseMeta.slug}`}
-                                          className={`nav-mega__link ${courseMeta.flagship ? "is-flagship" : ""}`}
-                                          data-flagship-tone={toneAttr}
-                                        >
-                                          {formatCourseLabel(courseMeta)}
-                                        </Link>
+                                        {!isComingSoon ? (
+                                          <Link
+                                            to={course.isEvent ? `/events/${course.slug}` : `/${group.slug || slugify(group.title)}/${courseMeta.slug}`}
+                                            className={`nav-mega__link ${courseMeta.flagship ? "is-flagship" : ""}`}
+                                            data-flagship-tone={toneAttr}
+                                          >
+                                            {formatCourseLabel(courseMeta)}
+                                          </Link>
+                                        ) : (
+                                          <span className="nav-mega__link text-neutral-500 cursor-default">
+                                            {formatCourseLabel(courseMeta)}
+                                          </span>
+                                        )}
                                       </li>
                                     );
                                   })}
