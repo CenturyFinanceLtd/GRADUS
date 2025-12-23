@@ -54,6 +54,8 @@ export default defineConfig({
     },
   },
   server: {
+    port: 5173,
+    strictPort: true,
     // Reduce Windows file locking issues by using polling and
     // prevent dev overlay from blocking the screen on transient EBUSY errors
     watch: {
