@@ -606,21 +606,14 @@ const HeaderOne = () => {
                           >
                             My Courses
                           </Link>
-                          <button
-                            type='button'
-                            onClick={() => {
-                              try {
-                                window.dispatchEvent(new CustomEvent('gradus:help-open', { detail: { mode: 'support' } }));
-                              } catch {
-                                // intentionally ignoring errors
-                              }
-                              closeUserMenu();
-                            }}
-                            className='px-20 py-8 text-start text-md text-neutral-700 hover-bg-main-25 hover-text-main-600 border-0 bg-transparent w-100 text-inherit'
+                          <Link
+                            to='/support'
+                            onClick={closeUserMenu}
+                            className='px-20 py-8 text-start text-md text-neutral-700 hover-bg-main-25 hover-text-main-600'
                             role='menuitem'
                           >
                             Customer Support
-                          </button>
+                          </Link>
                           <button
                             type='button'
                             onClick={handleLogout}

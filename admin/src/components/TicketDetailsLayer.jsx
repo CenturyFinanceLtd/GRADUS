@@ -26,23 +26,35 @@ const TicketDetailsLayer = () => {
   const bottomRef = useRef(null);
   const scrollToBottom = () => bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (silent = false) => {
     if (!token) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     setError(null);
     try {
       const res = await getTicketDetails({ token, id });
       setTicket(res?.item || null);
-      setMessages(res?.messages || []);
-      setTimeout(scrollToBottom, 50);
+      if (res?.messages) {
+        setMessages(prev => {
+          if (prev.length !== res.messages.length) {
+            // Auto scroll only on new content
+            setTimeout(scrollToBottom, 50);
+            return res.messages;
+          }
+          return prev;
+        });
+      }
     } catch (err) {
-      setError(err?.message || 'Failed to load ticket');
+      if (!silent) setError(err?.message || 'Failed to load ticket');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [token, id]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    const interval = setInterval(() => load(true), 5000);
+    return () => clearInterval(interval);
+  }, [load]);
 
   const loadAdmins = async () => {
     try {
@@ -337,19 +349,19 @@ const TicketDetailsLayer = () => {
               <div className='alert alert-warning mt-12'>
                 {ticket.assignment.transfer.to && ticket.assignment.transfer.to.id === (admin?._id || admin?.id)
                   ? (
-                      <>
-                        Transfer requested to you by {ticket.assignment.transfer.from?.name || ticket.assignment.transfer.from?.email}.<br />
-                        <div className='d-flex gap-8 mt-8'>
-                          <button type='button' className='btn btn-sm btn-success' onClick={handleAccept}>Accept</button>
-                          <button type='button' className='btn btn-sm btn-outline-danger' onClick={handleDecline}>Decline</button>
-                        </div>
-                      </>
-                    )
+                    <>
+                      Transfer requested to you by {ticket.assignment.transfer.from?.name || ticket.assignment.transfer.from?.email}.<br />
+                      <div className='d-flex gap-8 mt-8'>
+                        <button type='button' className='btn btn-sm btn-success' onClick={handleAccept}>Accept</button>
+                        <button type='button' className='btn btn-sm btn-outline-danger' onClick={handleDecline}>Decline</button>
+                      </div>
+                    </>
+                  )
                   : (
-                      <>
-                        Awaiting acceptance by {ticket.assignment.transfer.to?.name || ticket.assignment.transfer.to?.email}
-                      </>
-                    )}
+                    <>
+                      Awaiting acceptance by {ticket.assignment.transfer.to?.name || ticket.assignment.transfer.to?.email}
+                    </>
+                  )}
               </div>
             ) : null}
             {assignPanelOpen ? (
@@ -431,7 +443,7 @@ const TicketDetailsLayer = () => {
               <ul className='list-unstyled mb-0'>
                 {ticket.assignment.history.map((h, idx) => (
                   <li key={idx} className='mb-6 small'>
-                    <strong>{h.user?.name || h.user?.email || h.user?.id || 'Unknown'}</strong> • {h.action.replace(/_/g,' ')} • {formatDateTime(h.at)}
+                    <strong>{h.user?.name || h.user?.email || h.user?.id || 'Unknown'}</strong> • {h.action.replace(/_/g, ' ')} • {formatDateTime(h.at)}
                     {h.by ? <> by {h.by?.name || h.by?.email}</> : null}
                   </li>
                 ))}

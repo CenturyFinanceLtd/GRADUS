@@ -26,24 +26,34 @@ const SupportTicketDetailsInner = () => {
     }
   };
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (silent = false) => {
     if (!token) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     setError(null);
     try {
       const res = await getTicketDetails({ token, id });
       setTicket(res?.item || null);
-      setMessages(res?.messages || []);
-      setTimeout(scrollToBottom, 50);
+      if (res?.messages) {
+        setMessages(prev => {
+          if (prev.length !== res.messages.length) {
+            // Auto scroll only on new content
+            setTimeout(scrollToBottom, 50);
+            return res.messages;
+          }
+          return prev;
+        });
+      }
     } catch (err) {
-      setError(err?.message || 'Failed to load ticket');
+      if (!silent) setError(err?.message || 'Failed to load ticket');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [token, id]);
 
   useEffect(() => {
     load();
+    const interval = setInterval(() => load(true), 5000);
+    return () => clearInterval(interval);
   }, [load]);
 
   const send = async (e) => {
