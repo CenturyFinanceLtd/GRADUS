@@ -180,8 +180,6 @@ const TicketDetailsLayer = () => {
         <div>
           <h5 className='mb-8'>{ticket.subject}</h5>
           <div className='text-neutral-500'>
-            <span className='text-capitalize'>{ticket.category}</span> •
-            <span className='text-capitalize'> {ticket.priority}</span> •
             <span className='text-capitalize'> {ticket.status.replace(/_/g, ' ')}</span>
           </div>
           {ticket.user ? (
@@ -215,36 +213,7 @@ const TicketDetailsLayer = () => {
             <option value='closed'>Closed</option>
           </select>
         </div>
-        <div>
-          <label className='small mb-4 d-block'>Priority</label>
-          <select
-            className='form-select form-select-sm'
-            value={ticket.priority}
-            onChange={(e) => handleMetaChange('priority', e.target.value)}
-            disabled={savingMeta}
-          >
-            <option value='low'>Low</option>
-            <option value='medium'>Medium</option>
-            <option value='high'>High</option>
-            <option value='urgent'>Urgent</option>
-          </select>
-        </div>
-        <div>
-          <label className='small mb-4 d-block'>Category</label>
-          <select
-            className='form-select form-select-sm'
-            value={ticket.category}
-            onChange={(e) => handleMetaChange('category', e.target.value)}
-            disabled={savingMeta}
-          >
-            <option value='general'>General</option>
-            <option value='billing'>Billing</option>
-            <option value='technical'>Technical</option>
-            <option value='course'>Course</option>
-            <option value='account'>Account</option>
-            <option value='other'>Other</option>
-          </select>
-        </div>
+
       </div>
 
       <div className='row'>

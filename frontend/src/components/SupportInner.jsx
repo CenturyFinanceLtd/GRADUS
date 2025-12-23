@@ -2,21 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { createTicket, listMyTickets } from '../services/ticketService.js';
 
-const categories = [
-  { value: 'general', label: 'General' },
-  { value: 'billing', label: 'Billing' },
-  { value: 'technical', label: 'Technical' },
-  { value: 'course', label: 'Course' },
-  { value: 'account', label: 'Account' },
-  { value: 'other', label: 'Other' },
-];
 
-const priorities = [
-  { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'high', label: 'High' },
-  { value: 'urgent', label: 'Urgent' },
-];
 
 const SupportInner = () => {
   const { token } = useAuth();
@@ -26,8 +12,6 @@ const SupportInner = () => {
   const [statusFilter, setStatusFilter] = useState('');
 
   const [subject, setSubject] = useState('');
-  const [category, setCategory] = useState('general');
-  const [priority, setPriority] = useState('medium');
   const [description, setDescription] = useState('');
   const [creating, setCreating] = useState(false);
   const [message, setMessage] = useState(null);
@@ -50,8 +34,6 @@ const SupportInner = () => {
 
   const resetForm = () => {
     setSubject('');
-    setCategory('general');
-    setPriority('medium');
     setDescription('');
   };
 
@@ -61,7 +43,7 @@ const SupportInner = () => {
     setCreating(true);
     setMessage(null);
     try {
-      await createTicket({ token, subject, category, priority, description });
+      await createTicket({ token, subject, description });
       setMessage({ type: 'success', text: 'Ticket created successfully.' });
       resetForm();
       await fetchTickets();
@@ -105,32 +87,7 @@ const SupportInner = () => {
                     required
                   />
                 </div>
-                <div className='d-flex gap-12'>
-                  <div className='flex-grow-1'>
-                    <label className='mb-8'>Category</label>
-                    <select
-                      className='form-select border-neutral-30 radius-8'
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                    >
-                      {categories.map((c) => (
-                        <option key={c.value} value={c.value}>{c.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className='flex-grow-1'>
-                    <label className='mb-8'>Priority</label>
-                    <select
-                      className='form-select border-neutral-30 radius-8'
-                      value={priority}
-                      onChange={(e) => setPriority(e.target.value)}
-                    >
-                      {priorities.map((p) => (
-                        <option key={p.value} value={p.value}>{p.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+
                 <div>
                   <label className='mb-8'>Description</label>
                   <textarea
@@ -198,8 +155,7 @@ const SupportInner = () => {
                           <div className='support-item__body'>
                             <div className='support-item__title'>{t.subject}</div>
                             <div className='support-item__meta'>
-                              <span className='chip chip--muted text-capitalize'>{t.category}</span>
-                              <span className='chip chip--muted text-capitalize'>{t.priority}</span>
+
                               <span className='chip chip--primary text-capitalize'>{t.status.replace(/_/g, ' ')}</span>
                               <span className='support-item__time'>Updated {formatDateTime(t.lastMessageAt || t.updatedAt)}</span>
                             </div>

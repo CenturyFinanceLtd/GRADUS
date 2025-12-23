@@ -96,17 +96,7 @@ const TicketsLayer = () => {
             <option value='pending_confirmation'>Pending Confirmation</option>
             <option value='closed'>Closed</option>
           </select>
-          <select
-            className='form-select form-select-sm'
-            value={filters.priority}
-            onChange={(e) => setFilters((p) => ({ ...p, priority: e.target.value }))}
-          >
-            <option value=''>All Priorities</option>
-            <option value='low'>Low</option>
-            <option value='medium'>Medium</option>
-            <option value='high'>High</option>
-            <option value='urgent'>Urgent</option>
-          </select>
+
           <input
             type='search'
             placeholder='Search subject or user'
@@ -132,7 +122,6 @@ const TicketsLayer = () => {
                 <tr>
                   <th>Subject</th>
                   <th>User</th>
-                  <th>Priority</th>
                   <th>Status</th>
                   <th>Outcome</th>
                   <th>Updated</th>
@@ -158,7 +147,7 @@ const TicketsLayer = () => {
                           </>
                         ) : '—'}
                       </td>
-                      <td><PriorityChip value={t.priority} /></td>
+
                       <td><StatusChip value={t.status} /></td>
                       <td>
                         {t.status === 'closed' ? (
@@ -199,7 +188,7 @@ const TicketsLayer = () => {
                         ) : '—'}
                       </div>
                       <div className='d-flex flex-wrap gap-6'>
-                        <PriorityChip value={t.priority} />
+
                         <StatusChip value={t.status} />
                         {t.status === 'closed' ? (
                           <span style={{ ...chipStyleBase, backgroundColor: t.resolutionOutcome === 'solved' ? '#ecfdf5' : '#fee2e2', color: t.resolutionOutcome === 'solved' ? '#047857' : '#b91c1c' }}>

@@ -106,8 +106,6 @@ const SupportTicketDetailsInner = () => {
           <div>
             <h5 className='mb-8'>{ticket.subject}</h5>
             <p className='text-neutral-500 mb-0'>
-              <span className='text-capitalize'>{ticket.category}</span> •
-              <span className='text-capitalize'> {ticket.priority}</span> •
               <span className='text-capitalize'> {ticket.status.replace(/_/g, ' ')}</span>
             </p>
           </div>

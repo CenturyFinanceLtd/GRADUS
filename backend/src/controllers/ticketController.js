@@ -2,20 +2,24 @@
   Ticket controller (user-facing)
   - Create ticket, list own tickets, view details, add messages, close/reopen
 */
-const asyncHandler = require('express-async-handler');
-const { Ticket, TICKET_PRIORITIES, TICKET_STATUSES, TICKET_CATEGORIES } = require('../models/Ticket');
-const TicketMessage = require('../models/TicketMessage');
+const asyncHandler = require("express-async-handler");
+const {
+  Ticket,
+  TICKET_PRIORITIES,
+  TICKET_STATUSES,
+  TICKET_CATEGORIES,
+} = require("../models/Ticket");
+const TicketMessage = require("../models/TicketMessage");
 
 const serializeTicket = (ticket) => ({
   id: ticket._id.toString(),
   subject: ticket.subject,
-  category: ticket.category,
-  priority: ticket.priority,
+
   status: ticket.status,
   assignedTo: ticket.assignedTo ? ticket.assignedTo.toString() : null,
   lastMessageAt: ticket.lastMessageAt,
   messageCount: ticket.messageCount || 0,
-  resolutionOutcome: ticket.resolutionOutcome || 'unknown',
+  resolutionOutcome: ticket.resolutionOutcome || "unknown",
   createdAt: ticket.createdAt,
   updatedAt: ticket.updatedAt,
 });
@@ -44,26 +48,19 @@ const listMyTickets = asyncHandler(async (req, res) => {
 });
 
 const createTicket = asyncHandler(async (req, res) => {
-  const { subject, category, priority, description } = req.body || {};
-
   if (!subject || !description) {
     res.status(400);
-    throw new Error('Subject and description are required');
+    throw new Error("Subject and description are required");
   }
-
-  const normalizedCategory = TICKET_CATEGORIES.includes(category) ? category : 'general';
-  const normalizedPriority = TICKET_PRIORITIES.includes(priority) ? priority : 'medium';
 
   const ticket = await Ticket.create({
     user: req.user._id,
     subject: subject.trim(),
-    category: normalizedCategory,
-    priority: normalizedPriority,
   });
 
   await TicketMessage.create({
     ticket: ticket._id,
-    authorType: 'user',
+    authorType: "user",
     authorUser: req.user._id,
     body: description.trim(),
   });
@@ -72,7 +69,9 @@ const createTicket = asyncHandler(async (req, res) => {
   ticket.lastMessageAt = new Date();
   await ticket.save();
 
-  res.status(201).json({ message: 'Ticket created', item: serializeTicket(ticket) });
+  res
+    .status(201)
+    .json({ message: "Ticket created", item: serializeTicket(ticket) });
 });
 
 const getMyTicketDetails = asyncHandler(async (req, res) => {
@@ -81,11 +80,16 @@ const getMyTicketDetails = asyncHandler(async (req, res) => {
   const ticket = await Ticket.findOne({ _id: id, user: req.user._id }).lean();
   if (!ticket) {
     res.status(404);
-    throw new Error('Ticket not found');
+    throw new Error("Ticket not found");
   }
 
-  const messages = await TicketMessage.find({ ticket: id }).sort({ createdAt: 1 }).lean();
-  res.json({ item: serializeTicket(ticket), messages: messages.map(serializeMessage) });
+  const messages = await TicketMessage.find({ ticket: id })
+    .sort({ createdAt: 1 })
+    .lean();
+  res.json({
+    item: serializeTicket(ticket),
+    messages: messages.map(serializeMessage),
+  });
 });
 
 const addMyTicketMessage = asyncHandler(async (req, res) => {
@@ -94,24 +98,24 @@ const addMyTicketMessage = asyncHandler(async (req, res) => {
 
   if (!body || !body.trim()) {
     res.status(400);
-    throw new Error('Message body is required');
+    throw new Error("Message body is required");
   }
 
   const ticket = await Ticket.findOne({ _id: id, user: req.user._id });
   if (!ticket) {
     res.status(404);
-    throw new Error('Ticket not found');
+    throw new Error("Ticket not found");
   }
 
   // Prevent posting to closed tickets
-  if (ticket.status === 'closed') {
+  if (ticket.status === "closed") {
     res.status(400);
-    throw new Error('Ticket is closed');
+    throw new Error("Ticket is closed");
   }
 
   const message = await TicketMessage.create({
     ticket: ticket._id,
-    authorType: 'user',
+    authorType: "user",
     authorUser: req.user._id,
     body: body.trim(),
   });
@@ -119,12 +123,14 @@ const addMyTicketMessage = asyncHandler(async (req, res) => {
   ticket.messageCount = (ticket.messageCount || 0) + 1;
   ticket.lastMessageAt = message.createdAt;
   // If the ticket was resolved, bump to in_progress on new user reply
-  if (ticket.status !== 'pending_confirmation') {
-    ticket.status = 'in_progress';
+  if (ticket.status !== "pending_confirmation") {
+    ticket.status = "in_progress";
   }
   await ticket.save();
 
-  res.status(201).json({ message: 'Message added', item: serializeMessage(message) });
+  res
+    .status(201)
+    .json({ message: "Message added", item: serializeMessage(message) });
 });
 
 const closeMyTicket = asyncHandler(async (req, res) => {
@@ -132,12 +138,12 @@ const closeMyTicket = asyncHandler(async (req, res) => {
   const ticket = await Ticket.findOne({ _id: id, user: req.user._id });
   if (!ticket) {
     res.status(404);
-    throw new Error('Ticket not found');
+    throw new Error("Ticket not found");
   }
 
-  ticket.status = 'closed';
+  ticket.status = "closed";
   await ticket.save();
-  res.json({ message: 'Ticket closed', item: serializeTicket(ticket) });
+  res.json({ message: "Ticket closed", item: serializeTicket(ticket) });
 });
 
 module.exports = {
