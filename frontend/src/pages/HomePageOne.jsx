@@ -1,18 +1,19 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import BannerOne from "../components/BannerOne";
 import CounterTwo from "../components/CounterTwo";
 import ProgrammesAndCourses from "../components/home/ProgrammesAndCourses";
 import ByCflAndPartners from "../components/home/ByCflAndPartners";
-import VideoTestimonials from "../components/home/VideoTestimonials";
-import CourseInsight from "../components/home/CourseInsight";
 import WhyGradusVideo from "../components/home/WhyGradusVideo";
-import ExpertVideos from "../components/home/ExpertVideos";
-import WhyGradusComparison from "../components/home/WhyGradusComparison";
 
 import FooterOne from "../components/FooterOne";
 import HeaderOne from "../components/HeaderOne";
 import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
+
+const VideoTestimonials = lazy(() => import("../components/home/VideoTestimonials"));
+const CourseInsight = lazy(() => import("../components/home/CourseInsight"));
+const ExpertVideos = lazy(() => import("../components/home/ExpertVideos"));
+const WhyGradusComparison = lazy(() => import("../components/home/WhyGradusComparison"));
 
 const HomePageOne = () => {
 
@@ -40,13 +41,19 @@ const HomePageOne = () => {
       <ByCflAndPartners />
 
       {/* Video Testimonials */}
-      <VideoTestimonials />
+      <Suspense fallback={<div className="container py-8 text-center text-muted">Loading testimonials...</div>}>
+        <VideoTestimonials />
+      </Suspense>
 
       {/* Course Insight */}
-      <CourseInsight />
+      <Suspense fallback={null}>
+        <CourseInsight />
+      </Suspense>
 
       {/* Expert Videos */}
-      <ExpertVideos />
+      <Suspense fallback={<div className="container py-8 text-center text-muted">Loading expert videos...</div>}>
+        <ExpertVideos />
+      </Suspense>
 
 
 
@@ -54,7 +61,9 @@ const HomePageOne = () => {
       <CounterTwo />
 
       {/* Why Gradus Comparison */}
-      <WhyGradusComparison />
+      <Suspense fallback={null}>
+        <WhyGradusComparison />
+      </Suspense>
 
       {/* Footer */}
       <FooterOne />
