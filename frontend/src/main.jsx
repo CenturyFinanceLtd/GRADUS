@@ -38,6 +38,18 @@ import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 import "./styles/events-card.css";
 
+// Local Assets (Bundled)
+import "./assets/css/phosphor-icons-regular.css";
+import "./assets/css/phosphor-icons-thin.css";
+import "./assets/css/phosphor-icons-light.css";
+import "./assets/css/phosphor-icons-bold.css";
+import "./assets/css/phosphor-icons-fill.css";
+import "./assets/css/remixicon.css";
+import "./assets/css/select2.min.css";
+import "./assets/css/jquery-ui.css";
+import "./assets/css/plyr.css";
+import "./assets/css/main.css";
+
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
     <App />
