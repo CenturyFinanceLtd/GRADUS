@@ -49,6 +49,7 @@ import "./assets/css/select2.min.css";
 import "./assets/css/jquery-ui.css";
 import "./assets/css/plyr.css";
 import "./assets/css/main.css";
+import "./assets/css/slick-fix.css";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>

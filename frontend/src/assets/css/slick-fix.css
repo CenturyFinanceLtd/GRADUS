@@ -1,0 +1,47 @@
+/* Fix for Slick Carousel Dots */
+/* Overrides potential font loading issues by using CSS shapes */
+
+.slick-dots {
+  display: flex !important;
+  justify-content: center;
+  gap: 12px;
+  bottom: 25px;
+  list-style: none;
+}
+
+.slick-dots li {
+  width: 12px !important;
+  height: 12px !important;
+  margin: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Reset button stylings to remove broken fonts */
+.slick-dots li button {
+  width: 10px !important;
+  height: 10px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  background-color: rgba(255, 255, 255, 0.5) !important;
+  border: none !important;
+  /* Hide the 'content' font icon */
+  text-indent: -9999px;
+  transition: all 0.3s ease;
+  opacity: 1 !important; /* Force visibility */
+}
+
+/* Ensure no pseudo elements display broken chars */
+.slick-dots li button:before {
+  display: none !important;
+  content: "" !important;
+}
+
+/* Active State */
+.slick-dots li.slick-active button {
+  background-color: #0056d2 !important; /* Gradus Blue */
+  background-image: none !important;
+  transform: scale(1.2);
+  opacity: 1 !important;
+}
