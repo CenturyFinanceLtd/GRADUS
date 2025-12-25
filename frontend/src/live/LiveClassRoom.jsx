@@ -9,6 +9,7 @@ import {
     LayoutContextProvider,
     Chat,
     useChatToggle,
+    useRoomContext,
 } from "@livekit/components-react";
 import { Track } from "livekit-client";
 import { useEffect, useState } from "react";
@@ -46,18 +47,28 @@ function StudentLayout() {
         { onlySubscribed: false },
     );
 
-    // We need a way to look at the chat toggle state.
-    // The LayoutContextProvider holds this state if we use the standard hooks.
-    // However, without the <VideoConference> composite, we might need to handle the layout grid vs chat side-by-side manually.
-    // Simpler approach: Use the `VideoConference` component but pass a custom `ControlBar`? No, it hardcodes it.
-    // Let's use a simple flex layout: Main content + Chat (if open).
-
     const { state: chatState } = useChatToggle();
+    const room = useRoomContext();
+
+    const sendHandRaise = () => {
+        const payload = JSON.stringify({ type: 'hand-raise', value: true });
+        const encoder = new TextEncoder();
+        const data = encoder.encode(payload);
+        room.localParticipant.publishData(data, { reliable: true });
+        // Optional: Local feedback or toast
+    };
+
+    const sendReaction = (emoji) => {
+        const payload = JSON.stringify({ type: 'reaction', value: emoji });
+        const encoder = new TextEncoder();
+        const data = encoder.encode(payload);
+        room.localParticipant.publishData(data, { reliable: true });
+    };
 
     return (
         <div className="lk-video-conference" style={{ height: '100%' }}>
             <div className="lk-video-conference-inner" style={{ display: 'flex', height: 'calc(100% - var(--lk-control-bar-height))' }}>
-                <div className="lk-grid-layout-wrapper" style={{ flex: 1 }}>
+                <div className="lk-grid-layout-wrapper" style={{ flex: 1, position: 'relative' }}>
                     <GridLayout tracks={tracks}>
                         <ParticipantTile />
                     </GridLayout>
@@ -71,7 +82,22 @@ function StudentLayout() {
             <ControlBar
                 variation="minimal"
                 controls={{ screenShare: false, chat: true, microphone: true, camera: true }}
-            />
+            >
+                <div className="lk-button-group">
+                    <button className="lk-button" onClick={sendHandRaise} title="Raise Hand">
+                        ✋
+                    </button>
+                    <button className="lk-button" onClick={() => sendReaction('👏')} title="Clap">
+                        👏
+                    </button>
+                    <button className="lk-button" onClick={() => sendReaction('👍')} title="Thumbs Up">
+                        👍
+                    </button>
+                    <button className="lk-button" onClick={() => sendReaction('❤️')} title="Love">
+                        ❤️
+                    </button>
+                </div>
+            </ControlBar>
         </div>
     );
 }
