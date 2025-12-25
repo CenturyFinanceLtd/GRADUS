@@ -4,13 +4,15 @@
   - Performs one-time/data-ensuring tasks (e.g., default course content)
   - Starts the Express app and wires graceful shutdown on fatal errors
 */
-const http = require('http');
-const config = require('./config/env');
-const connectDB = require('./config/db');
-const app = require('./app');
-const ensureCourseContent = require('./utils/ensureCourseContent');
-const { startRegistrationSpreadsheetSync } = require('./services/registrationSpreadsheetSync');
-const { attachLiveSignalingServer } = require('./live/signalingServer');
+const http = require("http");
+const config = require("./config/env");
+const connectDB = require("./config/db");
+const app = require("./app");
+const ensureCourseContent = require("./utils/ensureCourseContent");
+const {
+  startRegistrationSpreadsheetSync,
+} = require("./services/registrationSpreadsheetSync");
+const { attachLiveSignalingServer } = require("./live/signalingServer");
 
 const startServer = async () => {
   await connectDB();
@@ -18,34 +20,44 @@ const startServer = async () => {
   try {
     await ensureCourseContent();
   } catch (error) {
-    console.error('[server] Failed to ensure course content:', error);
+    console.error("[server] Failed to ensure course content:", error);
   }
 
   startRegistrationSpreadsheetSync().catch((error) => {
     console.warn(
-      '[server] Unable to start registration spreadsheet sync watcher',
+      "[server] Unable to start registration spreadsheet sync watcher",
       error?.message
     );
   });
 
   // Start HTTP server
   const server = http.createServer(app);
-  attachLiveSignalingServer(server);
+
+  // LiveKit Integration Check
+  if (
+    process.env.LIVEKIT_API_KEY &&
+    process.env.LIVEKIT_API_SECRET &&
+    process.env.LIVEKIT_URL
+  ) {
+    console.log(`[livekit] Configured with URL: ${process.env.LIVEKIT_URL}`);
+  } else {
+    console.warn("[livekit] Missing configuration in .env!");
+  }
 
   server.listen(config.port, () => {
     console.log(`[server] Listening on port ${config.port}`);
   });
 
   const shutdown = (error) => {
-    console.error('[server] Shutting down due to error:', error);
+    console.error("[server] Shutting down due to error:", error);
     server.close(() => {
       process.exit(1);
     });
   };
 
   // Fail fast on unexpected errors to avoid undefined state
-  process.on('unhandledRejection', shutdown);
-  process.on('uncaughtException', shutdown);
+  process.on("unhandledRejection", shutdown);
+  process.on("uncaughtException", shutdown);
 };
 
 startServer();
