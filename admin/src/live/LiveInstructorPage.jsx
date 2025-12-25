@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import MasterLayout from '../masterLayout/MasterLayout';
 import useLiveInstructorSession from './useLiveInstructorSession';
 import LiveSessionList from './LiveSessionList';
-import LiveStage from './LiveStage';
+import { LiveInstructorRoom } from './LiveInstructorRoom';
 import './live.css';
 import useAuth from '../hook/useAuth';
 import { listAdminCourses } from '../services/adminCourses';
@@ -142,45 +142,13 @@ const LiveInstructorPage = () => {
     <MasterLayout>
       <div className='container-fluid live-classroom-page'>
         {courseError && <div className='alert alert-warning mb-3'>{courseError}</div>}
-        {showLiveStage ? (
-          <div className='row g-4'>
-            <div className='col-12'>
-              <LiveStage
-                stageStatus={stageStatus}
-                stageError={stageError}
-                session={activeSession}
-                remoteParticipants={remoteParticipants}
-                localStream={localStream}
-                localMediaState={localMediaState}
-                toggleMediaTrack={toggleMediaTrack}
-                onLeave={leaveStage}
-                onEnd={endActiveSession}
-                publicJoinLink={publicJoinLink}
-                onToggleStudentAudio={handleStudentAudioToggle}
-                onToggleStudentVideo={handleStudentVideoToggle}
-                onToggleStudentScreenShare={handleStudentScreenShareToggle}
-                onStartScreenShare={startScreenShare}
-                onStopScreenShare={stopScreenShare}
-                screenShareActive={screenShareActive}
-                onToggleWaitingRoom={handleWaitingRoomToggle}
-                onToggleLocked={handleLockToggle}
-                onUpdatePasscode={handlePasscodeUpdate}
-                onRotateMeetingToken={handleRotateMeetingToken}
-                onCommandParticipantMedia={sendParticipantMediaCommand}
-                onRemoveParticipant={removeParticipant}
-                chatMessages={chatMessages}
-                onSendChat={sendChatMessage}
-                onSendReaction={sendReaction}
-                onSendHandRaise={sendHandRaise}
-                instructorParticipantId={instructorParticipantId}
-                onSendSpotlight={sendSpotlight}
-                spotlightParticipantId={spotlightParticipantId}
-                onAdmitWaiting={admitWaitingParticipant}
-                onDenyWaiting={denyWaitingParticipant}
-                onUploadRecording={uploadRecording}
-                onDownloadAttendance={fetchAttendance}
-              />
-            </div>
+        {activeSession && activeSession.signaling && activeSession.signaling.liveKitToken ? (
+          <div style={{ height: 'calc(100vh - 100px)', border: '1px solid #ddd', borderRadius: 8, overflow: 'hidden' }}>
+            <LiveInstructorRoom
+              token={activeSession.signaling.liveKitToken}
+              serverUrl={activeSession.signaling.liveKitUrl}
+              onDisconnect={leaveStage}
+            />
           </div>
         ) : (
           <div className='row g-4'>

@@ -1,11 +1,14 @@
-const asyncHandler = require('express-async-handler');
-const multer = require('multer');
-const config = require('../config/env');
-const liveService = require('./liveService');
-const recordingUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 250 * 1024 * 1024 } });
+const asyncHandler = require("express-async-handler");
+const multer = require("multer");
+const config = require("../config/env");
+const liveService = require("./liveService");
+const recordingUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 250 * 1024 * 1024 },
+});
 
 const mapServiceError = (res, error) => {
-  if (typeof error.statusCode === 'number') {
+  if (typeof error.statusCode === "number") {
     res.status(error.statusCode);
   }
   throw error;
@@ -59,7 +62,9 @@ const getSessionForAdmin = asyncHandler(async (req, res) => {
 
 const getSessionForParticipant = asyncHandler(async (req, res) => {
   try {
-    const session = await liveService.getSessionForParticipant(req.params.sessionId);
+    const session = await liveService.getSessionForParticipant(
+      req.params.sessionId
+    );
     res.json({ session });
   } catch (error) {
     mapServiceError(res, error);
@@ -68,7 +73,10 @@ const getSessionForParticipant = asyncHandler(async (req, res) => {
 
 const updateSession = asyncHandler(async (req, res) => {
   try {
-    const session = await liveService.updateSession(req.params.sessionId, req.body || {});
+    const session = await liveService.updateSession(
+      req.params.sessionId,
+      req.body || {}
+    );
     res.json({ session });
   } catch (error) {
     mapServiceError(res, error);
@@ -92,6 +100,8 @@ const joinStudentSession = asyncHandler(async (req, res) => {
         key: result.signalingKey,
         path: config.live.signalingPath,
         iceServers: config.live.iceServers,
+        liveKitToken: result.liveKitToken,
+        liveKitUrl: result.liveKitUrl,
       },
     });
   } catch (error) {
@@ -114,6 +124,8 @@ const joinInstructorSession = asyncHandler(async (req, res) => {
         key: result.signalingKey,
         path: config.live.signalingPath,
         iceServers: config.live.iceServers,
+        liveKitToken: result.liveKitToken,
+        liveKitUrl: result.liveKitUrl,
       },
     });
   } catch (error) {
@@ -122,7 +134,8 @@ const joinInstructorSession = asyncHandler(async (req, res) => {
 });
 
 const getActiveLiveSessionForCourse = asyncHandler(async (req, res) => {
-  const courseKey = req.params.courseKey || req.params.courseSlug || req.params.courseId;
+  const courseKey =
+    req.params.courseKey || req.params.courseSlug || req.params.courseId;
   const session = await liveService.findActiveSessionByCourse({ courseKey });
   if (!session) {
     // Return a 200 with a null payload to avoid noisy 404s when polling for availability.
@@ -198,12 +211,12 @@ const getChatMessages = asyncHandler(async (req, res) => {
 });
 
 const uploadRecording = [
-  recordingUpload.single('file'),
+  recordingUpload.single("file"),
   asyncHandler(async (req, res) => {
     try {
       if (!req.file) {
         res.status(400);
-        throw new Error('Recording file is required.');
+        throw new Error("Recording file is required.");
       }
       const result = await liveService.saveRecording({
         sessionId: req.params.sessionId,
