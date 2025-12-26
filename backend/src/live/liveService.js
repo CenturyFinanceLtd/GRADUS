@@ -41,7 +41,12 @@ const normalizeKey = (value) => {
 
 const { AccessToken } = require("livekit-server-sdk");
 
-const generateLiveKitToken = (roomId, participantId, displayName, role) => {
+const generateLiveKitToken = async (
+  roomId,
+  participantId,
+  displayName,
+  role
+) => {
   const at = new AccessToken(
     process.env.LIVEKIT_API_KEY,
     process.env.LIVEKIT_API_SECRET,
@@ -60,7 +65,13 @@ const generateLiveKitToken = (roomId, participantId, displayName, role) => {
     canPublishData: true,
   });
 
-  return at.toJwt();
+  const token = await at.toJwt();
+  console.log(
+    "[LIVEKIT] Generated Token:",
+    typeof token,
+    token ? "String(length=" + token.length + ")" : "null/undefined"
+  );
+  return token;
 };
 
 const buildCourseKeyVariants = (rawKey) => {
@@ -385,7 +396,7 @@ const registerStudentParticipant = async ({
     data: { displayName: resolvedName, waiting },
   });
 
-  const token = generateLiveKitToken(
+  const token = await generateLiveKitToken(
     String(sessionId),
     participant._id.toString(),
     resolvedName,
@@ -439,7 +450,7 @@ const registerInstructorParticipant = async ({
     data: { displayName: participant.displayName },
   });
 
-  const token = generateLiveKitToken(
+  const token = await generateLiveKitToken(
     String(sessionId),
     participant._id.toString(),
     participant.displayName,

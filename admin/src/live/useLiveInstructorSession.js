@@ -219,7 +219,7 @@ const useLiveInstructorSession = () => {
         const hostSecret = await getHostSecret(sessionId);
         const response = await joinLiveSessionAsInstructor(
           sessionId,
-          hostSecret,
+          { hostSecret },
           token
         );
         setActiveSession(response);

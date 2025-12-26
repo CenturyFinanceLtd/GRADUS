@@ -26,7 +26,7 @@ export const LiveInstructorRoom = ({ token, serverUrl, onDisconnect, onConnected
                 onDisconnected={onDisconnect}
                 onConnected={onConnected}
             >
-                <VideoConference chat={true} />
+                <VideoConference />
                 <RoomInteractionListener />
                 <RoomAudioRenderer />
             </LiveKitRoom>
