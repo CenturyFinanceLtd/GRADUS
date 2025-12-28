@@ -24,21 +24,7 @@ const BannerFour = () => {
           alt=''
           className='shape two animation-scalation'
         />
-        <div className='shape three animation-walking our-know-gradus-trigger'>
-          <img
-            src='/assets/images/shapes/shape5.png'
-            alt=''
-            role='button'
-            title='Know Gradus'
-            aria-label='Know Gradus'
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') window.location.href = '/about-us';
-            }}
-            onClick={() => (window.location.href = '/about-us')}
-          />
-          <span className='our-know-gradus-tooltip'>Know Gradus</span>
-        </div>
+
         <img
           src='/assets/images/shapes/shape2.png'
           alt=''

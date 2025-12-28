@@ -1,10 +1,10 @@
-import apiClient from './apiClient';
+import apiClient from "./apiClient";
 
 export const fetchPublicPageMeta = async ({ signal } = {}) => {
-  const data = await apiClient.get('/page-meta', { signal });
+  // STUBBED FOR EDGE MIGRATION
   return {
-    defaultMeta: data?.defaultMeta || null,
-    items: Array.isArray(data?.items) ? data.items : [],
+    defaultMeta: null,
+    items: [],
   };
 };
 

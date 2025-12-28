@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import LightGallery from "lightgallery/react";
 import lgThumbnail from "lightgallery/plugins/thumbnail";
 import lgZoom from "lightgallery/plugins/zoom";
-import axios from "axios";
-import { API_BASE_URL } from "../apiConfig";
+import apiClient from "../services/apiClient";
 
 // Tab categories matching Admin Panel options
 const TABS = [
@@ -21,8 +20,8 @@ const GallerySection = () => {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/gallery`);
-        setItems(response.data.items || []);
+        const data = await apiClient.get('/gallery');
+        setItems(data.items || []);
       } catch (error) {
         console.error("Failed to fetch gallery items", error);
       } finally {

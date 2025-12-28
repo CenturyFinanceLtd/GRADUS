@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { API_BASE_URL } from "../../services/apiClient";
+import apiClient, { API_BASE_URL } from "../../services/apiClient";
 import { stripBrackets } from "../../utils/slugify.js";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { fetchMyEnrollments } from "../../services/userService.js";
@@ -41,9 +41,8 @@ const OurCoursesListView = () => {
     (async () => {
       try {
         const qs = sort === 'new' ? '?sort=new' : '';
-        const resp = await fetch(`${API_BASE_URL}/courses${qs}`, { credentials: 'include' });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const data = await resp.json();
+        const data = await apiClient.get(`/courses${qs}`);
+
         const mapped = (Array.isArray(data?.items) ? data.items : []).map((it, idx) => {
           const slug = it.slug || it.id || '';
           const [progSlug] = String(slug).split('/');
@@ -377,15 +376,20 @@ const OurCoursesListView = () => {
             <div className='courses-card-grid'>
               {filteredCourses.map((course, idx) => {
                 const priceValue = Number(course.priceINR) || 0;
-                const isFlagship = priceValue === FLAGSHIP_PRICE_INR;
-                const priceLabel = priceValue > 0 ? INR_CURRENCY_FORMATTER.format(priceValue) : "Free";
+                const price = course.priceINR ?? course.price ?? 0;
+                const isFlagship = price === FLAGSHIP_PRICE_INR;
+                const priceLabel = price > 0 ? INR_CURRENCY_FORMATTER.format(price) : "Free";
                 const durationLabel =
                   course.duration || (course.modulesCount ? `${course.modulesCount} Modules` : "12 Weeks");
                 const levelLabel = course.level || "Beginner";
                 const ratingLabel = course.ratingLabel || "5.0 (10 Reviews)";
                 const courseSlug = String(course.url || "").replace(/^\//, "");
-                const isEnrolled = enrolledSlugs.has(courseSlug);
-
+                const enrolled = enrolledSlugs.has(course.slug || courseSlug);
+                const imageUrl = course.imageUrl || course.image || "/assets/images/placeholder-course.jpg";
+                const programme = course.programme || "Gradus X";
+                const order = course.order ?? 999;
+                const modulesCount = course.modulesCount || 0;
+                const duration = course.duration || "Self-paced";
                 return (
                   <article
                     key={`${course.programme}-${course.name}-${idx}`}
@@ -425,7 +429,7 @@ const OurCoursesListView = () => {
 
                         </div>
                         <div className='course-card__actions'>
-                          {isEnrolled ? (
+                          {enrolled ? (
                             <Link to={course.url} className='btn btn-outline-main'>
                               View Course
                             </Link>

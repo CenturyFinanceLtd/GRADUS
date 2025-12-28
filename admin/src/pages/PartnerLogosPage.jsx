@@ -91,13 +91,13 @@ const PartnerLogosPage = () => {
   };
 
   const startEdit = (item) => {
-    setEditingId(item._id);
-      setEditForm({
-        name: item.name || '',
-        website: item.website || '',
-        programs: Array.isArray(item.programs) ? item.programs.join(', ') : '',
-        order: typeof item.order !== 'undefined' && item.order !== null ? String(item.order) : '',
-      });
+    setEditingId(item.id);
+    setEditForm({
+      name: item.name || '',
+      website: item.website || '',
+      programs: Array.isArray(item.programs) ? item.programs.join(', ') : '',
+      order: typeof item.order !== 'undefined' && item.order !== null ? String(item.order) : '',
+    });
   };
 
   const cancelEdit = () => {
@@ -111,12 +111,12 @@ const PartnerLogosPage = () => {
       await updateAdminPartner({
         token,
         id,
-          patch: {
-            name: editForm.name,
-            website: editForm.website,
-            programs: editForm.programs,
-            order: editForm.order === '' ? 0 : Number(editForm.order || 0),
-          },
+        patch: {
+          name: editForm.name,
+          website: editForm.website,
+          programs: editForm.programs,
+          order: editForm.order === '' ? 0 : Number(editForm.order || 0),
+        },
       });
       cancelEdit();
       await load();
@@ -130,7 +130,7 @@ const PartnerLogosPage = () => {
   const toggleActive = async (item) => {
     try {
       setSaving(true);
-      await updateAdminPartner({ token, id: item._id, patch: { active: !item.active } });
+      await updateAdminPartner({ token, id: item.id, patch: { active: !item.active } });
       await load();
     } catch (e) {
       setError(e?.message || 'Failed to update status');
@@ -269,9 +269,9 @@ const PartnerLogosPage = () => {
                       </tr>
                     ) : (
                       sortedItems.map((item) => {
-                        const isEditing = editingId === item._id;
+                        const isEditing = editingId === item.id;
                         return (
-                          <tr key={item._id}>
+                          <tr key={item.id}>
                             <td>
                               {item.logoUrl ? (
                                 <img
@@ -358,7 +358,7 @@ const PartnerLogosPage = () => {
                                   <>
                                     <button
                                       className='btn btn-sm btn-success'
-                                      onClick={() => saveEdit(item._id)}
+                                      onClick={() => saveEdit(item.id)}
                                       disabled={saving}
                                     >
                                       Save
@@ -387,13 +387,13 @@ const PartnerLogosPage = () => {
                                         type='file'
                                         accept='image/*'
                                         hidden
-                                        onChange={(e) => replaceLogo(item._id, e.target.files?.[0])}
+                                        onChange={(e) => replaceLogo(item.id, e.target.files?.[0])}
                                       />
                                       Replace Logo
                                     </label>
                                     <button
                                       className='btn btn-sm btn-outline-danger'
-                                      onClick={() => removePartner(item._id)}
+                                      onClick={() => removePartner(item.id)}
                                       type='button'
                                       disabled={saving}
                                     >

@@ -1,37 +1,19 @@
 /*
   HTTP server entrypoint
-  - Connects to MongoDB
-  - Performs one-time/data-ensuring tasks (e.g., default course content)
-  - Starts the Express app and wires graceful shutdown on fatal errors
+  - Starts the Express app (Live Server)
+  - Wires graceful shutdown on fatal errors
 */
 const http = require("http");
 const config = require("./config/env");
-const connectDB = require("./config/db");
 const app = require("./app");
-const ensureCourseContent = require("./utils/ensureCourseContent");
-const {
-  startRegistrationSpreadsheetSync,
-} = require("./services/registrationSpreadsheetSync");
 const { attachLiveSignalingServer } = require("./live/signalingServer");
 
 const startServer = async () => {
-  await connectDB();
-
-  try {
-    await ensureCourseContent();
-  } catch (error) {
-    console.error("[server] Failed to ensure course content:", error);
-  }
-
-  startRegistrationSpreadsheetSync().catch((error) => {
-    console.warn(
-      "[server] Unable to start registration spreadsheet sync watcher",
-      error?.message
-    );
-  });
-
   // Start HTTP server
   const server = http.createServer(app);
+
+  // Attach LiveKit Signaling Server (WebSocket)
+  attachLiveSignalingServer(server);
 
   // LiveKit Integration Check
   if (
@@ -41,11 +23,15 @@ const startServer = async () => {
   ) {
     console.log(`[livekit] Configured with URL: ${process.env.LIVEKIT_URL}`);
   } else {
-    console.warn("[livekit] Missing configuration in .env!");
+    // Only warn if we expect LiveKit to be active
+    console.log("[livekit] LiveKit configuration not present.");
   }
 
   server.listen(config.port, () => {
     console.log(`[server] Listening on port ${config.port}`);
+    console.log(
+      `[server] Live Class Signaling active on ${config.live.signalingPath}`
+    );
   });
 
   const shutdown = (error) => {

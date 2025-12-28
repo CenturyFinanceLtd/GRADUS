@@ -10,12 +10,21 @@ const LandingPagesListLayer = () => {
 
     const fetchPages = async () => {
         try {
-            const data = await apiClient('/landing-pages');
-            setPages(data);
+            const data = await apiClient('/admin/landing-pages');
+            if (!data) {
+                setPages([]);
+            } else {
+                setPages(data);
+            }
             setLoading(false);
         } catch (error) {
-            console.error('Error fetching landing pages:', error);
-            toast.error('Failed to fetch landing pages');
+            // If it's a 404 or empty, just show empty state without error toast
+            if (error.status === 404) {
+                setPages([]);
+            } else {
+                console.error('Error fetching landing pages:', error);
+                toast.error('Failed to fetch landing pages');
+            }
             setLoading(false);
         }
     };
@@ -23,7 +32,7 @@ const LandingPagesListLayer = () => {
     const deletePage = async (id) => {
         if (!window.confirm('Are you sure you want to delete this page?')) return;
         try {
-            await apiClient(`/landing-pages/${id}`, { method: 'DELETE' });
+            await apiClient(`/admin/landing-pages/${id}`, { method: 'DELETE' });
             toast.success('Landing page deleted successfully');
             setPages(pages.filter(page => page._id !== id));
         } catch (error) {

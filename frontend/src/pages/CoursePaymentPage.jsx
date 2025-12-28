@@ -366,75 +366,142 @@ const CoursePaymentPage = () => {
     navigate("/our-courses");
   };
 
-  const renderContent = () => {
-    if (loading) {
-      return (
-        <div className='d-flex justify-content-center py-80'>
-          <div className='text-center'>
-            <div className='spinner-border text-main-600 mb-16' role='status'>
-              <span className='visually-hidden'>Processing…</span>
-            </div>
-            <p className='text-neutral-600 mb-0'>Preparing a secure checkout experience…</p>
-          </div>
-        </div>
-      );
-    }
-
-    if (checkoutError && !course) {
-      return (
-        <div className='card p-32 rounded-24 border border-neutral-40 bg-white'>
-          <div className='alert alert-danger mb-24' role='alert'>
-            {checkoutError}
-          </div>
-          <button type='button' className='btn btn-main rounded-pill' onClick={handleCancel}>
-            Back to Courses
-          </button>
-        </div>
-      );
-    }
-
-    if (!course) {
-      return null;
-    }
-
-    const formatINR = (n) => {
-      try {
-        return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(n || 0);
-      } catch {
-        return `₹${n}`;
-      }
-    };
-
-    const basePrice = (() => {
-      const fromHero = Number(course?.hero?.priceINR);
-      if (Number.isFinite(fromHero) && fromHero > 0) return fromHero;
-      const fromStr = course?.price ? Number(String(course.price).replace(/[^0-9.]/g, '')) : 0;
-      return Number.isFinite(fromStr) ? fromStr : 0;
-    })();
-    const gst = Math.round(basePrice * 0.18);
-    const total = basePrice + gst;
-
-    return (
-      <div className='d-grid gap-24'>
-        <div className='card p-32 rounded-24 border border-neutral-40 bg-white box-shadow-md'>
-          <h3 className='text-neutral-900 mb-8'>Confirm your learner details</h3>
-          <p className='text-neutral-600 mb-24'>
-            We use these details for enrollment records and to share WhatsApp cohort updates. Make sure they match your official documents.
-          </p>
-          {profileFeedback ? (
-            <div
-              className={`alert ${
-                profileFeedback.type === "success" ? "alert-success" : "alert-danger"
-              } mb-24`}
-              role={profileFeedback.type === "success" ? "status" : "alert"}
-            >
-              {profileFeedback.message}
-            </div>
-          ) : null}
-          <div className='mb-20'>
-            <label className='form-label fw-semibold text-neutral-900' htmlFor='payment-whatsapp'>
-              WhatsApp registered number
-            </label>
+  const renderContent = () => {
+
+    if (loading) {
+
+      return (
+
+        <div className='d-flex justify-content-center py-80'>
+
+          <div className='text-center'>
+
+            <div className='spinner-border text-main-600 mb-16' role='status'>
+
+              <span className='visually-hidden'>Processing…</span>
+
+            </div>
+
+            <p className='text-neutral-600 mb-0'>Preparing a secure checkout experience…</p>
+
+          </div>
+
+        </div>
+
+      );
+
+    }
+
+
+
+    if (checkoutError && !course) {
+
+      return (
+
+        <div className='card p-32 rounded-24 border border-neutral-40 bg-white'>
+
+          <div className='alert alert-danger mb-24' role='alert'>
+
+            {checkoutError}
+
+          </div>
+
+          <button type='button' className='btn btn-main rounded-pill' onClick={handleCancel}>
+
+            Back to Courses
+
+          </button>
+
+        </div>
+
+      );
+
+    }
+
+
+
+    if (!course) {
+
+      return null;
+
+    }
+
+
+
+    const formatINR = (n) => {
+
+      try {
+
+        return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(n || 0);
+
+      } catch {
+
+        return `₹${n}`;
+
+      }
+
+    };
+
+
+
+    const basePrice = (() => {
+
+      const fromHero = Number(course?.hero?.priceINR);
+
+      if (Number.isFinite(fromHero) && fromHero > 0) return fromHero;
+
+      const fromStr = course?.price ? Number(String(course.price).replace(/[^0-9.]/g, '')) : 0;
+
+      return Number.isFinite(fromStr) ? fromStr : 0;
+
+    })();
+
+    const gst = Math.ceil(basePrice * 0.18);
+
+    const total = basePrice + gst;
+
+
+
+    return (
+
+      <div className='d-grid gap-24'>
+
+        <div className='card p-32 rounded-24 border border-neutral-40 bg-white box-shadow-md'>
+
+          <h3 className='text-neutral-900 mb-8'>Confirm your learner details</h3>
+
+          <p className='text-neutral-600 mb-24'>
+
+            We use these details for enrollment records and to share WhatsApp cohort updates. Make sure they match your official documents.
+
+          </p>
+
+          {profileFeedback ? (
+
+            <div
+
+              className={`alert ${profileFeedback.type === "success" ? "alert-success" : "alert-danger"
+
+                } mb-24`}
+
+              role={profileFeedback.type === "success" ? "status" : "alert"}
+
+            >
+
+              {profileFeedback.message}
+
+            </div>
+
+          ) : null}
+
+          <div className='mb-20'>
+
+            <label className='form-label fw-semibold text-neutral-900' htmlFor='payment-whatsapp'>
+
+              WhatsApp registered number
+
+            </label>
+
             <input
               id='payment-whatsapp'
               name='whatsappNumber'
@@ -448,12 +515,17 @@ const CoursePaymentPage = () => {
               onChange={handleProfileChange("whatsappNumber")}
               disabled={profileSaving || enrolling}
               autoComplete='tel-national'
-            />
+            />
+
             <div className='form-text'>Use the 10-digit number linked to your WhatsApp account.</div>
-            {profileErrors.whatsappNumber ? (
-              <div className='invalid-feedback d-block'>{profileErrors.whatsappNumber}</div>
-            ) : null}
-          </div>
+            {profileErrors.whatsappNumber ? (
+
+              <div className='invalid-feedback d-block'>{profileErrors.whatsappNumber}</div>
+
+            ) : null}
+
+          </div>
+
           <div className='mb-20'>
             <label className='form-label fw-semibold text-neutral-900' htmlFor='payment-state'>
               Residential state
@@ -478,96 +550,186 @@ const CoursePaymentPage = () => {
               <div className='invalid-feedback d-block'>{profileErrors.stateName}</div>
             ) : null}
           </div>
-          <div className='mb-24'>
-            <label className='form-label fw-semibold text-neutral-900' htmlFor='payment-dob'>
-              Date of birth
-            </label>
-            <input
-              id='payment-dob'
-              name='dateOfBirth'
-              type='date'
-              className={`form-control ${profileErrors.dateOfBirth ? 'is-invalid' : ''}`}
-              value={profileForm.dateOfBirth}
-              onChange={handleProfileChange("dateOfBirth")}
-              disabled={profileSaving || enrolling}
-              max={maxDob}
-            />
-            <div className='form-text'>Used for identity verification and certificates.</div>
-            {profileErrors.dateOfBirth ? (
-              <div className='invalid-feedback d-block'>{profileErrors.dateOfBirth}</div>
-            ) : null}
-          </div>
-          <div className='d-flex flex-wrap gap-12'>
-            <button
-              type='button'
-              className='btn btn-outline-neutral-500 rounded-pill'
-              onClick={handleSaveProfile}
-              disabled={profileSaving || enrolling}
-            >
-              {profileSaving ? "Saving…" : "Save details"}
-            </button>
-            <p className='text-neutral-500 mb-0 align-self-center small'>
-              Details are stored securely in your Gradus profile.
-            </p>
-          </div>
-        </div>
-        <div className='card p-32 rounded-24 border border-neutral-40 bg-white box-shadow-md'>
-          <h3 className='text-neutral-900 mb-16'>Secure Enrollment Checkout</h3>
-          <p className='text-neutral-600 mb-24'>
-            Review your program details and confirm the enrollment payment to unlock the complete
-            curriculum.
-          </p>
-          <div className='d-grid gap-16 mb-24'>
-            <div className='d-flex justify-content-between align-items-center'>
-              <span className='text-neutral-500'>Course</span>
-              <span className='text-neutral-900 fw-semibold'>{course.name || ''}</span>
-            </div>
-            {course.subtitle ? (
-              <div className='d-flex justify-content-between align-items-center'>
-                <span className='text-neutral-500'>Track</span>
-                <span className='text-neutral-900'>{course.subtitle}</span>
-              </div>
-            ) : null}
-            <div className='d-flex justify-content-between align-items-center'>
-              <span className='text-neutral-500'>Program Fee</span>
-              <span className='text-main-600 fw-semibold text-lg'>
-                {basePrice > 0 ? `${formatINR(basePrice)} + 18% GST = ${formatINR(total)}` : 'Included'}
-              </span>
-            </div>
-          </div>
-          <div className='mb-24 p-24 rounded-20 bg-main-25 border border-main-100'>
-            <h5 className='text-neutral-900 mb-12'>Payment Summary</h5>
-            <p className='text-neutral-600 mb-0'>
-              You will be securely redirected to Razorpay to complete your payment. Final amount includes 18% GST.
-            </p>
-          </div>
-          {checkoutError ? (
-            <div className='alert alert-danger mb-24' role='alert'>
-              {checkoutError}
-            </div>
-          ) : null}
-          <div className='d-flex flex-wrap gap-12'>
-            <button
-              type='button'
-              className='btn btn-main rounded-pill flex-align gap-8'
-              onClick={handleCompletePayment}
-              disabled={enrolling}
-            >
-              {enrolling ? "Processing…" : "Pay Securely"}
-              <i className='ph-bold ph-lock-simple-open d-inline-flex text-lg' />
-            </button>
-            <button
-              type='button'
-              className='btn btn-outline-neutral-500 rounded-pill'
-              onClick={handleCancel}
-              disabled={enrolling}
-            >
-              Cancel and Return
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+          <div className='mb-24'>
+
+            <label className='form-label fw-semibold text-neutral-900' htmlFor='payment-dob'>
+
+              Date of birth
+
+            </label>
+
+            <input
+
+              id='payment-dob'
+
+              name='dateOfBirth'
+
+              type='date'
+
+              className={`form-control ${profileErrors.dateOfBirth ? 'is-invalid' : ''}`}
+
+              value={profileForm.dateOfBirth}
+
+              onChange={handleProfileChange("dateOfBirth")}
+
+              disabled={profileSaving || enrolling}
+
+              max={maxDob}
+
+            />
+
+            <div className='form-text'>Used for identity verification and certificates.</div>
+
+            {profileErrors.dateOfBirth ? (
+
+              <div className='invalid-feedback d-block'>{profileErrors.dateOfBirth}</div>
+
+            ) : null}
+
+          </div>
+
+          <div className='d-flex flex-wrap gap-12'>
+
+            <button
+
+              type='button'
+
+              className='btn btn-outline-neutral-500 rounded-pill'
+
+              onClick={handleSaveProfile}
+
+              disabled={profileSaving || enrolling}
+
+            >
+
+              {profileSaving ? "Saving…" : "Save details"}
+
+            </button>
+
+            <p className='text-neutral-500 mb-0 align-self-center small'>
+
+              Details are stored securely in your Gradus profile.
+
+            </p>
+
+          </div>
+
+        </div>
+
+        <div className='card p-32 rounded-24 border border-neutral-40 bg-white box-shadow-md'>
+
+          <h3 className='text-neutral-900 mb-16'>Secure Enrollment Checkout</h3>
+
+          <p className='text-neutral-600 mb-24'>
+
+            Review your program details and confirm the enrollment payment to unlock the complete
+
+            curriculum.
+
+          </p>
+
+          <div className='d-grid gap-16 mb-24'>
+
+            <div className='d-flex justify-content-between align-items-center'>
+
+              <span className='text-neutral-500'>Course</span>
+
+              <span className='text-neutral-900 fw-semibold'>{course.name || ''}</span>
+
+            </div>
+
+            {course.subtitle ? (
+
+              <div className='d-flex justify-content-between align-items-center'>
+
+                <span className='text-neutral-500'>Track</span>
+
+                <span className='text-neutral-900'>{course.subtitle}</span>
+
+              </div>
+
+            ) : null}
+
+            <div className='d-flex justify-content-between align-items-center'>
+
+              <span className='text-neutral-500'>Program Fee</span>
+
+              <span className='text-main-600 fw-semibold text-lg'>
+
+                {basePrice > 0 ? `${formatINR(basePrice)} + 18% GST = ${formatINR(total)}` : 'Included'}
+
+              </span>
+
+            </div>
+
+          </div>
+
+          <div className='mb-24 p-24 rounded-20 bg-main-25 border border-main-100'>
+
+            <h5 className='text-neutral-900 mb-12'>Payment Summary</h5>
+
+            <p className='text-neutral-600 mb-0'>
+
+              You will be securely redirected to Razorpay to complete your payment. Final amount includes 18% GST.
+
+            </p>
+
+          </div>
+
+          {checkoutError ? (
+
+            <div className='alert alert-danger mb-24' role='alert'>
+
+              {checkoutError}
+
+            </div>
+
+          ) : null}
+
+          <div className='d-flex flex-wrap gap-12'>
+
+            <button
+
+              type='button'
+
+              className='btn btn-main rounded-pill flex-align gap-8'
+
+              onClick={handleCompletePayment}
+
+              disabled={enrolling}
+
+            >
+
+              {enrolling ? "Processing…" : "Pay Securely"}
+
+              <i className='ph-bold ph-lock-simple-open d-inline-flex text-lg' />
+
+            </button>
+
+            <button
+
+              type='button'
+
+              className='btn btn-outline-neutral-500 rounded-pill'
+
+              onClick={handleCancel}
+
+              disabled={enrolling}
+
+            >
+
+              Cancel and Return
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    );
+
   };
 
   return (

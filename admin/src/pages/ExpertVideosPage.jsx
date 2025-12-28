@@ -138,7 +138,7 @@ const ExpertVideosPage = () => {
 
   const onToggle = async (item) => {
     try {
-      await updateAdminExpertVideo({ token, id: item._id, patch: { active: !item.active } });
+      await updateAdminExpertVideo({ token, id: item.id, patch: { active: !item.active } });
       await load();
     } catch (e) {
       setError(e?.message || 'Failed to update status');
@@ -146,7 +146,7 @@ const ExpertVideosPage = () => {
   };
 
   const startEdit = (item) => {
-    setEditingId(item._id);
+    setEditingId(item.id);
     setEditForm({
       title: item.title || '',
       subtitle: item.subtitle || '',
@@ -184,7 +184,7 @@ const ExpertVideosPage = () => {
   };
 
   const renderControls = (item) => {
-    if (editingId === item._id) {
+    if (editingId === item.id) {
       return (
         <>
           <button className='btn btn-sm btn-success' disabled={saving || !editForm.title} onClick={saveEdit}>
@@ -205,7 +205,7 @@ const ExpertVideosPage = () => {
         <button className='btn btn-sm btn-outline-secondary' onClick={() => onToggle(item)}>
           Toggle
         </button>
-        <button className='btn btn-sm btn-outline-danger' onClick={() => onDelete(item._id)}>
+        <button className='btn btn-sm btn-outline-danger' onClick={() => onDelete(item.id)}>
           Delete
         </button>
       </>
@@ -355,12 +355,12 @@ const ExpertVideosPage = () => {
                   </thead>
                   <tbody>
                     {(items || []).map((item) => (
-                      <tr key={item._id}>
+                      <tr key={item.id}>
                         <td>
                           <video src={item.secureUrl} style={{ width: 100, height: 70, borderRadius: 8 }} muted playsInline />
                         </td>
                         <td>
-                          {editingId === item._id ? (
+                          {editingId === item.id ? (
                             <input
                               className='form-control form-control-sm'
                               value={editForm.title}
@@ -369,7 +369,7 @@ const ExpertVideosPage = () => {
                           ) : (
                             item.title
                           )}
-                          {editingId === item._id ? (
+                          {editingId === item.id ? (
                             <textarea
                               className='form-control form-control-sm mt-2'
                               rows={2}
@@ -383,7 +383,7 @@ const ExpertVideosPage = () => {
                           ) : null}
                         </td>
                         <td>
-                          {editingId === item._id ? (
+                          {editingId === item.id ? (
                             <input
                               className='form-control form-control-sm'
                               value={editForm.subtitle}
@@ -399,7 +399,7 @@ const ExpertVideosPage = () => {
                           </span>
                         </td>
                         <td>
-                          {editingId === item._id ? (
+                          {editingId === item.id ? (
                             <input
                               type='number'
                               className='form-control form-control-sm'

@@ -204,7 +204,7 @@ const PermissionLayer = () => {
           </div>
           <div className='card-body p-0'>
             <ul className='list-group list-group-flush'>
-              {roles.map((role) => {
+              {roles.map((role, index) => {
                 const normalized = normalizeRole(role.key);
                 const isActive = normalized === selectedRole;
                 const roleClasses = [
@@ -219,7 +219,7 @@ const PermissionLayer = () => {
                 }
                 return (
                   <li
-                    key={role.key}
+                    key={role.key || index}
                     className={roleClasses.join(" ")}
                     onClick={() => handleRoleSelect(normalized)}
                     role='button'
@@ -290,11 +290,11 @@ const PermissionLayer = () => {
                   <div key={category} className='permission-category'>
                     <h6 className='mb-2 text-uppercase text-secondary-light'>{category}</h6>
                     <div className='row g-2'>
-                      {items.map((page) => {
+                      {items.map((page, pIdx) => {
                         const checked = selectedRolePermissions.includes(page.key);
-                        const inputId = `${selectedRole}-${page.key}`;
+                        const inputId = `${selectedRole}-${page.key || pIdx}`;
                         return (
-                          <div className='col-12 col-md-6' key={page.key}>
+                          <div className='col-12 col-md-6' key={page.key || pIdx}>
                             <div className='form-check form-switch align-items-center'>
                               <input
                                 className='form-check-input'

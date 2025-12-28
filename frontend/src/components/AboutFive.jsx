@@ -39,21 +39,7 @@ const AboutFive = () => {
         />
         <span className='our-courses-tooltip'>Our Courses</span>
       </div>
-      <div className='animation-walking d-sm-block d-none inset-inline-end-32-percent inset-block-end-0 position-absolute z-1 our-know-gradus-trigger'>
-        <img
-          src='/assets/images/shapes/shape5.png'
-          alt=''
-          role='button'
-          title='Know Gradus'
-          aria-label='Know Gradus'
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') window.location.href = '/about-us';
-          }}
-          onClick={() => (window.location.href = '/about-us')}
-        />
-        <span className='our-know-gradus-tooltip'>Know Gradus</span>
-      </div>
+
       <div className='container'>
         <div className='row gy-4 flex-wrap'>
           <div className='col-xl-6'>

@@ -88,7 +88,7 @@ const BlogGridInner = () => {
       const excerpt = blog.excerpt || blog.content?.replace(/<[^>]+>/g, "").slice(0, 150) || "";
 
       return {
-        id: blog._id,
+        id: blog.id,
         slug: blog.slug,
         title: blog.title,
         author: blog.author || "Admin",

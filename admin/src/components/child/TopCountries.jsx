@@ -3,7 +3,7 @@ import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import { Tooltip } from 'react-tooltip';
 
 // Reliable TopoJSON for India
-const INDIA_STATES_TOPO_JSON = "https://raw.githubusercontent.com/baronwatts/topojson/master/india.json";
+const INDIA_STATES_TOPO_JSON = "https://raw.githubusercontent.com/Anujarya300/bubble_maps/master/data/geography-data/india.topo.json";
 
 const PROJECTION_CONFIG = {
   scale: 1000,

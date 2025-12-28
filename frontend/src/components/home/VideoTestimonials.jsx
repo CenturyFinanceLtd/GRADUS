@@ -224,11 +224,11 @@ const VideoTestimonials = () => {
     };
 
     const bp = {
-      0: { slidesPerView: "auto", spaceBetween: 12, navigation: false, centeredSlides: false },
-      576: { slidesPerView: "auto", spaceBetween: 16, navigation: false, centeredSlides: false },
-      768: { slidesPerView: "auto", spaceBetween: 18, navigation: false, centeredSlides: false },
-      992: { slidesPerView: "auto", spaceBetween: 20, navigation: count > 3, centeredSlides: false },
-      1200: { slidesPerView: "auto", spaceBetween: 24, navigation: count > 4, centeredSlides: false },
+      0: { slidesPerView: "auto", spaceBetween: 12, navigation: navigationEnabled, centeredSlides: false },
+      576: { slidesPerView: "auto", spaceBetween: 16, navigation: navigationEnabled, centeredSlides: false },
+      768: { slidesPerView: "auto", spaceBetween: 18, navigation: navigationEnabled, centeredSlides: false },
+      992: { slidesPerView: "auto", spaceBetween: 20, navigation: navigationEnabled, centeredSlides: false },
+      1200: { slidesPerView: "auto", spaceBetween: 24, navigation: navigationEnabled, centeredSlides: false },
     };
 
     return { ...base, breakpoints: bp };
@@ -313,6 +313,51 @@ const VideoTestimonials = () => {
                               touchAction: "pan-x", // Allow horizontal swiping when video is not playing
                             }}
                           />
+                          {/* Text Overlay */}
+                          <div
+                            style={{
+                              position: "absolute",
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              padding: "24px 20px",
+                              background: "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.85) 100%)",
+                              zIndex: 2,
+                              pointerEvents: "none",
+                              color: "#fff",
+                              textAlign: "left",
+                              borderBottomLeftRadius: 28, // Matches card radius
+                              borderBottomRightRadius: 28,
+                            }}
+                          >
+                            {item.quote && (
+                              <p
+                                style={{
+                                  fontSize: "14px",
+                                  lineHeight: "1.4",
+                                  marginBottom: "12px",
+                                  color: "rgba(255,255,255,0.9)",
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 3,
+                                  WebkitBoxOrient: "vertical",
+                                  overflow: "hidden"
+                                }}
+                              >
+                                "{item.quote}"
+                              </p>
+                            )}
+                            <div style={{ display: "flex", flexDirection: "column" }}>
+                              <span style={{ fontSize: "16px", fontWeight: 700, color: "#fff" }}>
+                                {item.name}
+                              </span>
+                              {item.role && (
+                                <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.8)" }}>
+                                  {item.role}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
                           {!isActive ? (
                             <button
                               type="button"

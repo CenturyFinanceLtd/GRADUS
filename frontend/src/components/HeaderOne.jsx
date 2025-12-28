@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { PROGRAMMES } from "../data/programmes.js";
-import { API_BASE_URL } from "../services/apiClient";
+import apiClient, { API_BASE_URL } from "../services/apiClient";
 import { fetchEvents } from "../services/eventService";
 import { slugify } from "../utils/slugify.js";
 import isProtectedPath from "../utils/isProtectedPath.js";
@@ -79,6 +79,9 @@ const HeaderOne = () => {
   useEffect(() => {
     if (!isAuthenticated) {
       setIsUserMenuOpen(false);
+    } else {
+      // Close sign-in modal if user becomes authenticated
+      setIsSignInModalOpen(false);
     }
   }, [isAuthenticated]);
 
@@ -267,9 +270,8 @@ const HeaderOne = () => {
     let cancelled = false;
     (async () => {
       try {
-        const resp = await fetch(`${API_BASE_URL}/courses`, { credentials: 'include' });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const data = await resp.json();
+        const data = await apiClient.get('/courses');
+
         const items = Array.isArray(data?.items) ? data.items : [];
 
         const grouped = new Map();
@@ -554,7 +556,7 @@ const HeaderOne = () => {
               {/* Menu End  */}
               {/* Header Right start */}
               <div className='header-right flex-align'>
-                <NotificationBell />
+                {/* <NotificationBell /> */}
                 {isAuthenticated ? (
                   <div className='position-relative' ref={userMenuRef}>
                     {/* Desktop: icon + name in same pill */}
@@ -656,8 +658,8 @@ const HeaderOne = () => {
               {/* Header Right End  */}
             </div>
           </nav>
-        </div>
-      </header>
+        </div >
+      </header >
 
       <div className={`mobile-menu scroll-sm d-xl-none d-block ${isMenuActive ? "active" : ""}`}>
         <div className='mobile-menu__inner'>

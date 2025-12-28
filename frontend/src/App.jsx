@@ -51,7 +51,6 @@ const VisitorPolicyPage = lazy(() => import("./pages/VisitorPolicyPage.jsx"));
 const VendorsPrivacyPage = lazy(() => import("./pages/VendorsPrivacyPage.jsx"));
 const CancellationRefundsPage = lazy(() => import("./pages/CancellationRefundsPage.jsx"));
 const TermsConditionsPage = lazy(() => import("./pages/TermsConditionsPage.jsx"));
-const KnowCFLPage = lazy(() => import("./pages/KnowCFLPage.jsx"));
 const CoursePaymentPage = lazy(() => import("./pages/CoursePaymentPage.jsx"));
 const SupportPage = lazy(() => import("./pages/SupportPage.jsx"));
 const SupportTicketDetailsPage = lazy(() => import("./pages/SupportTicketDetailsPage.jsx"));
@@ -93,7 +92,6 @@ function App() {
           <Route exact path='/' element={<HomePageOne />} />
           <Route exact path='/masterclass-on-currency-market-with-vaibhav-batra' element={<VaibhavBatraMasterclass />} />
           <Route exact path='/about-us' element={<AboutPage />} />
-          <Route exact path='/know-CFL' element={<KnowCFLPage />} />
           <Route exact path='/apply-admission' element={<ApplyAdmissionPage />} />
           <Route exact path='/blogs' element={<BlogPage />} />
           <Route exact path='/blog/:slug' element={<BlogDetailsPage />} />
@@ -197,6 +195,7 @@ function App() {
           <Route exact path='/sign-in' element={<SignInPage />} />
           <Route exact path='/forgot-password' element={<ForgotPasswordPage />} />
           <Route exact path='/sign-up' element={<SignUpPage />} />
+          <Route exact path='/auth/callback' element={<GoogleAuthCallback />} />
           <Route exact path='/auth/google/callback' element={<GoogleAuthCallback />} />
           <Route
             exact

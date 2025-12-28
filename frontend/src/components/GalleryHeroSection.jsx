@@ -5,8 +5,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
-import axios from "axios";
-import { API_BASE_URL } from "../apiConfig";
+import apiClient from "../services/apiClient";
 
 const GalleryHeroSection = () => {
   const [items, setItems] = useState([]);
@@ -15,8 +14,8 @@ const GalleryHeroSection = () => {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/gallery?category=Team`);
-        setItems(response.data.items || []);
+        const data = await apiClient.get('/gallery?category=Team');
+        setItems(data.items || []);
       } catch (error) {
         console.error("Failed to fetch gallery hero items", error);
         // Fallback or empty

@@ -143,7 +143,7 @@ const BannersPage = () => {
 
   const onToggle = async (item) => {
     try {
-      await updateAdminBanner({ token, id: item._id, patch: { active: !item.active } });
+      await updateAdminBanner({ token, id: item.id, patch: { active: !item.active } });
       await load();
     } catch (e) {
       setError(e?.message || 'Failed to update banner');
@@ -151,7 +151,7 @@ const BannersPage = () => {
   };
 
   const startEdit = (item) => {
-    setEditingId(item._id);
+    setEditingId(item.id);
     setEditForm({
       title: item.title || '',
       subtitle: item.subtitle || '',
@@ -458,7 +458,7 @@ const BannersPage = () => {
                   </thead>
                   <tbody>
                     {(items || []).map((item) => (
-                      <tr key={item._id}>
+                      <tr key={item.id}>
                         <td>
                           <div className='d-flex flex-column gap-2'>
                             <div className='d-flex align-items-center gap-2'>
@@ -488,7 +488,7 @@ const BannersPage = () => {
                           </div>
                         </td>
                         <td>
-                          {editingId === item._id ? (
+                          {editingId === item.id ? (
                             <>
                               <input
                                 className='form-control form-control-sm mb-2'
@@ -511,7 +511,7 @@ const BannersPage = () => {
                           )}
                         </td>
                         <td>
-                          {editingId === item._id ? (
+                          {editingId === item.id ? (
                             <>
                               <input
                                 className='form-control form-control-sm mb-2'
@@ -536,7 +536,7 @@ const BannersPage = () => {
                           )}
                         </td>
                         <td style={{ width: 80 }}>
-                          {editingId === item._id ? (
+                          {editingId === item.id ? (
                             <input
                               type='number'
                               className='form-control form-control-sm'
@@ -554,12 +554,12 @@ const BannersPage = () => {
                         </td>
                         <td>
                           <div className='d-flex flex-column gap-2'>
-                            {editingId === item._id ? (
+                            {editingId === item.id ? (
                               <div className='d-flex gap-2 flex-wrap'>
                                 <button
                                   className='btn btn-sm btn-success'
                                   disabled={saving}
-                                  onClick={() => saveEdit(item._id)}
+                                  onClick={() => saveEdit(item.id)}
                                 >
                                   Save
                                 </button>
@@ -580,7 +580,7 @@ const BannersPage = () => {
                                   accept='image/*'
                                   hidden
                                   onChange={(e) => {
-                                    replaceImage(item._id, 'desktop', e.target.files?.[0]);
+                                    replaceImage(item.id, 'desktop', e.target.files?.[0]);
                                     e.target.value = '';
                                   }}
                                 />
@@ -592,7 +592,7 @@ const BannersPage = () => {
                                   accept='image/*'
                                   hidden
                                   onChange={(e) => {
-                                    replaceImage(item._id, 'mobile', e.target.files?.[0]);
+                                    replaceImage(item.id, 'mobile', e.target.files?.[0]);
                                     e.target.value = '';
                                   }}
                                 />
@@ -602,7 +602,7 @@ const BannersPage = () => {
                               <button className='btn btn-sm btn-outline-secondary' onClick={() => onToggle(item)}>
                                 Toggle
                               </button>
-                              <button className='btn btn-sm btn-outline-danger' onClick={() => onDelete(item._id)}>
+                              <button className='btn btn-sm btn-outline-danger' onClick={() => onDelete(item.id)}>
                                 Delete
                               </button>
                             </div>

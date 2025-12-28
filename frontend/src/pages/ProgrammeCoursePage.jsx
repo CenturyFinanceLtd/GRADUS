@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { API_BASE_URL } from "../services/apiClient";
+import apiClient from "../services/apiClient";
 import FooterOne from "../components/FooterOne";
 import HeaderOne from "../components/HeaderOne";
 import Animation from "../helper/Animation";
@@ -54,17 +54,23 @@ function ProgrammeCoursePage() {
         let payload = null;
         let lastStatus = null;
         for (const slugCandidate of courseSlugCandidates) {
-          const api = await fetch(
-            `${API_BASE_URL}/courses/${encodeURIComponent(programme || '')}/${encodeURIComponent(slugCandidate || '')}`,
-            { credentials: 'include', headers }
-          );
-          if (api.ok) {
-            payload = await api.json();
+          try {
+            // apiClient.get returns the data payload directly, or throws.
+            // It will automatically intercept /courses/... to use the Edge Function.
+            const apiData = await apiClient.get(
+              `/courses/${encodeURIComponent(programme || '')}/${encodeURIComponent(slugCandidate || '')}`,
+              { token } // Pass token to allow backend to check enrollment
+            );
+            // If we get here, it succeeded (200 OK)
+            payload = apiData;
             break;
-          }
-          lastStatus = api.status;
-          if (api.status !== 404) {
-            throw new Error(`HTTP ${api.status}`);
+          } catch (err) {
+            lastStatus = err.status || 500;
+            if (lastStatus !== 404) {
+              // If it's a real error (not just not found), throw it
+              throw err;
+            }
+            // If 404, continue to next candidate
           }
         }
         if (!payload) {
@@ -121,28 +127,45 @@ function ProgrammeCoursePage() {
           const careerOutcomes = Array.isArray(c.careerOutcomes) ? c.careerOutcomes : [];
           const toolsFrameworks = Array.isArray(c.toolsFrameworks) ? c.toolsFrameworks : [];
           const instructors = Array.isArray(c.instructors) ? c.instructors : [];
-          const offeredBy = c.offeredBy && typeof c.offeredBy === 'object' ? c.offeredBy : { name: 'Gradus India', subtitle: 'A subsidiary of MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED', logo: '/assets/images/cfl.png' };
+          const offeredBy = c.offeredBy && typeof c.offeredBy === 'object' ? c.offeredBy : { name: 'Gradus India', subtitle: 'A subsidiary of MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED', logo: '/assets/images/logo/logo.png' };
           const targetAudience = Array.isArray(c.targetAudience) && c.targetAudience.length ? c.targetAudience : [];
           const prereqsList = Array.isArray(c.prereqsList) && c.prereqsList.length ? c.prereqsList : [];
 
-          if (!cancelled) setData({
-            name: c.name || '',
-            hero: { subtitle: c.subtitle || hero.subtitle || '', priceINR: priceNum, enrolledText: hero.enrolledText || '' },
-            stats: { modules: modules.length, mode: c.mode || stats.mode || '', level: c.level || stats.level || '', duration: c.duration || stats.duration || '' },
-            aboutProgram,
-            learn,
-            skills,
-            details: { effort: details.effort || '', language: details.language || '', prerequisites: details.prerequisites || '' },
-            capstone: { summary: capstoneSummary, bullets: capstoneBullets },
-            careerOutcomes,
-            toolsFrameworks,
-            modules,
-            instructors,
-            offeredBy,
-            targetAudience,
-            prereqsList,
-            isEnrolled: Boolean(c.isEnrolled),
-          });
+          if (!cancelled) {
+            const priceNum = Number(c.priceINR ?? c.price ?? 0);
+            setData({
+              name: c.name || '',
+              hero: {
+                subtitle: c.subtitle || hero.subtitle || '',
+                priceINR: priceNum,
+                enrolledText: hero.enrolledText || ''
+              },
+              stats: {
+                modules: modules.length || c.modulesCount || 0,
+                mode: c.mode || stats.mode || '',
+                level: c.level || stats.level || '',
+                duration: c.duration || stats.duration || ''
+              },
+              aboutProgram,
+              learn,
+              skills,
+              details: {
+                effort: details.effort || '',
+                language: details.language || '',
+                prerequisites: details.prerequisites || ''
+              },
+              capstone: { summary: capstoneSummary, bullets: capstoneBullets },
+              careerOutcomes,
+              toolsFrameworks,
+              modules,
+              instructors,
+              offeredBy,
+              targetAudience,
+              prereqsList,
+              isEnrolled: Boolean(c.isEnrolled),
+              enrollment: c.enrollment || null,
+            });
+          }
         } else {
           throw new Error(`HTTP ${api.status}`);
         }
@@ -291,15 +314,17 @@ function ProgrammeCoursePage() {
             </div>
             <div className='d-flex flex-column gap-12'>
               <div className='text-end'>
-                {data?.isEnrolled ? (
+                {data?.enrollment?.payment_status === 'PAID' ? (
                   <div className='fw-semibold text-success-600 text-lg'>Already enrolled</div>
+                ) : data?.enrollment ? (
+                  <div className='fw-semibold text-warning-600 text-lg'>Payment Pending</div>
                 ) : (
                   <div className='fw-semibold text-neutral-900 text-lg'>
                     {priceINR} <span className='text-sm text-neutral-600'>(+ 18% GST)</span>
                   </div>
                 )}
               </div>
-              {data?.isEnrolled ? (
+              {data?.enrollment?.payment_status === 'PAID' ? (
                 <Link to={courseHomePath} className='btn btn-main w-100'>Go to Course</Link>
               ) : (
                 <Link
@@ -315,7 +340,7 @@ function ProgrammeCoursePage() {
                     }
                   }}
                 >
-                  Enroll Now
+                  {data?.enrollment ? 'Complete Payment' : 'Enroll Now'}
                 </Link>
               )}
               <span className='text-center text-sm text-neutral-600'>{data?.hero?.enrolledText || '176,437 already enrolled'}</span>
@@ -557,16 +582,7 @@ function ProgrammeCoursePage() {
                       ))}
                     </div>
                   </div>
-                  <div className='rounded-16 border border-neutral-30 p-20 bg-white'>
-                    <h6 className='text-neutral-800 mb-8'>Offered by</h6>
-                    <div className='d-flex align-items-center gap-12'>
-                      <img src={data?.offeredBy?.logo || '/assets/images/cfl.png'} alt='' style={{ width: 36, height: 36 }} className='rounded-8' />
-                      <div>
-                        <div className='fw-semibold text-neutral-900'>{data?.offeredBy?.name || 'Gradus India'}</div>
-                        <div className='text-neutral-600 text-sm'>{data?.offeredBy?.subtitle || 'A subsidiary of MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED'}</div>
-                      </div>
-                    </div>
-                  </div>
+
                 </div>
               </div>
             </div>

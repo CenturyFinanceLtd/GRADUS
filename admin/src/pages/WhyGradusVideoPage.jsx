@@ -130,7 +130,7 @@ const WhyGradusVideoPage = () => {
   };
 
   const startEdit = (item) => {
-    setEditingId(item._id);
+    setEditingId(item.id);
     setForm({
       title: item.title || '',
       subtitle: item.subtitle || '',
@@ -150,7 +150,7 @@ const WhyGradusVideoPage = () => {
 
   const toggleActive = async (item) => {
     try {
-      await updateAdminWhyGradusVideo({ token, id: item._id, patch: { active: !item.active } });
+      await updateAdminWhyGradusVideo({ token, id: item.id, patch: { active: !item.active } });
       await load();
     } catch (e) {
       setError(e?.message || 'Failed to update');
@@ -291,9 +291,15 @@ const WhyGradusVideoPage = () => {
                   </thead>
                   <tbody>
                     {(items || []).map((it) => (
-                      <tr key={it._id}>
+                      <tr key={it.id}>
                         <td>
-                          <video src={it.secureUrl} style={{ width: 120, height: 80, borderRadius: 8 }} muted playsInline />
+                          {it.secureUrl ? (
+                            <video src={it.secureUrl} style={{ width: 120, height: 80, borderRadius: 8, objectFit: 'cover' }} muted playsInline />
+                          ) : (
+                            <div className='d-flex align-items-center justify-content-center bg-neutral-200 text-neutral-500' style={{ width: 120, height: 80, borderRadius: 8 }}>
+                              <i className='ph-bold ph-video-slash' style={{ fontSize: 24 }}></i>
+                            </div>
+                          )}
                         </td>
                         <td>
                           <div className='fw-semibold'>{it.title || '(No title)'}</div>
@@ -306,7 +312,7 @@ const WhyGradusVideoPage = () => {
                         <td className='d-flex flex-wrap gap-2'>
                           <button className='btn btn-sm btn-outline-primary' onClick={() => startEdit(it)}>Edit</button>
                           <button className='btn btn-sm btn-outline-secondary' onClick={() => toggleActive(it)}>Toggle</button>
-                          <button className='btn btn-sm btn-outline-danger' onClick={() => remove(it._id)}>Delete</button>
+                          <button className='btn btn-sm btn-outline-danger' onClick={() => remove(it.id)}>Delete</button>
                         </td>
                       </tr>
                     ))}

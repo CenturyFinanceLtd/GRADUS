@@ -35,21 +35,7 @@ const CounterFour = () => {
         />
         <span className='our-courses-tooltip'>Our Courses</span>
       </div>
-      <div className='animation-walking bottom-5-percent left-70-percent position-absolute our-know-gradus-trigger'>
-        <img
-          src='/assets/images/shapes/shape5.png'
-          alt=''
-          role='button'
-          title='Know Gradus'
-          aria-label='Know Gradus'
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') window.location.href = '/about-us';
-          }}
-          onClick={() => (window.location.href = '/about-us')}
-        />
-        <span className='our-know-gradus-tooltip'>Know Gradus</span>
-      </div>
+
       <div className='container'>
         <div className='row gy-4'>
           <div className='col-xl-6'>

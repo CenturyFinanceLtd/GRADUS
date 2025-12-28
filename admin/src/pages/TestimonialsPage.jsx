@@ -68,7 +68,7 @@ const TestimonialsPage = () => {
 
   const onToggle = async (it) => {
     try {
-      await updateAdminTestimonial({ token, id: it._id, patch: { active: !it.active } });
+      await updateAdminTestimonial({ token, id: it.id, patch: { active: !it.active } });
       await load();
     } catch (e) {
       setError(e?.message || 'Failed to update');
@@ -76,7 +76,7 @@ const TestimonialsPage = () => {
   };
 
   const startEdit = (it) => {
-    setEditingId(it._id);
+    setEditingId(it.id);
     setEditForm({ name: it.name || '', role: it.role || '', order: Number(it.order || 0), thumbnailFile: null });
   };
 
@@ -182,7 +182,7 @@ const TestimonialsPage = () => {
                   </thead>
                   <tbody>
                     {(items || []).map((it) => (
-                      <tr key={it._id}>
+                      <tr key={it.id}>
                         <td>
                           <video src={it.secureUrl} style={{ width: 80, height: 80 }} muted playsInline />
                         </td>
@@ -197,7 +197,7 @@ const TestimonialsPage = () => {
                             ) : (
                               <span className='text-neutral-500 text-sm'>Auto</span>
                             )}
-                            {editingId === it._id ? (
+                            {editingId === it.id ? (
                               <input
                                 type='file'
                                 accept='image/*'
@@ -208,7 +208,7 @@ const TestimonialsPage = () => {
                           </div>
                         </td>
                         <td>
-                          {editingId === it._id ? (
+                          {editingId === it.id ? (
                             <input
                               className='form-control form-control-sm'
                               value={editForm.name}
@@ -219,7 +219,7 @@ const TestimonialsPage = () => {
                           )}
                         </td>
                         <td>
-                          {editingId === it._id ? (
+                          {editingId === it.id ? (
                             <input
                               className='form-control form-control-sm'
                               value={editForm.role}
@@ -233,7 +233,7 @@ const TestimonialsPage = () => {
                           <span className={`badge ${it.active ? 'bg-success-600' : 'bg-neutral-400'}`}>{it.active ? 'Yes' : 'No'}</span>
                         </td>
                         <td>
-                          {editingId === it._id ? (
+                          {editingId === it.id ? (
                             <input
                               type='number'
                               className='form-control form-control-sm'
@@ -246,16 +246,16 @@ const TestimonialsPage = () => {
                           )}
                         </td>
                         <td className='d-flex gap-2'>
-                          {editingId === it._id ? (
+                          {editingId === it.id ? (
                             <>
-                              <button className='btn btn-sm btn-success' disabled={saving || !editForm.name} onClick={() => saveEdit(it._id)}>Save</button>
+                              <button className='btn btn-sm btn-success' disabled={saving || !editForm.name} onClick={() => saveEdit(it.id)}>Save</button>
                               <button className='btn btn-sm btn-outline-secondary' onClick={cancelEdit}>Cancel</button>
                             </>
                           ) : (
                             <button className='btn btn-sm btn-outline-primary' onClick={() => startEdit(it)}>Edit</button>
                           )}
                           <button className='btn btn-sm btn-outline-secondary' onClick={() => onToggle(it)}>Toggle</button>
-                          <button className='btn btn-sm btn-outline-danger' onClick={() => onDelete(it._id)}>Delete</button>
+                          <button className='btn btn-sm btn-outline-danger' onClick={() => onDelete(it.id)}>Delete</button>
                         </td>
                       </tr>
                     ))}

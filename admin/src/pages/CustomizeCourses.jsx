@@ -104,7 +104,7 @@ const SAMPLE = {
     { name: 'Gradus Mentor', subtitle: 'Industry Practitioner - 120k learners' },
     { name: 'Guest Expert', subtitle: 'Visiting Faculty - 27k learners' },
   ],
-  offeredBy: { name: 'Gradus India', subtitle: 'A subsidiary of MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED', logo: '/assets/images/cfl.png' },
+  offeredBy: { name: 'Gradus India', subtitle: 'A subsidiary of MDM MADHUBANI TECHNOLOGIES PRIVATE LIMITED', logo: '/assets/images/logo/logo.png' },
 };
 
 const pretty = (obj) => JSON.stringify(obj, null, 2);

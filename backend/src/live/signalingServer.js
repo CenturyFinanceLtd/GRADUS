@@ -3,10 +3,10 @@
   - Authenticates participants via short-lived signaling keys
   - Relays offers/answers/ICE candidates between participants in the same session
 */
-const { WebSocketServer } = require('ws');
-const { URL } = require('url');
-const config = require('../config/env');
-const liveEvents = require('./liveEvents');
+const { WebSocketServer } = require("ws");
+const { URL } = require("url");
+const config = require("../config/env");
+const liveEvents = require("./liveEvents");
 const {
   verifyParticipantKey,
   setParticipantConnectionState,
@@ -17,18 +17,30 @@ const {
   setScreenShareOwner,
   clearScreenShareOwnerIfMatches,
   logLiveEvent,
-} = require('./liveStore');
-const { LiveChatMessage } = require('../models/LiveChatMessage');
+  createChatMessage,
+} = require("./liveStore");
 
 const SIGNAL_MESSAGE_TYPES = new Set([
-  'webrtc-offer',
-  'webrtc-answer',
-  'webrtc-ice-candidate',
-  'media-state',
-  'kick',
+  "webrtc-offer",
+  "webrtc-answer",
+  "webrtc-ice-candidate",
+  "media-state",
+  "kick",
 ]);
-const DIRECT_MESSAGE_TYPES = new Set(['webrtc-offer', 'webrtc-answer', 'webrtc-ice-candidate', 'media-state', 'kick']);
-const BROADCAST_MESSAGE_TYPES = new Set(['chat:message', 'reaction', 'hand-raise', 'spotlight']);
+
+const DIRECT_MESSAGE_TYPES = new Set([
+  "webrtc-offer",
+  "webrtc-answer",
+  "webrtc-ice-candidate",
+  "media-state",
+  "kick",
+]);
+const BROADCAST_MESSAGE_TYPES = new Set([
+  "chat:message",
+  "reaction",
+  "hand-raise",
+  "spotlight",
+]);
 
 const sendJson = (ws, payload) => {
   if (!ws || ws.readyState !== ws.OPEN) {
@@ -38,12 +50,12 @@ const sendJson = (ws, payload) => {
   try {
     ws.send(JSON.stringify(payload));
   } catch (error) {
-    console.warn('[live-signaling] Failed to send payload', error?.message);
+    console.warn("[live-signaling] Failed to send payload", error?.message);
   }
 };
 
 const validateSignalPayload = (payload) => {
-  if (!payload || typeof payload !== 'object') {
+  if (!payload || typeof payload !== "object") {
     return false;
   }
 
@@ -51,7 +63,7 @@ const validateSignalPayload = (payload) => {
     return false;
   }
 
-  if (!payload.target || typeof payload.target !== 'string') {
+  if (!payload.target || typeof payload.target !== "string") {
     return false;
   }
 
@@ -59,9 +71,12 @@ const validateSignalPayload = (payload) => {
 };
 
 const normalizePath = (path) => {
-  const normalized = path && typeof path === 'string' ? path : '/live-signaling';
-  const withLeadingSlash = normalized.startsWith('/') ? normalized : `/${normalized}`;
-  return withLeadingSlash.replace(/\/{2,}/g, '/');
+  const normalized =
+    path && typeof path === "string" ? path : "/live-signaling";
+  const withLeadingSlash = normalized.startsWith("/")
+    ? normalized
+    : `/${normalized}`;
+  return withLeadingSlash.replace(/\/{2,}/g, "/");
 };
 
 const broadcastToSession = (connections, sessionId, message, roomId = null) => {
@@ -70,7 +85,11 @@ const broadcastToSession = (connections, sessionId, message, roomId = null) => {
     return;
   }
   sessionConnections.forEach((socket) => {
-    if (roomId && socket.liveContext?.roomId && socket.liveContext.roomId !== roomId) {
+    if (
+      roomId &&
+      socket.liveContext?.roomId &&
+      socket.liveContext.roomId !== roomId
+    ) {
       return;
     }
     sendJson(socket, message);
@@ -83,18 +102,26 @@ const broadcastSessionState = async (connections, sessionId) => {
     return;
   }
 
-  const snapshot = await toSessionSnapshot(session, { includeParticipants: true });
+  const snapshot = await toSessionSnapshot(session, {
+    includeParticipants: true,
+  });
   const sessionConnections = connections.get(sessionId);
   if (!sessionConnections) {
     return;
   }
 
   sessionConnections.forEach((socket) => {
-    sendJson(socket, { type: 'session:update', session: snapshot });
+    sendJson(socket, { type: "session:update", session: snapshot });
   });
 };
 
-const handleShareState = async (connections, sessionId, participantId, ws, active) => {
+const handleShareState = async (
+  connections,
+  sessionId,
+  participantId,
+  ws,
+  active
+) => {
   const session = await getSessionRecord(sessionId);
   if (!session) {
     return;
@@ -105,24 +132,30 @@ const handleShareState = async (connections, sessionId, participantId, ws, activ
     return;
   }
 
-  const isHost = participant.role === 'instructor';
-  const currentOwner = session.screenShareOwner ? String(session.screenShareOwner) : null;
+  const isHost = participant.role === "instructor";
+  const currentOwner = session.screenShareOwner
+    ? String(session.screenShareOwner)
+    : null;
 
   if (active) {
     if (!isHost && session.allowStudentScreenShare === false) {
-      sendJson(ws, { type: 'share:denied', reason: 'disabled' });
+      sendJson(ws, { type: "share:denied", reason: "disabled" });
       return;
     }
 
     if (currentOwner && currentOwner !== participantId) {
       if (isHost) {
-        liveEvents.emit('participant-command', {
+        liveEvents.emit("participant-command", {
           sessionId,
           participantId: currentOwner,
-          payload: { type: 'media-state', data: { screenShare: false } },
+          payload: { type: "media-state", data: { screenShare: false } },
         });
       } else {
-        sendJson(ws, { type: 'share:denied', reason: 'already-active', owner: currentOwner });
+        sendJson(ws, {
+          type: "share:denied",
+          reason: "already-active",
+          owner: currentOwner,
+        });
         return;
       }
     }
@@ -134,12 +167,17 @@ const handleShareState = async (connections, sessionId, participantId, ws, activ
 
   await broadcastSessionState(connections, sessionId);
   broadcastToSession(connections, sessionId, {
-    type: 'share:owner',
+    type: "share:owner",
     participantId: active ? participantId : null,
   });
 };
 
-const handleForwardMessage = (connections, sessionId, participantId, payload) => {
+const handleForwardMessage = (
+  connections,
+  sessionId,
+  participantId,
+  payload
+) => {
   const sessionConnections = connections.get(sessionId);
   if (!sessionConnections) {
     return;
@@ -149,8 +187,8 @@ const handleForwardMessage = (connections, sessionId, participantId, payload) =>
 
   if (!validateSignalPayload(payload)) {
     sendJson(senderSocket, {
-      type: 'error',
-      message: 'Invalid signaling payload.',
+      type: "error",
+      message: "Invalid signaling payload.",
     });
     return;
   }
@@ -158,7 +196,7 @@ const handleForwardMessage = (connections, sessionId, participantId, payload) =>
   const targetSocket = sessionConnections.get(payload.target);
   if (!targetSocket) {
     sendJson(senderSocket, {
-      type: 'target-unavailable',
+      type: "target-unavailable",
       target: payload.target,
     });
     return;
@@ -173,18 +211,24 @@ const handleForwardMessage = (connections, sessionId, participantId, payload) =>
 
 const attachLiveSignalingServer = (httpServer) => {
   if (!httpServer) {
-    throw new Error('HTTP server instance is required to attach the live signaling server.');
+    throw new Error(
+      "HTTP server instance is required to attach the live signaling server."
+    );
   }
 
-  const signalingPath = normalizePath(config.live?.signalingPath || '/live-signaling');
+  const signalingPath = normalizePath(
+    config.live?.signalingPath || "/live-signaling"
+  );
   // Allow both direct and /api-prefixed upgrade paths so proxies that only expose /api still work.
   const allowedPaths = new Set([signalingPath]);
-  const apiPrefixedPath = signalingPath.startsWith('/api/') ? null : normalizePath(`/api${signalingPath}`);
+  const apiPrefixedPath = signalingPath.startsWith("/api/")
+    ? null
+    : normalizePath(`/api${signalingPath}`);
   if (apiPrefixedPath && !allowedPaths.has(apiPrefixedPath)) {
     allowedPaths.add(apiPrefixedPath);
   }
   const unprefixedPath =
-    signalingPath.startsWith('/api/') && signalingPath.length > 5
+    signalingPath.startsWith("/api/") && signalingPath.length > 5
       ? normalizePath(signalingPath.slice(4))
       : null;
   if (unprefixedPath && !allowedPaths.has(unprefixedPath)) {
@@ -198,22 +242,36 @@ const attachLiveSignalingServer = (httpServer) => {
     try {
       const requestUrl = new URL(request.url, `http://${request.headers.host}`);
       if (!allowedPaths.has(requestUrl.pathname)) {
-        return { accepted: false, statusCode: 404, message: 'Not Found' };
+        return { accepted: false, statusCode: 404, message: "Not Found" };
       }
 
-      const sessionId = requestUrl.searchParams.get('sessionId');
-      const participantId = requestUrl.searchParams.get('participantId');
-      const key = requestUrl.searchParams.get('key');
+      const sessionId = requestUrl.searchParams.get("sessionId");
+      const participantId = requestUrl.searchParams.get("participantId");
+      const key = requestUrl.searchParams.get("key");
 
-      const verification = await verifyParticipantKey(sessionId, participantId, key);
+      const verification = await verifyParticipantKey(
+        sessionId,
+        participantId,
+        key
+      );
       if (!verification.valid) {
-        return { accepted: false, statusCode: 401, message: 'Invalid signaling token' };
+        return {
+          accepted: false,
+          statusCode: 401,
+          message: "Invalid signaling token",
+        };
       }
       if (verification.participant?.waiting) {
-        return { accepted: false, statusCode: 403, message: 'Waiting for instructor admission' };
+        return {
+          accepted: false,
+          statusCode: 403,
+          message: "Waiting for instructor admission",
+        };
       }
 
-      const roomId = verification.participant?.roomId ? String(verification.participant.roomId) : null;
+      const roomId = verification.participant?.roomId
+        ? String(verification.participant.roomId)
+        : null;
       return {
         accepted: true,
         sessionId,
@@ -221,7 +279,11 @@ const attachLiveSignalingServer = (httpServer) => {
         roomId,
       };
     } catch (error) {
-      return { accepted: false, statusCode: 400, message: error?.message || 'Bad Request' };
+      return {
+        accepted: false,
+        statusCode: 400,
+        message: error?.message || "Bad Request",
+      };
     }
   };
 
@@ -235,11 +297,15 @@ const attachLiveSignalingServer = (httpServer) => {
     }
   };
 
-  httpServer.on('upgrade', async (request, socket, head) => {
+  httpServer.on("upgrade", async (request, socket, head) => {
     try {
       const result = await authenticateUpgrade(request);
       if (!result.accepted) {
-        rejectUpgrade(socket, result.statusCode || 400, result.message || 'Bad Request');
+        rejectUpgrade(
+          socket,
+          result.statusCode || 400,
+          result.message || "Bad Request"
+        );
         return;
       }
 
@@ -249,14 +315,14 @@ const attachLiveSignalingServer = (httpServer) => {
           participantId: result.participantId,
           roomId: result.roomId,
         };
-        wss.emit('connection', ws, request);
+        wss.emit("connection", ws, request);
       });
     } catch (error) {
-      rejectUpgrade(socket, 400, error?.message || 'Bad Request');
+      rejectUpgrade(socket, 400, error?.message || "Bad Request");
     }
   });
 
-  wss.on('connection', (ws) => {
+  wss.on("connection", (ws) => {
     const { sessionId, participantId } = ws.liveContext || {};
     if (!sessionId || !participantId) {
       ws.close();
@@ -269,88 +335,122 @@ const attachLiveSignalingServer = (httpServer) => {
       connections.set(sessionId, sessionConnections);
     }
 
-      sessionConnections.set(participantId, ws);
-    setParticipantConnectionState(sessionId, participantId, true).catch(() => {});
+    sessionConnections.set(participantId, ws);
+    setParticipantConnectionState(sessionId, participantId, true).catch(
+      () => {}
+    );
     broadcastSessionState(connections, sessionId).catch(() => {});
 
-    ws.on('message', async (rawMessage) => {
+    ws.on("message", async (rawMessage) => {
       let payload = null;
       try {
         payload = JSON.parse(rawMessage.toString());
       } catch (_) {
-        sendJson(ws, { type: 'error', message: 'Signals must be JSON encoded.' });
+        sendJson(ws, {
+          type: "error",
+          message: "Signals must be JSON encoded.",
+        });
         return;
       }
 
-      if (payload.type === 'ping') {
+      if (payload.type === "ping") {
         await touchParticipant(sessionId, participantId);
-        sendJson(ws, { type: 'pong', timestamp: Date.now() });
+        sendJson(ws, { type: "pong", timestamp: Date.now() });
         return;
       }
 
-      if (payload.type === 'session:state') {
+      if (payload.type === "session:state") {
         broadcastSessionState(connections, sessionId).catch(() => {});
         return;
       }
 
-      if (payload.type === 'chat:message') {
+      if (payload.type === "chat:message") {
         await touchParticipant(sessionId, participantId);
-        const text = typeof payload.data?.text === 'string' ? payload.data.text.trim() : '';
+        const text =
+          typeof payload.data?.text === "string"
+            ? payload.data.text.trim()
+            : "";
         if (!text) {
-          sendJson(ws, { type: 'error', message: 'Chat message cannot be empty.' });
+          sendJson(ws, {
+            type: "error",
+            message: "Chat message cannot be empty.",
+          });
           return;
         }
         const truncated = text.slice(0, 500);
-        let displayName = 'Participant';
-        let senderRole = 'student';
+        let displayName = "Participant";
+        let senderRole = "student";
         try {
-          const participant = await getParticipantRecord(sessionId, participantId);
+          const participant = await getParticipantRecord(
+            sessionId,
+            participantId
+          );
           displayName = participant?.displayName || displayName;
-          senderRole = participant?.role || 'student';
+          senderRole = participant?.role || "student";
           // optional persistence
-          await LiveChatMessage.create({
-            session: sessionId,
-            participant: participantId,
-            senderDisplayName: displayName,
+          await createChatMessage({
+            sessionId,
+            participantId,
             senderRole,
+            senderDisplayName: displayName,
             message: truncated,
           });
           await logLiveEvent({
             sessionId,
             participantId,
             role: senderRole,
-            kind: 'chat',
+            kind: "chat",
             data: { text: truncated },
           });
         } catch (_) {
           // ignore persistence errors
         }
-        broadcastToSession(connections, sessionId, {
-          type: 'chat:message',
-          from: participantId,
-          displayName,
-          senderRole,
-          text: truncated,
-          timestamp: Date.now(),
-        }, ws.liveContext?.roomId || null);
+        broadcastToSession(
+          connections,
+          sessionId,
+          {
+            type: "chat:message",
+            from: participantId,
+            displayName,
+            senderRole,
+            text: truncated,
+            timestamp: Date.now(),
+          },
+          ws.liveContext?.roomId || null
+        );
         return;
       }
 
-      if (payload.type === 'reaction' || payload.type === 'hand-raise' || payload.type === 'spotlight') {
+      if (
+        payload.type === "reaction" ||
+        payload.type === "hand-raise" ||
+        payload.type === "spotlight"
+      ) {
         await touchParticipant(sessionId, participantId);
         const senderRoom = ws.liveContext?.roomId || null;
-        broadcastToSession(connections, sessionId, {
-          type: payload.type,
-          from: participantId,
-          data: payload.data || {},
-          timestamp: Date.now(),
-        }, senderRoom);
+        broadcastToSession(
+          connections,
+          sessionId,
+          {
+            type: payload.type,
+            from: participantId,
+            data: payload.data || {},
+            timestamp: Date.now(),
+          },
+          senderRoom
+        );
         return;
       }
 
-      if (payload.type === 'share:state') {
+      if (payload.type === "share:state") {
         await touchParticipant(sessionId, participantId);
-        await handleShareState(connections, sessionId, participantId, ws, Boolean(payload.data?.active));
+        await handleShareState(
+          connections,
+          sessionId,
+          participantId,
+          ws,
+          Boolean(payload.data?.active)
+        );
         return;
       }
 
@@ -360,7 +460,10 @@ const attachLiveSignalingServer = (httpServer) => {
         return;
       }
 
-      sendJson(ws, { type: 'error', message: 'Unknown signaling message type.' });
+      sendJson(ws, {
+        type: "error",
+        message: "Unknown signaling message type.",
+      });
     });
 
     const cleanupConnection = async () => {
@@ -376,63 +479,74 @@ const attachLiveSignalingServer = (httpServer) => {
       await broadcastSessionState(connections, sessionId);
     };
 
-    ws.on('close', () => {
+    ws.on("close", () => {
       cleanupConnection();
       logLiveEvent({
         sessionId,
         participantId,
-        kind: 'disconnect',
+        kind: "disconnect",
       }).catch(() => {});
     });
-    ws.on('error', () => {
+    ws.on("error", () => {
       cleanupConnection();
       logLiveEvent({
         sessionId,
         participantId,
-        kind: 'disconnect',
+        kind: "disconnect",
       }).catch(() => {});
     });
 
     (async () => {
-      const initialSnapshot = await toSessionSnapshot(await getSessionRecord(sessionId), { includeParticipants: true });
+      const initialSnapshot = await toSessionSnapshot(
+        await getSessionRecord(sessionId),
+        { includeParticipants: true }
+      );
       if (initialSnapshot) {
-        sendJson(ws, { type: 'session:update', session: initialSnapshot });
+        sendJson(ws, { type: "session:update", session: initialSnapshot });
       }
     })().catch(() => {});
   });
 
-  console.log(`[live-signaling] WebSocket signaling mounted on ${config.serverUrl}${signalingPath}`);
+  console.log(
+    `[live-signaling] WebSocket signaling mounted on ${config.serverUrl}${signalingPath}`
+  );
   if (allowedPaths.size > 1) {
     console.log(
       `[live-signaling] Also accepting upgrades on: ${Array.from(allowedPaths)
         .filter((path) => path !== signalingPath)
-        .join(', ')}`
+        .join(", ")}`
     );
   }
 
-  liveEvents.on('session-updated', (sessionId) => {
+  liveEvents.on("session-updated", (sessionId) => {
     broadcastSessionState(connections, sessionId).catch(() => {});
   });
 
-  liveEvents.on('participant-command', ({ sessionId, participantId, payload }) => {
-    const sessionConnections = connections.get(sessionId);
-    if (!sessionConnections) {
-      return;
+  liveEvents.on(
+    "participant-command",
+    ({ sessionId, participantId, payload }) => {
+      const sessionConnections = connections.get(sessionId);
+      if (!sessionConnections) {
+        return;
+      }
+      const targetSocket = sessionConnections.get(participantId);
+      if (targetSocket) {
+        sendJson(targetSocket, payload);
+      }
     }
-    const targetSocket = sessionConnections.get(participantId);
-    if (targetSocket) {
-      sendJson(targetSocket, payload);
-    }
-  });
+  );
 
-  liveEvents.on('participant-room-changed', ({ sessionId, participantId, roomId }) => {
-    const sessionConnections = connections.get(sessionId);
-    if (!sessionConnections) return;
-    const ws = sessionConnections.get(participantId);
-    if (ws) {
-      ws.liveContext = { ...(ws.liveContext || {}), roomId: roomId || null };
+  liveEvents.on(
+    "participant-room-changed",
+    ({ sessionId, participantId, roomId }) => {
+      const sessionConnections = connections.get(sessionId);
+      if (!sessionConnections) return;
+      const ws = sessionConnections.get(participantId);
+      if (ws) {
+        ws.liveContext = { ...(ws.liveContext || {}), roomId: roomId || null };
+      }
     }
-  });
+  );
 
   return wss;
 };

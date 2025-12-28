@@ -61,8 +61,9 @@ const ProfileInner = () => {
       setFetchingProfile(true);
       try {
         const response = await apiClient.get("/users/me", { token });
-        setProfileData(mapUserToProfileState(response.user));
-        updateUser(response.user);
+        const userData = response.user || response;
+        setProfileData(mapUserToProfileState(userData));
+        updateUser(userData);
       } catch (error) {
         if (error.status === 401) {
           logout();
@@ -126,8 +127,9 @@ const ProfileInner = () => {
         { token }
       );
 
-      setProfileData(mapUserToProfileState(response.user));
-      updateUser(response.user);
+      const userData = response.user || response;
+      setProfileData(mapUserToProfileState(userData));
+      updateUser(userData);
       setProfileStatus({ type: "success", message: "Profile updated successfully." });
     } catch (error) {
       setProfileStatus({ type: "error", message: error.message || "Profile update failed." });
@@ -576,92 +578,92 @@ const ProfileInner = () => {
                   in your Google Account settings.
                 </p>
               ) : (
-<>
-              {emailChange.message ? (
-                <div className='alert alert-success text-sm mb-20' role='alert'>
-                  {emailChange.message}
-                </div>
-              ) : null}
-              {emailChange.error ? (
-                <div className='alert alert-danger text-sm mb-20' role='alert'>
-                  {emailChange.error}
-                </div>
-              ) : null}
+                <>
+                  {emailChange.message ? (
+                    <div className='alert alert-success text-sm mb-20' role='alert'>
+                      {emailChange.message}
+                    </div>
+                  ) : null}
+                  {emailChange.error ? (
+                    <div className='alert alert-danger text-sm mb-20' role='alert'>
+                      {emailChange.error}
+                    </div>
+                  ) : null}
 
-              {emailChange.status === "otp" ? (
-                <form onSubmit={verifyEmailUpdate} className='row gy-3'>
-                  <div className='col-12'>
-                    <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='otp'>
-                      Enter verification code
-                    </label>
-                    <input
-                      type='text'
-                      className='common-input rounded-pill text-center letter-spacing-2'
-                      id='otp'
-                      name='otp'
-                      value={emailChange.otp}
-                      onChange={handleEmailInputChange}
-                      placeholder='Enter OTP'
-                      required
-                    />
-                  </div>
-                  <div className='col-12 d-flex justify-content-between'>
-                    <button
-                      type='button'
-                      className='btn border border-neutral-40 text-neutral-500 rounded-pill'
-                      onClick={() =>
-                        setEmailChange({
-                          newEmail: "",
-                          sessionId: null,
-                          otp: "",
-                          status: "idle",
-                          message: "",
-                          error: "",
-                          loading: false,
-                        })
-                      }
-                      disabled={emailChange.loading}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type='submit'
-                      className='btn btn-main rounded-pill'
-                      disabled={emailChange.loading}
-                    >
-                      {emailChange.loading ? "Verifying..." : "Verify"}
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <form onSubmit={startEmailUpdate} className='row gy-3'>
-                  <div className='col-12'>
-                    <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='newEmail'>
-                      New Email Address
-                    </label>
-                    <input
-                      type='email'
-                      className='common-input rounded-pill'
-                      id='newEmail'
-                      name='newEmail'
-                      value={emailChange.newEmail}
-                      onChange={handleEmailInputChange}
-                      placeholder='Enter new email'
-                      required
-                    />
-                  </div>
-                  <div className='col-12'>
-                    <button
-                      type='submit'
-                      className='btn btn-main rounded-pill w-100'
-                      disabled={emailChange.loading}
-                    >
-                      {emailChange.loading ? "Sending..." : "Send Verification Code"}
-                    </button>
-                  </div>
-                </form>
-              )}
-              </>
+                  {emailChange.status === "otp" ? (
+                    <form onSubmit={verifyEmailUpdate} className='row gy-3'>
+                      <div className='col-12'>
+                        <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='otp'>
+                          Enter verification code
+                        </label>
+                        <input
+                          type='text'
+                          className='common-input rounded-pill text-center letter-spacing-2'
+                          id='otp'
+                          name='otp'
+                          value={emailChange.otp}
+                          onChange={handleEmailInputChange}
+                          placeholder='Enter OTP'
+                          required
+                        />
+                      </div>
+                      <div className='col-12 d-flex justify-content-between'>
+                        <button
+                          type='button'
+                          className='btn border border-neutral-40 text-neutral-500 rounded-pill'
+                          onClick={() =>
+                            setEmailChange({
+                              newEmail: "",
+                              sessionId: null,
+                              otp: "",
+                              status: "idle",
+                              message: "",
+                              error: "",
+                              loading: false,
+                            })
+                          }
+                          disabled={emailChange.loading}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type='submit'
+                          className='btn btn-main rounded-pill'
+                          disabled={emailChange.loading}
+                        >
+                          {emailChange.loading ? "Verifying..." : "Verify"}
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <form onSubmit={startEmailUpdate} className='row gy-3'>
+                      <div className='col-12'>
+                        <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='newEmail'>
+                          New Email Address
+                        </label>
+                        <input
+                          type='email'
+                          className='common-input rounded-pill'
+                          id='newEmail'
+                          name='newEmail'
+                          value={emailChange.newEmail}
+                          onChange={handleEmailInputChange}
+                          placeholder='Enter new email'
+                          required
+                        />
+                      </div>
+                      <div className='col-12'>
+                        <button
+                          type='submit'
+                          className='btn btn-main rounded-pill w-100'
+                          disabled={emailChange.loading}
+                        >
+                          {emailChange.loading ? "Sending..." : "Send Verification Code"}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </>
               )}
             </div>
             <div className='bg-main-25 border border-neutral-30 rounded-8 p-32 mt-32'>

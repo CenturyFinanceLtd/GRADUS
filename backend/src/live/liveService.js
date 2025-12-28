@@ -6,7 +6,6 @@ const { LiveSessionError } = require("./errors");
 const liveEvents = require("./liveEvents");
 const crypto = require("crypto");
 const { v4: uuidv4 } = require("uuid");
-const { LiveChatMessage } = require("../models/LiveChatMessage");
 const {
   LIVE_SESSION_STATUSES,
   createSessionRecord,
@@ -26,8 +25,10 @@ const {
   setParticipantRoom,
   logLiveEvent,
   listLiveEvents,
+  createChatMessage,
+  listChatMessages,
+  createRecordingRecord,
 } = require("./liveStore");
-const { LiveRecording } = require("../models/LiveRecording");
 const { cloudinary, liveRecordingsFolder } = require("../config/cloudinary");
 const { Readable } = require("stream");
 const { sendCourseNotification } = require("../utils/notifications");
@@ -194,7 +195,7 @@ const createSession = async ({
   sendCourseNotification(String(courseId), {
     title: "Live Class Started! 🔴",
     body: `${session.title} is now live. Tap to join!`,
-    data: { liveId: String(session._id), url: `/live/${String(session._id)}` },
+    data: { liveId: String(session.id), url: `/live/${String(session.id)}` },
   }).catch((err) => console.error("Failed to send live notification:", err));
 
   return {
@@ -320,9 +321,7 @@ const buildSessionSnapshotWithParticipants = async (session, options = {}) => {
   if (!session) {
     return null;
   }
-  const participants = await getParticipantsForSession(
-    session._id || session.id
-  );
+  const participants = await getParticipantsForSession(session.id);
   return toSessionSnapshot(session, {
     includeParticipants: true,
     participants,
@@ -365,7 +364,7 @@ const registerStudentParticipant = async ({
   assertSessionJoinable(session);
   if (
     session.bannedUserIds &&
-    session.bannedUserIds.includes(String(user._id || ""))
+    session.bannedUserIds.includes(String(user._id || user.id || ""))
   ) {
     throw new LiveSessionError(
       "You have been removed from this live class.",
@@ -381,7 +380,7 @@ const registerStudentParticipant = async ({
     {
       role: "student",
       displayName: resolvedName,
-      userId: user._id ? String(user._id) : null,
+      userId: user.id || user._id ? String(user.id || user._id) : null,
       metadata: { email: user.email },
       waiting,
     }
@@ -390,7 +389,7 @@ const registerStudentParticipant = async ({
   liveEvents.emit("session-updated", sessionId);
   await logLiveEvent({
     sessionId,
-    participantId: participant._id,
+    participantId: participant.id,
     role: "student",
     kind: "join",
     data: { displayName: resolvedName, waiting },
@@ -398,7 +397,7 @@ const registerStudentParticipant = async ({
 
   const token = await generateLiveKitToken(
     String(sessionId),
-    participant._id.toString(),
+    participant.id.toString(),
     resolvedName,
     "student"
   );
@@ -438,13 +437,13 @@ const registerInstructorParticipant = async ({
     {
       role: "instructor",
       displayName: admin.fullName || admin.email || "Instructor",
-      adminId: admin._id ? String(admin._id) : null,
+      adminId: admin.id || admin._id ? String(admin.id || admin._id) : null,
     }
   );
 
   await logLiveEvent({
     sessionId,
-    participantId: participant._id,
+    participantId: participant.id,
     role: "instructor",
     kind: "join",
     data: { displayName: participant.displayName },
@@ -452,7 +451,7 @@ const registerInstructorParticipant = async ({
 
   const token = await generateLiveKitToken(
     String(sessionId),
-    participant._id.toString(),
+    participant.id.toString(),
     participant.displayName,
     "instructor"
   );
@@ -613,7 +612,7 @@ const createRoom = async ({ sessionId, admin, name }) => {
   const room = await createRoomRecord(sessionId, { name: name.trim(), slug });
   liveEvents.emit("session-updated", sessionId);
   return {
-    room: { id: String(room._id), name: room.name, slug: room.slug },
+    room: { id: String(room.id), name: room.name, slug: room.slug },
     session: await toSessionSnapshot(session, {
       includeParticipants: true,
       includeRooms: true,
@@ -653,8 +652,8 @@ const moveParticipantRoom = async ({
     throw new LiveSessionError("Participant not found.", 404);
   }
   if (roomId) {
-    const room = await listRoomsForSession(sessionId);
-    const exists = room.find((r) => r.id === roomId);
+    const rooms = await listRoomsForSession(sessionId);
+    const exists = rooms.find((r) => r.id === roomId);
     if (!exists) {
       throw new LiveSessionError("Room not found.", 404);
     }
@@ -687,7 +686,7 @@ const saveRecording = async ({
   const session = await requireSession(sessionId);
   if (
     session.hostAdminId &&
-    String(session.hostAdminId) !== String(admin._id || "")
+    String(session.hostAdminId) !== String(admin._id || admin.id || "")
   ) {
     throw new LiveSessionError("Only the host can save recordings.", 403);
   }
@@ -717,9 +716,9 @@ const saveRecording = async ({
     );
   }
 
-  const recording = await LiveRecording.create({
-    session: sessionId,
-    adminId: admin._id,
+  const recording = await createRecordingRecord({
+    sessionId,
+    adminId: admin.id || admin._id,
     participantId: participantId ? String(participantId) : null,
     url: uploadResult.secure_url || uploadResult.url,
     publicId: uploadResult.public_id,
@@ -730,7 +729,7 @@ const saveRecording = async ({
 
   return {
     recording: {
-      id: String(recording._id),
+      id: recording.id,
       url: recording.url,
       durationMs: recording.durationMs,
       bytes: recording.bytes,
@@ -746,13 +745,10 @@ const getChatMessages = async (sessionId, { limit = 200 } = {}) => {
   if (!session) {
     throw new LiveSessionError("Live session not found.", 404);
   }
-  const messages = await LiveChatMessage.find({ session: sessionId })
-    .sort({ createdAt: 1 })
-    .limit(Math.min(limit, 500))
-    .lean();
+  const messages = await listChatMessages(sessionId, limit);
   return messages.map((m) => ({
-    id: String(m._id),
-    participantId: m.participant ? String(m.participant) : null,
+    id: m.id,
+    participantId: m.participant,
     senderRole: m.senderRole || "student",
     displayName: m.senderDisplayName || "Participant",
     text: m.message,
@@ -765,7 +761,7 @@ const listAttendance = async ({ sessionId, admin }) => {
   await requireSession(sessionId);
   const participants = await getParticipantsForSession(sessionId);
   return participants.map((p) => ({
-    id: String(p._id),
+    id: p.id,
     displayName: p.displayName,
     role: p.role,
     joinedAt: p.joinedAt,

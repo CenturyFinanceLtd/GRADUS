@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import BannerOne from "../components/BannerOne";
 import CounterTwo from "../components/CounterTwo";
 import ProgrammesAndCourses from "../components/home/ProgrammesAndCourses";
-import ByCflAndPartners from "../components/home/ByCflAndPartners";
+import ByGradusAndPartners from "../components/home/ByGradusAndPartners";
 import VideoTestimonials from "../components/home/VideoTestimonials";
 import CourseInsight from "../components/home/CourseInsight";
 import WhyGradusVideo from "../components/home/WhyGradusVideo";
@@ -37,7 +37,7 @@ const HomePageOne = () => {
       <ProgrammesAndCourses />
 
       {/* Powered by CFL + Partners (3-row carousel) */}
-      <ByCflAndPartners />
+      <ByGradusAndPartners />
 
       {/* Video Testimonials */}
       <VideoTestimonials />

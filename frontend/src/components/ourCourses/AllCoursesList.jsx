@@ -28,9 +28,7 @@ const AllCoursesList = () => {
         setLoading(true);
         setError("");
         const qs = sort ? `?sort=${encodeURIComponent(sort)}` : '';
-        const resp = await fetch(`${API_BASE_URL}/courses${qs}`, { credentials: 'include' });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const data = await resp.json();
+        const data = await apiClient.get(`/courses${qs}`);
         const items = Array.isArray(data?.items) ? data.items : [];
         const mapped = items.map((it) => {
           const slug = it.slug || it.id || '';

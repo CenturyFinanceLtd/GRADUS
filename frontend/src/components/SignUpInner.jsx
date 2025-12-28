@@ -1,5 +1,6 @@
 ﻿import "../styles/auth.css";
 import { useCallback, useMemo, useState } from "react";
+import { supabase } from "../services/supabaseClient";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import apiClient from "../services/apiClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -378,8 +379,25 @@ const SignUpInner = () => {
       ...buildSignupPayload(),
     };
 
-    const response = await apiClient.post("/auth/signup/complete", payload);
-    setAuth({ token: response.token, user: response.user });
+    // 1. Create Account via Edge Function (Verifies OTP & Creates Supabase Auth User)
+    await apiClient.post("/auth/signup/complete", payload); // Returns { success: true, user: ... }
+
+    // 2. Login with Supabase Auth (to get session)
+    const { data: { session }, error: loginError } = await supabase.auth.signInWithPassword({
+      email: formData.email,
+      password: formData.password,
+    });
+
+    if (loginError) {
+      throw new Error(loginError.message);
+    }
+
+    // 3. Update Context (AuthContext listener will pick it up or we set it manually)
+    // AuthContext listens to onAuthStateChange, so session should be set automatically.
+    // However, we might want to ensure 'user' data (profile) is ready.
+    // The context logic fetches /users/me using the token.
+
+    // We can just navigate.
     const pendingEnrollment = location.state?.pendingEnrollment;
     const redirectTo = resolvePostAuthRedirect({ locationState: location.state });
     const nextState =
@@ -668,9 +686,8 @@ const SignUpInner = () => {
             return (
               <label
                 key={option.value}
-                className={`signup-modern__gender-option ${
-                  isActive ? "signup-modern__gender-option--active" : ""
-                }`}
+                className={`signup-modern__gender-option ${isActive ? "signup-modern__gender-option--active" : ""
+                  }`}
               >
                 <input
                   type='radio'
@@ -744,9 +761,8 @@ const SignUpInner = () => {
               </button>
             </div>
             <p
-              className={`signup-modern__helper ${
-                emailVerified ? "signup-modern__helper--success" : ""
-              }`}
+              className={`signup-modern__helper ${emailVerified ? "signup-modern__helper--success" : ""
+                }`}
             >
               {emailVerified ? "Email verified successfully." : "Enter the code we emailed to you."}
             </p>

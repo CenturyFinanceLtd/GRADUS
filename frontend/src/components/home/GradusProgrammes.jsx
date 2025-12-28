@@ -81,9 +81,7 @@ const GradusProgrammes = () => {
     let cancelled = false;
     (async () => {
       try {
-        const resp = await fetch(`${API_BASE_URL}/courses?sort=new`, { credentials: 'include' });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const data = await resp.json();
+        const data = await apiClient.get('/courses?sort=new');
         const items = Array.isArray(data?.items) ? data.items : [];
 
         // Group by programmeSlug derived from the first part of the full slug

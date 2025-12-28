@@ -31,21 +31,7 @@ const BannerSix = () => {
         alt=''
         className='animation-scalation d-sm-block d-none left-3-percent bottom-18-percent position-absolute z-n10'
       />
-      <div className='animation-walking d-sm-block d-none inset-block-start-20-percent inset-inline-start-8-percent position-absolute z-n1 our-know-gradus-trigger'>
-        <img
-          src='/assets/images/shapes/shape5.png'
-          alt=''
-          role='button'
-          title='Know Gradus'
-          aria-label='Know Gradus'
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') window.location.href = '/about-us';
-          }}
-          onClick={() => (window.location.href = '/about-us')}
-        />
-        <span className='our-know-gradus-tooltip'>Know Gradus</span>
-      </div>
+
       <div className='animation-rotation d-sm-block d-none inset-block-end-26-percent inset-inline-start-25-percent position-absolute z-n10 our-blogs-trigger'>
         <img
           src='/assets/images/shapes/shape1.png'

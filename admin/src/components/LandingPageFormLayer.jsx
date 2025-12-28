@@ -54,7 +54,7 @@ const LandingPageFormLayer = ({ slug }) => {
     useEffect(() => {
         if (isEdit && slug) {
             setLoading(true);
-            apiClient(`/landing-pages/${slug}`)
+            apiClient(`/admin/landing-pages/${slug}`)
                 .then(data => {
                     // Transform flat arrays to object arrays for RHF if needed
                     // mentor.points: ["a", "b"] -> [{val: "a"}, {val: "b"}]
@@ -67,6 +67,12 @@ const LandingPageFormLayer = ({ slug }) => {
                     setLoading(false);
                 })
                 .catch(err => {
+                    // Start fresh if not found
+                    if (err.status === 404) {
+                        toast.info('Landing page not found, creating new.');
+                        setLoading(false);
+                        return;
+                    }
                     console.error(err);
                     toast.error('Failed to load data');
                     setLoading(false);
@@ -85,10 +91,10 @@ const LandingPageFormLayer = ({ slug }) => {
             if (isEdit) {
                 // We need ID for update, but we fetched by slug.
                 // The data object from reset(res.data) should contain _id.
-                await apiClient(`/landing-pages/${data._id}`, { method: 'PUT', data });
+                await apiClient(`/admin/landing-pages/${data._id}`, { method: 'PUT', data });
                 toast.success('Landing Page updated successfully');
             } else {
-                await apiClient('/landing-pages', { method: 'POST', data });
+                await apiClient('/admin/landing-pages', { method: 'POST', data });
                 toast.success('Landing Page created successfully');
             }
             navigate('/landing-pages');

@@ -48,21 +48,7 @@ const BannerFive = () => {
         alt=''
         className='animation-scalation d-sm-block d-none left-3-percent bottom-18-percent position-absolute z-n1'
       />
-      <div className='animation-walking d-sm-block d-none bottom-10-percent left-17-percent position-absolute z-n1 our-know-gradus-trigger'>
-        <img
-          src='/assets/images/shapes/shape5.png'
-          alt=''
-          role='button'
-          title='Know Gradus'
-          aria-label='Know Gradus'
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') window.location.href = '/about-us';
-          }}
-          onClick={() => (window.location.href = '/about-us')}
-        />
-        <span className='our-know-gradus-tooltip'>Know Gradus</span>
-      </div>
+
       <img
         src='/assets/images/shapes/shape4.png'
         alt=''

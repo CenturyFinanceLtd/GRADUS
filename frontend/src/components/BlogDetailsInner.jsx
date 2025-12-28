@@ -118,7 +118,7 @@ const BlogDetailsInner = ({ onBlogLoaded = null }) => {
           .map((item) => {
             const excerpt = item.excerpt || item.content?.replace(/<[^>]+>/g, "").slice(0, 90) || "";
             return {
-              id: item._id,
+              id: item.id,
               slug: item.slug,
               title: item.title,
               excerpt,

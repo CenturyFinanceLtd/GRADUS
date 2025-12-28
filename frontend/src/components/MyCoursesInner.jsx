@@ -71,7 +71,10 @@ const MyCoursesInner = () => {
           return;
         }
 
-        const items = Array.isArray(response?.items) ? response.items : [];
+        const items = Array.isArray(response)
+          ? response
+          : (Array.isArray(response?.items) ? response.items : []);
+
         setState({ loading: false, error: null, items });
       } catch (error) {
         if (!isActive) {
@@ -108,10 +111,11 @@ const MyCoursesInner = () => {
     return "Here are the programs you are enrolled in.";
   }, [user]);
 
-  const visibleItems = useMemo(
-    () => state.items.filter((enrollment) => normalizeText(enrollment?.course?.name)),
-    [state.items]
-  );
+  const visibleItems = state.items; // DEBUG: Show all items
+  // const visibleItems = useMemo(
+  //   () => state.items.filter((enrollment) => normalizeText(enrollment?.course?.name)),
+  //   [state.items]
+  // );
 
   const enrolledCount = visibleItems.length;
   const enrolledLabel = useMemo(
@@ -124,8 +128,9 @@ const MyCoursesInner = () => {
   };
 
   const normalizeAmount = (enrollment) => {
-    if (typeof enrollment?.priceTotal === 'number' && enrollment.priceTotal > 0) {
-      return enrollment.priceTotal;
+    const priceTotal = enrollment?.priceTotal || enrollment?.price_total;
+    if (typeof priceTotal === 'number' && priceTotal > 0) {
+      return priceTotal;
     }
     // Fallback: compute from course hero.priceINR + 18%
     const heroPrice = Number(enrollment?.course?.hero?.priceINR || 0);
@@ -197,11 +202,19 @@ const MyCoursesInner = () => {
               const course = enrollment.course || {};
               const courseName = normalizeText(course.name);
               const courseUrl = enrollment?.course?.slug ? `/${enrollment.course.slug}` : '/our-courses';
-              const paymentStatus = toTitleCase(enrollment.paymentStatus);
+              const paymentStatus = toTitleCase(enrollment.paymentStatus || enrollment.payment_status);
               const enrollmentStatus = toTitleCase(enrollment.status);
-              const enrolledAt = formatDate(enrollment.enrolledAt);
+              const enrolledAt = formatDate(enrollment.enrolledAt || enrollment.enrolled_at);
               const initials = getInitials(courseName);
-              const imageUrl = typeof course.imageUrl === 'string' ? course.imageUrl.trim() : '';
+
+              // Fix: Handle both string imageUrl and object image.url
+              let imageUrl = '';
+              if (typeof course.imageUrl === 'string' && course.imageUrl.trim()) {
+                imageUrl = course.imageUrl.trim();
+              } else if (course.image && typeof course.image.url === 'string') {
+                imageUrl = course.image.url.trim();
+              }
+
               const amount = normalizeAmount(enrollment);
               const badgeClass = (type) => {
                 if (type === 'PAID' || type === 'Paid') return 'bg-main-25 text-main-600';
@@ -263,10 +276,17 @@ const MyCoursesInner = () => {
                           Continue learning
                         </Link>
                       </div>
-                      <Link to={(enrollment?.course?.slug ? `/${enrollment.course.slug}` : '/our-courses')} className='text-main-600 fw-semibold d-inline-flex align-items-center gap-6 hover-text-decoration-underline' aria-label={`Explore ${courseName}`}>
-                        Explore <i className='ph ph-arrow-right' />
-                      </Link>
+                      {(paymentStatus === 'Paid' || paymentStatus === 'Active') ? (
+                        <Link to={(enrollment?.course?.slug ? `/${enrollment.course.slug}` : '/our-courses')} className='text-main-600 fw-semibold d-inline-flex align-items-center gap-6 hover-text-decoration-underline' aria-label={`Go to ${courseName}`}>
+                          Go to Course <i className='ph ph-arrow-right' />
+                        </Link>
+                      ) : (
+                        <Link to={(enrollment?.course?.slug ? `/payment?course=${enrollment.course.slug}` : '/our-courses')} className='text-main-600 fw-semibold d-inline-flex align-items-center gap-6 hover-text-decoration-underline' aria-label={`Complete enrollment for ${courseName}`}>
+                          Enroll Now <i className='ph ph-arrow-right' />
+                        </Link>
+                      )}
                     </div>
+                    <div className='d-none'>{JSON.stringify(enrollment)}</div>
                   </div>
                 </div>
               );

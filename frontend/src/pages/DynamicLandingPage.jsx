@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../services/apiClient';
 import '../styles/masterclass-akhil.css'; // Reusing existing styles
 
 const DynamicLandingPage = () => {
@@ -13,9 +13,9 @@ const DynamicLandingPage = () => {
         const fetchPageData = async () => {
             try {
                 // In production, this would be the actual API endpoint
-                const response = await axios.get(`/api/landing-pages/${slug}`);
-                setPageData(response.data);
-                document.title = `${response.data.hero.titlePrefix} ${response.data.hero.highlight} | Gradus`;
+                const data = await apiClient.get(`/landing-pages/${slug}`);
+                setPageData(data);
+                document.title = `${data.hero.titlePrefix} ${data.hero.highlight} | Gradus`;
             } catch (err) {
                 console.error("Failed to load landing page", err);
                 setError(true);

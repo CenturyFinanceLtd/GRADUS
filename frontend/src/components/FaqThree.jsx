@@ -18,21 +18,7 @@ const FaqThree = () => {
         />
         <span className='our-blogs-tooltip'>Blogs</span>
       </div>
-      <div className='animation-walking flex-shrink-0 position-absolute inset-inline-start-10-persent inset-block-start-30-persent z-n1 our-know-gradus-trigger'>
-        <img
-          src='/assets/images/shapes/shape5.png'
-          alt=''
-          role='button'
-          title='Know Gradus'
-          aria-label='Know Gradus'
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') window.location.href = '/about-us';
-          }}
-          onClick={() => (window.location.href = '/about-us')}
-        />
-        <span className='our-know-gradus-tooltip'>Know Gradus</span>
-      </div>
+
       <div className='animation-walking flex-shrink-0 position-absolute inset-inline-end-13-persent inset-block-start-10-persent z-n1 our-courses-trigger'>
         <img
           src='/assets/images/shapes/shape3.png'

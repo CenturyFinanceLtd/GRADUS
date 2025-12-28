@@ -6,7 +6,12 @@ import Animation from "../helper/Animation";
 import Preloader from "../helper/Preloader";
 import AssessmentPanel from "../components/AssessmentPanel";
 import { useAuth } from "../context/AuthContext";
-import { API_BASE_URL } from "../services/apiClient";
+import apiClient from "../services/apiClient"; // Ensure default import
+
+// ... inside component ...
+
+
+// ... inside component ...
 import { fetchActiveLiveSessionForCourse } from "../live/liveApi";
 import useLiveStudentSession from "../live/useLiveStudentSession";
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
@@ -1403,19 +1408,12 @@ const CourseHomePage = () => {
     const loadProgress = async () => {
       setProgressState((prev) => ({ ...prev, loading: true }));
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/courses/${encodeURIComponent(programme)}/${encodeURIComponent(course)}/progress`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            credentials: "include",
-          }
+        const payload = await apiClient.get(
+          `/courses/${encodeURIComponent(programme)}/${encodeURIComponent(course)}/progress`,
+          { token }
         );
-        if (!response.ok) {
-          throw new Error("Unable to load progress");
-        }
-        const payload = await response.json();
+
+
         if (!cancelled) {
           setProgressState({ loading: false, data: payload.progress || {} });
         }
@@ -1515,21 +1513,13 @@ const CourseHomePage = () => {
     const loadCourse = async () => {
       setState((prev) => ({ ...prev, loading: true, error: null }));
       try {
-        const headers = new Headers();
-        if (token) {
-          headers.set("Authorization", `Bearer ${token}`);
-        }
-        const response = await fetch(
-          `${API_BASE_URL}/courses/${encodeURIComponent(programme)}/${encodeURIComponent(course)}`,
-          {
-            credentials: "include",
-            headers,
-          }
+
+        const payload = await apiClient.get(
+          `/courses/${encodeURIComponent(programme)}/${encodeURIComponent(course)}`,
+          { token }
         );
-        if (!response.ok) {
-          throw new Error(`Unable to load course (HTTP ${response.status})`);
-        }
-        const payload = await response.json();
+
+
         if (!cancelled) {
           setState({
             loading: false,
@@ -1565,23 +1555,13 @@ const CourseHomePage = () => {
       }
       setDetailState((prev) => ({ ...prev, loading: true, error: null }));
       try {
-        const headers = new Headers();
-        if (token) {
-          headers.set("Authorization", `Bearer ${token}`);
-        }
-        const response = await fetch(
-          `${API_BASE_URL}/courses/${encodeURIComponent(programme)}/${encodeURIComponent(
-            course
-          )}/modules/detail`,
-          {
-            credentials: "include",
-            headers,
-          }
+
+        const payload = await apiClient.get(
+          `/courses/${encodeURIComponent(programme)}/${encodeURIComponent(course)}/modules/detail`,
+          { token }
         );
-        if (!response.ok) {
-          throw new Error(`Unable to load module detail (HTTP ${response.status})`);
-        }
-        const payload = await response.json();
+
+
         if (!cancelled) {
           setDetailState({
             loading: false,
@@ -1656,21 +1636,13 @@ const CourseHomePage = () => {
         error: null,
       });
       try {
-        const endpoint = `${API_BASE_URL}/courses/${encodeURIComponent(programme)}/${encodeURIComponent(
-          course
-        )}/lectures/${encodeURIComponent(notesTarget.lectureId)}/notes`;
-        const headers = new Headers();
-        headers.set("Authorization", `Bearer ${token}`);
-        const response = await fetch(endpoint, {
-          headers,
-          credentials: "include",
-          signal: controller.signal,
-        });
-        if (!response.ok) {
-          const text = await response.text().catch(() => "");
-          throw new Error(text || "Unable to load lecture notes");
-        }
-        const blob = await response.blob();
+        const blob = await apiClient.get(
+          `/courses/${encodeURIComponent(programme)}/${encodeURIComponent(
+            course
+          )}/lectures/${encodeURIComponent(notesTarget.lectureId)}/notes`,
+          { token, responseType: "blob" }
+        );
+        // blob is already the blob object returned by apiClient
         const objectUrl = URL.createObjectURL(blob);
         let derivedPageCount = notesTarget.notesMeta?.pages || 0;
         try {
@@ -2104,30 +2076,19 @@ const CourseHomePage = () => {
         return;
       }
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/courses/${encodeURIComponent(programme)}/${encodeURIComponent(course)}/progress`,
+        const payload = await apiClient.post(
+          `/courses/${encodeURIComponent(programme)}/${encodeURIComponent(course)}/progress`,
           {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            credentials: "include",
-            body: JSON.stringify({
-              lectureId,
-              moduleId,
-              sectionId,
-              lectureTitle,
-              videoUrl,
-              currentTime,
-              duration,
-            }),
-          }
+            lectureId,
+            moduleId,
+            sectionId,
+            lectureTitle,
+            videoUrl,
+            currentTime,
+            duration,
+          },
+          { token }
         );
-        if (!response.ok) {
-          return;
-        }
-        const payload = await response.json();
         if (payload?.progress?.lectureId) {
           setProgressState((prev) => ({
             loading: prev.loading,
