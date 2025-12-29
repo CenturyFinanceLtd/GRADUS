@@ -600,6 +600,26 @@ const mapSupabaseCourse = (course: any) => {
     _id: course.id || base._id?.$oid || base.id,
     slug: course.slug || base.slug,
     name: course.name || base.name,
+    imageUrl: course.image?.url || base.image?.url || (base.image && base.image.secure_url) || null,
+    modulesCount: course.stats?.modules || base.stats?.modules || (base.modules ? base.modules.length : 0),
+    enrolledCount: (() => {
+        const val = course.stats?.learners || base.stats?.learners;
+        if (val) return val;
+        
+        // Fallback: parse from hero.enrolledText
+        const text = course.hero?.enrolledText || base.hero?.enrolledText || course.hero?.enrolled_text || base.hero?.enrolled_text;
+        if (text) {
+            const match = text.match(/([\d,\.]+[kK]?)/);
+            if (match) {
+                 let numStr = match[1].replace(/,/g, "");
+                 if (numStr.toLowerCase().endsWith("k")) {
+                     return parseFloat(numStr) * 1000;
+                 }
+                 return parseFloat(numStr);
+            }
+        }
+        return 0;
+    })(),
     programme: course.programme || base.programme,
     programmeSlug: course.programme_slug || base.programmeSlug,
     courseSlug: course.course_slug || base.courseSlug,
