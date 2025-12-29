@@ -128,6 +128,61 @@ serve(async (req: Request) => {
 
       if (error) throw error;
 
+      // Send Email Notification
+      try {
+          const supabaseUrl = Deno.env.get("SUPABASE_URL");
+          const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+          
+          if (supabaseUrl && anonKey) {
+            // 1. Send Admin Notification
+            await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${anonKey}`
+                },
+                body: JSON.stringify({
+                    to: "contact@gradusindia.in",
+                    subject: `New Callback Request: ${data.name}`,
+                    html: `
+                        <h2>New Callback Request</h2>
+                        <p><strong>Name:</strong> ${data.name}</p>
+                        <p><strong>Phone:</strong> ${data.phone}</p>
+                        <p><strong>Email:</strong> ${data.email}</p>
+                        <p><strong>User ID:</strong> ${data.user_id || "Guest"}</p>
+                        <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+                    `,
+                })
+            });
+
+            // 2. Send User Confirmation
+            if (data.email) {
+                await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${anonKey}`
+                    },
+                    body: JSON.stringify({
+                        to: data.email,
+                        subject: `We Received Your Request - Gradus`,
+                        html: `
+                            <h2>Hello ${data.name},</h2>
+                            <p>We have received your callback request.</p>
+                            <p>Our team will contact you soon!</p>
+                            <br/>
+                            <p>Best Regards,</p>
+                            <p><strong>Team Gradus</strong></p>
+                        `,
+                    })
+                });
+            }
+          }
+      } catch (emailErr) {
+          console.error("Failed to send callback email:", emailErr);
+          // Don't fail the request if email fails, just log it
+      }
+
       return new Response(JSON.stringify({
         id: data.id,
         name: data.name,

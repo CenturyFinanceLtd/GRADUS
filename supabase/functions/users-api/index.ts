@@ -346,7 +346,8 @@ serve(async (req: Request) => {
       const { data: dataAdmin, error: errorAdmin } = await supabase
         .from("enrollments")
         .select("*")
-        .eq("user_id", userId);
+        .eq("user_id", userId)
+        .eq("payment_status", "PAID");
 
       if (errorAdmin) {
           console.error("Service Role Fetch Error:", errorAdmin);
@@ -368,7 +369,8 @@ serve(async (req: Request) => {
           const { data: dataUser, error: errorUser } = await userClient
             .from("enrollments")
             .select("*")
-            .eq("user_id", userId);
+            .eq("user_id", userId)
+            .eq("payment_status", "PAID");
             
           if (errorUser) {
               console.error("User Token Fetch Error:", errorUser);
@@ -409,12 +411,13 @@ serve(async (req: Request) => {
         });
       }
 
+
       // 4. Map courses back to enrollments
       const result = enrollments.map(enrollment => {
           const courseData = courses?.find(c => String(c.id) === String(enrollment.course_id));
           return {
               ...enrollment,
-              course: courseData || null 
+              course: mapSupabaseCourse(courseData) 
           };
       });
 
@@ -543,3 +546,78 @@ serve(async (req: Request) => {
     });
   }
 });
+
+const mapSupabaseCourse = (course: any) => {
+  if (!course) return null;
+  
+  // If we have a 'doc' field, it contains the full original document
+  // We prioritize it to ensure no data is lost from the migration
+  const base = course.doc || {};
+  
+  return {
+    _id: course.id || base._id?.$oid || base.id,
+    slug: course.slug || base.slug,
+    name: course.name || base.name,
+    imageUrl: course.image?.url || base.image?.url || (base.image && base.image.secure_url) || null,
+    modulesCount: course.stats?.modules || base.stats?.modules || (base.modules ? base.modules.length : 0),
+    enrolledCount: (() => {
+        const val = course.stats?.learners || base.stats?.learners;
+        if (val) return val;
+        
+        // Fallback: parse from hero.enrolledText
+        const text = course.hero?.enrolledText || base.hero?.enrolledText || course.hero?.enrolled_text || base.hero?.enrolled_text;
+        if (text) {
+            const match = text.match(/([\d,\.]+[kK]?)/);
+            if (match) {
+                 let numStr = match[1].replace(/,/g, "");
+                 if (numStr.toLowerCase().endsWith("k")) {
+                     return parseFloat(numStr) * 1000;
+                 }
+                 return parseFloat(numStr);
+            }
+        }
+        return 0;
+    })(),
+    programme: course.programme || base.programme,
+    programmeSlug: course.programme_slug || base.programmeSlug,
+    courseSlug: course.course_slug || base.courseSlug,
+    subtitle: course.subtitle || base.subtitle || base.hero?.subtitle,
+    focus: course.focus || base.focus,
+    placementRange: course.placement_range || base.placementRange,
+    price: course.price || base.price,
+    priceINR: course.price_inr || base.priceINR || base.hero?.priceINR || 0,
+    level: course.level || base.level || base.stats?.level,
+    duration: course.duration || base.duration || base.stats?.duration,
+    mode: course.mode || base.mode || base.stats?.mode,
+    outcomeSummary: course.outcome_summary || base.outcomeSummary,
+    finalAward: course.final_award || base.finalAward,
+    assessmentMaxAttempts: course.assessment_max_attempts || base.assessmentMaxAttempts || 3,
+    isVisible: course.is_visible !== undefined ? course.is_visible : (base.isVisible !== undefined ? base.isVisible : true),
+    order: course.order || course.sort_order || base.order,
+    weeks: course.weeks || base.weeks || [],
+    partners: course.partner_schema || base.partners || [],
+    certifications: course.certifications || base.certifications || [],
+    hero: course.hero || base.hero || {},
+    stats: course.stats || base.stats || {},
+    aboutProgram: course.about_program || base.aboutProgram || [],
+    learn: course.learn || base.learn || [],
+    skills: course.skills || base.skills || [],
+    approvals: course.approvals || base.approvals || [],
+    deliverables: course.deliverables || base.deliverables || [],
+    outcomes: course.outcomes || base.outcomes || [],
+    capstonePoints: course.capstone_points || base.capstonePoints || [],
+    careerOutcomes: course.career_outcomes || base.careerOutcomes || [],
+    toolsFrameworks: course.tools_frameworks || base.toolsFrameworks || [],
+    targetAudience: course.target_audience || base.targetAudience || [],
+    prereqsList: course.prereqs_list || base.prereqsList || [],
+    modules: course.modules || base.modules || [],
+    instructors: course.instructors || base.instructors || [],
+    offeredBy: course.offered_by || base.offeredBy || {},
+    capstone: course.capstone || base.capstone || {},
+    image: course.image || base.image || {},
+    media: course.media || base.media || {},
+    createdAt: course.created_at || base.createdAt?.$date || base.createdAt,
+    updatedAt: course.updated_at || base.updatedAt?.$date || base.updatedAt,
+    details: base.details || {}, 
+  };
+};
