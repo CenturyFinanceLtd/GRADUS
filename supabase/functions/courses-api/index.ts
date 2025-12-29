@@ -63,9 +63,13 @@ serve(async (req: Request) => {
        if (!authHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: cors });
        
        try {
-          const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""));
-          if (authError || !user) throw new Error("Invalid token");
-          const userId = user.id;
+          const token = authHeader.replace("Bearer ", "");
+          const JWT_SECRET = Deno.env.get("JWT_SECRET") || "fallback_secret_change_me";
+          const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(JWT_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+          const payload = await verify(token, key);
+          const userId = payload.id;
+
+          if (!userId) throw new Error("Invalid token");
 
           // Find course
           const { data: course, error: cErr } = await supabase.from("course").select("id").eq("slug", slug).single();
@@ -89,9 +93,13 @@ serve(async (req: Request) => {
        if (!authHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: cors });
 
        try {
-          const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""));
-          if (authError || !user) throw new Error("Invalid token");
-          const userId = user.id;
+          const token = authHeader.replace("Bearer ", "");
+          const JWT_SECRET = Deno.env.get("JWT_SECRET") || "fallback_secret_change_me";
+          const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(JWT_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+          const payload = await verify(token, key);
+          const userId = payload.id;
+
+          if (!userId) throw new Error("Invalid token");
 
           const body = await req.json().catch(() => ({}));
           const lectureId = body.lectureId || body.lecture_id;
@@ -167,9 +175,13 @@ serve(async (req: Request) => {
        if (!authHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: cors });
 
        try {
-          const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""));
-          if (authError || !user) throw new Error("Invalid token");
-          const userId = user.id;
+          const token = authHeader.replace("Bearer ", "");
+          const JWT_SECRET = Deno.env.get("JWT_SECRET") || "fallback_secret_change_me";
+          const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(JWT_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+          const payload = await verify(token, key);
+          const userId = payload.id;
+          
+          if (!userId) throw new Error("Invalid token");
 
           // Fetch course basic info
           const { data: course, error: cErr } = await supabase.from("course").select("id").eq("slug", slug).single();
@@ -349,9 +361,12 @@ serve(async (req: Request) => {
         if (!authHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: cors });
 
         try {
-            const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""));
-            if (authError || !user) throw new Error("Invalid token");
-            const userId = user.id;
+            const token = authHeader.replace("Bearer ", "");
+            const JWT_SECRET = Deno.env.get("JWT_SECRET") || "fallback_secret_change_me";
+            const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(JWT_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+            const payload = await verify(token, key);
+            const userId = payload.id;
+            if (!userId) throw new Error("Invalid token");
 
             // Verify enrollment
             const { data: course, error: cErr } = await supabase.from("course").select("id").eq("slug", slug).single();
@@ -446,9 +461,12 @@ serve(async (req: Request) => {
         if (!authHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: cors });
 
         try {
-            const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""));
-            if (authError || !user) throw new Error("Invalid token");
-            const userId = user.id;
+            const token = authHeader.replace("Bearer ", "");
+            const JWT_SECRET = Deno.env.get("JWT_SECRET") || "fallback_secret_change_me";
+            const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(JWT_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+            const payload = await verify(token, key);
+            const userId = payload.id;
+            if (!userId) throw new Error("Invalid token");
 
             const { data: course, error: cErr } = await supabase.from("course").select("id").eq("slug", slug).single();
             if (cErr || !course) return new Response(JSON.stringify({ error: "Course not found", slug }), { status: 404, headers: cors });
@@ -538,8 +556,11 @@ serve(async (req: Request) => {
        const authHeader = req.headers.get("Authorization");
        if (authHeader) {
           try {
-             const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""));
-             const userId = user?.id;
+             const token = authHeader.replace("Bearer ", "");
+             const JWT_SECRET = Deno.env.get("JWT_SECRET") || "fallback_secret_change_me";
+             const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(JWT_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+             const payload = await verify(token, key);
+             const userId = payload.id;
 
              if (userId) {
                 // Fetch full enrollment details, not just ID
