@@ -235,25 +235,36 @@ serve(async (req: Request) => {
 
     // 6. SYNC PROFILE: POST /supabase/create-profile
     if (action === "supabase-create-profile") {
-       // Typically used by Hybird Auth (Google/Supabase Signups) to sync to public.users
+       // Typically used by Hybrid Auth (Google/Supabase sign-ins) to sync to public.users
        const { supabaseId, email, firstName, lastName, mobile } = body;
        
-       // Upsert logic
-       const { data: user, error } = await supabase.from("users").upsert({
-          // If we want to link Supabase Auth ID to public.users ID:
-          // Check if ID column is UUID. If so, we can use supabaseId as ID?
-          // OR we match by email.
-          // Let's assume email match for legacy consistency.
-          email: email.toLowerCase().trim(),
-          first_name: firstName,
-          last_name: lastName,
-          mobile,
-          // If supabaseId is passed, maybe store in a separate column if schema has it?
-          // For now, simple upsert.
-       }, { onConflict: 'email' }).select().single();
+       if (!email || !supabaseId) {
+         return new Response(
+           JSON.stringify({ error: "supabaseId and email are required" }),
+           { status: 400, headers: { ...cors, "Content-Type": "application/json" } },
+         );
+       }
+       
+       // Upsert by email, but always store/link the Supabase Auth user id
+       const { data: user, error } = await supabase
+         .from("users")
+         .upsert(
+           {
+             email: email.toLowerCase().trim(),
+             first_name: firstName,
+             last_name: lastName,
+             mobile,
+             supabase_id: supabaseId,
+           },
+           { onConflict: "email" },
+         )
+         .select()
+         .single();
 
        if (error) throw error;
-       return new Response(JSON.stringify(user), { headers: { ...cors, "Content-Type": "application/json" } });
+       return new Response(JSON.stringify(user), {
+         headers: { ...cors, "Content-Type": "application/json" },
+       });
     }
 
 

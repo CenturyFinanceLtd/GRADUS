@@ -156,26 +156,50 @@ serve(async (req: Request) => {
     // GET /me - Get user profile
     if (path.endsWith("/me") && req.method === "GET") {
       console.log("GET /me called for userId:", userId);
-      const { data: user, error } = await supabase
+
+      // Prefer lookup by supabase_id for Supabase-authenticated users,
+      // but gracefully fall back to legacy id-based lookup.
+      let user = null;
+      let error = null;
+
+      const { data: bySupabaseId, error: supabaseIdError } = await supabase
         .from("users")
         .select("*")
-        .eq("id", userId)
+        .eq("supabase_id", userId)
         .single();
 
-      console.log("User query result - data:", user ? "found" : "null", "error:", error?.message);
+      if (bySupabaseId) {
+        user = bySupabaseId;
+        error = supabaseIdError;
+      } else {
+        const { data: byLegacyId, error: legacyError } = await supabase
+          .from("users")
+          .select("*")
+          .eq("id", userId)
+          .single();
+        user = byLegacyId;
+        error = legacyError;
+      }
+
+      console.log(
+        "User query result - data:",
+        user ? "found" : "null",
+        "error:",
+        error?.message,
+      );
 
       if (error || !user) {
         console.error("User fetch error:", error);
-        return new Response(JSON.stringify({ error: "User not found" }), { 
-          status: 404, 
-          headers: { ...cors, "Content-Type": "application/json" } 
+        return new Response(JSON.stringify({ error: "User not found" }), {
+          status: 404,
+          headers: { ...cors, "Content-Type": "application/json" },
         });
       }
 
       const mappedUser = mapUserToFrontend(user);
       console.log("Returning user:", JSON.stringify(mappedUser));
-      return new Response(JSON.stringify({ user: mappedUser }), { 
-        headers: { ...cors, "Content-Type": "application/json" } 
+      return new Response(JSON.stringify({ user: mappedUser }), {
+        headers: { ...cors, "Content-Type": "application/json" },
       });
     }
 
