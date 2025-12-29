@@ -122,7 +122,7 @@ serve(async (req: Request) => {
 
     if (sbUser) {
       userId = sbUser.id;
-      console.log("Verified via Supabase Auth:", userId);
+      console.log("Verified via Supabase Auth:", userId, "email:", sbUser.email);
     } else {
       // 2. Try Custom JWT Verification (for Legacy/Email Signins)
       try {
@@ -157,21 +157,66 @@ serve(async (req: Request) => {
     if (path.endsWith("/me") && req.method === "GET") {
       console.log("GET /me called for userId:", userId);
 
-      // Prefer lookup by supabase_id for Supabase-authenticated users,
-      // but gracefully fall back to legacy id-based lookup.
-      let user = null;
-      let error = null;
+      let user: any = null;
+      let error: any = null;
 
-      const { data: bySupabaseId, error: supabaseIdError } = await supabase
-        .from("users")
-        .select("*")
-        .eq("supabase_id", userId)
-        .single();
+      // For Supabase-authenticated users (Google/email via Supabase),
+      // prefer lookup (and auto-create) by email so that new Google
+      // accounts get a row in public.users automatically.
+      if (sbUser?.email) {
+        const email = sbUser.email.toLowerCase().trim();
+        console.log("Looking up user by email:", email);
 
-      if (bySupabaseId) {
-        user = bySupabaseId;
-        error = supabaseIdError;
+        const { data: byEmail, error: emailError } = await supabase
+          .from("users")
+          .select("*")
+          .eq("email", email)
+          .single();
+
+        if (byEmail) {
+          user = byEmail;
+          error = emailError;
+        } else {
+          console.log("No user row found for email; creating new profile row.");
+
+          const firstName =
+            (sbUser.user_metadata as any)?.first_name ||
+            (sbUser.user_metadata as any)?.full_name?.split(" ")[0] ||
+            "";
+          const lastName =
+            (sbUser.user_metadata as any)?.last_name ||
+            (sbUser.user_metadata as any)?.full_name?.split(" ").slice(1).join(" ") ||
+            "";
+
+          const { data: inserted, error: insertError } = await supabase
+            .from("users")
+            .insert({
+              email,
+              first_name: firstName,
+              last_name: lastName,
+              // If supabase_id column exists this will populate it;
+              // if not, Supabase will throw which we handle below.
+              supabase_id: userId,
+            })
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error("Failed to auto-create user profile row:", insertError);
+            return new Response(
+              JSON.stringify({ error: "Failed to create user profile" }),
+              {
+                status: 500,
+                headers: { ...cors, "Content-Type": "application/json" },
+              },
+            );
+          }
+
+          user = inserted;
+          error = null;
+        }
       } else {
+        // Legacy JWT users: look up by id as before
         const { data: byLegacyId, error: legacyError } = await supabase
           .from("users")
           .select("*")
