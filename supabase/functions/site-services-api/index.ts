@@ -78,7 +78,7 @@ serve(async (req: Request) => {
     const url = new URL(req.url);
     const path = url.pathname.replace(/\/$/, ""); 
     const segments = path.split("/").filter(Boolean);
-    const routeParts = segments.slice(1); // args
+    const functionName = "site-services-api"; const funcIdx = segments.indexOf(functionName); const routeParts = funcIdx !== -1 ? segments.slice(funcIdx + 1) : segments.slice(1);
 
     const resource = routeParts[0];
 
