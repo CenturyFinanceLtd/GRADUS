@@ -2,6 +2,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { verify } from "https://deno.land/x/djwt@v2.8/mod.ts";
+import bcrypt from "npm:bcryptjs@2.4.3";
 
 const getCorsHeaders = (req: Request) => {
   const origin = req.headers.get("Origin") || req.headers.get("origin");
@@ -262,6 +263,72 @@ serve(async (req: Request) => {
       }
 
       return new Response(JSON.stringify(mapUserToFrontend(user)), { 
+        headers: { ...cors, "Content-Type": "application/json" } 
+      });
+    }
+
+    // PUT /me/password - Update user password (legacy JWT users)
+    if (path.endsWith("/me/password") && req.method === "PUT") {
+      const body = await req.json().catch(() => ({}));
+      const currentPassword = String(body.currentPassword || "");
+      const newPassword = String(body.newPassword || "");
+
+      if (!currentPassword || !newPassword) {
+        return new Response(JSON.stringify({ error: "Current and new password are required" }), { 
+          status: 400, 
+          headers: { ...cors, "Content-Type": "application/json" } 
+        });
+      }
+
+      if (newPassword.length < 8) {
+        return new Response(JSON.stringify({ error: "New password must be at least 8 characters long" }), { 
+          status: 400, 
+          headers: { ...cors, "Content-Type": "application/json" } 
+        });
+      }
+
+      const { data: user, error: userError } = await supabase
+        .from("users")
+        .select("id, password_hash, auth_provider")
+        .eq("id", userId)
+        .single();
+
+      if (userError || !user) {
+        return new Response(JSON.stringify({ error: "User not found" }), { 
+          status: 404, 
+          headers: { ...cors, "Content-Type": "application/json" } 
+        });
+      }
+
+      if (!user.password_hash) {
+        return new Response(JSON.stringify({ error: "Password not available for this account" }), { 
+          status: 400, 
+          headers: { ...cors, "Content-Type": "application/json" } 
+        });
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
+      if (!isMatch) {
+        return new Response(JSON.stringify({ error: "Current password is incorrect" }), { 
+          status: 401, 
+          headers: { ...cors, "Content-Type": "application/json" } 
+        });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const { error: updateError } = await supabase
+        .from("users")
+        .update({ password_hash: hashedPassword })
+        .eq("id", userId);
+
+      if (updateError) {
+        return new Response(JSON.stringify({ error: updateError.message }), { 
+          status: 500, 
+          headers: { ...cors, "Content-Type": "application/json" } 
+        });
+      }
+
+      return new Response(JSON.stringify({ message: "Password updated successfully" }), { 
         headers: { ...cors, "Content-Type": "application/json" } 
       });
     }

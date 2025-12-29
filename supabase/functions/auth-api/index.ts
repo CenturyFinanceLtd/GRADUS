@@ -54,6 +54,8 @@ serve(async (req: Request) => {
     if (path.endsWith("/verify") || path.endsWith("/verify-otp")) action = "verify";
     // Handle /complete-signup or /signup/complete
     if (path.endsWith("/complete-signup") || path.endsWith("/signup/complete")) action = "complete-signup";
+    // Handle /social/google/onetap
+    if (path.endsWith("/social/google/onetap")) action = "google-onetap";
     
     // Handle /supabase/create-profile special case
     if (path.endsWith("/create-profile") && segments.includes("supabase")) action = "supabase-create-profile";
@@ -226,6 +228,101 @@ serve(async (req: Request) => {
        const token = await create({ alg: "HS256", typ: "JWT" }, { id: user.id, exp: getNumericDate(60 * 60 * 24 * 30) }, await crypto.subtle.importKey("raw", new TextEncoder().encode(JWT_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]));
 
        return new Response(JSON.stringify({ token, user: mapUserToFrontend(user) }), { headers: { ...cors, "Content-Type": "application/json" } });
+    }
+
+    // 4.1 GOOGLE ONE-TAP: POST /social/google/onetap
+    if (action === "google-onetap" && req.method === "POST") {
+       const credential = body.credential || body.idToken || body.id_token;
+       if (!credential) {
+         return new Response(JSON.stringify({ error: "Missing Google credential" }), { status: 400, headers: cors });
+       }
+
+       const tokenInfoResp = await fetch(
+         `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`
+       );
+
+       if (!tokenInfoResp.ok) {
+         const errText = await tokenInfoResp.text().catch(() => "Invalid Google token");
+         return new Response(JSON.stringify({ error: "Invalid Google token", details: errText }), { status: 401, headers: cors });
+       }
+
+       const tokenInfo = await tokenInfoResp.json().catch(() => ({}));
+       const email = (tokenInfo.email || "").toLowerCase().trim();
+
+       if (!email) {
+         return new Response(JSON.stringify({ error: "Google token missing email" }), { status: 400, headers: cors });
+       }
+
+       const allowedAudiences = (Deno.env.get("GOOGLE_CLIENT_IDS") || "")
+         .split(",")
+         .map((id) => id.trim())
+         .filter(Boolean);
+
+       if (allowedAudiences.length > 0 && tokenInfo.aud && !allowedAudiences.includes(tokenInfo.aud)) {
+         return new Response(JSON.stringify({ error: "Google token audience mismatch" }), { status: 401, headers: cors });
+       }
+
+       const firstName = tokenInfo.given_name || (tokenInfo.name ? tokenInfo.name.split(" ")[0] : "");
+       const lastName = tokenInfo.family_name || (tokenInfo.name ? tokenInfo.name.split(" ").slice(1).join(" ") : "");
+       const emailVerified = tokenInfo.email_verified === true || tokenInfo.email_verified === "true";
+
+       const { data: existing } = await supabase
+         .from("users")
+         .select("*")
+         .eq("email", email)
+         .maybeSingle();
+
+       let user = existing;
+       if (existing) {
+         const updates: Record<string, unknown> = {};
+         if (!existing.first_name && firstName) updates.first_name = firstName;
+         if (!existing.last_name && lastName) updates.last_name = lastName;
+         if (!existing.auth_provider) updates.auth_provider = "google";
+         if (emailVerified && !existing.email_verified) updates.email_verified = true;
+
+         if (Object.keys(updates).length > 0) {
+           const { data: updated, error: uErr } = await supabase
+             .from("users")
+             .update(updates)
+             .eq("id", existing.id)
+             .select()
+             .single();
+           if (uErr) throw uErr;
+           user = updated;
+         }
+       } else {
+         const { data: created, error: cErr } = await supabase
+           .from("users")
+           .insert([{
+             email,
+             first_name: firstName,
+             last_name: lastName,
+             email_verified: emailVerified,
+             auth_provider: "google",
+           }])
+           .select()
+           .single();
+         if (cErr) throw cErr;
+         user = created;
+       }
+
+       const key = await crypto.subtle.importKey(
+         "raw",
+         new TextEncoder().encode(JWT_SECRET),
+         { name: "HMAC", hash: "SHA-256" },
+         false,
+         ["sign", "verify"]
+       );
+
+       const token = await create(
+         { alg: "HS256", typ: "JWT" },
+         { id: user.id, exp: getNumericDate(60 * 60 * 24 * 30) },
+         key
+       );
+
+       return new Response(JSON.stringify({ token, user: mapUserToFrontend(user) }), {
+         headers: { ...cors, "Content-Type": "application/json" },
+       });
     }
 
     // 5. LOGOUT: POST /logout
@@ -504,4 +601,3 @@ serve(async (req: Request) => {
      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: cors });
   }
 });
-

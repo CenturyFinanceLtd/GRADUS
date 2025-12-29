@@ -1,6 +1,7 @@
 /// <reference lib="deno.ns" />
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { verify } from "https://deno.land/x/djwt@v2.8/mod.ts";
 
 
 
@@ -21,13 +22,38 @@ const supabase = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
 );
 
+const JWT_SECRET = Deno.env.get("JWT_SECRET") || "fallback_secret_change_me";
+
 async function getAuthUser(req: Request) {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) return null;
   const token = authHeader.replace("Bearer ", "");
   const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return null;
-  return user;
+  if (!error && user) return user;
+
+  try {
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(JWT_SECRET),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign", "verify"]
+    );
+    const payload = await verify(token, key);
+    const userId = payload.id;
+    if (!userId) return null;
+
+    const { data: dbUser, error: dbErr } = await supabase
+      .from("users")
+      .select("id, email")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (dbErr || !dbUser) return null;
+    return { id: dbUser.id, email: dbUser.email };
+  } catch (_error) {
+    return null;
+  }
 }
 
 async function hashIp(req: Request) {
