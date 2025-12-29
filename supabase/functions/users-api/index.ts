@@ -165,82 +165,45 @@ serve(async (req: Request) => {
       // accounts get a row in public.users automatically.
       if (sbUser?.email) {
         const email = sbUser.email.toLowerCase().trim();
-        console.log("Looking up user by email:", email);
+        console.log("Upserting user by email:", email);
 
-        const { data: byEmail, error: emailError } = await supabase
+        const firstName =
+          (sbUser.user_metadata as any)?.first_name ||
+          (sbUser.user_metadata as any)?.full_name?.split(" ")[0] ||
+          "";
+        const lastName =
+          (sbUser.user_metadata as any)?.last_name ||
+          (sbUser.user_metadata as any)?.full_name?.split(" ").slice(1).join(" ") ||
+          "";
+
+        // Simple, robust upsert by email. This works regardless of whether
+        // a supabase_id column exists and avoids duplicate key errors.
+        const { data: upserted, error: upsertError } = await supabase
           .from("users")
-          .select("*")
-          .eq("email", email)
-          .single();
-
-        if (byEmail) {
-          user = byEmail;
-          error = emailError;
-        } else {
-          console.log("No user row found for email; creating new profile row.");
-
-          const firstName =
-            (sbUser.user_metadata as any)?.first_name ||
-            (sbUser.user_metadata as any)?.full_name?.split(" ")[0] ||
-            "";
-          const lastName =
-            (sbUser.user_metadata as any)?.last_name ||
-            (sbUser.user_metadata as any)?.full_name?.split(" ").slice(1).join(" ") ||
-            "";
-
-          // First, try to insert including supabase_id. If the column does not
-          // exist in the database (older schema), fall back to inserting
-          // without it so Google logins still work.
-          let insertedUser: any | null = null;
-          let insertErrorFinal: any | null = null;
-
-          const { data: insertedWithSupabase, error: insertError } = await supabase
-            .from("users")
-            .insert({
+          .upsert(
+            {
               email,
               first_name: firstName,
               last_name: lastName,
-              supabase_id: userId,
-            })
-            .select()
-            .single();
+            },
+            { onConflict: "email" },
+          )
+          .select()
+          .single();
 
-          if (insertError) {
-            console.warn(
-              "Initial insert with supabase_id failed, retrying without supabase_id:",
-              insertError,
-            );
-            const { data: insertedWithoutSupabase, error: insertError2 } =
-              await supabase
-                .from("users")
-                .insert({
-                  email,
-                  first_name: firstName,
-                  last_name: lastName,
-                })
-                .select()
-                .single();
-
-            insertedUser = insertedWithoutSupabase;
-            insertErrorFinal = insertError2;
-          } else {
-            insertedUser = insertedWithSupabase;
-          }
-
-          if (insertErrorFinal) {
-            console.error("Failed to auto-create user profile row:", insertErrorFinal);
-            return new Response(
-              JSON.stringify({ error: "Failed to create user profile" }),
-              {
-                status: 500,
-                headers: { ...cors, "Content-Type": "application/json" },
-              },
-            );
-          }
-
-          user = insertedUser;
-          error = null;
+        if (upsertError) {
+          console.error("Failed to upsert user profile row:", upsertError);
+          return new Response(
+            JSON.stringify({ error: "Failed to create user profile" }),
+            {
+              status: 500,
+              headers: { ...cors, "Content-Type": "application/json" },
+            },
+          );
         }
+
+        user = upserted;
+        error = null;
       } else {
         // Legacy JWT users: look up by id as before
         const { data: byLegacyId, error: legacyError } = await supabase
