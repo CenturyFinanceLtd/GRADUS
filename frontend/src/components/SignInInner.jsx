@@ -4,8 +4,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import apiClient from "../services/apiClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import resolveGoogleRedirectUri from "../utils/googleRedirect.js";
-import buildGoogleAuthUrl from "../utils/googleAuthUrl.js";
 import resolvePostAuthRedirect from "../utils/resolvePostAuthRedirect.js";
+import { loginWithGoogle } from "../services/authService.js";
 
 const stepKeys = {
   EMAIL: "EMAIL",
@@ -41,7 +41,7 @@ const SignInInner = ({ isModal = false, redirectPath = null }) => {
     }
   }, []);
 
-  const handleGoogleSignIn = useCallback(() => {
+  const handleGoogleSignIn = useCallback(async () => {
     if (!googleAvailable) {
       setError("Google sign-in is not available right now.");
       return;
@@ -58,13 +58,15 @@ const SignInInner = ({ isModal = false, redirectPath = null }) => {
     });
 
     try {
-      const authUrl = buildGoogleAuthUrl({ redirectUri: googleRedirectUri });
-      window.location.assign(authUrl);
+      // Let Supabase handle the full Google OAuth flow
+      await loginWithGoogle();
+      // loginWithGoogle will redirect away; code below is mostly for safety
     } catch (err) {
+      console.error("Failed to start Google sign-in:", err);
       setGoogleBusy(false);
       setError(err.message || "Unable to start Google sign-in. Please refresh and try again.");
     }
-  }, [googleAvailable, googleRedirectUri, location.state, persistGoogleIntent, redirectPath]);
+  }, [googleAvailable, location.state, persistGoogleIntent, redirectPath]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
