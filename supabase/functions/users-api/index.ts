@@ -188,21 +188,47 @@ serve(async (req: Request) => {
             (sbUser.user_metadata as any)?.full_name?.split(" ").slice(1).join(" ") ||
             "";
 
-          const { data: inserted, error: insertError } = await supabase
+          // First, try to insert including supabase_id. If the column does not
+          // exist in the database (older schema), fall back to inserting
+          // without it so Google logins still work.
+          let insertedUser: any | null = null;
+          let insertErrorFinal: any | null = null;
+
+          const { data: insertedWithSupabase, error: insertError } = await supabase
             .from("users")
             .insert({
               email,
               first_name: firstName,
               last_name: lastName,
-              // If supabase_id column exists this will populate it;
-              // if not, Supabase will throw which we handle below.
               supabase_id: userId,
             })
             .select()
             .single();
 
           if (insertError) {
-            console.error("Failed to auto-create user profile row:", insertError);
+            console.warn(
+              "Initial insert with supabase_id failed, retrying without supabase_id:",
+              insertError,
+            );
+            const { data: insertedWithoutSupabase, error: insertError2 } =
+              await supabase
+                .from("users")
+                .insert({
+                  email,
+                  first_name: firstName,
+                  last_name: lastName,
+                })
+                .select()
+                .single();
+
+            insertedUser = insertedWithoutSupabase;
+            insertErrorFinal = insertError2;
+          } else {
+            insertedUser = insertedWithSupabase;
+          }
+
+          if (insertErrorFinal) {
+            console.error("Failed to auto-create user profile row:", insertErrorFinal);
             return new Response(
               JSON.stringify({ error: "Failed to create user profile" }),
               {
@@ -212,7 +238,7 @@ serve(async (req: Request) => {
             );
           }
 
-          user = inserted;
+          user = insertedUser;
           error = null;
         }
       } else {
