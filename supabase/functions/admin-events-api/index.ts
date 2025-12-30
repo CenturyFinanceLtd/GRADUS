@@ -364,8 +364,14 @@ serve(async (req) => {
       if (body.tags !== undefined) patch.tags = body.tags;
       if (body.category !== undefined) patch.category = body.category;
       
-      if (body.coverImage !== undefined) {
-          patch.hero_image = { ...existing.hero_image, url: body.coverImage };
+      if (body.coverImage !== undefined || body.heroImageUrl !== undefined || body.heroImageAlt !== undefined) {
+          const url = body.coverImage || body.heroImageUrl || existing.hero_image?.url;
+          const alt = body.heroImageAlt || existing.hero_image?.alt || "";
+          patch.hero_image = { 
+              ...existing.hero_image, 
+              url: url,
+              alt: alt
+          };
       }
       
       if (body.slug !== undefined) patch.slug = body.slug;

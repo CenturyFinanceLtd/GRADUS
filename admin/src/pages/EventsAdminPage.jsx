@@ -183,12 +183,17 @@ const EventsAdminPage = () => {
       category: form.category.trim() || "General",
       badge: form.badge.trim(),
       eventType: form.eventType || EVENT_TYPE_OPTIONS[0],
-      hostName: form.hostName.trim(),
-      hostTitle: form.hostTitle.trim(),
-      hostBio: form.hostBio.trim(),
-      hostAvatarUrl: form.hostAvatarUrl.trim(),
+      // Map Update Logic - flatten to structure
+      host: {
+        name: form.hostName.trim(),
+        title: form.hostTitle.trim(),
+        bio: form.hostBio.trim(),
+        avatarUrl: form.hostAvatarUrl.trim(),
+      },
+      // API expects these for images
       heroImageUrl: form.heroImageUrl.trim(),
       heroImageAlt: form.heroImageAlt.trim(),
+
       startDate: fromDatetimeLocal(form.startDate),
       endDate: fromDatetimeLocal(form.endDate),
       timezone: form.timezone.trim() || "Asia/Kolkata",
