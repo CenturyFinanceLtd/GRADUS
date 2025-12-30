@@ -5,20 +5,19 @@ import apiClient from "../services/apiClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import resolveGoogleRedirectUri from "../utils/googleRedirect.js";
 import resolvePostAuthRedirect from "../utils/resolvePostAuthRedirect.js";
-import { loginWithGoogle } from "../services/authService.js";
+import { loginWithGoogle, signInWithPhone, verifyPhoneOtp } from "../services/authService.js";
 
 const stepKeys = {
-  EMAIL: "EMAIL",
-  PASSWORD: "PASSWORD",
+  PHONE: "PHONE",
+  OTP: "OTP",
 };
 
 const SignInInner = ({ isModal = false, redirectPath = null }) => {
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ phone: "", otp: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
-  const [currentStep, setCurrentStep] = useState(stepKeys.EMAIL);
+  const [currentStep, setCurrentStep] = useState(stepKeys.PHONE);
   const navigate = useNavigate();
   const location = useLocation();
   const { setAuth } = useAuth();
@@ -77,73 +76,67 @@ const SignInInner = ({ isModal = false, redirectPath = null }) => {
     event.preventDefault();
     setError("");
 
-    if (currentStep === stepKeys.EMAIL) {
-      if (!formData.email.trim()) {
-        setError("Please enter your email address to continue.");
+    if (currentStep === stepKeys.PHONE) {
+      if (!formData.phone.trim()) {
+        setError("Please enter your phone number to continue.");
         return;
       }
 
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(formData.email.trim())) {
-        setError("That doesn't look like a valid email.");
-        return;
+      setLoading(true);
+      try {
+        await signInWithPhone(formData.phone);
+        setCurrentStep(stepKeys.OTP);
+      } catch (err) {
+        setError(err.message || "Unable to send OTP. Please try again.");
+      } finally {
+        setLoading(false);
       }
-
-      setCurrentStep(stepKeys.PASSWORD);
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await apiClient.post("/auth/login", formData);
+      const response = await verifyPhoneOtp(formData.phone, formData.otp);
       setAuth({ token: response.token, user: response.user });
-      const pendingEnrollment = location.state?.pendingEnrollment;
 
-      // Construct effective location state with override if provided
       const effectiveState = redirectPath
         ? { ...location.state, redirectOverride: redirectPath }
         : location.state;
 
       const redirectTo = resolvePostAuthRedirect({ locationState: effectiveState });
-      const nextState =
-        pendingEnrollment && redirectTo.includes("/our-courses")
-          ? { pendingEnrollment }
-          : undefined;
-
-      navigate(redirectTo, { replace: true, state: nextState });
+      navigate(redirectTo, { replace: true });
     } catch (err) {
-      setError(err.message || "Unable to sign in. Please try again.");
+      setError(err.message || "Invalid OTP. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleBackToEmail = () => {
-    setCurrentStep(stepKeys.EMAIL);
-    setPasswordVisible(false);
+  const handleBackToPhone = () => {
+    setCurrentStep(stepKeys.PHONE);
     setError("");
     setLoading(false);
-    setFormData((prev) => ({ ...prev, password: "" }));
+    setFormData((prev) => ({ ...prev, otp: "" }));
   };
 
-  const renderEmailStep = () => (
+  const renderPhoneStep = () => (
     <>
-      <label htmlFor='email' className='signin-modern__label'>
-        Email address
+      <label htmlFor='phone' className='signin-modern__label'>
+        Phone Number
       </label>
       <input
-        id='email'
-        name='email'
-        type='email'
+        id='phone'
+        name='phone'
+        type='tel'
         className='signin-modern__input'
-        placeholder='name@domain.com'
-        value={formData.email}
+        placeholder='+91 99999 99999'
+        value={formData.phone}
         onChange={handleChange}
-        autoComplete='email'
+        autoComplete='tel'
       />
-      <button type='submit' className='signin-modern__cta' disabled={!formData.email.trim()}>
-        Continue
+      <button type='submit' className='signin-modern__cta' disabled={loading || !formData.phone.trim()}>
+        {loading ? "Sending OTP..." : "Continue"}
       </button>
       <div className='signin-modern__divider'>
         <span>or</span>
@@ -157,51 +150,37 @@ const SignInInner = ({ isModal = false, redirectPath = null }) => {
       >
         <span aria-hidden='true'>G</span> {googleBusy ? "Redirecting..." : "Continue with Google"}
       </button>
-      <p className='signin-modern__footer'>
-        Don't have an account?{" "}
-        <Link to='/sign-up' state={location.state}>
-          Sign up
-        </Link>
-      </p>
     </>
   );
 
-  const renderPasswordStep = () => (
+  const renderOtpStep = () => (
     <>
-      <p className='signin-modern__eyebrow'>Signed in as</p>
+      <p className='signin-modern__eyebrow'>One-Time Password sent to</p>
       <div className='signin-modern__email-pill'>
-        <span>{formData.email}</span>
-        <button type='button' onClick={handleBackToEmail} aria-label='Edit email'>
+        <span>{formData.phone}</span>
+        <button type='button' onClick={handleBackToPhone} aria-label='Edit phone'>
           Change
         </button>
       </div>
       <div className='signin-modern__field-group'>
-        <label htmlFor='password' className='signin-modern__label'>
-          Password
+        <label htmlFor='otp' className='signin-modern__label'>
+          6-digit OTP
         </label>
-        <div className='signin-modern__password'>
-          <input
-            id='password'
-            name='password'
-            type={passwordVisible ? "text" : "password"}
-            className='signin-modern__input'
-            placeholder='Enter your password'
-            value={formData.password}
-            onChange={handleChange}
-            autoComplete='current-password'
-          />
-          <button
-            type='button'
-            className='signin-modern__password-toggle'
-            onClick={togglePasswordVisibility}
-            aria-label={passwordVisible ? "Hide password" : "Show password"}
-          >
-            <i className={`ph-bold ${passwordVisible ? "ph-eye" : "ph-eye-closed"}`} />
-          </button>
-        </div>
+        <input
+          id='otp'
+          name='otp'
+          type='text'
+          className='signin-modern__input'
+          placeholder='000000'
+          value={formData.otp}
+          onChange={handleChange}
+          autoComplete='one-time-code'
+          maxLength={6}
+          autoFocus
+        />
       </div>
-      <button type='submit' className='signin-modern__cta' disabled={loading || !formData.password.trim()}>
-        {loading ? "Signing in..." : "Sign in"}
+      <button type='submit' className='signin-modern__cta' disabled={loading || formData.otp.length < 6}>
+        {loading ? "Verifying..." : "Sign in"}
       </button>
       <button
         type='button'
@@ -212,13 +191,6 @@ const SignInInner = ({ isModal = false, redirectPath = null }) => {
       >
         <span aria-hidden='true'>G</span> Continue with Google
       </button>
-      <div className='signin-modern__links'>
-        <Link to='/forgot-password'>Forgot password?</Link>
-        <span />
-        <Link to='/sign-up' state={location.state}>
-          Create account
-        </Link>
-      </div>
     </>
   );
 
@@ -237,7 +209,7 @@ const SignInInner = ({ isModal = false, redirectPath = null }) => {
           </div>
         ) : null}
         <div className='signin-modern__body'>
-          {currentStep === stepKeys.EMAIL ? renderEmailStep() : renderPasswordStep()}
+          {currentStep === stepKeys.PHONE ? renderPhoneStep() : renderOtpStep()}
         </div>
       </form>
     </div>

@@ -87,28 +87,56 @@ serve(async (req: Request) => {
 
     // Helper to map DB user to Frontend expected format
     const mapUserToFrontend = (user: any) => {
-      let pd = user.personal_details;
-      if (typeof pd === 'string') {
-        try {
-          pd = JSON.parse(pd);
-        } catch (e) {
-          console.warn("Failed to parse personal_details", e);
-          pd = {};
-        }
-      }
+      if (!user) return null;
+
+      // Support both new individual columns and legacy JSONB for backward compatibility
+      const pd = typeof user.personal_details === 'string' 
+        ? JSON.parse(user.personal_details || '{}') 
+        : (user.personal_details || {});
+      const ed = typeof user.education_details === 'string'
+        ? JSON.parse(user.education_details || '{}')
+        : (user.education_details || {});
+      const jd = typeof user.job_details === 'string'
+        ? JSON.parse(user.job_details || '{}')
+        : (user.job_details || {});
+
+      // Derive fullname and initials correctly
+      const fullname = user.fullname || 
+        `${user.first_name || ''} ${user.last_name || ''}`.trim() || '';
+
+      // Map individual columns to frontend structure
       return {
         ...user,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        personalDetails: pd || {},
-        city: pd?.city || user.city || null,
-        state: pd?.state || null,
-        zipCode: pd?.zip_code || pd?.zipCode || user.zip_code || null,
-        address: pd?.address || user.address || null,
-        educationDetails: typeof user.education_details === 'string' ? JSON.parse(user.education_details) : (user.education_details || {}),
-        jobDetails: typeof user.job_details === 'string' ? JSON.parse(user.job_details) : (user.job_details || {}),
+        id: user.id,
+        fullname: fullname,
+        firstName: user.first_name || (fullname ? fullname.split(' ')[0] : ''),
+        lastName: user.last_name || (fullname ? fullname.split(' ').slice(1).join(' ') : ''),
+        email: user.email || '',
+        mobile: user.mobile || user.phone || '',
+        phone: user.phone || '',
+        personalDetails: {
+          ...pd,
+          city: pd?.city || user.city || null,
+          state: pd?.state || user.state || null,
+          zipCode: pd?.zipCode || pd?.zip_code || user.pincode || null,
+          address: pd?.address || user.address || null,
+        },
+        educationDetails: {
+          ...ed,
+          graduationYear: ed?.graduationYear || user.graduation_year || '',
+          degree: ed?.degree || user.degree || '',
+          institutionName: ed?.institutionName || user.college || '',
+        },
+        jobDetails: {
+          ...jd,
+          companyName: jd?.companyName || user.company_name || '',
+          designation: jd?.designation || user.designation || '',
+          yearsOfExperience: jd?.yearsOfExperience || user.years_of_experience || '',
+          linkedinUrl: jd?.linkedinUrl || user.linkedin_url || '',
+        },
         emailVerified: user.email_verified,
-        authProvider: user.auth_provider
+        authProvider: user.auth_provider,
+        role: user.role,
       };
     };
 
@@ -211,15 +239,141 @@ serve(async (req: Request) => {
 
         user = upserted;
         error = null;
+      } else if (sbUser?.phone) {
+        // Phone-authenticated user - upsert by phone number
+        const phone = sbUser.phone;
+        console.log("Upserting user by phone:", phone);
+
+        // Reconciliation Logic: 
+        // We have two records often: 
+        // 1. One found by current 'userId' (session id)
+        // 2. One found by 'phone' (the one the user actually uses)
+        
+        // Step A: Find record by phone
+        const { data: byPhone, error: phoneError } = await supabase
+          .from("users")
+          .select("*")
+          .eq("phone", phone)
+          .maybeSingle();
+
+        // Step B: Find record by current session ID
+        const { data: byId, error: idError } = await supabase
+          .from("users")
+          .select("*")
+          .eq("id", userId)
+          .maybeSingle();
+
+        console.log(`[Reconciliation] userId: ${userId}, phone: ${phone}`);
+        console.log(`[Reconciliation] Found byId: ${byId ? 'YES' : 'NO'}, Found byPhone: ${byPhone ? 'YES' : 'NO'}`);
+
+        if (byId && byPhone && byId.id !== byPhone.id) {
+          // CONFLICT: Two different records.
+          // Merge 'phone' into the 'byId' record and delete 'byPhone' record
+          console.log("[Reconciliation] Merging records. Keeping ID:", userId, "Deleting ID:", byPhone.id);
+          
+          // 1. Update the record that has the correct session ID to include the phone
+          const { data: merged, error: mergeError } = await supabase
+            .from("users")
+            .update({ phone: phone })
+            .eq("id", userId)
+            .select()
+            .single();
+          
+          if (!mergeError) {
+            // 2. Delete the old record that had the phone but the wrong ID
+            await supabase.from("users").delete().eq("id", byPhone.id);
+            user = merged;
+          } else {
+            console.error("[Reconciliation] Merge update failed:", mergeError);
+            user = byId;
+          }
+          error = null;
+        } else if (!byId && byPhone) {
+          // Record exists by phone but has wrong ID
+          console.log("[Reconciliation] Updating ID of existing phone record to match session:", userId);
+          const { data: updated, error: updateErr } = await supabase
+            .from("users")
+            .update({ id: userId, auth_provider: 'PHONE' })
+            .eq("id", byPhone.id)
+            .select()
+            .single();
+          
+          if (updateErr) {
+            console.error("[Reconciliation] ID update failed:", updateErr);
+            // Fallback to byPhone if update fails (might be FK constraint check timing)
+            user = byPhone;
+          } else {
+            user = updated;
+          }
+          error = null;
+        } else if (byId && !byPhone) {
+          // Record exists by ID but doesn't have phone attached yet? 
+          // (Shouldn't happen often as Auth User has phone, but safe to update)
+          console.log("[Reconciliation] Updating existing ID record with phone:", userId);
+          const { data: updated, error: updateErr } = await supabase
+            .from("users")
+            .update({ phone: phone, auth_provider: 'PHONE' })
+            .eq("id", userId)
+            .select()
+            .single();
+          
+          user = updated || byId;
+          error = null;
+        } else if (!byId && !byPhone) {
+          // Neither exists - create new
+          console.log("[Reconciliation] Creating brand new user record for:", userId);
+          const { data: newUser, error: insertError } = await supabase
+            .from("users")
+            .insert({
+              id: userId,
+              phone: phone,
+              role: 'student',
+              auth_provider: 'PHONE'
+            })
+            .select()
+            .single();
+          
+          user = newUser;
+          error = insertError;
+        } else {
+          // byId and byPhone are the same record - perfect
+          user = byId;
+          error = null;
+        }
       } else {
-        // Legacy JWT users: look up by id as before
+        // Legacy JWT users: look up by id
+        console.log("Looking up legacy user by id:", userId);
         const { data: byLegacyId, error: legacyError } = await supabase
           .from("users")
           .select("*")
           .eq("id", userId)
-          .single();
-        user = byLegacyId;
-        error = legacyError;
+          .maybeSingle();
+        
+        if (!byLegacyId && !legacyError) {
+          console.log("Legacy user record missing, auto-creating skeleton for userId:", userId);
+          // Create a skeleton record so /me doesn't fail 404
+          const { data: created, error: createError } = await supabase
+            .from("users")
+            .insert({
+                id: userId,
+                role: 'student',
+                auth_provider: 'PHONE' // Fallback
+            })
+            .select()
+            .single();
+          
+          if (createError) {
+            console.error("Failed to auto-create legacy skeleton:", createError);
+            user = null;
+            error = createError;
+          } else {
+            user = created;
+            error = null;
+          }
+        } else {
+          user = byLegacyId;
+          error = legacyError;
+        }
       }
 
       console.log(
@@ -263,6 +417,8 @@ serve(async (req: Request) => {
 
       const updates: any = {};
 
+      // Basic info
+      if (body.fullname !== undefined) updates.fullname = body.fullname;
       if (body.firstName !== undefined) updates.first_name = body.firstName;
       if (body.lastName !== undefined) updates.last_name = body.lastName;
       if (body.mobile !== undefined) updates.mobile = body.mobile;
@@ -312,7 +468,7 @@ serve(async (req: Request) => {
         });
       }
 
-      return new Response(JSON.stringify({ user: mapUserToFrontend(user) }), { 
+      return new Response(JSON.stringify(mapUserToFrontend(user)), { 
         headers: { ...cors, "Content-Type": "application/json" } 
       });
     }
@@ -556,28 +712,6 @@ serve(async (req: Request) => {
       return new Response(JSON.stringify({ 
         message: "Account deleted successfully" 
       }), { 
-        headers: { ...cors, "Content-Type": "application/json" } 
-      });
-    }
-
-    // POST /wipe-all-data - ADMIN UTILITY TO WIPE EVERYTHING
-    if (path.endsWith("/wipe-all-data") && req.method === "POST") {
-      console.log("Wiping all data...");
-      
-      // 1. Delete all rows from public tables (Order matters for FK)
-      await supabase.from("enrollments").delete().neq("id", "00000000-0000-0000-0000-000000000000"); // Hack to delete all
-      await supabase.from("tickets").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-      await supabase.from("verification_sessions").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-      await supabase.from("users").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-
-      // 2. Delete all Auth Users
-      const { data: { users }, error: listError } = await supabase.auth.admin.listUsers();
-      if (listError) throw listError;
-
-      const deletePromises = users.map((u) => supabase.auth.admin.deleteUser(u.id));
-      await Promise.all(deletePromises);
-
-      return new Response(JSON.stringify({ message: `Wiped ${users.length} auth users and public data.` }), { 
         headers: { ...cors, "Content-Type": "application/json" } 
       });
     }
