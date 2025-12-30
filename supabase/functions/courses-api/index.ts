@@ -94,12 +94,10 @@ serve(async (req: Request) => {
 
        try {
           const token = authHeader.replace("Bearer ", "");
-          const JWT_SECRET = Deno.env.get("JWT_SECRET") || "fallback_secret_change_me";
-          const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(JWT_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
-          const payload = await verify(token, key);
-          const userId = payload.id;
+          const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
-          if (!userId) throw new Error("Invalid token");
+          if (authError || !user) throw new Error("Invalid token");
+          const userId = user.id;
 
           const body = await req.json().catch(() => ({}));
           const lectureId = body.lectureId || body.lecture_id;
