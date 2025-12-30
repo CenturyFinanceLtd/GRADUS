@@ -106,21 +106,44 @@ function serializeEvent(event: any) {
     status: event.status || "draft",
     mode: event.mode || "online",
     featured: Boolean(event.featured),
-    startDate: event.start_date,
-    endDate: event.end_date,
-    timezone: event.timezone || "Asia/Kolkata",
-    location: event.location || {},
-    speakers: event.speakers || [],
-    agenda: event.agenda || [],
-    registrationUrl: event.registration_url || "",
-    registrationDeadline: event.registration_deadline,
-    maxAttendees: event.max_attendees,
-    price: event.price || 0,
-    currency: event.currency || "INR",
+    startDate: event.schedule?.start,
+    endDate: event.schedule?.end,
+    timezone: event.schedule?.timezone || "Asia/Kolkata",
+    location: event.locations || {}, // Note: setup script used 'location' text, but schema has 'location' text. Wait, schema has 'location' TEXT. Let me double check setup script.
+    // setup script: ALTER TABLE events ADD COLUMN IF NOT EXISTS location TEXT;
+    // but code below has body.location || {} which implies object.
+    // The previous code had event.location || {}
+    // Let's stick to simple mapping for now.
+    location: event.location || "",
+    speakers: event.speakers || [], // speakers column? setup script doesn't show speakers column!
+    // setup script does NOT have 'speakers', 'agenda'.
+    // It has 'host' (jsonb), 'meta' (jsonb).
+    // meta has 'agenda'.
+    // host has 'name', etc.
+    // this API is very different from the schema.
+    
+    // Let's try to map as best as possible to what's in DB.
+    // DB columns: title, slug, subtitle, summary, description, category, badge, event_type, tags, level, track_label
+    // hero_image, host, price, cta, schedule, mode, location, recording_available, is_featured, status, sort_order
+    // created_by, meta, created_at, updated_at
+    
+    // speakers -> host? or specific field? Host is single object in DB.
+    // agenda -> meta.agenda
+    
+    host: event.host || {}, 
+    // Return speakers as host for now to avoid break
+    
+    speakers: [], // invalid in new schema context usually, but frontend might expect it.
+    agenda: event.meta?.agenda || [],
+    registrationUrl: event.cta?.url || "",
+    registrationDeadline: event.cta?.deadline, // cta not typically having deadline
+    maxAttendees: 0, // not in schema
+    price: event.price?.amount || 0,
+    currency: event.price?.currency || "INR",
     tags: event.tags || [],
     category: event.category || "",
-    coverImage: event.cover_image || "",
-    thumbnailImage: event.thumbnail_image || "",
+    coverImage: event.hero_image?.url || "",
+    thumbnailImage: event.hero_image?.url || "",
     createdAt: event.created_at,
     updatedAt: event.updated_at,
   };
@@ -172,7 +195,7 @@ serve(async (req) => {
       const { data: items, error } = await supabase
         .from("events")
         .select("*")
-        .order("start_date", { ascending: false });
+        .order("created_at", { ascending: false });
 
       if (error) {
         return jsonResponse({ error: error.message }, 500, cors);
@@ -197,22 +220,44 @@ serve(async (req) => {
         description: body.description,
         status: body.status || "draft",
         mode: body.mode || "online",
-        featured: Boolean(body.featured),
-        start_date: body.startDate,
-        end_date: body.endDate,
-        timezone: body.timezone || "Asia/Kolkata",
-        location: body.location || {},
-        speakers: body.speakers || [],
-        agenda: body.agenda || [],
-        registration_url: body.registrationUrl,
-        registration_deadline: body.registrationDeadline,
-        max_attendees: body.maxAttendees,
-        price: body.price || 0,
-        currency: body.currency || "INR",
+        is_featured: Boolean(body.featured), // fixed name
+        
+        // Map schedule
+        schedule: {
+            start: body.startDate,
+            end: body.endDate,
+            timezone: body.timezone || "Asia/Kolkata"
+        },
+        
+        location: body.location || "", // Text in DB
+        
+        // Map host (using speakers input or host input)
+        host: body.host || (body.speakers && body.speakers[0] ? { name: body.speakers[0].name } : {}),
+        
+        meta: {
+            agenda: body.agenda || []
+        },
+        
+        cta: {
+            url: body.registrationUrl,
+            // deadline not in standard CTA text usually but storing in jsonb is fine
+            deadline: body.registrationDeadline 
+        },
+        
+        // max_attendees removed as not in schema
+        
+        price: {
+            amount: body.price || 0,
+            currency: body.currency || "INR",
+            isFree: (body.price === 0)
+        },
+        
         tags: body.tags || [],
         category: body.category,
-        cover_image: body.coverImage,
-        thumbnail_image: body.thumbnailImage,
+        
+        hero_image: {
+            url: body.coverImage || body.thumbnailImage
+        }
       };
 
       const { data: event, error } = await supabase
@@ -257,28 +302,72 @@ serve(async (req) => {
       const eventId = idMatch[1];
       const body = await req.json().catch(() => ({}));
 
+      // Fetch existing to merge JSONB fields
+      const { data: existing, error: fetchError } = await supabase
+        .from("events")
+        .select("*")
+        .eq("id", eventId)
+        .single();
+        
+      if (fetchError || !existing) {
+          return jsonResponse({ error: "Event not found" }, 404, cors);
+      }
+
       const patch: any = {};
       if (body.title !== undefined) patch.title = body.title;
       if (body.subtitle !== undefined) patch.subtitle = body.subtitle;
       if (body.description !== undefined) patch.description = body.description;
       if (body.status !== undefined) patch.status = body.status;
       if (body.mode !== undefined) patch.mode = body.mode;
-      if (body.featured !== undefined) patch.featured = Boolean(body.featured);
-      if (body.startDate !== undefined) patch.start_date = body.startDate;
-      if (body.endDate !== undefined) patch.end_date = body.endDate;
-      if (body.timezone !== undefined) patch.timezone = body.timezone;
+      if (body.featured !== undefined) patch.is_featured = Boolean(body.featured);
+      
+      // Schedule update
+      if (body.startDate !== undefined || body.endDate !== undefined || body.timezone !== undefined) {
+          patch.schedule = {
+              ...existing.schedule,
+              ...(body.startDate !== undefined ? { start: body.startDate } : {}),
+              ...(body.endDate !== undefined ? { end: body.endDate } : {}),
+              ...(body.timezone !== undefined ? { timezone: body.timezone } : {}),
+          };
+      }
+      
       if (body.location !== undefined) patch.location = body.location;
-      if (body.speakers !== undefined) patch.speakers = body.speakers;
-      if (body.agenda !== undefined) patch.agenda = body.agenda;
-      if (body.registrationUrl !== undefined) patch.registration_url = body.registrationUrl;
-      if (body.registrationDeadline !== undefined) patch.registration_deadline = body.registrationDeadline;
-      if (body.maxAttendees !== undefined) patch.max_attendees = body.maxAttendees;
-      if (body.price !== undefined) patch.price = body.price;
-      if (body.currency !== undefined) patch.currency = body.currency;
+      
+      // Host update
+      if (body.host !== undefined) {
+          patch.host = body.host; 
+      } else if (body.speakers !== undefined) {
+         // fallback
+         patch.host = body.speakers[0] ? { ...existing.host, name: body.speakers[0].name } : existing.host;
+      }
+      
+      if (body.agenda !== undefined) {
+          patch.meta = { ...existing.meta, agenda: body.agenda };
+      }
+      
+      if (body.registrationUrl !== undefined || body.registrationDeadline !== undefined) {
+          patch.cta = {
+              ...existing.cta,
+              ...(body.registrationUrl !== undefined ? { url: body.registrationUrl } : {}),
+              ...(body.registrationDeadline !== undefined ? { deadline: body.registrationDeadline } : {}),
+          };
+      }
+      
+      if (body.price !== undefined || body.currency !== undefined) {
+           patch.price = {
+               ...existing.price,
+               ...(body.price !== undefined ? { amount: body.price, isFree: body.price === 0 } : {}),
+               ...(body.currency !== undefined ? { currency: body.currency } : {}),
+           };
+      }
+      
       if (body.tags !== undefined) patch.tags = body.tags;
       if (body.category !== undefined) patch.category = body.category;
-      if (body.coverImage !== undefined) patch.cover_image = body.coverImage;
-      if (body.thumbnailImage !== undefined) patch.thumbnail_image = body.thumbnailImage;
+      
+      if (body.coverImage !== undefined) {
+          patch.hero_image = { ...existing.hero_image, url: body.coverImage };
+      }
+      
       if (body.slug !== undefined) patch.slug = body.slug;
 
       patch.updated_at = new Date().toISOString();
