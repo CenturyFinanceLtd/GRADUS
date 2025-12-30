@@ -40,6 +40,7 @@ const FUNCTION_MAP = {
   "/admin/callback-requests": "inquiries-api",
   "/admin/event-registrations": "event-registrations-api",
   "/admin/landing-pages": "admin-landing-pages-api",
+  "/live/sessions": "admin-live-sessions-api",
 };
 
 const apiClient = async (
