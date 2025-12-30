@@ -475,11 +475,6 @@ const EventDetailsOne = ({ event, loading, error }) => {
     return (
       <>
         <OverviewTab event={event} overviewText={overviewText} />
-        {/* Show Instructor Bio in Overview as well if requested */}
-        <div className="mt-40">
-          <h4 className="mb-16">Instructor</h4>
-          <InstructorTab event={event} />
-        </div>
       </>
     );
   };
