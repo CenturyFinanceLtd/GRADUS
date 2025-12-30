@@ -92,15 +92,20 @@ serve(async (req: Request) => {
 
 const mapEvent = (event: any) => {
   if (!event) return null;
+  const displayName = event.name || event.title || "Untitled Event";
   return {
     id: event.id,
     slug: event.slug,
-    name: event.name,
+    name: displayName,
+    title: displayName, // For website compatibility
+    description: event.description || "",
     eventType: event.event_type || "Masterclass",
     heroImage: event.hero_image || {},
     featuredImage: event.featured_image || {},
     schedule: event.schedule || {},
     location: event.location || {},
+    host: event.host || {},
+    price: event.price || {},
     stats: event.stats || {},
     status: event.status,
     speakers: event.speakers || [],

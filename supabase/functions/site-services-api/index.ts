@@ -1,6 +1,7 @@
 /// <reference lib="deno.ns" />
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { verify } from "https://deno.land/x/djwt@v2.8/mod.ts";
 
 
 
@@ -21,13 +22,38 @@ const supabase = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
 );
 
+const JWT_SECRET = Deno.env.get("JWT_SECRET") || "fallback_secret_change_me";
+
 async function getAuthUser(req: Request) {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) return null;
   const token = authHeader.replace("Bearer ", "");
   const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return null;
-  return user;
+  if (!error && user) return user;
+
+  try {
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(JWT_SECRET),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign", "verify"]
+    );
+    const payload = await verify(token, key);
+    const userId = payload.id;
+    if (!userId) return null;
+
+    const { data: dbUser, error: dbErr } = await supabase
+      .from("users")
+      .select("id, email")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (dbErr || !dbUser) return null;
+    return { id: dbUser.id, email: dbUser.email };
+  } catch (_error) {
+    return null;
+  }
 }
 
 async function hashIp(req: Request) {
@@ -52,7 +78,7 @@ serve(async (req: Request) => {
     const url = new URL(req.url);
     const path = url.pathname.replace(/\/$/, ""); 
     const segments = path.split("/").filter(Boolean);
-    const routeParts = segments.slice(1); // args
+    const functionName = "site-services-api"; const funcIdx = segments.indexOf(functionName); const routeParts = funcIdx !== -1 ? segments.slice(funcIdx + 1) : segments.slice(1);
 
     const resource = routeParts[0];
 
@@ -101,6 +127,61 @@ serve(async (req: Request) => {
         .single();
 
       if (error) throw error;
+
+      // Send Email Notification
+      try {
+          const supabaseUrl = Deno.env.get("SUPABASE_URL");
+          const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+          
+          if (supabaseUrl && anonKey) {
+            // 1. Send Admin Notification
+            await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${anonKey}`
+                },
+                body: JSON.stringify({
+                    to: "contact@gradusindia.in",
+                    subject: `New Callback Request: ${data.name}`,
+                    html: `
+                        <h2>New Callback Request</h2>
+                        <p><strong>Name:</strong> ${data.name}</p>
+                        <p><strong>Phone:</strong> ${data.phone}</p>
+                        <p><strong>Email:</strong> ${data.email}</p>
+                        <p><strong>User ID:</strong> ${data.user_id || "Guest"}</p>
+                        <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+                    `,
+                })
+            });
+
+            // 2. Send User Confirmation
+            if (data.email) {
+                await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${anonKey}`
+                    },
+                    body: JSON.stringify({
+                        to: data.email,
+                        subject: `We Received Your Request - Gradus`,
+                        html: `
+                            <h2>Hello ${data.name},</h2>
+                            <p>We have received your callback request.</p>
+                            <p>Our team will contact you soon!</p>
+                            <br/>
+                            <p>Best Regards,</p>
+                            <p><strong>Team Gradus</strong></p>
+                        `,
+                    })
+                });
+            }
+          }
+      } catch (emailErr) {
+          console.error("Failed to send callback email:", emailErr);
+          // Don't fail the request if email fails, just log it
+      }
 
       return new Response(JSON.stringify({
         id: data.id,

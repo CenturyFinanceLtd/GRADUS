@@ -5,8 +5,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import apiClient from "../services/apiClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import resolveGoogleRedirectUri from "../utils/googleRedirect.js";
-import buildGoogleAuthUrl from "../utils/googleAuthUrl.js";
 import resolvePostAuthRedirect from "../utils/resolvePostAuthRedirect.js";
+import { loginWithGoogle } from "../services/authService.js";
 
 const stageKeys = {
   CONTACT: "CONTACT",
@@ -125,7 +125,7 @@ const SignUpInner = () => {
     }
   }, []);
 
-  const handleGoogleSignUp = useCallback(() => {
+  const handleGoogleSignUp = useCallback(async () => {
     if (!googleAvailable) {
       setError("Google sign-in is not available right now.");
       return;
@@ -142,13 +142,14 @@ const SignUpInner = () => {
     });
 
     try {
-      const authUrl = buildGoogleAuthUrl({ redirectUri: googleRedirectUri });
-      window.location.assign(authUrl);
+      // Delegate Google OAuth to Supabase; this will redirect away
+      await loginWithGoogle();
     } catch (err) {
+      console.error("Failed to start Google sign-up:", err);
       setGoogleBusy(false);
       setError(err.message || "Unable to start Google sign-in. Please refresh and try again.");
     }
-  }, [googleAvailable, googleRedirectUri, location.state, persistGoogleIntent, setMessage]);
+  }, [googleAvailable, location.state, persistGoogleIntent, setMessage]);
 
   const resetVerificationState = () => {
     setSessionId(null);

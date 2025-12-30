@@ -86,6 +86,88 @@ serve(async (req: Request) => {
        }
     }
 
+    // 2.1 Progress: POST /progress/:slug
+    if (req.method === "POST" && firstArg === "progress") {
+       const slug = routeParts.slice(1).join("/");
+       const authHeader = req.headers.get("Authorization");
+       if (!authHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: cors });
+
+       try {
+          const token = authHeader.replace("Bearer ", "");
+          const JWT_SECRET = Deno.env.get("JWT_SECRET") || "fallback_secret_change_me";
+          const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(JWT_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+          const payload = await verify(token, key);
+          const userId = payload.id;
+
+          if (!userId) throw new Error("Invalid token");
+
+          const body = await req.json().catch(() => ({}));
+          const lectureId = body.lectureId || body.lecture_id;
+          if (!lectureId) {
+            return new Response(JSON.stringify({ error: "lectureId is required" }), { status: 400, headers: cors });
+          }
+
+          const currentTime = Number(body.currentTime ?? body.current_time ?? 0);
+          const duration = Number(body.duration ?? body.durationSeconds ?? 0);
+          const safeCurrent = Number.isFinite(currentTime) ? currentTime : 0;
+          const safeDuration = Number.isFinite(duration) ? duration : 0;
+
+          const { data: course, error: cErr } = await supabase.from("course").select("id").eq("slug", slug).single();
+          if (cErr || !course) return new Response(JSON.stringify({ error: "Course not found" }), { status: 404, headers: cors });
+
+          const { data: enr, error: eErr } = await supabase
+            .from("enrollments")
+            .select("id, progress")
+            .eq("user_id", userId)
+            .eq("course_id", course.id)
+            .eq("status", "ACTIVE")
+            .maybeSingle();
+
+          if (eErr || !enr) {
+            return new Response(JSON.stringify({ error: "Not Enrolled" }), { status: 403, headers: cors });
+          }
+
+          let progress: Record<string, any> = {};
+          if (enr.progress && typeof enr.progress === "object") {
+            progress = enr.progress;
+          } else if (typeof enr.progress === "string") {
+            try {
+              progress = JSON.parse(enr.progress);
+            } catch {
+              progress = {};
+            }
+          }
+
+          const previous = progress[lectureId] || {};
+          const explicitComplete = body.completed === true || body.attended === true;
+          const completionRatio = safeDuration > 0 ? Math.min(safeCurrent / safeDuration, 1) : 0;
+          const markComplete = explicitComplete || (safeDuration <= 0 && safeCurrent <= 0);
+          const attended = Boolean(previous.attended) || markComplete || completionRatio >= 0.9;
+          const finalRatio = markComplete ? Math.max(completionRatio, 1) : completionRatio;
+
+          progress[lectureId] = {
+            ...previous,
+            lastPositionSeconds: safeCurrent,
+            durationSeconds: safeDuration,
+            completionRatio: finalRatio,
+            attended,
+            updatedAt: new Date().toISOString(),
+          };
+
+          const { error: uErr } = await supabase
+            .from("enrollments")
+            .update({ progress })
+            .eq("id", enr.id);
+
+          if (uErr) throw uErr;
+
+          return new Response(JSON.stringify({ progress }), { headers: { ...cors, "Content-Type": "application/json" } });
+       } catch (e) {
+          console.error("Progress update error:", e);
+          return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: cors });
+       }
+    }
+
     // 3. Modules: GET /modules/:slug
     if (req.method === "GET" && firstArg === "modules") {
        const slug = routeParts.slice(1).join("/");
@@ -366,6 +448,85 @@ serve(async (req: Request) => {
         }
     }
 
+    // 6.1 Lecture Stream: GET /:slug/lectures/:lectureId/stream
+    const streamIdx = routeParts.lastIndexOf("stream");
+    if (req.method === "GET" && lecturesIdx !== -1 && streamIdx !== -1 && streamIdx > lecturesIdx) {
+        const rawSlug = routeParts.slice(0, lecturesIdx).join("/");
+        const slug = decodeURIComponent(rawSlug);
+        const lectureId = routeParts.slice(lecturesIdx + 1, streamIdx).join("/");
+
+        console.log(`[CoursesAPI] Stream Request - Slug: ${slug}, LectureId: ${lectureId}`);
+
+        const authHeader = req.headers.get("Authorization");
+        if (!authHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: cors });
+
+        try {
+            const token = authHeader.replace("Bearer ", "");
+            const JWT_SECRET = Deno.env.get("JWT_SECRET") || "fallback_secret_change_me";
+            const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(JWT_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+            const payload = await verify(token, key);
+            const userId = payload.id;
+            if (!userId) throw new Error("Invalid token");
+
+            const { data: course, error: cErr } = await supabase.from("course").select("id").eq("slug", slug).single();
+            if (cErr || !course) return new Response(JSON.stringify({ error: "Course not found", slug }), { status: 404, headers: cors });
+
+            const { data: enr } = await supabase.from("enrollments").select("id").eq("user_id", userId).eq("course_id", course.id).eq("status", "ACTIVE").maybeSingle();
+            if (!enr) return new Response(JSON.stringify({ error: "Not Enrolled" }), { status: 403, headers: cors });
+
+            const { data: details } = await supabase.from("course_details").select("modules").eq("course_slug", slug).maybeSingle();
+
+            let lectureData: any = null;
+            if (details && Array.isArray(details.modules)) {
+                for (const mod of details.modules) {
+                    if (mod.sections) {
+                        for (const sec of mod.sections) {
+                            if (sec.lectures) {
+                                const found = sec.lectures.find((l: any) => l.lectureId === lectureId || l.id === lectureId);
+                                if (found) {
+                                    lectureData = found;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (lectureData) break;
+                }
+            }
+
+            if (!lectureData) {
+                return new Response(JSON.stringify({ error: "Lecture not found", lectureId }), { status: 404, headers: cors });
+            }
+
+            const video = lectureData.video || {};
+            let fileUrl =
+                video.url ||
+                video.secureUrl ||
+                video.secure_url ||
+                video.fileUrl ||
+                lectureData.videoUrl ||
+                lectureData.video_url ||
+                lectureData.url;
+
+            if (!fileUrl && video.publicId && video.format) {
+                const cloudName = "dnp3j8xb1";
+                fileUrl = `https://res.cloudinary.com/${cloudName}/video/upload/${video.publicId}.${video.format}`;
+            }
+
+            if (!fileUrl) {
+                return new Response(JSON.stringify({ error: "Video source not found" }), { status: 404, headers: cors });
+            }
+
+            return new Response(null, {
+                status: 302,
+                headers: { ...cors, Location: fileUrl },
+            });
+        } catch (e) {
+            console.error("Stream fetch error:", e);
+            return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500, headers: cors });
+        }
+    }
+
     // 7. Get Details: GET /:slug (CATCH-ALL for courses)
     if (req.method === "GET" && routeParts.length > 0) {
        // Since this is the catch-all, we assume the whole remains of routeParts is the slug
@@ -439,6 +600,26 @@ const mapSupabaseCourse = (course: any) => {
     _id: course.id || base._id?.$oid || base.id,
     slug: course.slug || base.slug,
     name: course.name || base.name,
+    imageUrl: course.image?.url || base.image?.url || (base.image && base.image.secure_url) || null,
+    modulesCount: course.stats?.modules || base.stats?.modules || (base.modules ? base.modules.length : 0),
+    enrolledCount: (() => {
+        const val = course.stats?.learners || base.stats?.learners;
+        if (val) return val;
+        
+        // Fallback: parse from hero.enrolledText
+        const text = course.hero?.enrolledText || base.hero?.enrolledText || course.hero?.enrolled_text || base.hero?.enrolled_text;
+        if (text) {
+            const match = text.match(/([\d,\.]+[kK]?)/);
+            if (match) {
+                 let numStr = match[1].replace(/,/g, "");
+                 if (numStr.toLowerCase().endsWith("k")) {
+                     return parseFloat(numStr) * 1000;
+                 }
+                 return parseFloat(numStr);
+            }
+        }
+        return 0;
+    })(),
     programme: course.programme || base.programme,
     programmeSlug: course.programme_slug || base.programmeSlug,
     courseSlug: course.course_slug || base.courseSlug,
