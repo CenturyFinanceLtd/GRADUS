@@ -466,13 +466,22 @@ const EventDetailsOne = ({ event, loading, error }) => {
   const descriptionText = event ? getTrimmed(event.description) : "";
   const summaryText = event ? getTrimmed(event.summary) : "";
   const subtitleText = event ? getTrimmed(event.subtitle) : "";
-  const overviewText = descriptionText;
+  const overviewText = descriptionText || summaryText;
   const heroLead = summaryText || subtitleText;
 
   const renderTab = () => {
     if (activeTab === "instructor") return <InstructorTab event={event} />;
     if (activeTab === "help") return <HelpTab />;
-    return <OverviewTab event={event} overviewText={overviewText} />;
+    return (
+      <>
+        <OverviewTab event={event} overviewText={overviewText} />
+        {/* Show Instructor Bio in Overview as well if requested */}
+        <div className="mt-40">
+          <h4 className="mb-16">Instructor</h4>
+          <InstructorTab event={event} />
+        </div>
+      </>
+    );
   };
 
   return (
