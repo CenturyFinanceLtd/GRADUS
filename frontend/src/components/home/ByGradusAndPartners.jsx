@@ -160,7 +160,7 @@ const ByGradusAndPartners = () => {
       <style>{skeletonKeyframes}</style>
       <div className="container container--lg">
         <div className="text-center mb-32">
-          <h3 className="mb-0">Our Placement Partners</h3>
+          <h3 className="mb-0">Placement Partners</h3>
 
         </div>
 
