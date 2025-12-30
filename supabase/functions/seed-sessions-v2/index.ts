@@ -97,18 +97,82 @@ const SESSIONS = [
   }
 ];
 
+// Helper to get random item
+const getRandom = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)];
+
 serve(async (req) => {
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-  );
+  try {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
 
-  // Insert data
-  const { error } = await supabase.from("live_sessions").insert(SESSIONS);
+    // 1. Fetch existing courses (select * to be safe)
+    const { data: courses, error: courseError } = await supabase
+      .from("course")
+      .select("*");
 
-  if (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "Content-Type": "application/json" } });
+    if (courseError) {
+      return new Response(JSON.stringify({ error: "Failed to fetch courses: " + courseError.message }), { status: 500 });
+    }
+
+    if (!courses || courses.length === 0) {
+       return new Response(JSON.stringify({ error: "No courses found in 'course' table." }), { status: 400 });
+    }
+    
+    // Check if title exists, fallback to name or other fields
+    const getCourseTitle = (c: any) => c.title || c.name || "Untitled Course";
+
+    // 2. Prepare sessions
+    const baseSessions = [
+        // PAST
+        { title: 'Week 1: Introduction to Financial Markets', status: 'ended', scheduled_offset: -10, host: 'Rahul Verma', tags: ['finance'] },
+        { title: 'Module 2: Risk Management', status: 'ended', scheduled_offset: -7, host: 'Rahul Verma', tags: ['finance'] },
+        { title: 'Project Review: Portfolio Allocations', status: 'ended', scheduled_offset: -5, host: 'Rahul Verma', tags: ['finance'] },
+        { title: 'Design Systems 101', status: 'ended', scheduled_offset: -3, host: 'Aditi Sharma', tags: ['design'] },
+        { title: 'Sprint Planning Workshop', status: 'ended', scheduled_offset: -1, host: 'Amit Patel', tags: ['management'] },
+        // UPCOMING
+        { title: 'Week 2: Advanced Equity Research', status: 'scheduled', scheduled_offset: 1, host: 'Rahul Verma', tags: ['finance'] },
+        { title: 'Figma Prototyping Masterclass', status: 'scheduled', scheduled_offset: 2, host: 'Aditi Sharma', tags: ['design'] },
+        { title: 'Guest Lecture: AI in Finance', status: 'scheduled', scheduled_offset: 4, host: 'Dr. S. Gupta', tags: ['finance', 'ai'] },
+        { title: 'Leadership in Crisis', status: 'scheduled', scheduled_offset: 7, host: 'Amit Patel', tags: ['management'] },
+        { title: 'Portfolio Review & Final Presentation', status: 'scheduled', scheduled_offset: 10, host: 'Aditi Sharma', tags: ['design'] }
+    ];
+
+    const sessionsToInsert = baseSessions.map((s, i) => {
+        const course = getRandom(courses);
+        const startTime = new Date(Date.now() + s.scheduled_offset * 86400000);
+        
+        // Check if course.id is a valid UUID
+      const isUuid = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+      const validCourseId = isUuid(course.id) ? course.id : null;
+
+      return {
+        title: s.title,
+        course_id: validCourseId, 
+        course_name: getCourseTitle(course),
+        course_slug: course.slug,
+          status: s.status,
+          scheduled_for: startTime.toISOString(),
+          host_display_name: s.host,
+          host_secret: `secret_${Math.random().toString(36).substring(7)}`, 
+          created_at: startTime.toISOString(),
+          waiting_room_enabled: false,
+          locked: false
+        };
+    });
+
+    // 3. Insert data
+    const { error } = await supabase.from("live_sessions").insert(sessionsToInsert);
+
+    if (error) {
+      return new Response(JSON.stringify({ error: "Insert failed: " + error.message, details: error }), { status: 500, headers: { "Content-Type": "application/json" } });
+    }
+
+    return new Response(JSON.stringify({ 
+        message: `Seeded ${sessionsToInsert.length} sessions using courses: ${courses.map(c => getCourseTitle(c)).join(", ")}` 
+    }), { status: 200, headers: { "Content-Type": "application/json" } });
+  } catch (err) {
+      return new Response(JSON.stringify({ error: "Unexpected error: " + String(err) }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
-
-  return new Response(JSON.stringify({ message: "Seeded 10 sessions successfully into live_sessions!" }), { status: 200, headers: { "Content-Type": "application/json" } });
 });
