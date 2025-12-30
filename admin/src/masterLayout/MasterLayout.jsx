@@ -8,7 +8,7 @@ import useAuth from "../hook/useAuth";
 import { ADMIN_PAGE_DEFINITIONS } from "../data/adminPageDefinitions";
 import getHomePath from "../helper/getHomePath";
 import { EMAIL_WHITELIST, EMAIL_UNLOCK_STORAGE_KEY } from "../components/RequireProgrammerEmailAccess";
-import { fetchEmailAccounts } from "../services/adminEmailInbox";
+
 
 const ADMIN_ROLE_LABELS = {
   admin: 'Admin',
@@ -35,8 +35,7 @@ const MasterLayout = ({ children }) => {
   const normalizedEmail = (admin?.email || '').toLowerCase();
   const hasFullAccess = isProgrammerAdmin || allowedPages.includes("*");
   const hasEmailAccess = isProgrammerAdmin && EMAIL_WHITELIST.includes(normalizedEmail);
-  const [emailSidebarAccounts, setEmailSidebarAccounts] = useState([]);
-  const [emailSidebarLoading, setEmailSidebarLoading] = useState(false);
+
   const [emailUnlocked, setEmailUnlocked] = useState(() => {
     if (typeof window === "undefined") {
       return false;
@@ -84,37 +83,7 @@ const MasterLayout = ({ children }) => {
     }
   }, [isSeo, location.pathname, navigate]);
 
-  useEffect(() => {
-    if (!token || !hasEmailAccess || !emailUnlocked) {
-      setEmailSidebarAccounts([]);
-      return;
-    }
 
-    let cancelled = false;
-    const loadAccounts = async () => {
-      try {
-        setEmailSidebarLoading(true);
-        const response = await fetchEmailAccounts(token);
-        if (!cancelled) {
-          setEmailSidebarAccounts(Array.isArray(response?.accounts) ? response.accounts : []);
-        }
-      } catch (error) {
-        if (!cancelled) {
-          console.warn("[sidebar] Failed to load email accounts", error);
-          setEmailSidebarAccounts([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setEmailSidebarLoading(false);
-        }
-      }
-    };
-
-    loadAccounts();
-    return () => {
-      cancelled = true;
-    };
-  }, [token, hasEmailAccess, emailUnlocked]);
 
   const handleDropdownToggle = (event) => {
     event.preventDefault();
@@ -306,27 +275,7 @@ const MasterLayout = ({ children }) => {
                         All Mailboxes
                       </NavLink>
                     </li>
-                    {emailSidebarLoading ? (
-                      <li className='px-24 py-12 text-secondary-light text-xxs'>
-                        Loading mailboxes...
-                      </li>
-                    ) : emailSidebarAccounts.length === 0 ? (
-                      <li className='px-24 py-12 text-secondary-light text-xxs'>
-                        No Gmail accounts
-                      </li>
-                    ) : (
-                      emailSidebarAccounts.map((account) => (
-                        <li key={account.email}>
-                          <NavLink
-                            to={`/email?account=${encodeURIComponent(account.email)}`}
-                            className={(navData) => (navData.isActive ? "active-page" : "")}
-                          >
-                            <i className='ri-circle-fill circle-icon text-success-main w-auto' />
-                            {account.displayName || account.email}
-                          </NavLink>
-                        </li>
-                      ))
-                    )}
+
                   </ul>
                 ) : null}
               </li>
