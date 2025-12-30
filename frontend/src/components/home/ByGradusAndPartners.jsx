@@ -164,6 +164,7 @@ const ByGradusAndPartners = () => {
 
         </div>
 
+
         <div
           className="brand-box py-24 px-8"
           style={{
