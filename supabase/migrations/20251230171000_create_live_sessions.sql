@@ -1,4 +1,4 @@
-create table public.live_sessions (
+create table IF NOT EXISTS public.live_sessions (
   id uuid not null default gen_random_uuid (),
   title text not null,
   status text null default 'scheduled'::text,

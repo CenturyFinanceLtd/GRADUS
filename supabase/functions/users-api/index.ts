@@ -101,6 +101,12 @@ serve(async (req: Request) => {
         firstName: user.first_name,
         lastName: user.last_name,
         personalDetails: pd || {},
+        city: pd?.city || user.city || null,
+        state: pd?.state || null,
+        zipCode: pd?.zip_code || pd?.zipCode || user.zip_code || null,
+        address: pd?.address || user.address || null,
+        educationDetails: typeof user.education_details === 'string' ? JSON.parse(user.education_details) : (user.education_details || {}),
+        jobDetails: typeof user.job_details === 'string' ? JSON.parse(user.job_details) : (user.job_details || {}),
         emailVerified: user.email_verified,
         authProvider: user.auth_provider
       };
@@ -241,12 +247,56 @@ serve(async (req: Request) => {
     // PUT /me - Update user profile
     if (path.endsWith("/me") && req.method === "PUT") {
       const body = await req.json().catch(() => ({}));
+      // Fetch current data first to ensure we don't overwrite other fields in JSON columns
+      const { data: currentUser, error: fetchError } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", userId)
+        .single();
+      
+      if (fetchError || !currentUser) {
+          return new Response(JSON.stringify({ error: "User not found for update" }), { 
+            status: 404, 
+            headers: { ...cors, "Content-Type": "application/json" } 
+          });
+      }
+
       const updates: any = {};
 
       if (body.firstName !== undefined) updates.first_name = body.firstName;
       if (body.lastName !== undefined) updates.last_name = body.lastName;
       if (body.mobile !== undefined) updates.mobile = body.mobile;
-      if (body.personalDetails !== undefined) updates.personal_details = JSON.stringify(body.personalDetails);
+
+      // Safe Merge for Personal Details
+      if (body.personalDetails !== undefined) {
+          let currentPd = currentUser.personal_details || {};
+          if (typeof currentPd === 'string') {
+              try { currentPd = JSON.parse(currentPd); } catch { currentPd = {}; }
+          }
+          // Merge new details into existing
+          const newPd = { ...currentPd, ...body.personalDetails };
+          updates.personal_details = JSON.stringify(newPd);
+      }
+
+      // Safe Merge for Education Details
+      if (body.educationDetails !== undefined) {
+          let currentEd = currentUser.education_details || {};
+          if (typeof currentEd === 'string') {
+              try { currentEd = JSON.parse(currentEd); } catch { currentEd = {}; }
+          }
+          const newEd = { ...currentEd, ...body.educationDetails };
+          updates.education_details = JSON.stringify(newEd);
+      }
+
+      // Safe Merge for Job Details
+      if (body.jobDetails !== undefined) {
+          let currentJd = currentUser.job_details || {};
+          if (typeof currentJd === 'string') {
+              try { currentJd = JSON.parse(currentJd); } catch { currentJd = {}; }
+          }
+          const newJd = { ...currentJd, ...body.jobDetails };
+          updates.job_details = JSON.stringify(newJd);
+      }
 
       const { data: user, error } = await supabase
         .from("users")
@@ -262,7 +312,7 @@ serve(async (req: Request) => {
         });
       }
 
-      return new Response(JSON.stringify(mapUserToFrontend(user)), { 
+      return new Response(JSON.stringify({ user: mapUserToFrontend(user) }), { 
         headers: { ...cors, "Content-Type": "application/json" } 
       });
     }

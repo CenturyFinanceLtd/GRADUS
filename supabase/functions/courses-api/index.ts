@@ -64,10 +64,19 @@ serve(async (req: Request) => {
        
        try {
           const token = authHeader.replace("Bearer ", "");
-          const JWT_SECRET = Deno.env.get("JWT_SECRET") || "fallback_secret_change_me";
-          const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(JWT_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
-          const payload = await verify(token, key);
-          const userId = payload.id;
+          let userId: string | null = null;
+          
+          // Try Supabase auth first (for Google/Supabase signins)
+          const { data: { user: sbUser } } = await supabase.auth.getUser(token);
+          if (sbUser) {
+            userId = sbUser.id;
+          } else {
+            // Fallback to legacy JWT
+            const JWT_SECRET = Deno.env.get("JWT_SECRET") || "fallback_secret_change_me";
+            const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(JWT_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+            const payload = await verify(token, key);
+            userId = payload.id as string;
+          }
 
           if (!userId) throw new Error("Invalid token");
 
@@ -170,26 +179,41 @@ serve(async (req: Request) => {
     if (req.method === "GET" && firstArg === "modules") {
        const slug = routeParts.slice(1).join("/");
        const authHeader = req.headers.get("Authorization");
-       if (!authHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: cors });
+       
+       let userId: string | null = null;
+       let isEnrolled = false;
+       
+       // Try to authenticate user (optional)
+       if (authHeader) {
+         try {
+           const token = authHeader.replace("Bearer ", "");
+           const JWT_SECRET = Deno.env.get("JWT_SECRET") || "fallback_secret_change_me";
+           
+           // Try Supabase auth first
+           const { data: { user: sbUser } } = await supabase.auth.getUser(token);
+           if (sbUser) {
+             userId = sbUser.id;
+           } else {
+             // Try legacy JWT
+             const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(JWT_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+             const payload = await verify(token, key);
+             userId = payload.id as string;
+           }
+         } catch (e) {
+           // Auth failed but continue as guest
+           console.warn("Auth failed for modules view, continuing as guest:", e);
+         }
+       }
+       
+       // Fetch course basic info
+       const { data: course, error: cErr } = await supabase.from("course").select("id").eq("slug", slug).single();
+       if (cErr || !course) return new Response(JSON.stringify({ error: "Course not found" }), { status: 404, headers: cors });
 
-       try {
-          const token = authHeader.replace("Bearer ", "");
-          const JWT_SECRET = Deno.env.get("JWT_SECRET") || "fallback_secret_change_me";
-          const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(JWT_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
-          const payload = await verify(token, key);
-          const userId = payload.id;
-          
-          if (!userId) throw new Error("Invalid token");
-
-          // Fetch course basic info
-          const { data: course, error: cErr } = await supabase.from("course").select("id").eq("slug", slug).single();
-          if (cErr || !course) return new Response(JSON.stringify({ error: "Course not found" }), { status: 404, headers: cors });
-
-          // Check enrollment to be safe
-          const { data: enr } = await supabase.from("enrollments").select("id").eq("user_id", userId).eq("course_id", course.id).eq("status", "ACTIVE").maybeSingle();
-          if (!enr) {
-             return new Response(JSON.stringify({ error: "Not Enrolled" }), { status: 403, headers: cors });
-          }
+       // Check enrollment if user is logged in
+       if (userId) {
+         const { data: enr } = await supabase.from("enrollments").select("id").eq("user_id", userId).eq("course_id", course.id).eq("status", "ACTIVE").maybeSingle();
+         isEnrolled = !!enr;
+       }
 
           // Fetch detailed modules from course_details
           let modules = [];
@@ -203,12 +227,7 @@ serve(async (req: Request) => {
                modules = courseWithMod?.doc?.modules || [];
           }
 
-          return new Response(JSON.stringify({ modules }), { headers: { ...cors, "Content-Type": "application/json" } });
-
-       } catch (e) {
-          console.error("Modules fetch error:", e);
-          return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: cors });
-       }
+          return new Response(JSON.stringify({ modules, isEnrolled }), { headers: { ...cors, "Content-Type": "application/json" } });
     }
 
 
