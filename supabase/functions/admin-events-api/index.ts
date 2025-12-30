@@ -254,6 +254,8 @@ serve(async (req) => {
         
         tags: body.tags || [],
         category: body.category,
+        badge: body.badge,         // Added badge support
+        event_type: body.eventType || "event", // Added event_type support (default to event)
         
         hero_image: {
             url: body.coverImage || body.thumbnailImage
@@ -363,6 +365,8 @@ serve(async (req) => {
       
       if (body.tags !== undefined) patch.tags = body.tags;
       if (body.category !== undefined) patch.category = body.category;
+      if (body.badge !== undefined) patch.badge = body.badge;
+      if (body.eventType !== undefined) patch.event_type = body.eventType;
       
       if (body.coverImage !== undefined) {
           patch.hero_image = { ...existing.hero_image, url: body.coverImage };

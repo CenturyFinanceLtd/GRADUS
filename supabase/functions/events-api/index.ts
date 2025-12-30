@@ -39,10 +39,16 @@ serve(async (req: Request) => {
         const limit = Number(url.searchParams.get("limit")) || 10;
         const isMasterclass = url.searchParams.get("isMasterclass") === "true";
 
+        const excludeMasterclass = url.searchParams.get("excludeMasterclass") === "true";
+
         let query = supabase.from("events").select("*");
         
         if (isMasterclass) {
-           query = query.eq("status", "published"); // Filter by status instead of type for now
+           // Filter by status AND (badge='Masterclass' OR event_type='masterclass')
+           query = query.eq("status", "published").or("badge.eq.Masterclass,event_type.eq.masterclass,event_type.eq.Masterclass");
+        } else if (excludeMasterclass) {
+           // Filter OUT masterclasses
+           query = query.eq("status", "published").neq("badge", "Masterclass").neq("event_type", "masterclass");
         }
 
         const nowStr = new Date().toISOString();
