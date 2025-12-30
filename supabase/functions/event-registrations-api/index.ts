@@ -150,6 +150,44 @@ serve(async (req: Request) => {
 
             let hasUpdates = false;
 
+            // 2a. Handle Phone-based Reconciliation
+            if (body.phone) {
+                const submittedPhone = body.phone.startsWith("+") ? body.phone : `+${body.phone}`;
+                
+                // If the current profile doesn't have a phone, or it's different
+                if (currentProfile.phone !== submittedPhone) {
+                    console.log(`[Registration] Submitted phone ${submittedPhone} differs from current ${currentProfile.phone}`);
+                    
+                    // Check if another record has this phone
+                    const { data: byPhone } = await supabase.from("users").select("*").eq("phone", submittedPhone).maybeSingle();
+                    
+                    if (byPhone && byPhone.id !== userId) {
+                        console.log(`[Registration] Conflict found! Merging old ID ${byPhone.id} into current ${userId}`);
+                        
+                        // Move dependencies
+                        await supabase.from("masterclass_registrations").update({ user_id: userId }).eq("user_id", byPhone.id);
+                        await supabase.from("enrollments").update({ user_id: userId }).eq("user_id", byPhone.id);
+                        try {
+                            await supabase.from("tickets").update({ user_id: userId }).eq("user_id", byPhone.id);
+                        } catch (e) {}
+
+                        // Copy profile fields if current is missing them
+                        if (!currentProfile.fullname && byPhone.fullname) updates.fullname = byPhone.fullname;
+                        if (!currentProfile.email && byPhone.email) updates.email = byPhone.email;
+                        
+                        // Delete the old record
+                        await supabase.from("users").delete().eq("id", byPhone.id);
+                        
+                        updates.phone = submittedPhone;
+                        hasUpdates = true;
+                    } else {
+                        // No conflict, just update current profile's phone
+                        updates.phone = submittedPhone;
+                        hasUpdates = true;
+                    }
+                }
+            }
+
             // ALWAYS update Personal Details with form values
             if (body.state) { 
                 pd.state = body.state; 
@@ -193,9 +231,9 @@ serve(async (req: Request) => {
             console.log("[Registration] No user profile found for userId:", userId);
         }
 
-        // 3. Register for Event
-        if (!body.eventSlug && !body.eventId) {
-             return jsonResponse({ error: "Event ID or Slug required" }, 400, cors);
+        // 3. Register for Event: Use body.eventId or body.eventSlug
+        if (!body.eventId && !body.eventSlug) {
+            return jsonResponse({ error: "Event ID or Slug required" }, 400, cors);
         }
 
         let eventId = body.eventId;

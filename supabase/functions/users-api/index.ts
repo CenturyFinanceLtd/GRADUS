@@ -268,19 +268,81 @@ serve(async (req: Request) => {
 
         if (byId && byPhone && byId.id !== byPhone.id) {
           // CONFLICT: Two different records.
-          // Merge 'phone' into the 'byId' record and delete 'byPhone' record
-          console.log("[Reconciliation] Merging records. Keeping ID:", userId, "Deleting ID:", byPhone.id);
+          // Merge 'byPhone' into the 'byId' record and delete 'byPhone' record
+          console.log("[Reconciliation] Merging records. New ID:", userId, "Old ID:", byPhone.id);
           
-          // 1. Update the record that has the correct session ID to include the phone
+          // 1. Relink all dependent records to the new ID
+          // We do this BEFORE updating the user record to avoid FK issues if we were changing IDs,
+          // but here we are moving data from one user to another.
+          
+          const transferDependencies = async (oldId: string, newId: string) => {
+            console.log(`[Reconciliation] Transferring data from ${oldId} to ${newId}`);
+            
+            // a. Masterclass Registrations
+            const { error: regErr } = await supabase
+              .from("masterclass_registrations")
+              .update({ user_id: newId })
+              .eq("user_id", oldId);
+            if (regErr) console.error("[Reconciliation] Failed to transfer registrations:", regErr.message);
+
+            // b. Enrollments
+            const { error: enrErr } = await supabase
+              .from("enrollments")
+              .update({ user_id: newId })
+              .eq("user_id", oldId);
+            if (enrErr) console.error("[Reconciliation] Failed to transfer enrollments:", enrErr.message);
+
+            // c. Tickets (if table exists)
+            try {
+              const { error: tickErr } = await supabase
+                .from("tickets")
+                .update({ user_id: newId })
+                .eq("user_id", oldId);
+              if (tickErr) console.error("[Reconciliation] Failed to transfer tickets:", tickErr.message);
+            } catch (e) {
+              console.log("[Reconciliation] Tickets table might not exist, skipping.");
+            }
+          };
+
+          await transferDependencies(byPhone.id, userId);
+
+          // 2. Merge profile data: Copy fields from byPhone to byId if byId is missing them
+          const updates: any = { phone: phone, auth_provider: 'PHONE' };
+          
+          if (!byId.fullname && byPhone.fullname) updates.fullname = byPhone.fullname;
+          if (!byId.first_name && byPhone.first_name) updates.first_name = byPhone.first_name;
+          if (!byId.last_name && byPhone.last_name) updates.last_name = byPhone.last_name;
+          if (!byId.email && byPhone.email) updates.email = byPhone.email;
+          if (!byId.mobile && byPhone.mobile) updates.mobile = byPhone.mobile;
+          
+          // Merge JSONB fields safely if they exist
+          const mergeDetails = (target: any, source: any) => {
+            let t = target || {};
+            if (typeof t === 'string') try { t = JSON.parse(t); } catch { t = {}; }
+            let s = source || {};
+            if (typeof s === 'string') try { s = JSON.parse(s); } catch { s = {}; }
+            return { ...s, ...t }; // Current (target) takes precedence
+          };
+
+          if (byPhone.personal_details) {
+            updates.personal_details = mergeDetails(byId.personal_details, byPhone.personal_details);
+          }
+          if (byPhone.education_details) {
+            updates.education_details = mergeDetails(byId.education_details, byPhone.education_details);
+          }
+          if (byPhone.job_details) {
+            updates.job_details = mergeDetails(byId.job_details, byPhone.job_details);
+          }
+
           const { data: merged, error: mergeError } = await supabase
             .from("users")
-            .update({ phone: phone })
+            .update(updates)
             .eq("id", userId)
             .select()
             .single();
           
           if (!mergeError) {
-            // 2. Delete the old record that had the phone but the wrong ID
+            // 3. Delete the old record
             await supabase.from("users").delete().eq("id", byPhone.id);
             user = merged;
           } else {
