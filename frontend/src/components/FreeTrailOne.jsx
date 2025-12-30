@@ -99,7 +99,7 @@ const FreeTrailOne = () => {
               </ul>
               <div className='pt-40 border-top border-neutral-50 mt-40 border-dashed border-0'>
                 <Link
-                  to='/sign-up'
+                  to='/sign-in'
                   className='btn btn-main rounded-pill flex-align d-inline-flex gap-8'
                 >
                   Register Now

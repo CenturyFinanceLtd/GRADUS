@@ -40,8 +40,6 @@ const InvestorsPrivacyPage = lazy(() => import("./pages/InvestorsPrivacyPage.jsx
 const ProductPage = lazy(() => import("./pages/ProductPage.jsx"));
 const ProductDetailsPage = lazy(() => import("./pages/ProductDetailsPage.jsx"));
 const SignInPage = lazy(() => import("./pages/SignInPage.jsx"));
-const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage.jsx"));
-const SignUpPage = lazy(() => import("./pages/SignUpPage.jsx"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage.jsx"));
 const TuitionJobsPage = lazy(() => import("./pages/TuitionJobsPage.jsx"));
 const TutorPage = lazy(() => import("./pages/TutorPage.jsx"));
@@ -193,8 +191,8 @@ function App() {
           <Route exact path='/product' element={<ProductPage />} />
           <Route exact path='/product-details' element={<ProductDetailsPage />} />
           <Route exact path='/sign-in' element={<SignInPage />} />
-          <Route exact path='/forgot-password' element={<ForgotPasswordPage />} />
-          <Route exact path='/sign-up' element={<SignUpPage />} />
+          <Route exact path='/sign-up' element={<Navigate to='/sign-in' replace />} />
+          <Route exact path='/forgot-password' element={<Navigate to='/sign-in' replace />} />
           <Route exact path='/auth/callback' element={<GoogleAuthCallback />} />
           <Route exact path='/auth/google/callback' element={<GoogleAuthCallback />} />
           <Route

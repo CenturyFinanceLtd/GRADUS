@@ -96,7 +96,6 @@ export const login = async (email, password) => {
 
 /**
  * Login with Google OAuth via Supabase
- * Simple approach: Let Supabase handle the entire OAuth flow
  */
 export const loginWithGoogle = async () => {
   const redirectUrl = `${window.location.origin}/auth/google/callback`;
@@ -113,6 +112,67 @@ export const loginWithGoogle = async () => {
   }
 
   return data;
+};
+
+/**
+ * Trigger OTP SMS for phone login
+ */
+export const signInWithPhone = async (phone) => {
+  // Ensure phone starts with +
+  const formattedPhone = phone.startsWith("+") ? phone : `+${phone}`;
+
+  const { data, error } = await supabase.auth.signInWithOtp({
+    phone: formattedPhone,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+/**
+ * Verify OTP and establish session
+ */
+export const verifyPhoneOtp = async (phone, token) => {
+  const formattedPhone = phone.startsWith("+") ? phone : `+${phone}`;
+
+  const {
+    data: { session, user },
+    error,
+  } = await supabase.auth.verifyOtp({
+    phone: formattedPhone,
+    token,
+    type: "sms",
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  // After successful phone validation, ensure backend has a profile
+  if (user) {
+    try {
+      await apiClient("/auth/supabase/create-profile", {
+        method: "POST",
+        data: {
+          supabaseId: user.id,
+          phone: formattedPhone,
+          email: user.email || null,
+        },
+      });
+    } catch (profileError) {
+      console.error("Failed to sync phone profile:", profileError);
+    }
+  }
+
+  return {
+    user,
+    session,
+    token: session?.access_token,
+    type: "supabase",
+  };
 };
 
 /**

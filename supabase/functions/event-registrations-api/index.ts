@@ -80,14 +80,106 @@ serve(async (req: Request) => {
     // POST / - Public Register
     if ((apiPath === "/" || apiPath === "") && req.method === "POST") {
         const body = await req.json().catch(() => ({}));
-        const { data, error } = await supabase.from("event_registrations").insert([{
-            event_slug: body.eventSlug,
-            first_name: body.firstName,
-            last_name: body.lastName,
-            email: body.email,
-            phone: body.phone,
-            city: body.city,
-            occupation: body.occupation,
+        
+        const { user, error } = await verifyUser(req, supabase);
+        if (!user) return jsonResponse({ error: error || "Unauthorized" }, 401, cors);
+        
+        const userId = user.id;
+
+        // 2. Update User Profile if needed
+        // (State, City, College, etc. from form)
+        // Check current profile first to avoid overwriting existing data if we want to be safe,
+        // but requirement says "if valid string... update".
+        // Actually requirement: "if available ... ask to fill ... added data will get store"
+        // "any data which is fethed from database that can't be edited ... only new data can be add"
+        
+        const { data: currentProfile } = await supabase.from("users").select("*").eq("id", userId).single();
+        
+        console.log("[Registration] Body received:", JSON.stringify(body));
+        
+        if (currentProfile) {
+            const updates: any = {};
+            let pd = currentProfile.personal_details || {};
+            if (typeof pd === 'string') {
+                try { pd = JSON.parse(pd); } catch { pd = {}; }
+            }
+            
+            let ed = currentProfile.education_details || {};
+            if (typeof ed === 'string') {
+                 try { ed = JSON.parse(ed); } catch { ed = {}; }
+            }
+
+            let hasUpdates = false;
+
+            // ALWAYS update Personal Details with form values
+            if (body.state) { 
+                pd.state = body.state; 
+                hasUpdates = true; 
+            }
+            if (body.city) { 
+                pd.city = body.city; 
+                hasUpdates = true; 
+            }
+            
+            if (body.state || body.city) {
+                updates.personal_details = pd;
+            }
+
+            // ALWAYS update Education Details with form value
+            if (body.college) {
+                ed.institutionName = body.college;
+                updates.education_details = ed;
+                hasUpdates = true;
+            }
+            
+            // Also top level city column
+            if (body.city) { 
+                updates.city = body.city; 
+            }
+
+            console.log("[Registration] Updates to apply:", JSON.stringify(updates));
+
+            if (hasUpdates) {
+                console.log("[Registration] Updating user profile:", userId);
+                const { error: updateError, data: updateData } = await supabase.from("users").update(updates).eq("id", userId).select();
+                if (updateError) {
+                    console.error("[Registration] Failed to update user profile:", updateError);
+                } else {
+                    console.log("[Registration] Profile updated successfully:", JSON.stringify(updateData));
+                }
+            } else {
+                console.log("[Registration] No profile updates - no data provided in form");
+            }
+        } else {
+            console.log("[Registration] No user profile found for userId:", userId);
+        }
+
+        // 3. Register for Event
+        if (!body.eventSlug && !body.eventId) {
+             return jsonResponse({ error: "Event ID or Slug required" }, 400, cors);
+        }
+
+        let eventId = body.eventId;
+        if (!eventId && body.eventSlug) {
+             const { data: event } = await supabase.from("events").select("id").eq("slug", body.eventSlug).single();
+             if (!event) return jsonResponse({ error: "Event not found" }, 404, cors);
+             eventId = event.id;
+        }
+
+        // Check existing registration
+        const { data: existing } = await supabase.from("masterclass_registrations")
+            .select("id")
+            .eq("event_id", eventId)
+            .eq("user_id", userId)
+            .maybeSingle();
+
+        if (existing) {
+             return jsonResponse({ message: "Already registered", alreadyRegistered: true }, 200, cors);
+        }
+
+        const { data: newReg, error: regError } = await supabase.from("masterclass_registrations").insert([{
+            event_id: eventId,
+            user_id: userId,
             status: "registered"
         }]).select().single();
         if (error) return jsonResponse({ error: error.message }, 500, cors);
