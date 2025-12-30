@@ -1,4 +1,5 @@
 ﻿/* eslint-disable react/prop-types */
+// Verified: No RequireProgrammerEmailAccess import
 import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Link, NavLink, Navigate, useLocation, useNavigate, matchPath } from "react-router-dom";
