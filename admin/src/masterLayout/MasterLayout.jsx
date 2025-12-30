@@ -7,8 +7,7 @@ import { ToastContainer } from 'react-toastify';
 import useAuth from "../hook/useAuth";
 import { ADMIN_PAGE_DEFINITIONS } from "../data/adminPageDefinitions";
 import getHomePath from "../helper/getHomePath";
-import { EMAIL_WHITELIST, EMAIL_UNLOCK_STORAGE_KEY } from "../components/RequireProgrammerEmailAccess";
-import { fetchEmailAccounts } from "../services/adminEmailInbox";
+
 
 const ADMIN_ROLE_LABELS = {
   admin: 'Admin',
@@ -32,18 +31,8 @@ const MasterLayout = ({ children }) => {
     () => (Array.isArray(permissions?.allowedPages) ? permissions.allowedPages : []),
     [permissions]
   );
-  const normalizedEmail = (admin?.email || '').toLowerCase();
   const hasFullAccess = isProgrammerAdmin || allowedPages.includes("*");
-  const hasEmailAccess = isProgrammerAdmin && EMAIL_WHITELIST.includes(normalizedEmail);
-  const [emailSidebarAccounts, setEmailSidebarAccounts] = useState([]);
-  const [emailSidebarLoading, setEmailSidebarLoading] = useState(false);
-  const [emailUnlocked, setEmailUnlocked] = useState(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-    return localStorage.getItem(EMAIL_UNLOCK_STORAGE_KEY) === "true";
-  });
-  const [, setEmailUnlockCount] = useState(0);
+
 
   const pageDefinition = useMemo(() => {
     const currentPath = isSeo && location.pathname === '/' ? '/index-9' : location.pathname;
@@ -66,17 +55,7 @@ const MasterLayout = ({ children }) => {
     }
   }, [loading, navigate, token]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    if (emailUnlocked) {
-      localStorage.setItem(EMAIL_UNLOCK_STORAGE_KEY, "true");
-      window.dispatchEvent(new Event("gradus-email-unlocked"));
-    } else {
-      localStorage.removeItem(EMAIL_UNLOCK_STORAGE_KEY);
-    }
-  }, [emailUnlocked]);
+
 
   useEffect(() => {
     if (isSeo && location.pathname === '/index-9') {
@@ -84,37 +63,7 @@ const MasterLayout = ({ children }) => {
     }
   }, [isSeo, location.pathname, navigate]);
 
-  useEffect(() => {
-    if (!token || !hasEmailAccess || !emailUnlocked) {
-      setEmailSidebarAccounts([]);
-      return;
-    }
 
-    let cancelled = false;
-    const loadAccounts = async () => {
-      try {
-        setEmailSidebarLoading(true);
-        const response = await fetchEmailAccounts(token);
-        if (!cancelled) {
-          setEmailSidebarAccounts(Array.isArray(response?.accounts) ? response.accounts : []);
-        }
-      } catch (error) {
-        if (!cancelled) {
-          console.warn("[sidebar] Failed to load email accounts", error);
-          setEmailSidebarAccounts([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setEmailSidebarLoading(false);
-        }
-      }
-    };
-
-    loadAccounts();
-    return () => {
-      cancelled = true;
-    };
-  }, [token, hasEmailAccess, emailUnlocked]);
 
   const handleDropdownToggle = (event) => {
     event.preventDefault();
@@ -177,22 +126,7 @@ const MasterLayout = ({ children }) => {
     navigate('/sign-in', { replace: true });
   };
 
-  const handleEmailMenuClick = (event) => {
-    if (!emailUnlocked) {
-      event.preventDefault();
-      event.stopPropagation();
-      setEmailUnlockCount((prev) => {
-        const next = prev + 1;
-        if (next >= 6) {
-          setEmailUnlocked(true);
-          return 6;
-        }
-        return next;
-      });
-      return;
-    }
-    handleDropdownToggle(event);
-  };
+
 
   if (loading || permissionsLoading) {
     return (
@@ -289,48 +223,7 @@ const MasterLayout = ({ children }) => {
                 <span>Customer Support</span>
               </NavLink>
             </li>
-            {hasEmailAccess && (
-              <li className={`dropdown ${!emailUnlocked ? 'email-locked' : ''}`}>
-                <Link to='#' onClick={handleEmailMenuClick}>
-                  <Icon icon='mdi:email-outline' className='menu-icon' />
-                  <span>Email</span>
-                </Link>
-                {emailUnlocked ? (
-                  <ul className='sidebar-submenu'>
-                    <li>
-                      <NavLink
-                        to='/email'
-                        className={(navData) => (navData.isActive ? "active-page" : "")}
-                      >
-                        <i className='ri-circle-fill circle-icon text-primary-600 w-auto' />
-                        All Mailboxes
-                      </NavLink>
-                    </li>
-                    {emailSidebarLoading ? (
-                      <li className='px-24 py-12 text-secondary-light text-xxs'>
-                        Loading mailboxes...
-                      </li>
-                    ) : emailSidebarAccounts.length === 0 ? (
-                      <li className='px-24 py-12 text-secondary-light text-xxs'>
-                        No Gmail accounts
-                      </li>
-                    ) : (
-                      emailSidebarAccounts.map((account) => (
-                        <li key={account.email}>
-                          <NavLink
-                            to={`/email?account=${encodeURIComponent(account.email)}`}
-                            className={(navData) => (navData.isActive ? "active-page" : "")}
-                          >
-                            <i className='ri-circle-fill circle-icon text-success-main w-auto' />
-                            {account.displayName || account.email}
-                          </NavLink>
-                        </li>
-                      ))
-                    )}
-                  </ul>
-                ) : null}
-              </li>
-            )}
+
             {(hasFullAccess || allowedPages.includes('user_list')) && (
               <li>
                 <NavLink
