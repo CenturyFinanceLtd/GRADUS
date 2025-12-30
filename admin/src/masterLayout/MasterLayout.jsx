@@ -8,7 +8,7 @@ import { ToastContainer } from 'react-toastify';
 import useAuth from "../hook/useAuth";
 import { ADMIN_PAGE_DEFINITIONS } from "../data/adminPageDefinitions";
 import getHomePath from "../helper/getHomePath";
-import { EMAIL_WHITELIST, EMAIL_UNLOCK_STORAGE_KEY } from "../components/RequireProgrammerEmailAccess";
+
 
 
 const ADMIN_ROLE_LABELS = {
@@ -224,29 +224,6 @@ const MasterLayout = ({ children }) => {
                 <span>Customer Support</span>
               </NavLink>
             </li>
-            {hasEmailAccess && (
-              <li className={`dropdown ${!emailUnlocked ? 'email-locked' : ''}`}>
-                <Link to='#' onClick={handleEmailMenuClick}>
-                  <Icon icon='mdi:email-outline' className='menu-icon' />
-                  <span>Email</span>
-                </Link>
-                {emailUnlocked ? (
-                  <ul className='sidebar-submenu'>
-                    <li>
-                      <NavLink
-                        to='/email'
-                        className={(navData) => (navData.isActive ? "active-page" : "")}
-                      >
-                        <i className='ri-circle-fill circle-icon text-primary-600 w-auto' />
-                        All Mailboxes
-                      </NavLink>
-                    </li>
-
-                  </ul>
-                ) : null}
-              </li>
-            )}
-
             {(hasFullAccess || allowedPages.includes('user_list')) && (
               <li>
                 <NavLink
