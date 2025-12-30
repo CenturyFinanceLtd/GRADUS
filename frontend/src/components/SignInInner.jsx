@@ -5,7 +5,7 @@ import apiClient from "../services/apiClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import resolveGoogleRedirectUri from "../utils/googleRedirect.js";
 import resolvePostAuthRedirect from "../utils/resolvePostAuthRedirect.js";
-import { loginWithGoogle } from "../services/authService.js";
+import { loginWithGoogle, signInWithPhone, verifyPhoneOtp } from "../services/authService.js";
 
 const stepKeys = {
   PHONE: "PHONE",
@@ -13,12 +13,11 @@ const stepKeys = {
 };
 
 const SignInInner = ({ isModal = false, redirectPath = null }) => {
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ phone: "", otp: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
-  const [currentStep, setCurrentStep] = useState(stepKeys.EMAIL);
+  const [currentStep, setCurrentStep] = useState(stepKeys.PHONE);
   const navigate = useNavigate();
   const location = useLocation();
   const { setAuth } = useAuth();
