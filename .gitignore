@@ -83,3 +83,6 @@ supabase/.temp/
 # yarn.lock
 # pnpm-lock.yaml
 backend/package-lock.json
+/gradus-mobile
+Gradus app.pdf
+/GRADUS-APP
