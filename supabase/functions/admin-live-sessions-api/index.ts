@@ -91,26 +91,25 @@ async function verifyAdminToken(req: Request, supabase: SupabaseClient): Promise
 // Serialization
 // ============================================================================
 
-function serializeSession(event: any) {
-    if (!event) return null;
+function serializeSession(session: any) {
+    if (!session) return null;
     return {
-        id: event.id,
-        title: event.title,
-        scheduledFor: event.schedule?.start,
-        status: event.status || "draft",
-        courseName: event.subtitle || event.title, // Fallback
+        id: session.id,
+        title: session.title,
+        scheduledFor: session.scheduled_for,
+        status: session.status || "scheduled",
+        courseName: session.course_name || "Course",
         
-        // Mocking LiveKit specific fields for now to prevent frontend crash
         participantCount: 0,
         meetingToken: null, 
-        hostSecret: null, // Security: Don't expose this in list
+        hostSecret: null, // Security
         
         instructor: {
-            name: event.host?.name || "Instructor",
-            id: "admin" // Placeholder
+            name: session.host_display_name || "Instructor",
+            id: session.host_admin_id
         },
         
-        createdAt: event.created_at
+        createdAt: session.created_at
     };
 }
 
@@ -136,19 +135,9 @@ serve(async (req) => {
       return jsonResponse({ error: authError || "Unauthorized" }, 401, cors);
     }
     
-    const url = new URL(req.url);
-    const path = url.pathname.replace(/\/$/, "");
-    
-    // Check for POST creation (simple pass-through to reuse logic or separate)
-    // For now, we mainly need the LIST (GET /) to work.
-    
     if (req.method === "GET") {
-        // Fetch valid sessions (event_type = 'live_session' OR just all events for now used as sessions?)
-        // The previous context implies events ARE the sessions. 
-        // We will fetch all events that look like sessions.
-        
-        const { data: events, error } = await supabase
-            .from("events")
+        const { data: sessions, error } = await supabase
+            .from("live_sessions")
             .select("*")
             .order("created_at", { ascending: false });
             
@@ -156,11 +145,11 @@ serve(async (req) => {
             return jsonResponse({ error: error.message }, 500, cors);
         }
         
-        const sessions = (events || []).map(serializeSession);
-        return jsonResponse({ sessions }, 200, cors);
+        const list = (sessions || []).map(serializeSession);
+        return jsonResponse({ sessions: list }, 200, cors);
     }
 
-    return jsonResponse({ error: "Method not supported yet for this migration" }, 405, cors);
+    return jsonResponse({ error: "Method not supported yet" }, 405, cors);
 
   } catch (error) {
     console.error("Admin Live Sessions API Error:", error);
