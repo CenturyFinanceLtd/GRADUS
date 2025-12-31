@@ -91,18 +91,34 @@ serve(async (req: Request) => {
     const funcIndex = pathParts.indexOf("event-registrations-api");
     const apiPath = "/" + pathParts.slice(funcIndex + 1).join("/");
 
-    // GET / - Admin List
+    // GET / - Admin List OR User's Own Registrations
     if ((apiPath === "/" || apiPath === "") && req.method === "GET") {
+        // 1. Try Admin
         const { admin } = await verifyAdminToken(req, supabase);
-        if (!admin) return jsonResponse({ error: "Unauthorized" }, 401, cors);
-        
-        const search = url.searchParams.get("search");
-        let query = supabase.from("event_registrations").select("*");
-        if (search) query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`);
-        
-        const { data, error } = await query.order("created_at", { ascending: false });
-        if (error) return jsonResponse({ error: error.message }, 500, cors);
-        return jsonResponse({ items: data }, 200, cors);
+        if (admin) {
+             const search = url.searchParams.get("search");
+             let query = supabase.from("event_registrations").select("*"); // View with extra details
+             if (search) query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`);
+             
+             const { data, error } = await query.order("created_at", { ascending: false });
+             if (error) return jsonResponse({ error: error.message }, 500, cors);
+             return jsonResponse({ items: data }, 200, cors);
+        }
+
+        // 2. Try User
+        const { user } = await verifyUser(req, supabase);
+        if (user) {
+             // Return only this user's registrations
+             const { data, error } = await supabase
+                .from("masterclass_registrations")
+                .select("*")
+                .eq("user_id", user.id); // Validated user ID
+             
+             if (error) return jsonResponse({ error: error.message }, 500, cors);
+             return jsonResponse({ items: data }, 200, cors);
+        }
+
+        return jsonResponse({ error: "Unauthorized" }, 401, cors);
     }
     
     // POST / - Public Register

@@ -51,11 +51,11 @@ const PermissionLayer = () => {
         if (prev) {
           return prev;
         }
-        const defaultRole = availableRoles.find((role) => role.key !== "programmer_admin");
+        const defaultRole = availableRoles.find((role) => role.value !== "programmer_admin");
         if (defaultRole) {
-          return normalizeRole(defaultRole.key);
+          return normalizeRole(defaultRole.value);
         }
-        return availableRoles[0] ? normalizeRole(availableRoles[0].key) : "";
+        return availableRoles[0] ? normalizeRole(availableRoles[0].value) : "";
       });
     } catch (err) {
       setError(err.message || "Unable to load role permissions.");
@@ -252,7 +252,7 @@ const PermissionLayer = () => {
           <div className='card-body p-0'>
             <ul className='list-group list-group-flush'>
               {roles.map((role, index) => {
-                const normalized = normalizeRole(role.key);
+                const normalized = normalizeRole(role.value);
                 const isActive = normalized === selectedRole;
                 const roleClasses = [
                   "list-group-item",
@@ -266,7 +266,7 @@ const PermissionLayer = () => {
                 }
                 return (
                   <li
-                    key={role.key || index}
+                    key={role.value || index}
                     className={roleClasses.join(" ")}
                     onClick={() => handleRoleSelect(normalized)}
                     role='button'
