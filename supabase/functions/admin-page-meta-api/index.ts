@@ -67,7 +67,7 @@ serve(async (req: Request) => {
 
     // GET /
     if ((apiPath === "/" || apiPath === "") && req.method === "GET") {
-       const { data, error } = await supabase.from("page_meta").select("*").order("route", { ascending: true });
+       const { data, error } = await supabase.from("page_metas").select("*").order("route", { ascending: true });
        if (error) return jsonResponse({ error: error.message }, 500, cors);
        return jsonResponse({ items: data }, 200, cors);
     }
@@ -76,7 +76,7 @@ serve(async (req: Request) => {
     if ((apiPath === "/" || apiPath === "") && req.method === "POST") {
        const body = await req.json().catch(() => ({}));
        const { route, title, description, keywords, ogImage } = body;
-       const { data, error } = await supabase.from("page_meta").insert([{
+       const { data, error } = await supabase.from("page_metas").insert([{
           route, title, description, keywords, og_image: ogImage
        }]).select().single();
        if (error) return jsonResponse({ error: error.message }, 500, cors);
@@ -95,7 +95,7 @@ serve(async (req: Request) => {
       if (body.keywords) patch.keywords = body.keywords;
       if (body.ogImage) patch.og_image = body.ogImage;
 
-      const { data, error } = await supabase.from("page_meta").update(patch).eq("id", id).select().single();
+      const { data, error } = await supabase.from("page_metas").update(patch).eq("id", id).select().single();
       if (error) return jsonResponse({ error: error.message }, 500, cors);
       return jsonResponse({ item: data }, 200, cors);
     }
@@ -103,7 +103,7 @@ serve(async (req: Request) => {
     // DELETE /:id
     if (idMatch && req.method === "DELETE") {
       const id = idMatch[1];
-      const { error } = await supabase.from("page_meta").delete().eq("id", id);
+      const { error } = await supabase.from("page_metas").delete().eq("id", id);
       if (error) return jsonResponse({ error: error.message }, 500, cors);
       return jsonResponse({ message: "Deleted" }, 200, cors);
     }

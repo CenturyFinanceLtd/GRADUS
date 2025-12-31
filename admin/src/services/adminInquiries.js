@@ -16,31 +16,31 @@ const buildQueryString = (params = {}) => {
 };
 
 export const fetchContactInquiries = ({ token, search, region } = {}) =>
-  apiClient(`/inquiries${buildQueryString({ search, region })}`, {
+  apiClient(`/admin/inquiries${buildQueryString({ search, region })}`, {
     token,
   });
 
 export const getContactInquiry = ({ token, inquiryId } = {}) =>
-  apiClient(`/inquiries/${inquiryId}`, {
+  apiClient(`/admin/inquiries/${inquiryId}`, {
     token,
   });
 
 export const createContactInquiryAdmin = ({ token, data } = {}) =>
-  apiClient(`/inquiries`, {
+  apiClient(`/admin/inquiries`, {
     method: "POST",
     token,
     data,
   });
 
 export const updateContactInquiry = ({ token, inquiryId, data } = {}) =>
-  apiClient(`/inquiries/${inquiryId}`, {
+  apiClient(`/admin/inquiries/${inquiryId}`, {
     method: "PATCH",
     token,
     data,
   });
 
 export const deleteContactInquiry = ({ token, inquiryId } = {}) =>
-  apiClient(`/inquiries/${inquiryId}`, {
+  apiClient(`/admin/inquiries/${inquiryId}`, {
     method: "DELETE",
     token,
   });
@@ -75,27 +75,42 @@ export const deleteEventRegistration = ({ token, registrationId } = {}) =>
     token,
   });
 
-export const sendEventRegistrationJoinLinks = ({ token, registrationIds, joinUrl, subject, additionalNote } = {}) =>
+export const sendEventRegistrationJoinLinks = ({
+  token,
+  registrationIds,
+  joinUrl,
+  subject,
+  additionalNote,
+} = {}) =>
   apiClient(`/event-registrations/send-join-link`, {
     method: "POST",
     token,
     data: { registrationIds, joinUrl, subject, additionalNote },
   });
 
-export const resendEventRegistrationConfirmation = ({ token, registrationId } = {}) =>
+export const resendEventRegistrationConfirmation = ({
+  token,
+  registrationId,
+} = {}) =>
   apiClient(`/event-registrations/${registrationId}/resend-confirmation`, {
     method: "POST",
     token,
   });
 
-export const resendEventRegistrationConfirmationsBulk = ({ token, registrationIds } = {}) =>
+export const resendEventRegistrationConfirmationsBulk = ({
+  token,
+  registrationIds,
+} = {}) =>
   apiClient(`/event-registrations/resend-confirmations`, {
     method: "POST",
     token,
     data: { registrationIds },
   });
 
-export const syncEventRegistrationsToSheet = ({ token, registrationIds } = {}) =>
+export const syncEventRegistrationsToSheet = ({
+  token,
+  registrationIds,
+} = {}) =>
   apiClient(`/event-registrations/sync-sheet`, {
     method: "POST",
     token,

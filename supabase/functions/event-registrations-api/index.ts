@@ -169,28 +169,36 @@ serve(async (req: Request) => {
         if (body.city) pd.city = body.city;
         if (body.college) ed.institutionName = body.college;
 
+        if (body.college) ed.institutionName = body.college;
+
         // Only add JSON fields to updates if they have content
         if (Object.keys(pd).length > 0) updates.personal_details = pd;
         if (Object.keys(ed).length > 0) updates.education_details = ed;
+        
+        // FORCE an update to prove we touched the DB
+        updates.updated_at = new Date().toISOString();
 
         // Execute Upsert (Update if exists, Insert if missing)
-        // We use Upsert to be robust against missing rows
-        if (Object.keys(updates).length > 0) {
-            console.log("[Registration] Upserting user profile:", userId, JSON.stringify(updates));
-            
-            const { error: upsertError } = await supabase.from("users").upsert({
-                id: userId,
-                ...updates,
-                updated_at: new Date().toISOString()
-            }).select();
+        console.log("[Registration] Upserting user profile:", userId, JSON.stringify(updates));
+        
+        let upsertResult: any = null;
+        let upsertError: any = null;
 
-            if (upsertError) {
-                console.error("[Registration] Profile upsert failed:", upsertError);
-                // We don't block registration, but this is bad.
-            } else {
-                 console.log("[Registration] Profile upsert success");
-            }
+        const { data: upData, error: upError } = await supabase.from("users").upsert({
+            id: userId,
+            ...updates
+        }).select();
+        
+        upsertResult = upData;
+        upsertError = upError;
+
+        if (upsertError) {
+            console.error("[Registration] Profile upsert failed:", upsertError);
+        } else {
+             console.log("[Registration] Profile upsert success", upData);
         }
+
+        // 3. Register for Event（if not registered logic...）
 
         // 3. Register for Event
         if (!body.eventSlug && !body.eventId) {
@@ -221,7 +229,13 @@ serve(async (req: Request) => {
             status: "registered"
         }]).select().single();
         if (regError) return jsonResponse({ error: regError.message }, 500, cors);
-        return jsonResponse({ success: true, item: newReg }, 201, cors);
+        
+        // Return success with debug info about what was updated
+        return jsonResponse({ 
+            success: true, 
+            item: newReg,
+            debug_updates: updates
+        }, 201, cors);
     }
     
     // POST /send-join-link ... etc (Admin) - Placeholder
