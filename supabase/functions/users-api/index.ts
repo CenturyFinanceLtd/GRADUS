@@ -144,7 +144,7 @@ serve(async (req: Request) => {
       });
     }
 
-    const token = authHeader.replace("Bearer ", "");
+    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
     let userId: string;
 
     // 1. Try Supabase Auth Verification (for Google/Supabase Signins)
@@ -170,8 +170,12 @@ serve(async (req: Request) => {
         if (!userId) throw new Error("Token payload missing user id");
       } catch (jwtErr) {
         console.error("Auth check failed (Both Supabase and Custom JWT):", authError, jwtErr);
+        
+        // Return clearer error message
+        const message = authError?.message || (jwtErr as any).message || "Invalid token";
+        
         return new Response(JSON.stringify({ 
-          error: "Invalid token", 
+          error: message, 
           details: { 
             supabase: authError?.message, 
             custom: (jwtErr as any).message 
@@ -344,6 +348,8 @@ serve(async (req: Request) => {
       }
 
       const updates: any = {};
+      
+      const toNull = (val: any) => (val === "" || val === undefined) ? null : val;
 
       // Basic info
       if (body.fullname !== undefined) updates.fullname = body.fullname;
@@ -364,33 +370,33 @@ serve(async (req: Request) => {
       if (body.personalDetails?.address !== undefined) updates.address = body.personalDetails.address;
       if (body.personalDetails?.city !== undefined) updates.city = body.personalDetails.city;
       if (body.personalDetails?.state !== undefined) updates.state = body.personalDetails.state;
-      if (body.personalDetails?.zipCode !== undefined) updates.pincode = body.personalDetails.zipCode;
-      if (body.personalDetails?.dob !== undefined) updates.dob = body.personalDetails.dob;
+      if (body.personalDetails?.zipCode !== undefined) updates.pincode = toNull(body.personalDetails.zipCode);
+      if (body.personalDetails?.dob !== undefined) updates.dob = toNull(body.personalDetails.dob);
 
       // Flat Academic Info
-      if (body.educationDetails?.passingYear !== undefined) updates.graduation_year = body.educationDetails.passingYear;
+      if (body.educationDetails?.passingYear !== undefined) updates.graduation_year = toNull(body.educationDetails.passingYear);
       if (body.educationDetails?.fieldOfStudy !== undefined) updates.degree = body.educationDetails.fieldOfStudy;
       if (body.educationDetails?.institutionName !== undefined) updates.college = body.educationDetails.institutionName;
 
       // Flat Job Info
       if (body.jobDetails?.company !== undefined) updates.company_name = body.jobDetails.company;
       if (body.jobDetails?.designation !== undefined) updates.designation = body.jobDetails.designation;
-      if (body.jobDetails?.experienceYears !== undefined) updates.years_of_experience = body.jobDetails.experienceYears;
+      if (body.jobDetails?.experienceYears !== undefined) updates.years_of_experience = toNull(body.jobDetails.experienceYears);
       if (body.jobDetails?.linkedin !== undefined) updates.linkedin_url = body.jobDetails.linkedin;
 
       // Also support direct flat fields if sent
-      if (body.graduation_year !== undefined) updates.graduation_year = body.graduation_year;
+      if (body.graduation_year !== undefined) updates.graduation_year = toNull(body.graduation_year);
       if (body.degree !== undefined) updates.degree = body.degree;
       if (body.college !== undefined) updates.college = body.college;
       if (body.company_name !== undefined) updates.company_name = body.company_name;
       if (body.designation !== undefined) updates.designation = body.designation;
-      if (body.years_of_experience !== undefined) updates.years_of_experience = body.years_of_experience;
+      if (body.years_of_experience !== undefined) updates.years_of_experience = toNull(body.years_of_experience);
       if (body.linkedin_url !== undefined) updates.linkedin_url = body.linkedin_url;
       if (body.address !== undefined) updates.address = body.address;
       if (body.city !== undefined) updates.city = body.city;
       if (body.state !== undefined) updates.state = body.state;
-      if (body.pincode !== undefined) updates.pincode = body.pincode;
-      if (body.dob !== undefined) updates.dob = body.dob;
+      if (body.pincode !== undefined) updates.pincode = toNull(body.pincode);
+      if (body.dob !== undefined) updates.dob = toNull(body.dob);
 
       const { data: user, error } = await supabase
         .from("users")
@@ -409,6 +415,90 @@ serve(async (req: Request) => {
       return new Response(JSON.stringify({ user: mapUserToFrontend(user) }), { 
         headers: { ...cors, "Content-Type": "application/json" } 
       });
+    }
+
+    // POST /me/avatar - Upload profile picture (Proxied to bypass RLS)
+    if (path.endsWith("/me/avatar") && req.method === "POST") {
+      try {
+        const formData = await req.formData();
+        const file = formData.get("file") as any;
+        if (!file) {
+          return new Response(JSON.stringify({ error: "No file provided" }), { 
+            status: 400, 
+            headers: { ...cors, "Content-Type": "application/json" } 
+          });
+        }
+
+        // 1. Fetch current profile image to delete old one later
+        const { data: currentUser } = await supabase
+          .from("users")
+          .select("profile_image_url")
+          .eq("id", userId)
+          .single();
+        
+        const oldImageUrl = currentUser?.profile_image_url;
+
+        // 2. Upload new image
+        // Use fixed filename to overwrite existing file (upsert) and avoid clutter
+        const fileName = `profiles/${userId}`; 
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("profile_image")
+          .upload(fileName, file, { 
+            contentType: file.type || 'image/jpeg',
+            upsert: true 
+          });
+
+        if (uploadError) {
+          console.error("Storage upload error:", uploadError);
+          return new Response(JSON.stringify({ error: uploadError.message }), { 
+            status: 500, 
+            headers: { ...cors, "Content-Type": "application/json" } 
+          });
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("profile_image")
+          .getPublicUrl(fileName);
+
+        // 3. Update user record
+        const { error: dbError } = await supabase
+          .from("users")
+          .update({ profile_image_url: publicUrl })
+          .eq("id", userId);
+
+        if (dbError) {
+          console.error("Database update error:", dbError);
+        }
+
+        // 4. Delete old image ONLY if it was in a different location (legacy migration)
+        if (oldImageUrl && oldImageUrl.includes("profile_image/")) {
+          try {
+            const urlParts = oldImageUrl.split("profile_image/");
+            if (urlParts.length > 1) {
+              const oldPath = urlParts[1].split("?")[0];
+              // Only delete if the OLD path is different from the NEW path
+              // This prevents deleting the file we just uploaded/overwrote
+              if (oldPath !== fileName) {
+                 await supabase.storage.from("profile_image").remove([oldPath]);
+                 console.log("Deleted legacy profile image:", oldPath);
+              }
+            }
+          } catch (delErr) {
+            console.error("Failed to delete old profile image:", delErr);
+          }
+        }
+
+        return new Response(JSON.stringify({ publicUrl }), { 
+          headers: { ...cors, "Content-Type": "application/json" } 
+        });
+      } catch (err) {
+        console.error("Avatar upload handler failed:", err);
+        return new Response(JSON.stringify({ error: err.message }), { 
+          status: 500, 
+          headers: { ...cors, "Content-Type": "application/json" } 
+        });
+      }
     }
 
     // PUT /me/password - Update user password (legacy JWT users)

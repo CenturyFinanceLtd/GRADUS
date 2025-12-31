@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../services/apiClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
-import { supabase } from "../services/supabaseClient";
 
 const safeString = (value) => (typeof value === "string" ? value : "");
 
@@ -154,29 +153,25 @@ const ProfileInner = () => {
 
     setUploading(true);
     setProfileStatus({ type: "", message: "" });
-
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${authUser.id}-${Date.now()}.${fileExt}`;
-      const filePath = `profiles/${fileName}`;
+      const formData = new FormData();
+      formData.append("file", file);
 
-      const { error: uploadError } = await supabase.storage
-        .from("profile_image")
-        .upload(filePath, file);
+      // Upload via proxy edge function to bypass RLS issues
+      const res = await apiClient.post("/users/me/avatar", formData, { token });
+      const publicUrl = res.publicUrl;
 
-      if (uploadError) throw uploadError;
+      if (!publicUrl) throw new Error("Upload failed: No URL returned");
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("profile_image")
-        .getPublicUrl(filePath);
+      const publicUrlWithTimestamp = `${publicUrl}?v=${Date.now()}`;
+      setProfileData((prev) => ({ ...prev, profileImageUrl: publicUrlWithTimestamp }));
 
-      setProfileData((prev) => ({ ...prev, profileImageUrl: publicUrl }));
-
-      // Also update directly in backend for persistence
-      await apiClient.put("/users/me", { profileImageUrl: publicUrl }, { token });
+      // Update global user state
+      updateUser({ ...authUser, profileImageUrl: publicUrlWithTimestamp });
 
       setProfileStatus({ type: "success", message: "Profile picture updated!" });
     } catch (error) {
+      console.error("Avatar upload error:", error);
       setProfileStatus({ type: "error", message: error.message || "Upload failed." });
     } finally {
       setUploading(false);
@@ -269,80 +264,102 @@ const ProfileInner = () => {
   if (fetchingProfile) {
     return (
       <div className='py-120 text-center'>
-        <span className='text-neutral-500'>Loading your profile...</span>
+        <span className='text-neutral-700'>Loading your profile...</span>
       </div>
     );
   }
 
   return (
-    <div className='account py-120 position-relative'>
+    <div className='account py-32 position-relative'>
+      <style>{`
+        .logout-btn {
+          transition: all 0.3s ease !important;
+        }
+        .logout-btn:hover {
+          background-color: white !important;
+          color: #0d6efd !important;
+          border-color: white !important;
+        }
+        .logout-btn:hover i {
+          color: #0d6efd !important;
+        }
+      `}</style>
       <div className='container'>
         <div className='row gy-4'>
           <div className='col-lg-8'>
-            <div className='bg-main-25 border border-neutral-30 rounded-8 p-32 mb-32'>
-              <div className='d-flex justify-content-between align-items-center mb-32'>
-                <h3 className='mb-0 text-neutral-500'>Account Details</h3>
+            {/* Tabs navigation at the top */}
+            <div className='d-flex justify-content-center gap-32 mb-24 border-bottom'>
+              {["Personal Info", "Academic Info", "Job Info"].map((tab) => (
                 <button
+                  key={tab}
                   type='button'
-                  className='btn btn-outline-danger rounded-pill d-inline-flex align-items-center gap-8'
-                  onClick={handleLogout}
+                  className={`pb-12 text-lg fw-semibold position-relative transition-all border-0 bg-transparent ${activeTab === tab ? "text-main" : "text-neutral-400"}`}
+                  onClick={() => setActiveTab(tab)}
                 >
-                  Log Out
-                  <i className='ph-bold ph-sign-out d-flex text-lg' />
+                  {tab}
+                  {activeTab === tab && (
+                    <div className='position-absolute bottom-0 start-0 w-100 bg-main-600' style={{ height: '3px', borderRadius: '3px 3px 0 0' }} />
+                  )}
                 </button>
-              </div>
+              ))}
+            </div>
 
-              {/* Profile Image Section */}
-              <div className='text-center mb-32'>
-                <div className='position-relative d-inline-block'>
-                  <div
-                    className='rounded-circle bg-neutral-20 border border-neutral-30 overflow-hidden d-flex align-items-center justify-content-center'
-                    style={{ width: '120px', height: '120px' }}
-                  >
-                    {profileData.profileImageUrl ? (
-                      <img
-                        src={profileData.profileImageUrl}
-                        alt='Profile'
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <i className='ph ph-user text-neutral-300' style={{ fontSize: '64px' }} />
-                    )}
-                  </div>
-                  <label
-                    htmlFor='profile-pic-upload'
-                    className='position-absolute bottom-0 end-0 bg-main text-white rounded-circle d-flex align-items-center justify-content-center cursor-pointer border border-white'
-                    style={{ width: '36px', height: '36px', transform: 'translate(10%, 10%)' }}
-                  >
-                    <i className='ph ph-camera text-lg' />
-                    <input
-                      id='profile-pic-upload'
-                      type='file'
-                      accept='image/*'
-                      className='d-none'
-                      onChange={handleImageUpload}
-                      disabled={uploading}
+            {/* Blue Header Card */}
+            <div className='bg-main-600 rounded-16 p-24 mb-24 d-flex align-items-center gap-24 text-white shadow-sm'>
+              <div className='position-relative'>
+                <div
+                  className='rounded-circle bg-white overflow-hidden d-flex align-items-center justify-content-center border border-2 border-white shadow-sm cursor-pointer'
+                  style={{ width: '80px', height: '80px' }}
+                  onClick={() => document.getElementById('profile-pic-upload').click()}
+                >
+                  {profileData.profileImageUrl ? (
+                    <img
+                      src={profileData.profileImageUrl}
+                      alt='Profile'
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
-                  </label>
+                  ) : (
+                    <i className='ph ph-user text-main-600' style={{ fontSize: '40px' }} />
+                  )}
                 </div>
-                {uploading && <div className='text-sm mt-8 text-main'>Uploading...</div>}
+                <label
+                  htmlFor='profile-pic-upload'
+                  className='position-absolute bottom-0 end-0 bg-white text-main rounded-circle d-flex align-items-center justify-content-center cursor-pointer border border-2 border-main-600 shadow-sm'
+                  style={{ width: '28px', height: '28px', transform: 'translate(10%, 10%)' }}
+                >
+                  <i className='ph ph-camera text-main-600 text-sm' />
+                  <input
+                    id='profile-pic-upload'
+                    type='file'
+                    accept='image/*'
+                    className='d-none'
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                  />
+                </label>
               </div>
+              <div className='flex-grow-1'>
+                <h4 className='mb-4 text-white fw-bold'>{profileData.fullname || 'User Name'}</h4>
+                <p className='mb-0 text-white text-opacity-75'>{profileData.email}</p>
+              </div>
+              <button
+                type='button'
+                className='btn btn-outline-light rounded-pill d-flex align-items-center gap-8 py-8 px-16 logout-btn'
+                onClick={handleLogout}
+              >
+                <span className='d-none d-sm-inline'>Log Out</span>
+                <i className='ph-bold ph-sign-out text-lg' />
+              </button>
+            </div>
 
-              {/* Tabs navigation */}
-              <div className='d-flex gap-24 mb-32 border-bottom'>
-                {["Personal Info", "Academic Info", "Job Info"].map((tab) => (
-                  <button
-                    key={tab}
-                    type='button'
-                    className={`pb-12 text-lg fw-medium position-relative transition-all ${activeTab === tab ? "text-main" : "text-neutral-400"}`}
-                    onClick={() => setActiveTab(tab)}
-                  >
-                    {tab}
-                    {activeTab === tab && (
-                      <div className='position-absolute bottom-0 start-0 w-100 bg-main' style={{ height: '3px', borderRadius: '3px 3px 0 0' }} />
-                    )}
-                  </button>
-                ))}
+            {/* White Content Card */}
+            <div className='bg-white border border-neutral-30 rounded-16 p-32 shadow-sm mb-32'>
+              <div className='d-flex justify-content-between align-items-center mb-24 pb-16 border-bottom'>
+                <h3 className='mb-0 text-neutral-700 fw-bold'>{activeTab}</h3>
+                {/* Pencil icon - not strictly needed for web but matches screenshot */}
+                <div className='bg-main-600 text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm' style={{ width: '36px', height: '36px' }}>
+                  <i className='ph ph-pencil-simple text-lg' />
+                </div>
               </div>
 
               {profileStatus.message ? (
@@ -354,16 +371,42 @@ const ProfileInner = () => {
                 </div>
               ) : null}
 
+              {uploading && <div className='alert alert-info py-8 px-16 text-sm mb-24'>Uploading profile picture...</div>}
+
               <form onSubmit={handleProfileSubmit} className='row gy-4'>
                 {activeTab === "Personal Info" && (
                   <>
+                    <div className='col-sm-6'>
+                      <label className='fw-semibold text-neutral-700 mb-8' htmlFor='email'>
+                        Email Id*
+                      </label>
+                      <input
+                        type='email'
+                        className='common-input rounded-12 h-56 bg-neutral-10'
+                        id='email'
+                        value={profileData.email}
+                        disabled
+                      />
+                    </div>
+                    <div className='col-sm-6'>
+                      <label className='fw-semibold text-neutral-700 mb-8' htmlFor='mobile'>
+                        Mobile Number*
+                      </label>
+                      <input
+                        type='tel'
+                        className='common-input rounded-12 h-56 bg-neutral-10'
+                        id='mobile'
+                        value={profileData.mobile}
+                        disabled
+                      />
+                    </div>
                     <div className='col-sm-12'>
-                      <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='fullname'>
+                      <label className='fw-semibold text-neutral-700 mb-8' htmlFor='fullname'>
                         Full Name
                       </label>
                       <input
                         type='text'
-                        className='common-input rounded-pill'
+                        className='common-input rounded-12 h-56'
                         id='fullname'
                         name='fullname'
                         value={profileData.fullname}
@@ -372,37 +415,13 @@ const ProfileInner = () => {
                         required
                       />
                     </div>
-                    <div className='col-sm-6'>
-                      <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='email'>
-                        Email Address
-                      </label>
-                      <input
-                        type='email'
-                        className='common-input rounded-pill bg-neutral-20'
-                        id='email'
-                        value={profileData.email}
-                        disabled
-                      />
-                    </div>
-                    <div className='col-sm-6'>
-                      <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='mobile'>
-                        Mobile Number
-                      </label>
-                      <input
-                        type='tel'
-                        className='common-input rounded-pill bg-neutral-20'
-                        id='mobile'
-                        value={profileData.mobile}
-                        disabled
-                      />
-                    </div>
                     <div className='col-sm-12'>
-                      <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='address'>
+                      <label className='fw-semibold text-neutral-700 mb-8' htmlFor='address'>
                         Address
                       </label>
                       <input
                         type='text'
-                        className='common-input rounded-pill'
+                        className='common-input rounded-12 h-56'
                         id='address'
                         name='personalDetails.address'
                         value={profileData.personalDetails.address}
@@ -411,12 +430,12 @@ const ProfileInner = () => {
                       />
                     </div>
                     <div className='col-sm-6'>
-                      <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='city'>
+                      <label className='fw-semibold text-neutral-700 mb-8' htmlFor='city'>
                         City
                       </label>
                       <input
                         type='text'
-                        className='common-input rounded-pill'
+                        className='common-input rounded-12 h-56'
                         id='city'
                         name='personalDetails.city'
                         value={profileData.personalDetails.city}
@@ -425,12 +444,12 @@ const ProfileInner = () => {
                       />
                     </div>
                     <div className='col-sm-6'>
-                      <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='zipCode'>
+                      <label className='fw-semibold text-neutral-700 mb-8' htmlFor='zipCode'>
                         Pincode
                       </label>
                       <input
                         type='text'
-                        className='common-input rounded-pill'
+                        className='common-input rounded-12 h-56'
                         id='zipCode'
                         name='personalDetails.zipCode'
                         value={profileData.personalDetails.zipCode}
@@ -439,12 +458,12 @@ const ProfileInner = () => {
                       />
                     </div>
                     <div className='col-sm-6'>
-                      <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='state'>
+                      <label className='fw-semibold text-neutral-700 mb-8' htmlFor='state'>
                         State
                       </label>
                       <input
                         type='text'
-                        className='common-input rounded-pill'
+                        className='common-input rounded-12 h-56'
                         id='state'
                         name='personalDetails.state'
                         value={profileData.personalDetails.state}
@@ -453,12 +472,12 @@ const ProfileInner = () => {
                       />
                     </div>
                     <div className='col-sm-6'>
-                      <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='dob'>
+                      <label className='fw-semibold text-neutral-700 mb-8' htmlFor='dob'>
                         Date of Birth
                       </label>
                       <input
                         type='text'
-                        className='common-input rounded-pill'
+                        className='common-input rounded-12 h-56'
                         id='dob'
                         name='personalDetails.dob'
                         value={profileData.personalDetails.dob}
@@ -471,41 +490,13 @@ const ProfileInner = () => {
 
                 {activeTab === "Academic Info" && (
                   <>
-                    <div className='col-sm-12'>
-                      <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='institutionName'>
-                        College/University Name
-                      </label>
-                      <input
-                        type='text'
-                        className='common-input rounded-pill'
-                        id='institutionName'
-                        name='educationDetails.institutionName'
-                        value={profileData.educationDetails.institutionName}
-                        onChange={handleProfileChange}
-                        placeholder='Enter your college name'
-                      />
-                    </div>
                     <div className='col-sm-6'>
-                      <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='fieldOfStudy'>
-                        Degree / Course
-                      </label>
-                      <input
-                        type='text'
-                        className='common-input rounded-pill'
-                        id='fieldOfStudy'
-                        name='educationDetails.fieldOfStudy'
-                        value={profileData.educationDetails.fieldOfStudy}
-                        onChange={handleProfileChange}
-                        placeholder='e.g. B.Tech CS'
-                      />
-                    </div>
-                    <div className='col-sm-6'>
-                      <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='passingYear'>
+                      <label className='fw-semibold text-neutral-700 mb-8' htmlFor='passingYear'>
                         Graduation Year
                       </label>
                       <input
                         type='text'
-                        className='common-input rounded-pill'
+                        className='common-input rounded-12 h-56'
                         id='passingYear'
                         name='educationDetails.passingYear'
                         value={profileData.educationDetails.passingYear}
@@ -513,18 +504,46 @@ const ProfileInner = () => {
                         placeholder='e.g. 2024'
                       />
                     </div>
+                    <div className='col-sm-6'>
+                      <label className='fw-semibold text-neutral-700 mb-8' htmlFor='fieldOfStudy'>
+                        Degree
+                      </label>
+                      <input
+                        type='text'
+                        className='common-input rounded-12 h-56'
+                        id='fieldOfStudy'
+                        name='educationDetails.fieldOfStudy'
+                        value={profileData.educationDetails.fieldOfStudy}
+                        onChange={handleProfileChange}
+                        placeholder='e.g. B.Tech CS'
+                      />
+                    </div>
+                    <div className='col-sm-12'>
+                      <label className='fw-semibold text-neutral-700 mb-8' htmlFor='institutionName'>
+                        College/University Name
+                      </label>
+                      <input
+                        type='text'
+                        className='common-input rounded-12 h-56'
+                        id='institutionName'
+                        name='educationDetails.institutionName'
+                        value={profileData.educationDetails.institutionName}
+                        onChange={handleProfileChange}
+                        placeholder='Enter your college name'
+                      />
+                    </div>
                   </>
                 )}
 
                 {activeTab === "Job Info" && (
                   <>
-                    <div className='col-sm-12'>
-                      <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='company'>
+                    <div className='col-sm-6'>
+                      <label className='fw-semibold text-neutral-700 mb-8' htmlFor='company'>
                         Company Name
                       </label>
                       <input
                         type='text'
-                        className='common-input rounded-pill'
+                        className='common-input rounded-12 h-56'
                         id='company'
                         name='jobDetails.company'
                         value={profileData.jobDetails.company}
@@ -533,12 +552,12 @@ const ProfileInner = () => {
                       />
                     </div>
                     <div className='col-sm-6'>
-                      <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='designation'>
+                      <label className='fw-semibold text-neutral-700 mb-8' htmlFor='designation'>
                         Designation
                       </label>
                       <input
                         type='text'
-                        className='common-input rounded-pill'
+                        className='common-input rounded-12 h-56'
                         id='designation'
                         name='jobDetails.designation'
                         value={profileData.jobDetails.designation}
@@ -547,12 +566,12 @@ const ProfileInner = () => {
                       />
                     </div>
                     <div className='col-sm-6'>
-                      <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='experienceYears'>
+                      <label className='fw-semibold text-neutral-700 mb-8' htmlFor='experienceYears'>
                         Years of Experience
                       </label>
                       <input
                         type='text'
-                        className='common-input rounded-pill'
+                        className='common-input rounded-12 h-56'
                         id='experienceYears'
                         name='jobDetails.experienceYears'
                         value={profileData.jobDetails.experienceYears}
@@ -560,13 +579,13 @@ const ProfileInner = () => {
                         placeholder='e.g. 2'
                       />
                     </div>
-                    <div className='col-sm-12'>
-                      <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='linkedin'>
-                        LinkedIn Profile Link
+                    <div className='col-sm-6'>
+                      <label className='fw-semibold text-neutral-700 mb-8' htmlFor='linkedin'>
+                        LinkedIn Link
                       </label>
                       <input
                         type='text'
-                        className='common-input rounded-pill'
+                        className='common-input rounded-12 h-56'
                         id='linkedin'
                         name='jobDetails.linkedin'
                         value={profileData.jobDetails.linkedin}
@@ -577,8 +596,8 @@ const ProfileInner = () => {
                   </>
                 )}
 
-                <div className='col-sm-12 pt-24'>
-                  <button type='submit' className='btn btn-main rounded-pill flex-center gap-8'>
+                <div className='col-sm-12 pt-16'>
+                  <button type='submit' className='btn btn-main rounded-pill flex-center gap-8 py-12 px-32'>
                     Save Changes
                     <i className='ph-bold ph-floppy-disk d-flex text-lg' />
                   </button>
@@ -587,12 +606,13 @@ const ProfileInner = () => {
             </div>
 
 
+
           </div>
 
           <div className='col-lg-4'>
 
-            <div className='bg-main-25 border border-neutral-30 rounded-8 p-32 mt-32'>
-              <h4 className='mb-24 text-danger'>Delete Account</h4>
+            <div className='bg-white border border-neutral-30 rounded-16 p-32 shadow-sm'>
+              <h4 className='mb-24 text-danger fw-bold'>Delete Account</h4>
               {deleteAccount.message ? (
                 <div className='alert alert-success text-sm mb-20' role='alert'>
                   {deleteAccount.message}
@@ -607,12 +627,12 @@ const ProfileInner = () => {
               {deleteAccount.status === "otp" ? (
                 <form onSubmit={verifyDeleteAccount} className='row gy-3'>
                   <div className='col-12'>
-                    <label className='fw-medium text-lg text-neutral-500 mb-16' htmlFor='deleteOtp'>
+                    <label className='fw-semibold text-neutral-700 mb-8' htmlFor='deleteOtp'>
                       Enter verification code
                     </label>
                     <input
                       type='text'
-                      className='common-input rounded-pill text-center letter-spacing-2'
+                      className='common-input rounded-12 text-center h-56'
                       id='deleteOtp'
                       value={deleteAccount.otp}
                       onChange={handleDeleteOtpChange}
@@ -620,32 +640,32 @@ const ProfileInner = () => {
                       required
                     />
                   </div>
-                  <div className='col-12 d-flex justify-content-between'>
+                  <div className='col-12 d-flex flex-column gap-12'>
+                    <button
+                      type='submit'
+                      className='btn btn-danger rounded-pill w-100'
+                      disabled={deleteAccount.loading}
+                    >
+                      {deleteAccount.loading ? "Deleting..." : "Confirm Delete"}
+                    </button>
                     <button
                       type='button'
-                      className='btn border border-neutral-40 text-neutral-500 rounded-pill'
+                      className='btn btn-outline-neutral-300 rounded-pill w-100'
                       onClick={resetDeleteAccountState}
                       disabled={deleteAccount.loading}
                     >
                       Cancel
                     </button>
-                    <button
-                      type='submit'
-                      className='btn btn-danger rounded-pill'
-                      disabled={deleteAccount.loading}
-                    >
-                      {deleteAccount.loading ? "Deleting..." : "Confirm Delete"}
-                    </button>
                   </div>
                 </form>
               ) : (
-                <div className='d-grid gap-3'>
-                  <p className='text-neutral-500'>
+                <div className='d-grid gap-24'>
+                  <p className='text-neutral-700 mb-0'>
                     Permanently remove your account and all associated data. This action cannot be undone.
                   </p>
                   <button
                     type='button'
-                    className='btn btn-danger rounded-pill'
+                    className='btn btn-main rounded-pill py-12'
                     onClick={startDeleteAccount}
                     disabled={deleteAccount.loading}
                   >

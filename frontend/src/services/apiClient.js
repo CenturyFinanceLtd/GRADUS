@@ -225,10 +225,9 @@ const request = async (path, options = {}) => {
       p.startsWith("/create-order")
     ) {
       finalUrl = `${edgeBaseUrl}/payment-processing${p}`;
-    } else if (p === "/users/me") {
-      finalUrl = `${edgeBaseUrl}/users-api/me`;
-    } else if (p === "/users/me/enrollments") {
-      finalUrl = `${edgeBaseUrl}/users-api/enrollments`;
+    } else if (p.startsWith("/users/me")) {
+      const subPath = p.replace(/^\/users\/me/, "/me");
+      finalUrl = `${edgeBaseUrl}/users-api${subPath}`;
     } else if (
       p.startsWith("/users/email-change") ||
       p.startsWith("/users/password") ||
