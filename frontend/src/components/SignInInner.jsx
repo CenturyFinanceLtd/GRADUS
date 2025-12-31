@@ -98,14 +98,24 @@ const SignInInner = ({ isModal = false, redirectPath = null }) => {
 
     try {
       const response = await verifyPhoneOtp(formData.phone, formData.otp);
-      setAuth({ token: response.token, user: response.user });
+
+      // Fetch fresh profile to check completion status
+      const profileResponse = await apiClient.get('/users/me', { token: response.token });
+      const userData = profileResponse.user || profileResponse;
+
+      setAuth({ token: response.token, user: userData });
 
       const effectiveState = redirectPath
         ? { ...location.state, redirectOverride: redirectPath }
         : location.state;
 
-      const redirectTo = resolvePostAuthRedirect({ locationState: effectiveState });
-      navigate(redirectTo, { replace: true });
+      // Check if profile is incomplete
+      if (!userData?.fullname) {
+        navigate("/profile-completion", { replace: true, state: effectiveState });
+      } else {
+        const redirectTo = resolvePostAuthRedirect({ locationState: effectiveState });
+        navigate(redirectTo, { replace: true });
+      }
     } catch (err) {
       setError(err.message || "Invalid OTP. Please try again.");
     } finally {

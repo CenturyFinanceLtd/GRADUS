@@ -2,7 +2,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 
 const RequireAuth = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -11,6 +11,11 @@ const RequireAuth = ({ children }) => {
 
   if (!isAuthenticated) {
     return <Navigate to='/sign-in' state={{ from: location }} replace />;
+  }
+
+  // Enforce profile completion if required (same as mobile)
+  if (isAuthenticated && !user?.fullname && location.pathname !== '/profile-completion') {
+    return <Navigate to='/profile-completion' replace />;
   }
 
   return children;

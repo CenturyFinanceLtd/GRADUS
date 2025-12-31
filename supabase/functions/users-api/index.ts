@@ -38,6 +38,15 @@ serve(async (req: Request) => {
     const url = new URL(req.url);
     const path = url.pathname.replace(/\/$/, "");
 
+    // Auto-create profile_image bucket if it doesn't exist
+    // Using simple approach: attempt create and ignore error if it exists
+    try {
+      await supabase.storage.createBucket("profile_image", { public: true });
+      console.log("Bucket 'profile_image' ensured/created.");
+    } catch (e) {
+      // Bucket likely exists or storage extension not fully set up
+    }
+
     // POST /wipe-all-data - ADMIN UTILITY TO WIPE EVERYTHING
     // Placed before JWT verification to allow system admin execution
     if (path.endsWith("/wipe-all-data") && req.method === "POST") {
@@ -89,54 +98,40 @@ serve(async (req: Request) => {
     const mapUserToFrontend = (user: any) => {
       if (!user) return null;
 
-      // Support both new individual columns and legacy JSONB for backward compatibility
-      const pd = typeof user.personal_details === 'string' 
-        ? JSON.parse(user.personal_details || '{}') 
-        : (user.personal_details || {});
-      const ed = typeof user.education_details === 'string'
-        ? JSON.parse(user.education_details || '{}')
-        : (user.education_details || {});
-      const jd = typeof user.job_details === 'string'
-        ? JSON.parse(user.job_details || '{}')
-        : (user.job_details || {});
-
-      // Derive fullname and initials correctly
-      const fullname = user.fullname || 
-        `${user.first_name || ''} ${user.last_name || ''}`.trim() || '';
+      const fullname = user.fullname || '';
 
       // Map individual columns to frontend structure
       return {
         ...user,
         id: user.id,
-        fullname: fullname,
-        firstName: user.first_name || (fullname ? fullname.split(' ')[0] : ''),
-        lastName: user.last_name || (fullname ? fullname.split(' ').slice(1).join(' ') : ''),
+        fullname: user.fullname || '',
+        firstName: user.fullname ? user.fullname.split(' ')[0] : '',
+        lastName: user.fullname ? user.fullname.split(' ').slice(1).join(' ') : '',
         email: user.email || '',
         mobile: user.mobile || user.phone || '',
         phone: user.phone || '',
         personalDetails: {
-          ...pd,
-          city: pd?.city || user.city || null,
-          state: pd?.state || user.state || null,
-          zipCode: pd?.zipCode || pd?.zip_code || user.pincode || null,
-          address: pd?.address || user.address || null,
+          city: user.city || null,
+          state: user.state || null,
+          zipCode: user.pincode || null,
+          address: user.address || null,
+          dob: user.dob || null,
         },
         educationDetails: {
-          ...ed,
-          graduationYear: ed?.graduationYear || user.graduation_year || '',
-          degree: ed?.degree || user.degree || '',
-          institutionName: ed?.institutionName || user.college || '',
+          passingYear: user.graduation_year || '',
+          fieldOfStudy: user.degree || '',
+          institutionName: user.college || '',
         },
         jobDetails: {
-          ...jd,
-          companyName: jd?.companyName || user.company_name || '',
-          designation: jd?.designation || user.designation || '',
-          yearsOfExperience: jd?.yearsOfExperience || user.years_of_experience || '',
-          linkedinUrl: jd?.linkedinUrl || user.linkedin_url || '',
+          company: user.company_name || '',
+          designation: user.designation || '',
+          experienceYears: user.years_of_experience || '',
+          linkedin: user.linkedin_url || '',
         },
         emailVerified: user.email_verified,
         authProvider: user.auth_provider,
         role: user.role,
+        profileImageUrl: user.profile_image_url || null,
       };
     };
 
@@ -218,8 +213,7 @@ serve(async (req: Request) => {
           .upsert(
             {
               email,
-              first_name: firstName,
-              last_name: lastName,
+              fullname: `${firstName} ${lastName}`.trim(),
             },
             { onConflict: "email" },
           )
@@ -353,40 +347,50 @@ serve(async (req: Request) => {
 
       // Basic info
       if (body.fullname !== undefined) updates.fullname = body.fullname;
-      if (body.firstName !== undefined) updates.first_name = body.firstName;
-      if (body.lastName !== undefined) updates.last_name = body.lastName;
+      // firstName and lastName are no longer columns in users table, they are derived from fullname
+      if (body.firstName !== undefined || body.lastName !== undefined) {
+         // If frontend sends firstName/lastName but not fullname, we should construct fullname
+         if (body.fullname === undefined) {
+           const fName = body.firstName || '';
+           const lName = body.lastName || '';
+           updates.fullname = `${fName} ${lName}`.trim();
+         }
+      }
+      if (body.email !== undefined) updates.email = body.email;
       if (body.mobile !== undefined) updates.mobile = body.mobile;
+      if (body.profileImageUrl !== undefined) updates.profile_image_url = body.profileImageUrl;
 
-      // Safe Merge for Personal Details
-      if (body.personalDetails !== undefined) {
-          let currentPd = currentUser.personal_details || {};
-          if (typeof currentPd === 'string') {
-              try { currentPd = JSON.parse(currentPd); } catch { currentPd = {}; }
-          }
-          // Merge new details into existing
-          const newPd = { ...currentPd, ...body.personalDetails };
-          updates.personal_details = JSON.stringify(newPd);
-      }
+      // Flat Personal Info
+      if (body.personalDetails?.address !== undefined) updates.address = body.personalDetails.address;
+      if (body.personalDetails?.city !== undefined) updates.city = body.personalDetails.city;
+      if (body.personalDetails?.state !== undefined) updates.state = body.personalDetails.state;
+      if (body.personalDetails?.zipCode !== undefined) updates.pincode = body.personalDetails.zipCode;
+      if (body.personalDetails?.dob !== undefined) updates.dob = body.personalDetails.dob;
 
-      // Safe Merge for Education Details
-      if (body.educationDetails !== undefined) {
-          let currentEd = currentUser.education_details || {};
-          if (typeof currentEd === 'string') {
-              try { currentEd = JSON.parse(currentEd); } catch { currentEd = {}; }
-          }
-          const newEd = { ...currentEd, ...body.educationDetails };
-          updates.education_details = JSON.stringify(newEd);
-      }
+      // Flat Academic Info
+      if (body.educationDetails?.passingYear !== undefined) updates.graduation_year = body.educationDetails.passingYear;
+      if (body.educationDetails?.fieldOfStudy !== undefined) updates.degree = body.educationDetails.fieldOfStudy;
+      if (body.educationDetails?.institutionName !== undefined) updates.college = body.educationDetails.institutionName;
 
-      // Safe Merge for Job Details
-      if (body.jobDetails !== undefined) {
-          let currentJd = currentUser.job_details || {};
-          if (typeof currentJd === 'string') {
-              try { currentJd = JSON.parse(currentJd); } catch { currentJd = {}; }
-          }
-          const newJd = { ...currentJd, ...body.jobDetails };
-          updates.job_details = JSON.stringify(newJd);
-      }
+      // Flat Job Info
+      if (body.jobDetails?.company !== undefined) updates.company_name = body.jobDetails.company;
+      if (body.jobDetails?.designation !== undefined) updates.designation = body.jobDetails.designation;
+      if (body.jobDetails?.experienceYears !== undefined) updates.years_of_experience = body.jobDetails.experienceYears;
+      if (body.jobDetails?.linkedin !== undefined) updates.linkedin_url = body.jobDetails.linkedin;
+
+      // Also support direct flat fields if sent
+      if (body.graduation_year !== undefined) updates.graduation_year = body.graduation_year;
+      if (body.degree !== undefined) updates.degree = body.degree;
+      if (body.college !== undefined) updates.college = body.college;
+      if (body.company_name !== undefined) updates.company_name = body.company_name;
+      if (body.designation !== undefined) updates.designation = body.designation;
+      if (body.years_of_experience !== undefined) updates.years_of_experience = body.years_of_experience;
+      if (body.linkedin_url !== undefined) updates.linkedin_url = body.linkedin_url;
+      if (body.address !== undefined) updates.address = body.address;
+      if (body.city !== undefined) updates.city = body.city;
+      if (body.state !== undefined) updates.state = body.state;
+      if (body.pincode !== undefined) updates.pincode = body.pincode;
+      if (body.dob !== undefined) updates.dob = body.dob;
 
       const { data: user, error } = await supabase
         .from("users")
@@ -402,7 +406,7 @@ serve(async (req: Request) => {
         });
       }
 
-      return new Response(JSON.stringify(mapUserToFrontend(user)), { 
+      return new Response(JSON.stringify({ user: mapUserToFrontend(user) }), { 
         headers: { ...cors, "Content-Type": "application/json" } 
       });
     }

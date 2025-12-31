@@ -130,77 +130,9 @@ serve(async (req: Request) => {
         
         const userId = user.id;
 
-        // 2. Update User Profile if needed
-        // (State, City, College, etc. from form)
-        // Check current profile first to avoid overwriting existing data if we want to be safe,
-        // but requirement says "if valid string... update".
-        // Actually requirement: "if available ... ask to fill ... added data will get store"
-        // "any data which is fethed from database that can't be edited ... only new data can be add"
-        
-        const { data: currentProfile } = await supabase.from("users").select("*").eq("id", userId).single();
-        
         console.log("[Registration] Body received:", JSON.stringify(body));
-        
-        // Prepare updates object
-        const updates: any = {};
-        
-        // Basic Info
-        if (body.fullname) {
-            updates.fullname = body.fullname;
-            const parts = body.fullname.split(" ");
-            if (parts.length > 0) updates.first_name = parts[0];
-            if (parts.length > 1) updates.last_name = parts.slice(1).join(" ");
-        }
-        if (body.email) {
-            updates.email = body.email;
-        }
-        if (body.city) {
-            updates.city = body.city;
-        }
 
-        // JSON Fields (merge with existing if possible)
-        let pd = currentProfile?.personal_details || {};
-        if (typeof pd === 'string') { try { pd = JSON.parse(pd); } catch { pd = {}; } }
-        
-        let ed = currentProfile?.education_details || {};
-        if (typeof ed === 'string') { try { ed = JSON.parse(ed); } catch { ed = {}; } }
-
-        if (body.state) pd.state = body.state;
-        if (body.city) pd.city = body.city;
-        if (body.college) ed.institutionName = body.college;
-
-        if (body.college) ed.institutionName = body.college;
-
-        // Only add JSON fields to updates if they have content
-        if (Object.keys(pd).length > 0) updates.personal_details = pd;
-        if (Object.keys(ed).length > 0) updates.education_details = ed;
-        
-        // FORCE an update to prove we touched the DB
-        updates.updated_at = new Date().toISOString();
-
-        // Execute Upsert (Update if exists, Insert if missing)
-        console.log("[Registration] Upserting user profile:", userId, JSON.stringify(updates));
-        
-        let upsertResult: any = null;
-        let upsertError: any = null;
-
-        const { data: upData, error: upError } = await supabase.from("users").upsert({
-            id: userId,
-            ...updates
-        }).select();
-        
-        upsertResult = upData;
-        upsertError = upError;
-
-        if (upsertError) {
-            console.error("[Registration] Profile upsert failed:", upsertError);
-        } else {
-             console.log("[Registration] Profile upsert success", upData);
-        }
-
-        // 3. Register for Event（if not registered logic...）
-
-        // 3. Register for Event
+        // Get event ID
         if (!body.eventSlug && !body.eventId) {
              return jsonResponse({ error: "Event ID or Slug required" }, 400, cors);
         }
@@ -223,18 +155,23 @@ serve(async (req: Request) => {
              return jsonResponse({ message: "Already registered", alreadyRegistered: true }, 200, cors);
         }
 
+        // Insert registration with form data - trigger will update user profile
         const { data: newReg, error: regError } = await supabase.from("masterclass_registrations").insert([{
             event_id: eventId,
             user_id: userId,
-            status: "registered"
+            status: "registered",
+            registration_fullname: body.fullname || null,
+            registration_email: body.email || null,
+            registration_state: body.state || null,
+            registration_city: body.city || null,
+            registration_college: body.college || null
         }]).select().single();
+        
         if (regError) return jsonResponse({ error: regError.message }, 500, cors);
         
-        // Return success with debug info about what was updated
         return jsonResponse({ 
             success: true, 
-            item: newReg,
-            debug_updates: updates
+            item: newReg
         }, 201, cors);
     }
     

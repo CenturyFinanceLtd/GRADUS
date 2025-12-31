@@ -42,7 +42,7 @@ const HeaderOne = () => {
   const profileLink = isAuthenticated ? "/profile" : "/sign-in";
   const fallbackName = user?.email ? user.email.split("@")[0] : "";
   const displayName =
-    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+    user?.fullname ||
     user?.name ||
     fallbackName ||
     "Account";
