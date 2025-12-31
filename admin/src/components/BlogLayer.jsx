@@ -89,7 +89,7 @@ const BlogLayer = () => {
     return blogs.filter((blog) => {
       const matchesSearch = search
         ? (blog.title || "").toLowerCase().includes(search.toLowerCase()) ||
-          (blog.slug || "").toLowerCase().includes(search.toLowerCase())
+        (blog.slug || "").toLowerCase().includes(search.toLowerCase())
         : true;
       const matchesCategory = categoryFilter ? blog.category === categoryFilter : true;
       return matchesSearch && matchesCategory;
@@ -194,54 +194,44 @@ const BlogLayer = () => {
                 const publicUrl = publicSlug ? (PUBLIC_SITE_BASE || "") + "/blog/" + publicSlug : null;
                 return (
                   <tr key={blog.id}>
-                  <td>
-                    <div className='d-flex align-items-center gap-12'>
-                      <img
-                        src={resolveImage(blog.featuredImage)}
-                        alt={blog.title}
-                        className='rounded-8 object-fit-cover'
-                        style={{ width: '56px', height: '56px' }}
-                      />
-                      <div className='d-flex flex-column'>
-                        <Link to={'/blog-details/' + blog.id} className='fw-semibold text-neutral-900 text-hover-primary-600'>
-                          {blog.title}
-                        </Link>
-                        <span className='text-sm text-neutral-500'>{blog.slug}</span>
+                    <td>
+                      <div className='d-flex align-items-center gap-12'>
+                        <img
+                          src={resolveImage(blog.featuredImage)}
+                          alt={blog.title}
+                          className='rounded-8 object-fit-cover'
+                          style={{ width: '56px', height: '56px' }}
+                        />
+                        <div className='d-flex flex-column'>
+                          <Link to={'/blog-details/' + blog.id} className='fw-semibold text-neutral-900 text-hover-primary-600'>
+                            {blog.title}
+                          </Link>
+                          <span className='text-sm text-neutral-500'>{blog.slug}</span>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td>{blog.category || 'Uncategorized'}</td>
-                  <td>{blog.meta?.views ?? 0}</td>
-                  <td>{blog.meta?.comments ?? 0}</td>
-                  <td>{blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString() : '—'}</td>
-                  <td className='text-end'>
-                    <div className='d-flex gap-8 justify-content-end'>
-                      <Link to={'/edit-blog/' + blog.id} className='btn btn-sm btn-outline-secondary radius-8'>
-                        Edit
-                      </Link>
-                      <Link to={'/blog-details/' + blog.id} className='btn btn-sm btn-primary-600 radius-8'>
-                        Manage
-                      </Link>
-                      {publicUrl ? (
-                        <a
-                          href={publicUrl}
-                          target='_blank'
-                          rel='noreferrer'
-                          className='btn btn-sm btn-outline-primary radius-8'
+                    </td>
+                    <td>{blog.category || 'Uncategorized'}</td>
+                    <td>{blog.meta?.views ?? 0}</td>
+                    <td>{blog.meta?.comments ?? 0}</td>
+                    <td>{blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString() : '—'}</td>
+                    <td className='text-end'>
+                      <div className='d-flex gap-8 justify-content-end'>
+                        <Link to={'/edit-blog/' + blog.id} className='btn btn-sm btn-outline-secondary radius-8'>
+                          Edit
+                        </Link>
+                        <Link to={'/blog-details/' + blog.id} className='btn btn-sm btn-primary-600 radius-8'>
+                          Manage
+                        </Link>
+                        <button
+                          type='button'
+                          className='btn btn-sm btn-outline-danger radius-8'
+                          onClick={() => handleDelete(blog)}
+                          disabled={deletingId === blog.id}
                         >
-                          View Public
-                        </a>
-                      ) : null}
-                      <button
-                        type='button'
-                        className='btn btn-sm btn-outline-danger radius-8'
-                        onClick={() => handleDelete(blog)}
-                        disabled={deletingId === blog.id}
-                      >
-                        {deletingId === blog.id ? 'Deleting...' : 'Delete'}
-                      </button>
-                    </div>
-                  </td>
+                          {deletingId === blog.id ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 );
               })}
