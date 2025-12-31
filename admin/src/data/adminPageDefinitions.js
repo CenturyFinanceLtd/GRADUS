@@ -1,4 +1,4 @@
-﻿const ADMIN_PAGE_DEFINITIONS = [
+const ADMIN_PAGE_DEFINITIONS = [
   // Dashboards
   { key: 'dashboard_ai', label: 'Dashboard - AI', path: '/', category: 'Dashboards' },
   { key: 'dashboard_crm', label: 'Dashboard - CRM', path: '/index-2', category: 'Dashboards' },
@@ -27,7 +27,7 @@
   { key: 'course_progress', label: 'Course Progress', path: '/course-progress', category: 'Application' },
   { key: 'course_enrollments', label: 'Course Enrollments', path: '/course-enrollments', category: 'Application' },
   { key: 'live_classes', label: 'Go Live', path: '/live/classes', category: 'Application' },
-  { key: 'blog_list', label: 'Blogs', path: '/blog', category: 'Content & Media' },
+  { key: 'blogs', label: 'Blogs', path: '/blog', category: 'Content & Media' },
   { key: 'blog_details', label: 'Blog Details', path: '/blog/:blogId', category: 'Content & Media' },
   { key: 'blog_details_alt', label: 'Blog Details (Alt)', path: '/blog-details/:blogId', category: 'Content & Media' },
   { key: 'blog_add', label: 'Add Blog', path: '/add-blog', category: 'Content & Media' },
