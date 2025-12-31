@@ -55,10 +55,14 @@ const apiClient = async (
   }
 
   if (token) {
+    // console.log("Using provided token for", endpoint);
     requestHeaders.set("Authorization", "Bearer " + token);
   } else if (SUPABASE_ANON_KEY) {
+    // console.log("Using Anon Key for", endpoint);
     // If no user token, pass Anon Key to satisfy Gateway (for public endpoints or initial fetch)
     requestHeaders.set("Authorization", "Bearer " + SUPABASE_ANON_KEY);
+  } else {
+    console.warn("No token and no Anon Key for", endpoint);
   }
 
   const fetchOptions = {

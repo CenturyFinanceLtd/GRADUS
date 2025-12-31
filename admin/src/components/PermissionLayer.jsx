@@ -6,7 +6,7 @@ import { fetchRolePermissions, updateRolePermissions } from "../services/adminPe
 const normalizeRole = (role) => (role ? String(role).toLowerCase() : "");
 
 const PermissionLayer = () => {
-  const { token, admin, refreshPermissions } = useAuth();
+  const { token, admin, refreshPermissions, loading: authLoading } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [roles, setRoles] = useState([]);
@@ -20,7 +20,7 @@ const PermissionLayer = () => {
   const currentRole = normalizeRole(admin?.role);
 
   const loadPermissions = useCallback(async () => {
-    if (!token) {
+    if (authLoading || !token) {
       setRoles([]);
       setPages([]);
       setRolePermissions({});
@@ -65,7 +65,7 @@ const PermissionLayer = () => {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, authLoading]);
 
   useEffect(() => {
     loadPermissions();
