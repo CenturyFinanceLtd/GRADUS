@@ -138,7 +138,11 @@ const MasterLayout = ({ children }) => {
   // Check access
   const isDashboard = currentPageKey === "dashboard" || location.pathname === "/";
   if (!hasFullAccess && !isDashboard) {
-    if (!currentPageKey || !allowedPages.includes(currentPageKey)) {
+    const parentKey = pageDefinition?.parentKey;
+    const hasDirectAccess = currentPageKey && allowedPages.includes(currentPageKey);
+    const hasParentAccess = parentKey && allowedPages.includes(parentKey);
+
+    if (!hasDirectAccess && !hasParentAccess) {
       return <Navigate to='/access-denied' replace />;
     }
   }

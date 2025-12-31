@@ -135,3 +135,4 @@ const ADMIN_PAGE_DEFINITIONS = [
 const ADMIN_PAGE_KEYS = ADMIN_PAGE_DEFINITIONS.map((page) => page.key);
 
 export { ADMIN_PAGE_DEFINITIONS, ADMIN_PAGE_KEYS };
+// Update keys
