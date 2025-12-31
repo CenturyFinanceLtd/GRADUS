@@ -29,7 +29,7 @@ const ADMIN_PAGE_DEFINITIONS = [
   { key: 'live_classes', label: 'Go Live', path: '/live/classes', category: 'Application' },
   { key: 'blogs', label: 'Blogs', path: '/blog', category: 'Content & Media' },
   { key: 'blog_details', label: 'Blog Details', path: '/blog/:blogId', category: 'Content & Media', parentKey: 'blogs' },
-  { key: 'blog_details_alt', label: 'Blog Details (Alt)', path: '/blog-details/:blogId', category: 'Content & Media' },
+  { key: 'blog_details_alt', label: 'Blog Details (Alt)', path: '/blog-details/:blogId', category: 'Content & Media', parentKey: 'blogs' },
   { key: 'blog_add', label: 'Add Blog', path: '/add-blog', category: 'Content & Media', parentKey: 'blogs' },
   { key: 'blog_edit', label: 'Edit Blog', path: '/edit-blog/:blogId', category: 'Content & Media', parentKey: 'blogs' },
   { key: 'testimonials', label: 'Testimonials', path: '/testimonials', category: 'Application' },
