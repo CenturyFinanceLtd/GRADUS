@@ -75,7 +75,7 @@ const ADMIN_PAGE_DEFINITIONS = [
   { key: 'wallet', label: 'Wallet', path: '/wallet', category: 'Sales & Commerce' },
 
   // Learning & support (courses management removed)
-  { key: 'inquiries', label: 'Inquiries', path: '/inquiries', category: 'Learning & Support' },
+  { key: 'inquiries', label: 'Inquiries', path: '/inquiries', category: 'Learning & Support' }, { key: 'event_registrations', label: 'Event Registrations', path: '/event-registrations', category: 'Events' }, { key: 'callback_requests', label: 'Call Back Requests', path: '/callback-requests', category: 'Learning & Support' },
   { key: 'support_list', label: 'List', path: '/list', category: 'Learning & Support' },
   { key: 'support_starred', label: 'Starred', path: '/starred', category: 'Learning & Support' },
   { key: 'support_star_rating', label: 'Star Rating', path: '/star-rating', category: 'Learning & Support' },
