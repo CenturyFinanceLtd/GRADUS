@@ -84,11 +84,11 @@ serve(async (req: Request) => {
     if ((apiPath === "/" || apiPath === "") && req.method === "GET") {
         const { data: tickets, error } = await supabase
            .from("tickets")
-           .select("*, users!user_id(id, first_name, last_name, email), admin_users!assigned_to(id, full_name)")
-           .order("last_message_at", { ascending: false });
+           .select("*")
+           .order("created_at", { ascending: false });
         
         if (error) return jsonResponse({ error: error.message }, 500, cors);
-        return jsonResponse(tickets.map(mapTicket), 200, cors);
+        return jsonResponse({ items: tickets || [] }, 200, cors);
     }
 
     // GET /:id - Get Details
@@ -97,7 +97,7 @@ serve(async (req: Request) => {
         const id = idMatch[1];
         const { data: ticket, error } = await supabase
            .from("tickets")
-           .select("*, users!user_id(id, first_name, last_name, email), admin_users!assigned_to(id, full_name)")
+           .select("*")
            .eq("id", id)
            .single();
 
@@ -107,7 +107,7 @@ serve(async (req: Request) => {
         const { data: messages } = await supabase.from("ticket_messages").select("*").eq("ticket_id", id).order("created_at", { ascending: true });
 
         // Update opened status if necessary
-        return jsonResponse({ item: mapTicket(ticket), messages: messages || [] }, 200, cors);
+        return jsonResponse({ item: ticket, messages: messages || [] }, 200, cors);
     }
     
     // POST /:id/reply
