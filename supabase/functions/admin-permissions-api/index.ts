@@ -113,7 +113,7 @@ serve(async (req) => {
     // PUT /:role - Update role permissions
     const roleMatch = apiPath.match(/^\/([a-z_]+)$/i);
     if (roleMatch && req.method === "PUT") {
-       if (admin.role !== "programmer_admin") return jsonResponse({ error: "Access denied" }, 403, cors);
+       if (!["programmer_admin", "admin"].includes(admin.role)) return jsonResponse({ error: "Access denied" }, 403, cors);
        const targetRole = roleMatch[1];
        if (targetRole === "programmer_admin") return jsonResponse({ error: "Cannot limit Programmer Admin" }, 400, cors);
 

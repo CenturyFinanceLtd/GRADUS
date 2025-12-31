@@ -240,106 +240,40 @@ serve(async (req: Request) => {
         user = upserted;
         error = null;
       } else if (sbUser?.phone) {
-        // Phone-authenticated user - upsert by phone number
-        const phone = sbUser.phone;
-        console.log("Upserting user by phone:", phone);
-
-        // Reconciliation Logic: 
-        // We have two records often: 
-        // 1. One found by current 'userId' (session id)
-        // 2. One found by 'phone' (the one the user actually uses)
+        // Phone-authenticated user
+        console.log("Fetching user by phone-based ID:", userId);
         
-        // Step A: Find record by phone
-        const { data: byPhone, error: phoneError } = await supabase
-          .from("users")
-          .select("*")
-          .eq("phone", phone)
-          .maybeSingle();
-
-        // Step B: Find record by current session ID
-        const { data: byId, error: idError } = await supabase
+        // Database trigger 'on_auth_user_created' now handles:
+        // 1. Creating public.users row if missing
+        // 2. Merging if phone number existed under different ID (via ON UPDATE CASCADE)
+        
+        const { data: existingUser, error: existingError } = await supabase
           .from("users")
           .select("*")
           .eq("id", userId)
           .maybeSingle();
 
-        console.log(`[Reconciliation] userId: ${userId}, phone: ${phone}`);
-        console.log(`[Reconciliation] Found byId: ${byId ? 'YES' : 'NO'}, Found byPhone: ${byPhone ? 'YES' : 'NO'}`);
+        user = existingUser;
+        error = existingError;
 
-        if (byId && byPhone && byId.id !== byPhone.id) {
-          // CONFLICT: Two different records.
-          // Merge 'phone' into the 'byId' record and delete 'byPhone' record
-          console.log("[Reconciliation] Merging records. Keeping ID:", userId, "Deleting ID:", byPhone.id);
-          
-          // 1. Update the record that has the correct session ID to include the phone
-          const { data: merged, error: mergeError } = await supabase
-            .from("users")
-            .update({ phone: phone })
-            .eq("id", userId)
-            .select()
-            .single();
-          
-          if (!mergeError) {
-            // 2. Delete the old record that had the phone but the wrong ID
-            await supabase.from("users").delete().eq("id", byPhone.id);
-            user = merged;
-          } else {
-            console.error("[Reconciliation] Merge update failed:", mergeError);
-            user = byId;
-          }
-          error = null;
-        } else if (!byId && byPhone) {
-          // Record exists by phone but has wrong ID
-          console.log("[Reconciliation] Updating ID of existing phone record to match session:", userId);
-          const { data: updated, error: updateErr } = await supabase
-            .from("users")
-            .update({ id: userId, auth_provider: 'PHONE' })
-            .eq("id", byPhone.id)
-            .select()
-            .single();
-          
-          if (updateErr) {
-            console.error("[Reconciliation] ID update failed:", updateErr);
-            // Fallback to byPhone if update fails (might be FK constraint check timing)
-            user = byPhone;
-          } else {
-            user = updated;
-          }
-          error = null;
-        } else if (byId && !byPhone) {
-          // Record exists by ID but doesn't have phone attached yet? 
-          // (Shouldn't happen often as Auth User has phone, but safe to update)
-          console.log("[Reconciliation] Updating existing ID record with phone:", userId);
-          const { data: updated, error: updateErr } = await supabase
-            .from("users")
-            .update({ phone: phone, auth_provider: 'PHONE' })
-            .eq("id", userId)
-            .select()
-            .single();
-          
-          user = updated || byId;
-          error = null;
-        } else if (!byId && !byPhone) {
-          // Neither exists - create new
-          console.log("[Reconciliation] Creating brand new user record for:", userId);
-          const { data: newUser, error: insertError } = await supabase
-            .from("users")
-            .insert({
-              id: userId,
-              phone: phone,
-              role: 'student',
-              auth_provider: 'PHONE'
-            })
-            .select()
-            .single();
-          
-          user = newUser;
-          error = insertError;
-        } else {
-          // byId and byPhone are the same record - perfect
-          user = byId;
-          error = null;
+        // Fallback: If for some reason the trigger didn't fire (e.g. existing auth user but no public record yet),
+        // we can do a simple insert-if-missing here, but NO complex merge logic.
+        if (!user && !error) {
+           console.log("User record missing despite auth. Insert skeleton.");
+           const { data: created, error: createError } = await supabase
+             .from("users")
+             .insert({
+                id: userId,
+                phone: sbUser.phone,
+                role: 'student',
+                auth_provider: 'PHONE'
+             })
+             .select()
+             .single();
+           user = created;
+           error = createError;
         }
+
       } else {
         // Legacy JWT users: look up by id
         console.log("Looking up legacy user by id:", userId);

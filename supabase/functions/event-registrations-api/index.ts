@@ -51,6 +51,34 @@ async function verifyAdminToken(req: Request, supabase: SupabaseClient): Promise
   return { admin: null, error: "Invalid token" };
 }
 
+async function verifyUser(req: Request, supabase: SupabaseClient): Promise<{ user: any; error?: string }> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) return { user: null, error: "No authorization header" };
+  
+  const token = authHeader.replace("Bearer ", "");
+  
+  // 1. Supabase Auth
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  if (user) return { user };
+  
+  // 2. Custom JWT (Legacy)
+  try {
+      const encoder = new TextEncoder();
+      const key = await crypto.subtle.importKey(
+          "raw", 
+          encoder.encode(JWT_SECRET), 
+          { name: "HMAC", hash: "SHA-256" }, 
+          false, 
+          ["verify"]
+      );
+      const payload = await verify(token, key);
+      // Construct a minimal user object akin to what Supabase returns
+      return { user: { id: (payload as any).id || (payload as any).sub } };
+  } catch (e) {
+      return { user: null, error: "Invalid token" };
+  }
+}
+
 serve(async (req: Request) => {
   const cors = getCorsHeaders(req) as any;
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
@@ -182,8 +210,8 @@ serve(async (req: Request) => {
             user_id: userId,
             status: "registered"
         }]).select().single();
-        if (error) return jsonResponse({ error: error.message }, 500, cors);
-        return jsonResponse({ success: true, item: data }, 201, cors);
+        if (regError) return jsonResponse({ error: regError.message }, 500, cors);
+        return jsonResponse({ success: true, item: newReg }, 201, cors);
     }
     
     // POST /send-join-link ... etc (Admin) - Placeholder
