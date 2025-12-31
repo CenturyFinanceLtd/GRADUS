@@ -5,12 +5,16 @@ import { fetchRolePermissions, updateRolePermissions } from "../services/adminPe
 
 const normalizeRole = (role) => (role ? String(role).toLowerCase() : "");
 
+import { sidebarConfig } from "../config/sidebarConfig";
+
 const PermissionLayer = () => {
-  const { token, admin, refreshPermissions } = useAuth();
+  const { token, admin, refreshPermissions, loading: authLoading } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [roles, setRoles] = useState([]);
-  const [pages, setPages] = useState([]);
+  // We no longer strictly need 'pages' from API for rendering, 
+  // but we might keep it if we want to validate keys. 
+  // For now, sidebarConfig is our source of truth for the UI structure.
   const [rolePermissions, setRolePermissions] = useState({});
   const [selectedRole, setSelectedRole] = useState("");
   const [error, setError] = useState("");
@@ -20,9 +24,8 @@ const PermissionLayer = () => {
   const currentRole = normalizeRole(admin?.role);
 
   const loadPermissions = useCallback(async () => {
-    if (!token) {
+    if (authLoading || !token) {
       setRoles([]);
-      setPages([]);
       setRolePermissions({});
       setSelectedRole("");
       setLoading(false);
@@ -36,36 +39,33 @@ const PermissionLayer = () => {
     try {
       const response = await fetchRolePermissions(token);
       const availableRoles = Array.isArray(response?.roles) ? response.roles : [];
-      const availablePages = Array.isArray(response?.pages) ? response.pages : [];
       const permissionsMap =
         response?.permissions && typeof response.permissions === "object"
           ? response.permissions
           : {};
 
       setRoles(availableRoles);
-      setPages(availablePages.filter((page) => !page.public));
       setRolePermissions(permissionsMap);
 
       setSelectedRole((prev) => {
         if (prev) {
           return prev;
         }
-        const defaultRole = availableRoles.find((role) => role.key !== "programmer_admin");
+        const defaultRole = availableRoles.find((role) => role.value !== "programmer_admin");
         if (defaultRole) {
-          return normalizeRole(defaultRole.key);
+          return normalizeRole(defaultRole.value);
         }
-        return availableRoles[0] ? normalizeRole(availableRoles[0].key) : "";
+        return availableRoles[0] ? normalizeRole(availableRoles[0].value) : "";
       });
     } catch (err) {
       setError(err.message || "Unable to load role permissions.");
       setRoles([]);
-      setPages([]);
       setRolePermissions({});
       setSelectedRole("");
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, authLoading]);
 
   useEffect(() => {
     loadPermissions();
@@ -84,51 +84,59 @@ const PermissionLayer = () => {
     return Array.isArray(stored) ? stored : [];
   }, [rolePermissions, selectedRole]);
 
-  const groupedPages = useMemo(() => {
-    const groups = new Map();
-    pages.forEach((page) => {
-      const key = page.category || "Other";
-      if (!groups.has(key)) {
-        groups.set(key, []);
-      }
-      groups.get(key).push(page);
-    });
-    return Array.from(groups.entries()).map(([category, items]) => ({
-      category,
-      items: items.sort((a, b) => a.label.localeCompare(b.label)),
-    }));
-  }, [pages]);
-
   const isRoleLocked = selectedRole === "programmer_admin";
 
-  const handleTogglePage = (pageKey) => {
-    if (isRoleLocked) {
-      return;
+  // Helper to collect all keys (parent + children) from a config item
+  const getAllKeys = (item) => {
+    let keys = [];
+    if (item.key) keys.push(item.key);
+    if (item.children) {
+      item.children.forEach((child) => {
+        keys = keys.concat(getAllKeys(child));
+      });
     }
+    return keys;
+  };
+
+  const handleToggleItem = (itemKey, allChildKeys = []) => {
+    if (isRoleLocked) return;
 
     setRolePermissions((prev) => {
       const current = new Set(prev[selectedRole] || []);
-      if (current.has(pageKey)) {
-        current.delete(pageKey);
+      const isChecked = current.has(itemKey);
+
+      if (isChecked) {
+        // Uncheck parent -> uncheck all children
+        current.delete(itemKey);
+        allChildKeys.forEach((k) => current.delete(k));
       } else {
-        current.add(pageKey);
+        // Check parent -> check all children
+        current.add(itemKey);
+        allChildKeys.forEach((k) => current.add(k));
       }
       return { ...prev, [selectedRole]: Array.from(current) };
     });
   };
 
+  // Helper to check if a specific key is permitted
+  const hasPermission = (key) => selectedRolePermissions.includes(key);
+
   const handleSelectAll = () => {
-    if (isRoleLocked) {
-      return;
-    }
-    const allKeys = pages.map((page) => page.key);
+    if (isRoleLocked) return;
+
+    // Gather all keys from sidebarConfig
+    const allKeys = [];
+    sidebarConfig.forEach(item => {
+      if (!item.programmerOnly) {
+        allKeys.push(...getAllKeys(item));
+      }
+    });
+
     setRolePermissions((prev) => ({ ...prev, [selectedRole]: allKeys }));
   };
 
   const handleClearAll = () => {
-    if (isRoleLocked) {
-      return;
-    }
+    if (isRoleLocked) return;
     setRolePermissions((prev) => ({ ...prev, [selectedRole]: [] }));
   };
 
@@ -194,6 +202,45 @@ const PermissionLayer = () => {
     );
   }
 
+  // Recursive render function for sidebar items
+  const renderPermissionItem = (item) => {
+    if (item.programmerOnly) return null; // Skip non-assignable items
+    if (item.type === "header") return <h6 className="mt-3 mb-2 text-uppercase text-secondary-light" key={item.label}>{item.label}</h6>;
+
+    const isGroup = item.children && item.children.length > 0;
+    const allKeys = getAllKeys(item);
+    const isChecked = hasPermission(item.key);
+
+    // For visual feedback on groups: check if all children are checked (optional UI enhancement)
+    // For now, we stick to strict check of the parent key itself.
+
+    return (
+      <div key={item.key} className="mb-2">
+        <div className={`form-check form-switch d-flex align-items-center ${isGroup ? 'mb-1' : ''}`}>
+          <input
+            className="form-check-input flex-shrink-0"
+            type="checkbox"
+            role="switch"
+            id={`perm-${selectedRole}-${item.key}`}
+            checked={isChecked}
+            disabled={isRoleLocked || saving}
+            onChange={() => handleToggleItem(item.key, isGroup ? getAllKeys(item).filter(k => k !== item.key) : [])}
+          />
+          <label className="form-check-label ms-2 d-flex align-items-center gap-2 cursor-pointer" htmlFor={`perm-${selectedRole}-${item.key}`}>
+            {item.icon && <Icon icon={item.icon} className="fs-5 text-secondary" />}
+            <span className={isGroup ? "fw-medium" : ""}>{item.label}</span>
+          </label>
+        </div>
+
+        {isGroup && (
+          <div className="ms-4 border-start ps-3">
+            {item.children.map(child => renderPermissionItem(child))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className='row g-4'>
       <div className='col-12 col-lg-4'>
@@ -205,7 +252,7 @@ const PermissionLayer = () => {
           <div className='card-body p-0'>
             <ul className='list-group list-group-flush'>
               {roles.map((role, index) => {
-                const normalized = normalizeRole(role.key);
+                const normalized = normalizeRole(role.value);
                 const isActive = normalized === selectedRole;
                 const roleClasses = [
                   "list-group-item",
@@ -219,7 +266,7 @@ const PermissionLayer = () => {
                 }
                 return (
                   <li
-                    key={role.key || index}
+                    key={role.value || index}
                     className={roleClasses.join(" ")}
                     onClick={() => handleRoleSelect(normalized)}
                     role='button'
@@ -282,41 +329,9 @@ const PermissionLayer = () => {
               </div>
             ) : null}
 
-            {groupedPages.length === 0 ? (
-              <p className='text-secondary-light mb-0'>No pages available.</p>
-            ) : (
-              <div className='d-flex flex-column gap-4'>
-                {groupedPages.map(({ category, items }) => (
-                  <div key={category} className='permission-category'>
-                    <h6 className='mb-2 text-uppercase text-secondary-light'>{category}</h6>
-                    <div className='row g-2'>
-                      {items.map((page, pIdx) => {
-                        const checked = selectedRolePermissions.includes(page.key);
-                        const inputId = `${selectedRole}-${page.key || pIdx}`;
-                        return (
-                          <div className='col-12 col-md-6' key={page.key || pIdx}>
-                            <div className='form-check form-switch align-items-center'>
-                              <input
-                                className='form-check-input'
-                                type='checkbox'
-                                role='switch'
-                                id={inputId}
-                                checked={checked}
-                                disabled={isRoleLocked || saving}
-                                onChange={() => handleTogglePage(page.key)}
-                              />
-                              <label className='form-check-label ms-2' htmlFor={inputId}>
-                                {page.label}
-                              </label>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className='permission-list'>
+              {sidebarConfig.map(item => renderPermissionItem(item))}
+            </div>
           </div>
           <div className='card-footer d-flex justify-content-end gap-2'>
             <button

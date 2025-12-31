@@ -36,8 +36,8 @@ const FUNCTION_MAP = {
   "/admin/analytics": "admin-analytics-api",
   "/admin/uploads": "admin-uploads-api",
   "/admin/course-details": "admin-course-details-api",
-  "/admin/inquiries": "inquiries-api",
-  "/admin/callback-requests": "inquiries-api",
+  "/admin/inquiries": "inquiries-api/inquiries",
+  "/admin/callback-requests": "inquiries-api/callback-requests",
   "/admin/event-registrations": "event-registrations-api",
   "/admin/landing-pages": "admin-landing-pages-api",
   "/live/sessions": "admin-live-sessions-api",
@@ -56,10 +56,14 @@ const apiClient = async (
   }
 
   if (token) {
+    // console.log("Using provided token for", endpoint);
     requestHeaders.set("Authorization", "Bearer " + token);
   } else if (SUPABASE_ANON_KEY) {
+    // console.log("Using Anon Key for", endpoint);
     // If no user token, pass Anon Key to satisfy Gateway (for public endpoints or initial fetch)
     requestHeaders.set("Authorization", "Bearer " + SUPABASE_ANON_KEY);
+  } else {
+    console.warn("No token and no Anon Key for", endpoint);
   }
 
   const fetchOptions = {

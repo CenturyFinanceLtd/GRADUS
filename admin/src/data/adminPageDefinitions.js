@@ -1,4 +1,4 @@
-﻿const ADMIN_PAGE_DEFINITIONS = [
+const ADMIN_PAGE_DEFINITIONS = [
   // Dashboards
   { key: 'dashboard_ai', label: 'Dashboard - AI', path: '/', category: 'Dashboards' },
   { key: 'dashboard_crm', label: 'Dashboard - CRM', path: '/index-2', category: 'Dashboards' },
@@ -27,11 +27,11 @@
   { key: 'course_progress', label: 'Course Progress', path: '/course-progress', category: 'Application' },
   { key: 'course_enrollments', label: 'Course Enrollments', path: '/course-enrollments', category: 'Application' },
   { key: 'live_classes', label: 'Go Live', path: '/live/classes', category: 'Application' },
-  { key: 'blog_list', label: 'Blogs', path: '/blog', category: 'Content & Media' },
-  { key: 'blog_details', label: 'Blog Details', path: '/blog/:blogId', category: 'Content & Media' },
-  { key: 'blog_details_alt', label: 'Blog Details (Alt)', path: '/blog-details/:blogId', category: 'Content & Media' },
-  { key: 'blog_add', label: 'Add Blog', path: '/add-blog', category: 'Content & Media' },
-  { key: 'blog_edit', label: 'Edit Blog', path: '/edit-blog/:blogId', category: 'Content & Media' },
+  { key: 'blogs', label: 'Blogs', path: '/blog', category: 'Content & Media' },
+  { key: 'blog_details', label: 'Blog Details', path: '/blog/:blogId', category: 'Content & Media', parentKey: 'blogs' },
+  { key: 'blog_details_alt', label: 'Blog Details (Alt)', path: '/blog-details/:blogId', category: 'Content & Media', parentKey: 'blogs' },
+  { key: 'blog_add', label: 'Add Blog', path: '/add-blog', category: 'Content & Media', parentKey: 'blogs' },
+  { key: 'blog_edit', label: 'Edit Blog', path: '/edit-blog/:blogId', category: 'Content & Media', parentKey: 'blogs' },
   { key: 'testimonials', label: 'Testimonials', path: '/testimonials', category: 'Application' },
   { key: 'expert_videos', label: 'Expert Videos', path: '/expert-videos', category: 'Application' },
   { key: 'why_gradus_video', label: 'Why Gradus Video', path: '/why-gradus-video', category: 'Application' },
@@ -75,7 +75,7 @@
   { key: 'wallet', label: 'Wallet', path: '/wallet', category: 'Sales & Commerce' },
 
   // Learning & support (courses management removed)
-  { key: 'inquiries', label: 'Inquiries', path: '/inquiries', category: 'Learning & Support' },
+  { key: 'inquiries', label: 'Inquiries', path: '/inquiries', category: 'Learning & Support' }, { key: 'event_registrations', label: 'Event Registrations', path: '/event-registrations', category: 'Events' }, { key: 'callback_requests', label: 'Call Back Requests', path: '/callback-requests', category: 'Learning & Support' }, { key: 'inquiry_details', label: 'Inquiry Details', path: '/inquiries/:id', category: 'Learning & Support', parentKey: 'inquiries' }, { key: 'event_registration_details', label: 'Registration Details', path: '/event-registrations/:id', category: 'Events', parentKey: 'event_registrations' },
   { key: 'support_list', label: 'List', path: '/list', category: 'Learning & Support' },
   { key: 'support_starred', label: 'Starred', path: '/starred', category: 'Learning & Support' },
   { key: 'support_star_rating', label: 'Star Rating', path: '/star-rating', category: 'Learning & Support' },
@@ -135,3 +135,4 @@
 const ADMIN_PAGE_KEYS = ADMIN_PAGE_DEFINITIONS.map((page) => page.key);
 
 export { ADMIN_PAGE_DEFINITIONS, ADMIN_PAGE_KEYS };
+// Update keys
