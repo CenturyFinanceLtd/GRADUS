@@ -10,29 +10,69 @@ WHERE NOT EXISTS (
 
 -- RLS for the bucket
 -- Allow public access to view profile images
-CREATE POLICY "Public Access"
-ON storage.objects FOR SELECT
-USING ( bucket_id = 'profile_image' );
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'objects' 
+        AND schemaname = 'storage'
+        AND policyname = 'Public Access'
+    ) THEN
+        CREATE POLICY "Public Access"
+        ON storage.objects FOR SELECT
+        USING ( bucket_id = 'profile_image' );
+    END IF;
+END $$;
 
 -- Allow users to upload their own profile image
 -- We path them as bucket_id/user_id/filename
-CREATE POLICY "Users can upload own profile image"
-ON storage.objects FOR INSERT
-WITH CHECK (
-    bucket_id = 'profile_image' AND
-    (storage.foldername(name))[1] = auth.uid()::text
-);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'objects' 
+        AND schemaname = 'storage'
+        AND policyname = 'Users can upload own profile image'
+    ) THEN
+        CREATE POLICY "Users can upload own profile image"
+        ON storage.objects FOR INSERT
+        WITH CHECK (
+            bucket_id = 'profile_image' AND
+            (storage.foldername(name))[1] = auth.uid()::text
+        );
+    END IF;
+END $$;
 
-CREATE POLICY "Users can update own profile image"
-ON storage.objects FOR UPDATE
-USING (
-    bucket_id = 'profile_image' AND
-    (storage.foldername(name))[1] = auth.uid()::text
-);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'objects' 
+        AND schemaname = 'storage'
+        AND policyname = 'Users can update own profile image'
+    ) THEN
+        CREATE POLICY "Users can update own profile image"
+        ON storage.objects FOR UPDATE
+        USING (
+            bucket_id = 'profile_image' AND
+            (storage.foldername(name))[1] = auth.uid()::text
+        );
+    END IF;
+END $$;
 
-CREATE POLICY "Users can delete own profile image"
-ON storage.objects FOR DELETE
-USING (
-    bucket_id = 'profile_image' AND
-    (storage.foldername(name))[1] = auth.uid()::text
-);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'objects' 
+        AND schemaname = 'storage'
+        AND policyname = 'Users can delete own profile image'
+    ) THEN
+        CREATE POLICY "Users can delete own profile image"
+        ON storage.objects FOR DELETE
+        USING (
+            bucket_id = 'profile_image' AND
+            (storage.foldername(name))[1] = auth.uid()::text
+        );
+    END IF;
+END $$;

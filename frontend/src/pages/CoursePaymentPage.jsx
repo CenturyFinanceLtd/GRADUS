@@ -85,7 +85,10 @@ const sanitizeStateValue = (value) => {
 const extractDigits = (value = "") => value.replace(/\D/g, "");
 const normalizeWhatsappDigits = (value = "") => {
   const digits = extractDigits(value);
-  return digits.length === 10 ? digits : "";
+  if (digits.length >= 10) {
+    return digits.slice(-10);
+  }
+  return "";
 };
 
 const CoursePaymentPage = () => {
@@ -167,7 +170,9 @@ const CoursePaymentPage = () => {
     setProfileForm({
       whatsappNumber: normalizeWhatsappDigits(user?.whatsappNumber || user?.mobile || ""),
       stateName: sanitizeStateValue(user?.personalDetails?.state || ""),
-      dateOfBirth: normalizeDateInput(user?.personalDetails?.dateOfBirth || ""),
+      dateOfBirth: normalizeDateInput(user?.personalDetails?.dob || user?.dob || ""),
+      city: user?.personalDetails?.city || user?.city || "",
+      college: user?.educationDetails?.institutionName || user?.college || "",
     });
     setProfileErrors({});
     setProfileFeedback(null);
@@ -183,6 +188,14 @@ const CoursePaymentPage = () => {
     const stateValue = sanitizeStateValue(fields.stateName);
     if (!stateValue) {
       nextErrors.stateName = "Select your state.";
+    }
+
+    if (!(fields.city || "").trim()) {
+      nextErrors.city = "City is required.";
+    }
+
+    if (!(fields.college || "").trim()) {
+      nextErrors.college = "College is required.";
     }
 
     const dobValue = (fields.dateOfBirth || "").trim();
@@ -242,19 +255,25 @@ const CoursePaymentPage = () => {
           mobile: sanitizedWhatsapp,
           personalDetails: {
             state: sanitizedState,
-            dateOfBirth: profileForm.dateOfBirth.trim(),
+            dob: profileForm.dateOfBirth.trim(),
+            city: profileForm.city.trim(),
+          },
+          educationDetails: {
+            institutionName: profileForm.college.trim(),
           },
         },
       });
 
       if (response?.user) {
-        updateUser(response.user);
+        const returnedUser = response.user || user; // Fallback to current user if response.user is null
+        updateUser(returnedUser);
         setProfileForm((prev) => ({
           ...prev,
-          stateName: sanitizeStateValue(response.user?.personalDetails?.state || prev.stateName),
-          whatsappNumber: normalizeWhatsappDigits(
-            response.user?.whatsappNumber || response.user?.mobile || prev.whatsappNumber
-          ),
+          stateName: sanitizeStateValue(returnedUser?.personalDetails?.state || prev.stateName),
+          whatsappNumber: normalizeWhatsappDigits(returnedUser?.whatsappNumber || returnedUser?.mobile || prev.whatsappNumber),
+          city: returnedUser?.personalDetails?.city || returnedUser?.city || prev.city,
+          college: returnedUser?.educationDetails?.institutionName || returnedUser?.college || prev.college,
+          dateOfBirth: normalizeDateInput(returnedUser?.personalDetails?.dob || returnedUser?.dob || prev.dateOfBirth),
         }));
       }
 
@@ -462,158 +481,198 @@ const CoursePaymentPage = () => {
 
 
 
-    return (
+    console.log("PaymentPage User Check:", {
+      state: user?.personalDetails?.state || user?.state,
+      city: user?.personalDetails?.city || user?.city,
+      college: user?.educationDetails?.institutionName || user?.college,
+      dob: user?.personalDetails?.dob || user?.dob || user?.personalDetails?.dateOfBirth
+    });
 
+    const isProfileComplete =
+      Boolean((user?.personalDetails?.state || user?.state) &&
+        (user?.personalDetails?.city || user?.city) &&
+        (user?.educationDetails?.institutionName || user?.college) &&
+        (user?.personalDetails?.dob || user?.dob || user?.personalDetails?.dateOfBirth));
+
+    return (
       <div className='d-grid gap-24'>
 
         <div className='card p-32 rounded-24 border border-neutral-40 bg-white box-shadow-md'>
-
           <h3 className='text-neutral-900 mb-8'>Confirm your learner details</h3>
-
           <p className='text-neutral-600 mb-24'>
-
-            We use these details for enrollment records and to share WhatsApp cohort updates. Make sure they match your official documents.
-
+            We use these details for enrollment records and certificate generation.
           </p>
 
           {profileFeedback ? (
-
             <div
-
               className={`alert ${profileFeedback.type === "success" ? "alert-success" : "alert-danger"
-
                 } mb-24`}
-
               role={profileFeedback.type === "success" ? "status" : "alert"}
-
             >
-
               {profileFeedback.message}
-
             </div>
-
           ) : null}
 
-          <div className='mb-20'>
+          <div className='row gy-4'>
+            {/* Full Name */}
+            <div className='col-md-6'>
+              <label className='form-label fw-semibold text-neutral-900'>Name</label>
+              <input
+                type='text'
+                className='form-control bg-neutral-20'
+                value={user?.fullname || `${user?.firstName || ""} ${user?.lastName || ""}`.trim()}
+                disabled
+              />
+            </div>
 
-            <label className='form-label fw-semibold text-neutral-900' htmlFor='payment-whatsapp'>
+            {/* Mobile Number */}
+            <div className='col-md-6'>
+              <label className='form-label fw-semibold text-neutral-900'>Mobile Number</label>
+              <input
+                type='text'
+                className='form-control bg-neutral-20'
+                value={user?.mobile || user?.whatsappNumber || ""}
+                disabled
+              />
+            </div>
 
-              WhatsApp registered number
+            {/* Email ID */}
+            <div className='col-12'>
+              <label className='form-label fw-semibold text-neutral-900'>Email ID</label>
+              <input
+                type='text'
+                className='form-control bg-neutral-20'
+                value={user?.email || ""}
+                disabled
+              />
+            </div>
 
-            </label>
+            {/* State */}
+            <div className='col-md-6'>
+              <label className='form-label fw-semibold text-neutral-900'>State</label>
+              {user?.personalDetails?.state ? (
+                <input
+                  type='text'
+                  className='form-control bg-neutral-20'
+                  value={user.personalDetails.state}
+                  disabled
+                />
+              ) : (
+                <>
+                  <select
+                    name='stateName'
+                    className={`form-select checkout-select ${profileErrors.stateName ? 'is-invalid' : ''}`}
+                    value={profileForm.stateName}
+                    onChange={handleProfileChange("stateName")}
+                    disabled={profileSaving || enrolling}
+                  >
+                    <option value=''>Select your state</option>
+                    {INDIAN_STATES.map((stateOption) => (
+                      <option value={stateOption} key={stateOption}>
+                        {stateOption}
+                      </option>
+                    ))}
+                  </select>
+                  {profileErrors.stateName && <div className='invalid-feedback d-block'>{profileErrors.stateName}</div>}
+                </>
+              )}
+            </div>
 
-            <input
-              id='payment-whatsapp'
-              name='whatsappNumber'
-              type='tel'
-              inputMode='numeric'
-              pattern='[0-9]*'
-              maxLength={10}
-              className={`form-control ${profileErrors.whatsappNumber ? 'is-invalid' : ''}`}
-              placeholder='Enter 10-digit WhatsApp number'
-              value={profileForm.whatsappNumber}
-              onChange={handleProfileChange("whatsappNumber")}
-              disabled={profileSaving || enrolling}
-              autoComplete='tel-national'
-            />
+            {/* City */}
+            <div className='col-md-6'>
+              <label className='form-label fw-semibold text-neutral-900'>City</label>
+              {user?.personalDetails?.city || user?.city ? (
+                <input
+                  type='text'
+                  className='form-control bg-neutral-20'
+                  value={user?.personalDetails?.city || user?.city}
+                  disabled
+                />
+              ) : (
+                <>
+                  <input
+                    type='text'
+                    name='city'
+                    className={`form-control ${profileErrors.city ? 'is-invalid' : ''}`}
+                    placeholder='Enter your city'
+                    value={profileForm.city}
+                    onChange={handleProfileChange("city")}
+                    disabled={profileSaving || enrolling}
+                  />
+                  {profileErrors.city && <div className='invalid-feedback d-block'>{profileErrors.city}</div>}
+                </>
+              )}
+            </div>
 
-            <div className='form-text'>Use the 10-digit number linked to your WhatsApp account.</div>
-            {profileErrors.whatsappNumber ? (
+            {/* College */}
+            <div className='col-12'>
+              <label className='form-label fw-semibold text-neutral-900'>College</label>
+              {user?.educationDetails?.institutionName || user?.college ? (
+                <input
+                  type='text'
+                  className='form-control bg-neutral-20'
+                  value={user?.educationDetails?.institutionName || user?.college}
+                  disabled
+                />
+              ) : (
+                <>
+                  <input
+                    type='text'
+                    name='college'
+                    className={`form-control ${profileErrors.college ? 'is-invalid' : ''}`}
+                    placeholder='Enter your college/university'
+                    value={profileForm.college}
+                    onChange={handleProfileChange("college")}
+                    disabled={profileSaving || enrolling}
+                  />
+                  {profileErrors.college && <div className='invalid-feedback d-block'>{profileErrors.college}</div>}
+                </>
+              )}
+            </div>
 
-              <div className='invalid-feedback d-block'>{profileErrors.whatsappNumber}</div>
-
-            ) : null}
-
+            {/* Date of Birth */}
+            <div className='col-12'>
+              <label className='form-label fw-semibold text-neutral-900'>Date of Birth</label>
+              {user?.personalDetails?.dob || user?.dob ? (
+                <input
+                  type='date'
+                  className='form-control bg-neutral-20'
+                  value={normalizeDateInput(user?.personalDetails?.dob || user?.dob)}
+                  disabled
+                />
+              ) : (
+                <>
+                  <input
+                    type='date'
+                    name='dateOfBirth'
+                    className={`form-control ${profileErrors.dateOfBirth ? 'is-invalid' : ''}`}
+                    value={profileForm.dateOfBirth}
+                    onChange={handleProfileChange("dateOfBirth")}
+                    max={maxDob}
+                    disabled={profileSaving || enrolling}
+                  />
+                  {profileErrors.dateOfBirth && <div className='invalid-feedback d-block'>{profileErrors.dateOfBirth}</div>}
+                </>
+              )}
+            </div>
           </div>
 
-          <div className='mb-20'>
-            <label className='form-label fw-semibold text-neutral-900' htmlFor='payment-state'>
-              Residential state
-            </label>
-            <select
-              id='payment-state'
-              name='stateName'
-              className={`form-select checkout-select ${profileErrors.stateName ? 'is-invalid' : ''}`}
-              value={profileForm.stateName}
-              onChange={handleProfileChange("stateName")}
-              disabled={profileSaving || enrolling}
-            >
-              <option value=''>Select your state</option>
-              {INDIAN_STATES.map((stateOption) => (
-                <option value={stateOption} key={stateOption}>
-                  {stateOption}
-                </option>
-              ))}
-            </select>
-            <div className='form-text'>Match the state listed on your government ID.</div>
-            {profileErrors.stateName ? (
-              <div className='invalid-feedback d-block'>{profileErrors.stateName}</div>
-            ) : null}
-          </div>
-          <div className='mb-24'>
-
-            <label className='form-label fw-semibold text-neutral-900' htmlFor='payment-dob'>
-
-              Date of birth
-
-            </label>
-
-            <input
-
-              id='payment-dob'
-
-              name='dateOfBirth'
-
-              type='date'
-
-              className={`form-control ${profileErrors.dateOfBirth ? 'is-invalid' : ''}`}
-
-              value={profileForm.dateOfBirth}
-
-              onChange={handleProfileChange("dateOfBirth")}
-
-              disabled={profileSaving || enrolling}
-
-              max={maxDob}
-
-            />
-
-            <div className='form-text'>Used for identity verification and certificates.</div>
-
-            {profileErrors.dateOfBirth ? (
-
-              <div className='invalid-feedback d-block'>{profileErrors.dateOfBirth}</div>
-
-            ) : null}
-
-          </div>
-
-          <div className='d-flex flex-wrap gap-12'>
-
-            <button
-
-              type='button'
-
-              className='btn btn-outline-neutral-500 rounded-pill'
-
-              onClick={handleSaveProfile}
-
-              disabled={profileSaving || enrolling}
-
-            >
-
-              {profileSaving ? "Saving…" : "Save details"}
-
-            </button>
-
-            <p className='text-neutral-500 mb-0 align-self-center small'>
-
-              Details are stored securely in your Gradus profile.
-
-            </p>
-
-          </div>
-
+          {/* Only show Save button if there are fields to update */}
+          {(!isProfileComplete) ? (
+            <div className='d-flex flex-wrap gap-12 mt-24'>
+              <button
+                type='button'
+                className='btn btn-main rounded-pill'
+                onClick={handleSaveProfile}
+                disabled={profileSaving || enrolling}
+              >
+                {profileSaving ? "Saving details..." : "Save details"}
+              </button>
+              <p className='text-neutral-500 mb-0 align-self-center small'>
+                Please save your details to proceed.
+              </p>
+            </div>
+          ) : null}
         </div>
 
         <div className='card p-32 rounded-24 border border-neutral-40 bg-white box-shadow-md'>
@@ -696,7 +755,8 @@ const CoursePaymentPage = () => {
 
               onClick={handleCompletePayment}
 
-              disabled={enrolling}
+              disabled={enrolling || !isProfileComplete}
+              style={{ opacity: isProfileComplete ? 1 : 0.5, cursor: isProfileComplete ? 'pointer' : 'not-allowed' }}
 
             >
 

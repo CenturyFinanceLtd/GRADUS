@@ -148,6 +148,8 @@ function mapCourseToSupabase(course: any) {
     programme_slug: course.programmeSlug || (course.slug ? course.slug.split('/')[0] : ''),
     course_slug: course.courseSlug || (course.slug ? course.slug.split('/').pop() : ''),
     is_visible: course.isVisible !== undefined ? course.isVisible : true,
+    price: course.price || course.doc?.price || course.hero?.price,
+    price_inr: course.priceINR || course.hero?.priceINR || course.doc?.hero?.priceINR || course.doc?.priceINR,
     updated_at: new Date().toISOString(),
     doc: course, // Store the full original document in doc
   };
