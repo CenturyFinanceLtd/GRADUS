@@ -67,7 +67,7 @@ serve(async (req: Request) => {
 
     // GET /
     if ((apiPath === "/" || apiPath === "") && req.method === "GET") {
-       const { data, error } = await supabase.from("page_metas").select("*").order("route", { ascending: true });
+       const { data, error } = await supabase.from("page_metas").select("*").order("page_path", { ascending: true });
        if (error) return jsonResponse({ error: error.message }, 500, cors);
        return jsonResponse({ items: data }, 200, cors);
     }
@@ -75,9 +75,19 @@ serve(async (req: Request) => {
     // POST /
     if ((apiPath === "/" || apiPath === "") && req.method === "POST") {
        const body = await req.json().catch(() => ({}));
-       const { route, title, description, keywords, ogImage } = body;
+       const { route, title, description, keywords, ogImage, robots } = body;
+       // We map frontend 'route' or 'path' to 'page_path' AND 'path'
+       const pagePath = route || body.path;
+       
        const { data, error } = await supabase.from("page_metas").insert([{
-          route, title, description, keywords, og_image: ogImage
+          page_path: pagePath,
+          path: pagePath, // seems redundant but user provided data has both
+          title, 
+          description, 
+          keywords, 
+          og_image_url: ogImage,
+          robots: robots || 'index, follow',
+          is_active: true
        }]).select().single();
        if (error) return jsonResponse({ error: error.message }, 500, cors);
        return jsonResponse({ item: data }, 201, cors);
@@ -89,11 +99,18 @@ serve(async (req: Request) => {
       const id = idMatch[1];
       const body = await req.json().catch(() => ({}));
       const patch: any = {};
-      if (body.route) patch.route = body.route;
-      if (body.title) patch.title = body.title;
-      if (body.description) patch.description = body.description;
-      if (body.keywords) patch.keywords = body.keywords;
-      if (body.ogImage) patch.og_image = body.ogImage;
+      
+      const pagePath = body.route || body.path;
+      if (pagePath) {
+          patch.page_path = pagePath;
+          patch.path = pagePath;
+      }
+      if (body.title !== undefined) patch.title = body.title;
+      if (body.description !== undefined) patch.description = body.description;
+      if (body.keywords !== undefined) patch.keywords = body.keywords;
+      if (body.ogImage !== undefined) patch.og_image_url = body.ogImage;
+      if (body.robots !== undefined) patch.robots = body.robots;
+      if (body.isActive !== undefined) patch.is_active = body.isActive;
 
       const { data, error } = await supabase.from("page_metas").update(patch).eq("id", id).select().single();
       if (error) return jsonResponse({ error: error.message }, 500, cors);

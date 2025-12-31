@@ -36,8 +36,8 @@ const FUNCTION_MAP = {
   "/admin/analytics": "admin-analytics-api",
   "/admin/uploads": "admin-uploads-api",
   "/admin/course-details": "admin-course-details-api",
-  "/admin/inquiries": "inquiries-api",
-  "/admin/callback-requests": "inquiries-api",
+  "/admin/inquiries": "inquiries-api/inquiries",
+  "/admin/callback-requests": "inquiries-api/callback-requests",
   "/admin/event-registrations": "event-registrations-api",
   "/admin/landing-pages": "admin-landing-pages-api",
 };
