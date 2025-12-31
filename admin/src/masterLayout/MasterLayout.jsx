@@ -37,16 +37,15 @@ const MasterLayout = ({ children }) => {
 
 
   const pageDefinition = useMemo(() => {
-    const currentPath = isSeo && location.pathname === '/' ? '/index-9' : location.pathname;
     return (
       ADMIN_PAGE_DEFINITIONS.find((page) => {
         if (page.path.includes(":")) {
-          return matchPath({ path: page.path, end: true }, currentPath);
+          return matchPath({ path: page.path, end: true }, location.pathname);
         }
-        return page.path === currentPath;
+        return page.path === location.pathname;
       }) || null
     );
-  }, [isSeo, location.pathname]);
+  }, [location.pathname]);
 
   const currentPageKey = pageDefinition?.key || "";
 
@@ -56,16 +55,6 @@ const MasterLayout = ({ children }) => {
       navigate('/sign-in', { replace: true });
     }
   }, [loading, navigate, token]);
-
-
-
-  useEffect(() => {
-    if (isSeo && location.pathname === '/index-9') {
-      navigate('/', { replace: true });
-    }
-  }, [isSeo, location.pathname, navigate]);
-
-
 
   const handleDropdownToggle = (event) => {
     event.preventDefault();
@@ -146,11 +135,9 @@ const MasterLayout = ({ children }) => {
     return null;
   }
 
-  if (currentPageKey === "user_permissions" && !isProgrammerAdmin) {
-    return <Navigate to='/access-denied' replace />;
-  }
-
-  if (!hasFullAccess) {
+  // Check access
+  const isDashboard = currentPageKey === "dashboard" || location.pathname === "/";
+  if (!hasFullAccess && !isDashboard) {
     if (!currentPageKey || !allowedPages.includes(currentPageKey)) {
       return <Navigate to='/access-denied' replace />;
     }

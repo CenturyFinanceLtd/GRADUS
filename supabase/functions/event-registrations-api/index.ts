@@ -141,61 +141,55 @@ serve(async (req: Request) => {
         
         console.log("[Registration] Body received:", JSON.stringify(body));
         
-        if (currentProfile) {
-            const updates: any = {};
-            let pd = currentProfile.personal_details || {};
-            if (typeof pd === 'string') {
-                try { pd = JSON.parse(pd); } catch { pd = {}; }
-            }
+        // Prepare updates object
+        const updates: any = {};
+        
+        // Basic Info
+        if (body.fullname) {
+            updates.fullname = body.fullname;
+            const parts = body.fullname.split(" ");
+            if (parts.length > 0) updates.first_name = parts[0];
+            if (parts.length > 1) updates.last_name = parts.slice(1).join(" ");
+        }
+        if (body.email) {
+            updates.email = body.email;
+        }
+        if (body.city) {
+            updates.city = body.city;
+        }
+
+        // JSON Fields (merge with existing if possible)
+        let pd = currentProfile?.personal_details || {};
+        if (typeof pd === 'string') { try { pd = JSON.parse(pd); } catch { pd = {}; } }
+        
+        let ed = currentProfile?.education_details || {};
+        if (typeof ed === 'string') { try { ed = JSON.parse(ed); } catch { ed = {}; } }
+
+        if (body.state) pd.state = body.state;
+        if (body.city) pd.city = body.city;
+        if (body.college) ed.institutionName = body.college;
+
+        // Only add JSON fields to updates if they have content
+        if (Object.keys(pd).length > 0) updates.personal_details = pd;
+        if (Object.keys(ed).length > 0) updates.education_details = ed;
+
+        // Execute Upsert (Update if exists, Insert if missing)
+        // We use Upsert to be robust against missing rows
+        if (Object.keys(updates).length > 0) {
+            console.log("[Registration] Upserting user profile:", userId, JSON.stringify(updates));
             
-            let ed = currentProfile.education_details || {};
-            if (typeof ed === 'string') {
-                 try { ed = JSON.parse(ed); } catch { ed = {}; }
-            }
+            const { error: upsertError } = await supabase.from("users").upsert({
+                id: userId,
+                ...updates,
+                updated_at: new Date().toISOString()
+            }).select();
 
-            let hasUpdates = false;
-
-            // ALWAYS update Personal Details with form values
-            if (body.state) { 
-                pd.state = body.state; 
-                hasUpdates = true; 
-            }
-            if (body.city) { 
-                pd.city = body.city; 
-                hasUpdates = true; 
-            }
-            
-            if (body.state || body.city) {
-                updates.personal_details = pd;
-            }
-
-            // ALWAYS update Education Details with form value
-            if (body.college) {
-                ed.institutionName = body.college;
-                updates.education_details = ed;
-                hasUpdates = true;
-            }
-            
-            // Also top level city column
-            if (body.city) { 
-                updates.city = body.city; 
-            }
-
-            console.log("[Registration] Updates to apply:", JSON.stringify(updates));
-
-            if (hasUpdates) {
-                console.log("[Registration] Updating user profile:", userId);
-                const { error: updateError, data: updateData } = await supabase.from("users").update(updates).eq("id", userId).select();
-                if (updateError) {
-                    console.error("[Registration] Failed to update user profile:", updateError);
-                } else {
-                    console.log("[Registration] Profile updated successfully:", JSON.stringify(updateData));
-                }
+            if (upsertError) {
+                console.error("[Registration] Profile upsert failed:", upsertError);
+                // We don't block registration, but this is bad.
             } else {
-                console.log("[Registration] No profile updates - no data provided in form");
+                 console.log("[Registration] Profile upsert success");
             }
-        } else {
-            console.log("[Registration] No user profile found for userId:", userId);
         }
 
         // 3. Register for Event
