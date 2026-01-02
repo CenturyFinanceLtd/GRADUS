@@ -83,8 +83,17 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId }) => {
         setFormData({ ...formData, [name]: selectedOption });
     };
 
+
+    const [isAuthorized, setIsAuthorized] = useState(false);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!isAuthorized) {
+            toast.error("Please authorize to proceed.");
+            return;
+        }
+
         if (!formData.name || !formData.email || !formData.phone) {
             toast.error("Please fill in all required fields.");
             return;
@@ -122,7 +131,8 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId }) => {
                     phone: "",
                     state: null,
                     qualification: null
-                })
+                });
+                setIsAuthorized(false);
             }, 1500);
 
         } catch (error) {
@@ -203,13 +213,23 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId }) => {
                     </div>
 
                     <div className="form-group checkbox-group">
-                        <input type="checkbox" id="auth-check" />
+                        <input
+                            type="checkbox"
+                            id="auth-check"
+                            checked={isAuthorized}
+                            onChange={(e) => setIsAuthorized(e.target.checked)}
+                        />
                         <label htmlFor="auth-check" style={{ fontSize: '0.85rem', color: '#666', lineHeight: '1.4' }}>
                             I authorize Gradus Team to reach out to me with updates and notifications via Email, SMS, WhatsApp and RCS.
                         </label>
                     </div>
 
-                    <button type="submit" className="cta-button modal-submit-btn" disabled={loading}>
+                    <button
+                        type="submit"
+                        className="cta-button modal-submit-btn"
+                        disabled={loading || !isAuthorized}
+                        style={{ opacity: isAuthorized ? 1 : 0.6, cursor: isAuthorized ? 'pointer' : 'not-allowed' }}
+                    >
                         {loading ? "Registering..." : "Register For Free"}
                     </button>
                 </form>
