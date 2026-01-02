@@ -76,7 +76,7 @@ const LandingPagesListLayer = () => {
                                     </tr>
                                 ) : (
                                     pages.map(page => {
-                                        const publicUrl = `http://localhost:5173/events/masterclass/${page._id}`;
+                                        const publicUrl = `https://gradusindia.in/events/masterclass/${page._id}`;
                                         return (
                                             <tr key={page._id}>
                                                 <td>
