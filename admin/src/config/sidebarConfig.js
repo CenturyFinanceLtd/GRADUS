@@ -95,6 +95,12 @@ export const sidebarConfig = [
     icon: "ri-layout-line",
   },
   {
+    key: "landing_page_registrations",
+    path: "/landing-page-registrations",
+    label: "Landing Page Registrations",
+    icon: "material-symbols:contact-mail-outline",
+  },
+  {
     key: "testimonials",
     path: "/testimonials",
     label: "Testimonials",

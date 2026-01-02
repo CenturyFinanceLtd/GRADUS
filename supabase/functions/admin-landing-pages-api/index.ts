@@ -140,6 +140,24 @@ serve(async (req: Request) => {
       return jsonResponse(mapped, 200, cors);
     }
 
+    // REGISTRATIONS LIST
+    if (apiPath === "/registrations" && req.method === "GET") {
+      const { data, error } = await supabase
+        .from("landing_page_registrations")
+        .select(`
+          *,
+          landing_pages (
+             title,
+             slug
+          )
+        `)
+        .order("created_at", { ascending: false });
+
+      if (error) return jsonResponse({ error: error.message }, 500, cors);
+
+      return jsonResponse({ items: data }, 200, cors);
+    }
+
     // CREATE
     if ((apiPath === "/" || apiPath === "") && req.method === "POST") {
       const body = await req.json();

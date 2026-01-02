@@ -120,6 +120,7 @@ import useAuth from "./hook/useAuth";
 const LandingPagesListPage = lazy(() => import("./pages/LandingPagesListPage"));
 const AddLandingPagePage = lazy(() => import("./pages/AddLandingPagePage"));
 const EditLandingPagePage = lazy(() => import("./pages/EditLandingPagePage"));
+const LandingPageRegistrationsPage = lazy(() => import("./pages/LandingPageRegistrationsPage"));
 
 const RootDashboard = () => {
   return <HomePageOne />;
@@ -280,6 +281,7 @@ function App() {
           <Route exact path='/landing-pages' element={<LandingPagesListPage />} />
           <Route exact path='/add-landing-page' element={<AddLandingPagePage />} />
           <Route exact path='/edit-landing-page/:slug' element={<EditLandingPagePage />} />
+          <Route exact path='/landing-page-registrations' element={<LandingPageRegistrationsPage />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
