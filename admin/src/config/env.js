@@ -50,6 +50,9 @@ const ADMIN_COURSES_API_URL = SUPABASE_FUNCTIONS_URL
   ? `${SUPABASE_FUNCTIONS_URL}/admin-courses-api`
   : null;
 
+// 100ms Config
+const HMS_SYSTEM_SUBDOMAIN = getEnvVar("VITE_HMS_SYSTEM_SUBDOMAIN") || "gradus";
+
 export {
   API_BASE_URL,
   ADMIN_AUTH_API_URL,
@@ -59,5 +62,6 @@ export {
   SIGNALING_BASE_URL,
   SUPABASE_FUNCTIONS_URL,
   SUPABASE_ANON_KEY,
+  HMS_SYSTEM_SUBDOMAIN,
   getEnvVar,
 };

@@ -12,8 +12,7 @@ import apiClient from "../services/apiClient"; // Ensure default import
 
 
 // ... inside component ...
-import { fetchActiveLiveSessionForCourse } from "../live/liveApi";
-import useLiveStudentSession from "../live/useLiveStudentSession";
+// Live class features removed - imports cleaned up
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker?url";
 import CourseAssignments from "../components/CourseAssignments";

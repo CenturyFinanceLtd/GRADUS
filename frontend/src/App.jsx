@@ -58,7 +58,7 @@ const ProgrammeCoursePage = lazy(() => import("./pages/ProgrammeCoursePage.jsx")
 const CourseHomePage = lazy(() => import("./pages/CourseHomePage.jsx"));
 const GoogleAuthCallback = lazy(() => import("./pages/GoogleAuthCallback.jsx"));
 const OurCoursesPage = lazy(() => import("./pages/OurCoursesPage.jsx"));
-const LiveStudentPage = lazy(() => import("./live/LiveStudentPage.jsx"));
+const JoinLiveClass = lazy(() => import("./pages/JoinLiveClass.jsx"));
 const VaibhavBatraMasterclass = lazy(() => import("./pages/VaibhavBatraMasterclass.jsx"));
 
 
@@ -240,12 +240,8 @@ function App() {
           />
           <Route
             exact
-            path='/live/:sessionId'
-            element={
-              <RequireAuth>
-                <LiveStudentPage />
-              </RequireAuth>
-            }
+            path='/join-class/:roomId'
+            element={<JoinLiveClass />}
           />
           <Route path='/:programme/:course' element={<ProgrammeCoursePage />} />
           <Route path='/events/masterclass/:id' element={<DynamicLandingPage />} />

@@ -143,12 +143,55 @@ const MyCoursesInner = () => {
 
   const handleRefresh = () => setRefreshKey((previous) => previous + 1);
 
+  // Live Class Integration
+  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+  const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const LIVE_CLASS_API_URL = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/live-class-api` : null;
+  const [activeRooms, setActiveRooms] = useState([]);
+
+  useEffect(() => {
+    if (LIVE_CLASS_API_URL) {
+      fetch(`${LIVE_CLASS_API_URL}/rooms`, {
+        headers: { Authorization: `Bearer ${SUPABASE_ANON_KEY}` }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && Array.isArray(data.rooms)) {
+            setActiveRooms(data.rooms);
+          }
+        })
+        .catch(err => console.error("Failed to fetch active rooms", err));
+    }
+  }, []);
+
+  const getActiveRoom = (courseName) => {
+    if (!Array.isArray(activeRooms) || activeRooms.length === 0) return null;
+    // Match loosely: Check if room description contains course name (case insensitive)
+    // or if room name contains sanitized course name
+    const normalizedCourse = normalizeText(courseName).toLowerCase();
+    return activeRooms.find(room => {
+      const roomDesc = (room.description || "").toLowerCase();
+      const roomName = (room.name || "").toLowerCase(); // e.g. "ui_ux_design_..."
+      // Remove special chars for better match
+      const simpleCourse = normalizedCourse.replace(/[^a-z0-9]/g, '');
+      const simpleRoomName = roomName.replace(/[^a-z0-9]/g, '');
+
+      return roomDesc.includes(normalizedCourse) || simpleRoomName.includes(simpleCourse);
+    });
+  };
+
   return (
     <section className='favorite-course py-120'>
       <div className='container'>
         <div className='d-flex flex-wrap align-items-center justify-content-between gap-12 mb-24'>
           <span className='text-neutral-700'>{greeting}</span>
           <div className='d-flex align-items-center gap-12'>
+            {activeRooms.length > 0 && (
+              <span className="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill d-flex align-items-center animate__animated animate__pulse animate__infinite">
+                <span className="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true"></span>
+                {activeRooms.length} Live Class{activeRooms.length > 1 ? 'es' : ''} Now
+              </span>
+            )}
             {!state.loading && !state.error && (
               <span className='badge bg-main-25 text-main-600 px-16 py-8 rounded-pill text-sm fw-semibold'>
                 {enrolledLabel}
@@ -248,6 +291,19 @@ const MyCoursesInner = () => {
                         {courseName}
                       </Link>
                     </h4>
+                    {(() => {
+                      const activeRoom = getActiveRoom(courseName);
+                      if (activeRoom) {
+                        return (
+                          <div className="mb-3">
+                            <Link to={`/join-class/${activeRoom.id}`} className="btn btn-danger btn-sm w-100 rounded-pill d-flex align-items-center justify-content-center fw-bold animate__animated animate__pulse animate__infinite">
+                              <i className="ph-bold ph-broadcast me-2"></i> Join Live Class
+                            </Link>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                     {enrolledAt ? (
                       <div className='text-neutral-600 d-flex align-items-center gap-8 mb-12'>
                         <i className='ph-bold ph-calendar-blank text-main-600' />
@@ -296,7 +352,7 @@ const MyCoursesInner = () => {
 
         {/* Purchase summary removed as requested */}
       </div>
-    </section>
+    </section >
   );
 };
 

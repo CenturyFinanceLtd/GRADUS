@@ -1,37 +1,25 @@
 /*
   HTTP server entrypoint
-  - Starts the Express app (Live Server)
+  - Starts the Express app
   - Wires graceful shutdown on fatal errors
 */
 const http = require("http");
 const config = require("./config/env");
 const app = require("./app");
-const { attachLiveSignalingServer } = require("./live/signalingServer");
 
 const startServer = async () => {
   // Start HTTP server
   const server = http.createServer(app);
 
-  // Attach LiveKit Signaling Server (WebSocket)
-  attachLiveSignalingServer(server);
-
-  // LiveKit Integration Check
-  if (
-    process.env.LIVEKIT_API_KEY &&
-    process.env.LIVEKIT_API_SECRET &&
-    process.env.LIVEKIT_URL
-  ) {
-    console.log(`[livekit] Configured with URL: ${process.env.LIVEKIT_URL}`);
+  // 100ms Integration Check
+  if (process.env.HMS_ACCESS_KEY && process.env.HMS_SECRET) {
+    console.log(`[100ms] Configured and ready`);
   } else {
-    // Only warn if we expect LiveKit to be active
-    console.log("[livekit] LiveKit configuration not present.");
+    console.log("[100ms] HMS credentials not configured.");
   }
 
   server.listen(config.port, () => {
     console.log(`[server] Listening on port ${config.port}`);
-    console.log(
-      `[server] Live Class Signaling active on ${config.live.signalingPath}`
-    );
   });
 
   const shutdown = (error) => {

@@ -78,10 +78,11 @@ export const sidebarConfig = [
   },
   {
     key: "live_classes",
-    path: "/live/classes",
-    label: "Go Live",
+    path: "/live-class",
+    label: "Live Classes",
     icon: "material-symbols:live-tv-outline",
   },
+
   {
     key: "blogs",
     path: "/blog",

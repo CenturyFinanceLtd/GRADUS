@@ -100,7 +100,8 @@ const EditBlogPage = lazy(() => import("./pages/EditBlogPage"));
 const TestimonialsPage = lazy(() => import("./pages/TestimonialsPage"));
 const ExpertVideosPage = lazy(() => import("./pages/ExpertVideosPage"));
 const WhyGradusVideoPage = lazy(() => import("./pages/WhyGradusVideoPage"));
-const LiveInstructorPage = lazy(() => import("./live/LiveInstructorPage"));
+const LiveClassPage = lazy(() => import("./pages/LiveClassPage"));
+
 const BannersPage = lazy(() => import("./pages/BannersPage"));
 const PartnerLogosPage = lazy(() => import("./pages/PartnerLogosPage"));
 const PageMetaPage = lazy(() => import("./pages/PageMetaPage"));
@@ -203,7 +204,8 @@ function App() {
           <Route exact path='/testimonials' element={<TestimonialsPage />} />
           <Route exact path='/expert-videos' element={<ExpertVideosPage />} />
           <Route exact path='/why-gradus-video' element={<WhyGradusVideoPage />} />
-          <Route exact path='/live/classes' element={<LiveInstructorPage />} />
+          <Route exact path='/live-class' element={<LiveClassPage />} />
+
           <Route exact path='/banners' element={<BannersPage />} />
           <Route exact path='/page-meta' element={<PageMetaPage />} />
           <Route exact path='/partner-logos' element={<PartnerLogosPage />} />
