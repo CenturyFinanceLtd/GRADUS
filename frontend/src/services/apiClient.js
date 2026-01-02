@@ -187,6 +187,9 @@ const request = async (path, options = {}) => {
     } else if (p.startsWith("/events")) {
       const subPath = p.replace(/^\/events/, "");
       finalUrl = `${edgeBaseUrl}/events-api${subPath}`;
+    } else if (p.startsWith("/landing-page-registrations")) {
+      // Explicitly route to new dedicated function
+      finalUrl = `${edgeBaseUrl}/landing-page-registration`;
     } else if (
       p.startsWith("/banners") ||
       p.startsWith("/why-gradus-video") ||

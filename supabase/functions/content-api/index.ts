@@ -3,7 +3,6 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const getCorsHeaders = (req: Request) => {
   const origin = req.headers.get("Origin");
-  // Allow specific origin if present, otherwise fallback to localhost for dev
   const allowedOrigin = origin || "http://localhost:5173"; 
 
   return {
@@ -23,25 +22,23 @@ Deno.serve(async (req) => {
   const cors = getCorsHeaders(req);
 
   try {
-    const url = new URL(req.url);
+    const url = new URL(req.url); // e.g. https://.../functions/v1/content-api/resource
     const path = url.pathname.replace(/\/$/, ""); 
-    const segments = path.split("/").filter(Boolean);
-    const routeParts = segments.slice(1); // args
+    
+    // Helper to match resource regardless of prefix nesting
+    const match = (method: string, suffix: string) => req.method === method && path.endsWith(`/${suffix}`);
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
     if (!supabaseUrl || !supabaseKey) {
-        console.error("Missing Supabase configuration");
-        throw new Error("Server Misconfiguration");
+        throw new Error("Missing Supabase configuration");
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const resource = routeParts[0];
-
     // 1. Banners: GET /banners
-    if (req.method === "GET" && resource === "banners") {
+    if (match("GET", "banners")) {
       const { data, error } = await supabase
         .from("banners")
         .select("*")
@@ -55,7 +52,7 @@ Deno.serve(async (req) => {
     }
 
     // 2. Why Gradus Video: GET /why-gradus-video
-    if (req.method === "GET" && resource === "why-gradus-video") {
+    if (match("GET", "why-gradus-video")) {
       const { data, error } = await supabase
         .from("why_gradus_videos")
         .select("*")
@@ -71,7 +68,7 @@ Deno.serve(async (req) => {
     }
 
     // 3. Partners: GET /partners
-    if (req.method === "GET" && resource === "partners") {
+    if (match("GET", "partners")) {
       const { data, error } = await supabase
         .from("partner_logos")
         .select("*")
@@ -85,7 +82,7 @@ Deno.serve(async (req) => {
     }
 
     // 4. Testimonials: GET /testimonials
-    if (req.method === "GET" && resource === "testimonials") {
+    if (match("GET", "testimonials")) {
       const { data, error } = await supabase
         .from("testimonials")
         .select("*")
@@ -98,7 +95,7 @@ Deno.serve(async (req) => {
     }
 
     // 5. Expert Videos: GET /expert-videos
-    if (req.method === "GET" && resource === "expert-videos") {
+    if (match("GET", "expert-videos")) {
       const { data, error } = await supabase
         .from("expert_videos")
         .select("*")
@@ -112,7 +109,7 @@ Deno.serve(async (req) => {
     }
 
     // 6. Contact Inquiries: POST /inquiries
-    if (req.method === "POST" && resource === "inquiries") {
+    if (match("POST", "inquiries")) {
       const body = await req.json();
       const { data, error } = await supabase
         .from("contact_inquiries")
@@ -127,7 +124,7 @@ Deno.serve(async (req) => {
     }
 
     // 7. Event Registrations: POST /event-registrations (Legacy/Backup)
-    if (req.method === "POST" && resource === "event-registrations") {
+    if (match("POST", "event-registrations")) {
       const body = await req.json();
       const { data, error } = await supabase
         .from("event_registrations")
@@ -142,10 +139,8 @@ Deno.serve(async (req) => {
     }
 
     // 7.1 Landing Page Registrations: POST /landing-page-registrations
-    if (req.method === "POST" && resource === "landing-page-registrations") {
+    if (match("POST", "landing-page-registrations")) {
       const body = await req.json();
-      // Ensure we don't crash if body is malformed, though Deno usually handles it.
-      
       const { data, error } = await supabase
         .from("landing_page_registrations")
         .insert([body])
@@ -162,7 +157,7 @@ Deno.serve(async (req) => {
     }
 
     // 8. Gallery: GET /gallery
-    if (req.method === "GET" && resource === "gallery") {
+    if (match("GET", "gallery")) {
       const category = url.searchParams.get("category");
       const limit = url.searchParams.get("limit");
 
@@ -184,8 +179,11 @@ Deno.serve(async (req) => {
     }
 
     // 9. Landing Pages: GET /landing-pages/:slug OR /landing-pages/:id
-    if (req.method === "GET" && resource === "landing-pages" && routeParts[1]) {
-      const param = routeParts[1];
+    // This requires slightly more complex matching
+    if (req.method === "GET" && path.includes("/landing-pages/")) {
+      // url path: .../content-api/landing-pages/SOME-ID
+      const parts = path.split("/");
+      const param = parts[parts.length - 1]; // Last part is the ID/Slug
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(param);
 
       let query = supabase.from("landing_pages").select("*");
@@ -204,7 +202,7 @@ Deno.serve(async (req) => {
     }
 
     // 10. List Landing Pages (minimal): GET /landing-pages
-    if (req.method === "GET" && resource === "landing-pages") {
+    if (match("GET", "landing-pages")) {
       const { data, error } = await supabase
         .from("landing_pages")
         .select("id, slug, created_at, updated_at")
@@ -222,7 +220,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ error: "Not found", resource }), { status: 404, headers: cors });
+    return new Response(JSON.stringify({ error: "Not found", path }), { status: 404, headers: cors });
 
   } catch (error) {
     console.error("Function Error:", error);
