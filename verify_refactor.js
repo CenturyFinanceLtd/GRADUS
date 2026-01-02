@@ -131,19 +131,21 @@ async function runVerification() {
       res.on("data", (c) => (body += c));
       res.on("end", () => {
         console.log("Update Status:", res.statusCode);
-        console.log("Update Body:", body);
         try {
           const json = JSON.parse(body);
+          console.log("Update Body:", JSON.stringify(json, null, 2));
           if (json.user && json.user.phone) {
-            console.log("Updated User Phone:", json.user.phone);
             console.log(
               "\n--- VERIFICATION COMPLETE: PHONE FIELD IS WORKING ---"
             );
           } else {
-            console.error("Update failed or phone missing in response.");
+            console.error(
+              "\n[FAILURE] Update failed or phone missing in response."
+            );
+            if (json.error) console.error("Error Message:", json.error);
           }
         } catch (e) {
-          console.error("Parse error", e);
+          console.log("Update Body (Raw):", body);
         }
       });
     });
