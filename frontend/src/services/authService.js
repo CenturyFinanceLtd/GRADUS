@@ -111,64 +111,51 @@ export const loginWithGoogle = async () => {
   return data;
 };
 
+// Store 2Factor sessionId for verification
+let lastOtpSessionId = null;
+
 /**
- * Trigger OTP SMS for phone login
+ * Trigger OTP SMS for phone login using 2Factor.in
  */
 export const signInWithPhone = async (phone) => {
   // Ensure phone starts with +
   const formattedPhone = phone.startsWith("+") ? phone : `+${phone}`;
 
-  const { data, error } = await supabase.auth.signInWithOtp({
-    phone: formattedPhone,
+  const response = await apiClient("/auth/phone/otp/send", {
+    method: "POST",
+    data: { phone: formattedPhone },
   });
 
-  if (error) {
-    throw new Error(error.message);
-  }
+  // Store the 2Factor SessionId for verification
+  lastOtpSessionId = response.sessionId;
 
-  return data;
+  return response;
 };
 
 /**
- * Verify OTP and establish session
+ * Verify OTP and establish session using 2Factor.in
  */
 export const verifyPhoneOtp = async (phone, token) => {
   const formattedPhone = phone.startsWith("+") ? phone : `+${phone}`;
 
-  const {
-    data: { session, user },
-    error,
-  } = await supabase.auth.verifyOtp({
-    phone: formattedPhone,
-    token,
-    type: "sms",
+  if (!lastOtpSessionId) {
+    throw new Error("No active OTP session found. Please resend OTP.");
+  }
+
+  const response = await apiClient("/auth/phone/otp/verify", {
+    method: "POST",
+    data: {
+      phone: formattedPhone,
+      otp: token,
+      sessionId: lastOtpSessionId,
+    },
   });
 
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  // After successful phone validation, ensure backend has a profile
-  if (user) {
-    try {
-      await apiClient("/auth/supabase/create-profile", {
-        method: "POST",
-        data: {
-          supabaseId: user.id,
-          phone: formattedPhone,
-          email: user.email || null,
-        },
-      });
-    } catch (profileError) {
-      console.error("Failed to sync phone profile:", profileError);
-    }
-  }
-
+  // response contains { token, user }
   return {
-    user,
-    session,
-    token: session?.access_token,
-    type: "supabase",
+    user: response.user,
+    token: response.token,
+    type: "jwt", // Now using custom JWT from Edge Function
   };
 };
 

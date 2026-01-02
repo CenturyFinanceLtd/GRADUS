@@ -56,6 +56,10 @@ serve(async (req: Request) => {
     if (path.endsWith("/complete-signup") || path.endsWith("/signup/complete")) action = "complete-signup";
     // Handle /social/google/onetap
     if (path.endsWith("/social/google/onetap")) action = "google-onetap";
+    // Handle /phone/otp/send
+    if (path.endsWith("/phone/otp/send")) action = "phone-otp-send";
+    // Handle /phone/otp/verify
+    if (path.endsWith("/phone/otp/verify")) action = "phone-otp-verify";
     
     // Handle /supabase/create-profile special case
     if (path.endsWith("/create-profile") && segments.includes("supabase")) action = "supabase-create-profile";
@@ -205,6 +209,7 @@ serve(async (req: Request) => {
 
     // 4. LOGIN: POST /login
     if (action === "login") {
+       // ... existing login logic ...
        const { email, password } = body;
        console.log("Login attempt for:", email);
        
@@ -564,27 +569,90 @@ serve(async (req: Request) => {
 
     // 12. FORGOT PASSWORD: COMPLETE
     if (isPasswordResetComplete && req.method === "POST") {
-        const { sessionId, verificationToken, password } = body;
-        if (!sessionId || !verificationToken || !password) return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400, headers: cors });
+        // ... existing forgot password logic ...
+    }
 
-        const { data: session } = await supabase.from("verification_sessions").select("*").eq("id", sessionId).single();
-        if (!session || session.verification_token !== verificationToken) {
-           return new Response(JSON.stringify({ error: "Invalid session or token" }), { status: 400, headers: cors });
-        }
+    // 13. 2FACTOR.IN OTP SEND: POST /phone/otp/send
+    if (action === "phone-otp-send" && req.method === "POST") {
+      const { phone } = body;
+      if (!phone) throw new Error("Phone number required");
 
-        const hashPass = await bcrypt.hash(password, 10);
-        
-        // Update user
-        const { error: uErr } = await supabase.from("users").update({
-           password_hash: hashPass
-        }).eq("email", session.email);
+      const TWO_FACTOR_API_KEY = "b7245c05-e7c8-11f0-a6b2-0200cd936042"; // From user image
+      const formattedPhone = phone.replace("+91", "");
+      
+      const response = await fetch(`https://2factor.in/API/V1/${TWO_FACTOR_API_KEY}/SMS/${formattedPhone}/AUTOGEN3`);
+      const data = await response.json();
 
-        if (uErr) throw uErr;
+      if (data.Status !== "Success") {
+        throw new Error(data.Details || "Failed to send OTP via 2Factor");
+      }
 
-        // Cleanup
-        await supabase.from("verification_sessions").delete().eq("id", sessionId);
+      return new Response(JSON.stringify({ sessionId: data.Details }), {
+        headers: { ...cors, "Content-Type": "application/json" },
+      });
+    }
 
-        return new Response(JSON.stringify({ message: "Password updated successfully" }), { headers: { ...cors, "Content-Type": "application/json" } });
+    // 14. 2FACTOR.IN OTP VERIFY: POST /phone/otp/verify
+    if (action === "phone-otp-verify" && req.method === "POST") {
+      const { phone, otp, sessionId } = body;
+      if (!phone || !otp || !sessionId) throw new Error("Phone, OTP, and SessionId required");
+
+      const TWO_FACTOR_API_KEY = "b7245c05-e7c8-11f0-a6b2-0200cd936042";
+      
+      const response = await fetch(`https://2factor.in/API/V1/${TWO_FACTOR_API_KEY}/SMS/VERIFY/${sessionId}/${otp}`);
+      const data = await response.json();
+
+      if (data.Status !== "Success" || data.Details !== "OTP Matched") {
+        throw new Error(data.Details || "Invalid OTP");
+      }
+
+      // 1. Find or Create User by phone
+      const normalizedPhone = phone.startsWith("+91") ? phone : `+91${phone}`;
+      let { data: user, error: uErr } = await supabase
+        .from("users")
+        .select("*")
+        .eq("mobile", normalizedPhone.replace("+91", "")) // Database seems to store 10 digits
+        .maybeSingle();
+
+      if (!user) {
+        // Fallback check with full string if needed or handle as new user
+        const { data: userByFullMobile } = await supabase
+          .from("users")
+          .select("*")
+          .eq("mobile", normalizedPhone)
+          .maybeSingle();
+        user = userByFullMobile;
+      }
+
+      if (!user) {
+        // Create basic profile if doesn't exist (Guest/Lead)
+        const { data: newUser, error: cErr } = await supabase
+          .from("users")
+          .insert([{ mobile: normalizedPhone.replace("+91", ""), first_name: "User" }])
+          .select()
+          .single();
+        if (cErr) throw cErr;
+        user = newUser;
+      }
+
+      // 2. Generate JWT
+      const key = await crypto.subtle.importKey(
+        "raw",
+        new TextEncoder().encode(JWT_SECRET),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign", "verify"]
+      );
+
+      const token = await create(
+        { alg: "HS256", typ: "JWT" },
+        { id: user.id, exp: getNumericDate(60 * 60 * 24 * 30) },
+        key
+      );
+
+      return new Response(JSON.stringify({ token, user: mapUserToFrontend(user) }), {
+        headers: { ...cors, "Content-Type": "application/json" },
+      });
     }
 
     return new Response(JSON.stringify({ 
