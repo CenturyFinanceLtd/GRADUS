@@ -122,7 +122,7 @@ const DynamicLandingPage = () => {
                     </h2>
 
                     <div className="designed-items-row">
-                        {middleSection.targetAudience.map((item, idx) => (
+                        {(middleSection.targetAudience || []).map((item, idx) => (
                             <div key={idx} className="designed-item">
                                 <div className="diamond-icon"><span className="icon-inner">{item.icon}</span></div>
                                 <span>{item.text}</span>
@@ -138,7 +138,7 @@ const DynamicLandingPage = () => {
                     </h2>
 
                     <div className="learning-cards-grid">
-                        {middleSection.learningCards.map((card, idx) => (
+                        {(middleSection.learningCards || []).map((card, idx) => (
                             <div key={idx} className="learning-card">
                                 <div className="card-number">{card.number || idx + 1}</div>
                                 <div className="card-text">
@@ -168,7 +168,7 @@ const DynamicLandingPage = () => {
                             </h2>
                             <div className="mentor-info-card">
                                 <ul className="mentor-points-list">
-                                    {mentor.points.map((point, idx) => (
+                                    {(mentor.points || []).map((point, idx) => (
                                         <li key={idx} className="mentor-point">
                                             <span className="mentor-bullet"></span>
                                             <span>{point}</span>
@@ -198,7 +198,7 @@ const DynamicLandingPage = () => {
                 <div className="section-container faq-container">
                     <h2 className="faq-headline">Frequently Asked <span className="text-highlight-underline">Questions</span></h2>
                     <div className="faq-list">
-                        {faq.map((item, idx) => (
+                        {(faq || []).map((item, idx) => (
                             <FAQItem key={idx} question={item.question} answer={item.answer} />
                         ))}
                     </div>
