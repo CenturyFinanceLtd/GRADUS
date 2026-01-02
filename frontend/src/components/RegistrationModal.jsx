@@ -191,24 +191,22 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId }) => {
                     </div>
 
                     <div className="form-group">
-                        <label>State *</label>
+                        <label>State</label>
                         <Select
                             options={stateOptions}
                             value={formData.state}
                             onChange={(opt) => handleSelectChange("state", opt)}
                             placeholder="Select state"
-                            required
                         />
                     </div>
 
                     <div className="form-group">
-                        <label>Qualification *</label>
+                        <label>Qualification</label>
                         <Select
                             options={qualificationOptions}
                             value={formData.qualification}
                             onChange={(opt) => handleSelectChange("qualification", opt)}
                             placeholder="Select qualification"
-                            required
                         />
                     </div>
 

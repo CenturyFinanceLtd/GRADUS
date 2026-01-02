@@ -593,7 +593,8 @@ serve(async (req: Request) => {
       }
 
       // BYPASS FOR TEST NUMBER (due to low credits)
-      if (cleanPhone === "9454971531") {
+      // match 9454971531 or 919454971531 or +919454971531
+      if (cleanPhone.endsWith("9454971531")) {
         return new Response(JSON.stringify({ sessionId: "TEST_SESSION_ID", Status: "Success" }), {
           headers: { ...cors, "Content-Type": "application/json" },
         });
@@ -622,7 +623,7 @@ serve(async (req: Request) => {
       }
 
       // BYPASS VERIFICATION FOR TEST NUMBER
-      if (cleanPhone === "9454971531" && otp === "123456") {
+      if (cleanPhone.endsWith("9454971531") && otp === "123456") {
          // Allow proceed
       } else {
           const TWO_FACTOR_API_KEY = "b7245c05-e7c8-11f0-a6b2-0200cd936042";
