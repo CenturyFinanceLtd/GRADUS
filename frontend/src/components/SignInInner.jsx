@@ -13,7 +13,7 @@ const stepKeys = {
 };
 
 const SignInInner = ({ isModal = false, redirectPath = null }) => {
-  const [formData, setFormData] = useState({ phone: "", otp: "" });
+  const [formData, setFormData] = useState({ phone: "+91 ", otp: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
@@ -69,6 +69,14 @@ const SignInInner = ({ isModal = false, redirectPath = null }) => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+
+    // Enforce +91 prefix for phone
+    if (name === "phone") {
+      if (!value.startsWith("+91 ")) {
+        // If user tries to delete prefix, keep it
+        return;
+      }
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 

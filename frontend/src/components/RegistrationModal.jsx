@@ -85,6 +85,12 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId }) => {
 
 
     const [isAuthorized, setIsAuthorized] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+
+    const handleClose = () => {
+        setIsSuccess(false);
+        onClose();
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -118,22 +124,17 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId }) => {
             };
 
             // Call endpoint to save registration
-            // Updated to use landing-page-registrations per user request
-            // Use credentials: 'omit' to avoid CORS wildcard errors if server is loose
             await apiClient.post("/landing-page-registrations", payload, { credentials: "omit" });
 
-            toast.success("Registration successful!");
-            setTimeout(() => {
-                onClose();
-                setFormData({
-                    name: "",
-                    email: "",
-                    phone: "",
-                    state: null,
-                    qualification: null
-                });
-                setIsAuthorized(false);
-            }, 1500);
+            setIsSuccess(true);
+            setFormData({
+                name: "",
+                email: "",
+                phone: "",
+                state: null,
+                qualification: null
+            });
+            setIsAuthorized(false);
 
         } catch (error) {
             console.error("Registration failed", error);
@@ -146,91 +147,110 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId }) => {
     return (
         <div className="modal-overlay">
             <div className="modal-content">
-                <button className="modal-close" onClick={onClose}>
+                <button className="modal-close" onClick={handleClose}>
                     &times;
                 </button>
-                <h2 className="modal-title">Register Now</h2>
-                <form onSubmit={handleSubmit} className="modal-form">
-                    <div className="form-group">
-                        <label>Name *</label>
-                        <input
-                            type="text"
-                            name="name"
-                            placeholder="Enter your full name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
 
-                    <div className="form-group">
-                        <label>Email *</label>
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder="you@email.com"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                        />
+                {isSuccess ? (
+                    <div className="success-view">
+                        <div className="success-icon">✅</div>
+                        <h2 className="modal-title">Registration Successful!</h2>
+                        <p className="success-message">
+                            Thank you for registering for <strong>{programName}</strong>.
+                        </p>
+                        <p className="success-subtext">
+                            We have sent a confirmation email to <strong>{formData.email}</strong>.
+                        </p>
+                        <button onClick={handleClose} className="cta-button modal-submit-btn">
+                            Close
+                        </button>
                     </div>
+                ) : (
+                    <>
+                        <h2 className="modal-title">Register Now</h2>
+                        <form onSubmit={handleSubmit} className="modal-form">
+                            <div className="form-group">
+                                <label>Name *</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    placeholder="Enter your full name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
 
-                    <div className="form-group">
-                        <label>Phone *</label>
-                        <div className="phone-input-wrapper">
-                            <span className="phone-prefix">+91</span>
-                            <input
-                                type="tel"
-                                name="phone"
-                                placeholder="WhatsApp number"
-                                value={formData.phone}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-                    </div>
+                            <div className="form-group">
+                                <label>Email *</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    placeholder="you@email.com"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
 
-                    <div className="form-group">
-                        <label>State</label>
-                        <Select
-                            options={stateOptions}
-                            value={formData.state}
-                            onChange={(opt) => handleSelectChange("state", opt)}
-                            placeholder="Select state"
-                        />
-                    </div>
+                            <div className="form-group">
+                                <label>Phone *</label>
+                                <div className="phone-input-wrapper">
+                                    <span className="phone-prefix">+91</span>
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        placeholder="WhatsApp number"
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
 
-                    <div className="form-group">
-                        <label>Qualification</label>
-                        <Select
-                            options={qualificationOptions}
-                            value={formData.qualification}
-                            onChange={(opt) => handleSelectChange("qualification", opt)}
-                            placeholder="Select qualification"
-                        />
-                    </div>
+                            <div className="form-group">
+                                <label>State</label>
+                                <Select
+                                    options={stateOptions}
+                                    value={formData.state}
+                                    onChange={(opt) => handleSelectChange("state", opt)}
+                                    placeholder="Select state"
+                                />
+                            </div>
 
-                    <div className="form-group checkbox-group">
-                        <input
-                            type="checkbox"
-                            id="auth-check"
-                            checked={isAuthorized}
-                            onChange={(e) => setIsAuthorized(e.target.checked)}
-                        />
-                        <label htmlFor="auth-check" style={{ fontSize: '0.85rem', color: '#666', lineHeight: '1.4' }}>
-                            I authorize Gradus Team to reach out to me with updates and notifications via Email, SMS, WhatsApp and RCS.
-                        </label>
-                    </div>
+                            <div className="form-group">
+                                <label>Qualification</label>
+                                <Select
+                                    options={qualificationOptions}
+                                    value={formData.qualification}
+                                    onChange={(opt) => handleSelectChange("qualification", opt)}
+                                    placeholder="Select qualification"
+                                />
+                            </div>
 
-                    <button
-                        type="submit"
-                        className="cta-button modal-submit-btn"
-                        disabled={loading || !isAuthorized}
-                        style={{ opacity: isAuthorized ? 1 : 0.6, cursor: isAuthorized ? 'pointer' : 'not-allowed' }}
-                    >
-                        {loading ? "Registering..." : "Register For Free"}
-                    </button>
-                </form>
+                            <div className="form-group checkbox-group">
+                                <input
+                                    type="checkbox"
+                                    id="auth-check"
+                                    checked={isAuthorized}
+                                    onChange={(e) => setIsAuthorized(e.target.checked)}
+                                />
+                                <label htmlFor="auth-check" style={{ fontSize: '0.85rem', color: '#666', lineHeight: '1.4' }}>
+                                    I authorize Gradus Team to reach out to me with updates and notifications via Email, SMS, WhatsApp and RCS.
+                                </label>
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="cta-button modal-submit-btn"
+                                disabled={loading || !isAuthorized}
+                                style={{ opacity: isAuthorized ? 1 : 0.6, cursor: isAuthorized ? 'pointer' : 'not-allowed' }}
+                            >
+                                {loading ? "Registering..." : "Register For Free"}
+                            </button>
+                        </form>
+                    </>
+                )}
             </div>
 
             <style>{`
