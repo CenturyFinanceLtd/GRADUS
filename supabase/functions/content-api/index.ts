@@ -1,11 +1,9 @@
 /// <reference lib="deno.ns" />
-import { createClient } from "npm:@supabase/supabase-js@2";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-
+import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const getCorsHeaders = (req: Request) => {
-  const origin = req.headers.get("Origin") || req.headers.get("origin");
+  const origin = req.headers.get("Origin");
+  // Allow specific origin if present, otherwise fallback to localhost for dev
   const allowedOrigin = origin || "http://localhost:5173"; 
 
   return {
@@ -16,11 +14,13 @@ const getCorsHeaders = (req: Request) => {
   };
 };
 
-serve(async (req: Request) => {
-  const cors = getCorsHeaders(req) as any;
+Deno.serve(async (req) => {
+  // Handle CORS for OPTIONS requests explicitly and early
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: cors });
+     return new Response("ok", { headers: getCorsHeaders(req) });
   }
+
+  const cors = getCorsHeaders(req);
 
   try {
     const url = new URL(req.url);
@@ -28,10 +28,15 @@ serve(async (req: Request) => {
     const segments = path.split("/").filter(Boolean);
     const routeParts = segments.slice(1); // args
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+
+    if (!supabaseUrl || !supabaseKey) {
+        console.error("Missing Supabase configuration");
+        throw new Error("Server Misconfiguration");
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const resource = routeParts[0];
 
@@ -136,16 +141,21 @@ serve(async (req: Request) => {
       });
     }
 
-    // 7.1 Landing Page Registrations: POST /landing-page-registrations (New)
+    // 7.1 Landing Page Registrations: POST /landing-page-registrations
     if (req.method === "POST" && resource === "landing-page-registrations") {
       const body = await req.json();
+      // Ensure we don't crash if body is malformed, though Deno usually handles it.
+      
       const { data, error } = await supabase
         .from("landing_page_registrations")
         .insert([body])
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+           console.error("Insert Error:", error);
+           throw error;
+      }
       return new Response(JSON.stringify(data), {
         headers: { ...cors, "Content-Type": "application/json" },
       });
@@ -215,11 +225,12 @@ serve(async (req: Request) => {
     return new Response(JSON.stringify({ error: "Not found", resource }), { status: 404, headers: cors });
 
   } catch (error) {
+    console.error("Function Error:", error);
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: cors });
   }
 });
 
-// Mappers
+// Mappers (kept same as before)
 const mapBanner = (doc: any) => ({
   id: doc.id,
   title: doc.title || "",
