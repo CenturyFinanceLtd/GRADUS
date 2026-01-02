@@ -3,9 +3,8 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('landing_page', 'landing_page', true)
 ON CONFLICT (id) DO NOTHING;
 
--- 2. Create policy to allow public read access to 'landing_page'
--- Note: This might require adjustment depending on existing policies or RLS.
--- This tries to create a policy if one doesn't exist for public read.
+-- 2. Create policies for 'landing_page'
+-- Allow Public Read
 BEGIN;
   DO $$
   BEGIN
@@ -17,6 +16,23 @@ BEGIN;
       CREATE POLICY "Public Access for landing_page"
       ON storage.objects FOR SELECT
       USING ( bucket_id = 'landing_page' );
+    END IF;
+  END
+  $$;
+COMMIT;
+
+-- Allow Public Upload (INSERT) - Required for script upload via Anon Key
+BEGIN;
+  DO $$
+  BEGIN
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_policies 
+      WHERE tablename = 'objects' 
+      AND policyname = 'Public Upload for landing_page'
+    ) THEN
+      CREATE POLICY "Public Upload for landing_page"
+      ON storage.objects FOR INSERT
+      WITH CHECK ( bucket_id = 'landing_page' );
     END IF;
   END
   $$;
