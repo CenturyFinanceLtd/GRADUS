@@ -45,6 +45,41 @@ Deno.serve(async (req) => {
            console.error("Insert Error:", error);
            throw error;
       }
+
+      // Send Confirmation Email
+      try {
+        const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${supabaseKey}`
+          },
+          body: JSON.stringify({
+            to: body.email,
+            from: "contact@gradusindia.in",
+            subject: "Registration Successful - Gradus Masterclass",
+            html: `
+              <div style="font-family: Arial, sans-serif; color: #333;">
+                <h2>Welcome, ${body.name}!</h2>
+                <p>You have successfully registered for <strong>${body.program_name || "the Masterclass"}</strong>.</p>
+                <p>We are excited to have you on board. Our team will contact you shortly with further details.</p>
+                <br/>
+                <p>Best Regards,</p>
+                <p><strong>Gradus India Team</strong></p>
+                <p><a href="https://gradusindia.in">gradusindia.in</a></p>
+              </div>
+            `
+          })
+        });
+
+        if (!emailResponse.ok) {
+           const errText = await emailResponse.text();
+           console.error("Failed to send email:", errText);
+        }
+      } catch (emailErr) {
+        console.error("Email dispatch error:", emailErr);
+      }
+
       return new Response(JSON.stringify(data), {
         headers: { ...cors, "Content-Type": "application/json" },
       });
