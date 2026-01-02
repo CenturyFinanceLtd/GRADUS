@@ -158,16 +158,21 @@ serve(async (req: Request) => {
       });
     }
 
-    // 9. Landing Pages: GET /landing-pages/:slug
+    // 9. Landing Pages: GET /landing-pages/:slug OR /landing-pages/:id
     if (req.method === "GET" && resource === "landing-pages" && routeParts[1]) {
-      const slug = routeParts[1];
-      const { data, error } = await supabase
-        .from("landing_pages")
-        .select("*")
-        .eq("slug", slug)
-        .single();
+      const param = routeParts[1];
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(param);
+
+      let query = supabase.from("landing_pages").select("*");
+      if (isUuid) {
+        query = query.eq("id", param);
+      } else {
+        query = query.eq("slug", param);
+      }
+
+      const { data, error } = await query.single();
       
-      if (error) return new Response(JSON.stringify({ message: "Landing page not found" }), { status: 404, headers: cors });
+      if (error || !data) return new Response(JSON.stringify({ message: "Landing page not found" }), { status: 404, headers: cors });
       return new Response(JSON.stringify(mapLandingPage(data)), {
         headers: { ...cors, "Content-Type": "application/json" },
       });
