@@ -130,7 +130,7 @@ const request = async (path, options = {}) => {
   const fetchOptions = {
     method,
     headers,
-    credentials: "include",
+    credentials: options.credentials || "include",
   };
 
   if (signal) {

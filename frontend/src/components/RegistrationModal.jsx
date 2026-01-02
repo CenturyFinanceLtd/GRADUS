@@ -110,7 +110,8 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId }) => {
 
             // Call endpoint to save registration
             // Updated to use landing-page-registrations per user request
-            await apiClient.post("/landing-page-registrations", payload);
+            // Use credentials: 'omit' to avoid CORS wildcard errors if server is loose
+            await apiClient.post("/landing-page-registrations", payload, { credentials: "omit" });
 
             toast.success("Registration successful!");
             setTimeout(() => {
