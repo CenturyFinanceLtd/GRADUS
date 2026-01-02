@@ -61,20 +61,34 @@ serve(async (req) => {
         });
       }
 
-      // Determine Zoom Link based on Mentor Name
+      // Determine Zoom Link and Banner Image based on Mentor Name
       let zoomLink = "#";
+      let bannerImage = "";
       const normalizedMentorName = (mentor_name || "").toLowerCase().trim();
+      const origin = req.headers.get("Origin") || "https://gradusindia.in"; // Fallback to production domain if missing
+
+      // Sanitize origin to remove trailing slash if present
+      const baseUrl = origin.endsWith("/") ? origin.slice(0, -1) : origin;
 
       if (normalizedMentorName.includes("vaibhav batra")) {
         zoomLink = "https://us06web.zoom.us/j/84317772672?pwd=adYOZ0oj0FAeEAvYiaZeUGPQLGZOe2.1";
+        bannerImage = "email-banner-vaibhav.png";
       } else if (normalizedMentorName.includes("akhil pandey")) {
         zoomLink = "https://us06web.zoom.us/j/89785000556?pwd=Om0roPIrvSjf7Jk6nRfaRYAxRZSuXa.1";
+        bannerImage = "email-banner-akhil.png";
       }
+
+      const bannerHtml = bannerImage 
+        ? `<div style="text-align: center; margin-bottom: 20px;">
+             <img src="${baseUrl}/assets/${bannerImage}" alt="${mentor_name} Masterclass" style="max-width: 100%; height: auto; border-radius: 8px;" />
+           </div>`
+        : "";
 
       // Send Confirmation Email
       try {
         const emailBody = `
-          <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+          <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: 0 auto;">
+              ${bannerHtml}
               <p>Hi ${name},</p>
               <p>Thanks for registration. You’re invited to attend our FREE Masterclass, For exclusive users only!</p>
               
