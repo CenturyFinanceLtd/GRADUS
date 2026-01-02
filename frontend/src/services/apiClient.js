@@ -103,13 +103,17 @@ const request = async (path, options = {}) => {
   const {
     method = "GET",
     body,
+    data, // Support 'data' as alias for 'body'
     token,
     headers: customHeaders,
     signal,
   } = options;
   const headers = new Headers(customHeaders || {});
 
-  if (!(body instanceof FormData)) {
+  // Determine the effective body
+  const effectiveBody = body !== undefined ? body : data;
+
+  if (!(effectiveBody instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
 
@@ -133,8 +137,11 @@ const request = async (path, options = {}) => {
     fetchOptions.signal = signal;
   }
 
-  if (body !== undefined) {
-    fetchOptions.body = body instanceof FormData ? body : JSON.stringify(body);
+  if (effectiveBody !== undefined) {
+    fetchOptions.body =
+      effectiveBody instanceof FormData
+        ? effectiveBody
+        : JSON.stringify(effectiveBody);
   }
 
   let finalUrl = `${API_BASE_URL}${path}`;
@@ -247,12 +254,16 @@ const request = async (path, options = {}) => {
   );
 };
 
-const apiClient = {
-  get: (path, options = {}) => request(path, { ...options, method: "GET" }),
-  post: (path, body, options = {}) =>
-    request(path, { ...options, method: "POST", body }),
-  put: (path, body, options = {}) =>
-    request(path, { ...options, method: "PUT", body }),
-};
+// Multi-style API client (supports apiClient(path, opts) and apiClient.get(path))
+const apiClient = (path, options) => request(path, options);
+
+apiClient.get = (path, options = {}) =>
+  request(path, { ...options, method: "GET" });
+apiClient.post = (path, body, options = {}) =>
+  request(path, { ...options, method: "POST", body });
+apiClient.put = (path, body, options = {}) =>
+  request(path, { ...options, method: "PUT", body });
+apiClient.delete = (path, options = {}) =>
+  request(path, { ...options, method: "DELETE" });
 
 export default apiClient;
