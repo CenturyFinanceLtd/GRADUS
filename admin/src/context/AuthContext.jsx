@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
 import { supabase } from '../services/supabaseClient';
 import apiClient from '../services/apiClient';
 import { fetchMyPermissions } from '../services/adminPermissions';
+import * as authService from '../services/authService'; // Static import to prevent chunk loading errors
 
 const storageKey = 'gradus_admin_auth_v1';
 const initialAuthState = { token: null, admin: null, permissions: null, authType: null };
@@ -201,7 +202,6 @@ const AuthProvider = ({ children }) => {
   };
 
   const login = useCallback(async (email, password) => {
-    const authService = await import('../services/authService');
     const response = await authService.login(email, password);
     storeAuthResponse(response);
     await fetchPermissions(response.token);
