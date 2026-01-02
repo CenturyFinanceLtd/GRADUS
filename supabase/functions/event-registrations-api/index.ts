@@ -106,35 +106,13 @@ Deno.serve(async (req) => {
         if (admin) {
              const search = url.searchParams.get("search");
              
-             // Fetch from Legacy Table
-             let queryLegacy = supabase.from("event_registrations").select("*");
-             if (search) queryLegacy = queryLegacy.or(`name.ilike.%${search}%,email.ilike.%${search}%`); // Adjusted search columns
-             const { data: legacyData, error: legacyError } = await queryLegacy;
-             
-             // Fetch from New Table
-             let queryNew = supabase.from("landing_page_registrations").select("*");
-             if (search) queryNew = queryNew.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
-             const { data: newData, error: newError } = await queryNew;
+             // Fetch from Legacy Table ONLY (User request: "only fetch data from the table event-registrations")
+             const { data, error } = await supabase.from("event_registrations").select("*")
+                 .or(`name.ilike.%${search || ""}%`, `email.ilike.%${search || ""}%`)
+                 .order("created_at", { ascending: false });
 
-             if (legacyError && !newData) return jsonResponse({ error: legacyError.message }, 500, cors);
-             if (newError && !legacyData) console.error("New table fetch error", newError);
-
-             const safeLegacy = legacyData || [];
-             const safeNew = newData || [];
-
-             // Normalize New Data to match Frontend expectations (EventRegistrationsTable.jsx uses 'course')
-             const normalizedNew = safeNew.map((item: any) => ({
-                 ...item,
-                 course: item.program_name || "Landing Page", // Map program_name to course
-                 message: `(From Landing Page: ${item.landing_page_id || "N/A"})` // Add hint in message
-             }));
-
-             // Combine and Sort
-             const combined = [...safeLegacy, ...normalizedNew].sort((a, b) => {
-                 return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-             });
-             
-             return jsonResponse({ items: combined }, 200, cors);
+             if (error) return jsonResponse({ error: error.message }, 500, cors);
+             return jsonResponse({ items: data }, 200, cors);
         }
 
         // 2. Try User

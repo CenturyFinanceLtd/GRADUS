@@ -28,10 +28,10 @@ const FUNCTION_MAP = {
   "/admin/permissions": "admin-permissions-api",
   "/admin/tickets": "admin-tickets-api",
   "/admin/assignments": "admin-assignments-api",
+  "/admin/email-templates": "admin-email-templates-api", // Moved up to prevent '/admin/email' matching first
   "/admin/emails": "admin-emails-api",
   "/admin/email": "admin-emails-api",
   "/admin/auth": "admin-auth-api",
-  "/admin/email-templates": "admin-email-templates-api",
   "/admin/assessments": "admin-assessments-api",
   "/admin/analytics": "admin-analytics-api",
   "/admin/uploads": "admin-uploads-api",
