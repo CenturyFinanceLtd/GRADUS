@@ -583,9 +583,16 @@ serve(async (req: Request) => {
       if (!phone) throw new Error("Phone number required");
 
       const TWO_FACTOR_API_KEY = "b7245c05-e7c8-11f0-a6b2-0200cd936042"; // From user image
-      const formattedPhone = phone.replace("+91", "");
       
-      const response = await fetch(`https://2factor.in/API/V1/${TWO_FACTOR_API_KEY}/SMS/${formattedPhone}/AUTOGEN`);
+      // Robust cleaning: remove all non-digits (including + signs)
+      let cleanPhone = phone.replace(/\D/g, "");
+      
+      // If it starts with 91 and is 12 digits, strip the 91
+      if (cleanPhone.length === 12 && cleanPhone.startsWith("91")) {
+        cleanPhone = cleanPhone.slice(2);
+      }
+      
+      const response = await fetch(`https://2factor.in/API/V1/${TWO_FACTOR_API_KEY}/SMS/${cleanPhone}/AUTOGEN`);
       const data = await response.json();
 
       if (data.Status !== "Success") {
