@@ -3,14 +3,16 @@ import { Link } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { toast } from 'react-toastify';
 import apiClient from '../services/apiClient';
+import { useAuthContext } from '../context/AuthContext';
 
 const LandingPagesListLayer = () => {
     const [pages, setPages] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { token } = useAuthContext();
 
     const fetchPages = async () => {
         try {
-            const data = await apiClient('/admin/landing-pages');
+            const data = await apiClient('/admin/landing-pages', { token });
             if (!data) {
                 setPages([]);
             } else {
@@ -32,7 +34,7 @@ const LandingPagesListLayer = () => {
     const deletePage = async (id) => {
         if (!window.confirm('Are you sure you want to delete this page?')) return;
         try {
-            await apiClient(`/admin/landing-pages/${id}`, { method: 'DELETE' });
+            await apiClient(`/admin/landing-pages/${id}`, { method: 'DELETE', token });
             toast.success('Landing page deleted successfully');
             setPages(pages.filter(page => page._id !== id));
         } catch (error) {
