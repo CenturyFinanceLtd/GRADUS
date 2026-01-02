@@ -591,6 +591,13 @@ serve(async (req: Request) => {
       if (cleanPhone.length === 12 && cleanPhone.startsWith("91")) {
         cleanPhone = cleanPhone.slice(2);
       }
+
+      // BYPASS FOR TEST NUMBER (due to low credits)
+      if (cleanPhone === "9454971531") {
+        return new Response(JSON.stringify({ sessionId: "TEST_SESSION_ID", Status: "Success" }), {
+          headers: { ...cors, "Content-Type": "application/json" },
+        });
+      }
       
       const response = await fetch(`https://2factor.in/API/V1/${TWO_FACTOR_API_KEY}/SMS/${cleanPhone}/AUTOGEN`);
       const data = await response.json();
@@ -608,14 +615,24 @@ serve(async (req: Request) => {
     if (action === "phone-otp-verify" && req.method === "POST") {
       const { phone, otp, sessionId } = body;
       if (!phone || !otp || !sessionId) throw new Error("Phone, OTP, and SessionId required");
-
-      const TWO_FACTOR_API_KEY = "b7245c05-e7c8-11f0-a6b2-0200cd936042";
       
-      const response = await fetch(`https://2factor.in/API/V1/${TWO_FACTOR_API_KEY}/SMS/VERIFY/${sessionId}/${otp}`);
-      const data = await response.json();
+      let cleanPhone = phone.replace(/\D/g, "");
+      if (cleanPhone.length === 12 && cleanPhone.startsWith("91")) {
+        cleanPhone = cleanPhone.slice(2);
+      }
 
-      if (data.Status !== "Success" || data.Details !== "OTP Matched") {
-        throw new Error(data.Details || "Invalid OTP");
+      // BYPASS VERIFICATION FOR TEST NUMBER
+      if (cleanPhone === "9454971531" && otp === "123456") {
+         // Allow proceed
+      } else {
+          const TWO_FACTOR_API_KEY = "b7245c05-e7c8-11f0-a6b2-0200cd936042";
+          
+          const response = await fetch(`https://2factor.in/API/V1/${TWO_FACTOR_API_KEY}/SMS/VERIFY/${sessionId}/${otp}`);
+          const data = await response.json();
+
+          if (data.Status !== "Success" || data.Details !== "OTP Matched") {
+            throw new Error(data.Details || "Invalid OTP");
+          }
       }
 
       // 1. Find or Create User by phone
