@@ -1,4 +1,29 @@
--- 1. Create the table if it doesn't exist
+-- 1. Create the bucket 'landing_page' (if it doesn't exist)
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('landing_page', 'landing_page', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- 2. Create policy to allow public read access to 'landing_page'
+-- Note: This might require adjustment depending on existing policies or RLS.
+-- This tries to create a policy if one doesn't exist for public read.
+BEGIN;
+  DO $$
+  BEGIN
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_policies 
+      WHERE tablename = 'objects' 
+      AND policyname = 'Public Access for landing_page'
+    ) THEN
+      CREATE POLICY "Public Access for landing_page"
+      ON storage.objects FOR SELECT
+      USING ( bucket_id = 'landing_page' );
+    END IF;
+  END
+  $$;
+COMMIT;
+
+
+-- 3. Create the table if it doesn't exist
 CREATE TABLE IF NOT EXISTS public.landing_pages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     slug TEXT UNIQUE NOT NULL,
@@ -16,7 +41,7 @@ CREATE TABLE IF NOT EXISTS public.landing_pages (
     updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- 2. Insert the data for 'akhil'
+-- 4. Insert the data for 'akhil'
 INSERT INTO public.landing_pages (
     slug,
     title,
@@ -89,7 +114,7 @@ VALUES (
   }'::jsonb,
     '{
     "name": "Akhil",
-    "image": "/assets/mentor-image-transparent.png",
+    "image": "https://<YOUR_PROJECT_REF>.supabase.co/storage/v1/object/public/landing_page/akhil.png",
     "points": [
       "With over 10+ years in the Tech Industry, Akhil has architected complex systems for top global companies.",
       "Akhil''s expertise spans primarily Frontend, Backend, Cloud Architecture, and AI integration.",
@@ -143,7 +168,7 @@ ON CONFLICT (slug) DO UPDATE SET
     is_published = EXCLUDED.is_published,
     updated_at = EXCLUDED.updated_at;
 
--- 3. Insert the data for 'vaibhav'
+-- 5. Insert the data for 'vaibhav'
 INSERT INTO public.landing_pages (
     slug,
     title,
@@ -215,8 +240,8 @@ VALUES (
     "centeredCard": ""
   }'::jsonb,
     '{
-    "name": "Jagpreet Singh Narula",
-    "image": "/assets/mentor-image-transparent.png",
+    "name": "Vaibhav Batra",
+    "image": "https://<YOUR_PROJECT_REF>.supabase.co/storage/v1/object/public/landing_page/vaibhav.png",
     "points": [
       "With an MBA in Finance and 18 years in the Automobile Industry, Jagpreet Singh Narula blends sector-specific insight with trading expertise.",
       "Jagpreet''s 13+ years of successful trading span Intraday, Swing, Price Action, and Index Options.",
