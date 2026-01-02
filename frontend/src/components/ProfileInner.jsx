@@ -7,7 +7,7 @@ const safeString = (value) => (typeof value === "string" ? value : "");
 
 const mapUserToProfileState = (user) => ({
   fullname: safeString(user?.fullname),
-  mobile: safeString(user?.mobile),
+  phone: safeString(user?.phone || user?.mobile),
   email: safeString(user?.email),
   profileImageUrl: safeString(user?.profileImageUrl),
   personalDetails: {
@@ -109,7 +109,7 @@ const ProfileInner = () => {
     try {
       const payload = {
         fullname: profileData.fullname.trim(),
-        mobile: profileData.mobile.trim(),
+        phone: profileData.phone.trim(),
         profileImageUrl: profileData.profileImageUrl,
         personalDetails: {
           address: profileData.personalDetails.address.trim(),
@@ -395,8 +395,9 @@ const ProfileInner = () => {
                       <input
                         type='tel'
                         className='common-input rounded-12 h-56 bg-neutral-10'
-                        id='mobile'
-                        value={profileData.mobile}
+                        id='phone'
+                        name='phone'
+                        value={profileData.phone}
                         disabled
                       />
                     </div>

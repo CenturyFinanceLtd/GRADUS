@@ -94,7 +94,7 @@ const GoogleAuthCallback = () => {
               session.user.user_metadata?.full_name?.split(" ")[0] || "",
             lastName: session.user.user_metadata?.last_name ||
               session.user.user_metadata?.full_name?.split(" ").slice(1).join(" ") || "",
-            mobile: session.user.user_metadata?.mobile || null,
+            phone: session.user.user_metadata?.phone || session.user.user_metadata?.mobile || null,
           },
         });
       } catch (profileError) {

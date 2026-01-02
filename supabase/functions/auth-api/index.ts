@@ -597,7 +597,7 @@ serve(async (req: Request) => {
       const { phone } = body; // Already using phone in body here
       if (!phone) throw new Error("Phone number required");
 
-      const TWO_FACTOR_API_KEY = "b7245c05-e7c8-11f0-a6b2-0200cd936042"; // From user image
+      const TWO_FACTOR_API_KEY = Deno.env.get("TWO_FACTOR_API_KEY") || "";
       
       // Robust cleaning: remove all non-digits (including + signs)
       let cleanPhone = phone.replace(/\D/g, "");
@@ -641,7 +641,7 @@ serve(async (req: Request) => {
       if (cleanPhone.endsWith("9454971531") && otp === "123456") {
          // Allow proceed
       } else {
-          const TWO_FACTOR_API_KEY = "b7245c05-e7c8-11f0-a6b2-0200cd936042";
+          const TWO_FACTOR_API_KEY = Deno.env.get("TWO_FACTOR_API_KEY") || "";
           
           const response = await fetch(`https://2factor.in/API/V1/${TWO_FACTOR_API_KEY}/SMS/VERIFY/${sessionId}/${otp}`);
           const data = await response.json();
