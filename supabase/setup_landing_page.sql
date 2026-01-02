@@ -114,7 +114,7 @@ VALUES (
   }'::jsonb,
     '{
     "name": "Akhil",
-    "image": "https://<YOUR_PROJECT_REF>.supabase.co/storage/v1/object/public/landing_page/akhil.png",
+    "image": "akhil.png",
     "points": [
       "With over 10+ years in the Tech Industry, Akhil has architected complex systems for top global companies.",
       "Akhil''s expertise spans primarily Frontend, Backend, Cloud Architecture, and AI integration.",
@@ -241,7 +241,7 @@ VALUES (
   }'::jsonb,
     '{
     "name": "Vaibhav Batra",
-    "image": "https://<YOUR_PROJECT_REF>.supabase.co/storage/v1/object/public/landing_page/vaibhav.png",
+    "image": "vaibhav.png",
     "points": [
       "With an MBA in Finance and 18 years in the Automobile Industry, Jagpreet Singh Narula blends sector-specific insight with trading expertise.",
       "Jagpreet''s 13+ years of successful trading span Intraday, Swing, Price Action, and Index Options.",

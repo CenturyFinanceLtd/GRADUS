@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import '../styles/masterclass-akhil.css'; // Reusing existing styles
+import { supabase } from '../services/supabaseClient'; // Import supabase client
 
 const DynamicLandingPage = () => {
     const { slug } = useParams();
@@ -160,7 +161,16 @@ const DynamicLandingPage = () => {
                     {/* --- Meet Your Mentor Section --- */}
                     <div className="mentor-grid">
                         <div className="mentor-image-col">
-                            <img src={mentor.image} alt={mentor.name} className="mentor-image" style={{ maxHeight: '500px' }} />
+                            <img
+                                src={
+                                    mentor.image.startsWith('http') || mentor.image.startsWith('/')
+                                        ? mentor.image
+                                        : supabase.storage.from('landing_page').getPublicUrl(mentor.image).data.publicUrl
+                                }
+                                alt={mentor.name}
+                                className="mentor-image"
+                                style={{ maxHeight: '500px' }}
+                            />
                         </div>
                         <div className="mentor-content-col">
                             <h2 className="mentor-title">
