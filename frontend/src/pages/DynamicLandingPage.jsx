@@ -33,8 +33,10 @@ const DynamicLandingPage = () => {
 
     const { hero, middleSection, mentor, certificate, faq, stickyFooter } = pageData;
 
+    const isGreenTheme = slug === 'vaibhav';
+
     return (
-        <div className="masterclass-akhil-page">
+        <div className={`masterclass-akhil-page ${isGreenTheme ? 'theme-green' : ''}`}>
             <main className="hero-section">
                 {/* Header Title */}
                 <div className="hero-header">

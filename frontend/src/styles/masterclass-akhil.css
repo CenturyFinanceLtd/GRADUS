@@ -625,3 +625,44 @@
         min-width: auto !important;
     }
 }
+
+/* --- Green Theme Overrides --- */
+.masterclass-akhil-page.theme-green .text-highlight,
+.masterclass-akhil-page.theme-green .highlight-count,
+.masterclass-akhil-page.theme-green .text-highlight-underline {
+    color: #28a745 !important; /* Green Primary */
+}
+
+.masterclass-akhil-page.theme-green .info-icon-wrapper,
+.masterclass-akhil-page.theme-green .cta-button,
+.masterclass-akhil-page.theme-green .diamond-icon {
+    background-color: #28a745 !important;
+}
+
+.masterclass-akhil-page.theme-green .cta-button {
+    box-shadow: 0 4px 14px 0 rgba(40, 167, 69, 0.39) !important;
+}
+
+.masterclass-akhil-page.theme-green .cta-button:hover {
+    background-color: #218838 !important;
+}
+
+.masterclass-akhil-page.theme-green .info-card {
+    border-color: #c3e6cb !important;
+    background-color: #f0fff4 !important;
+}
+
+.masterclass-akhil-page.theme-green .card-number {
+    background-color: #d1e7dd !important;
+    color: #198754 !important;
+}
+
+.masterclass-akhil-page.theme-green .bottom-info-bar {
+    background-color: #f0fff4 !important;
+    border-color: #28a745 !important;
+}
+
+.masterclass-akhil-page.theme-green .footer-price-row {
+     color: #28a745 !important;
+}
+
