@@ -234,7 +234,7 @@ const DynamicLandingPage = () => {
             <RegistrationModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                programName={middleSection.programName}
+                programName={`${hero.titlePrefix} ${hero.highlight}`}
                 landingPageId={pageData.id || pageData._id}
             />
         </div>

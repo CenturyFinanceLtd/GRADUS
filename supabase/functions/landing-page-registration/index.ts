@@ -48,13 +48,6 @@ Deno.serve(async (req) => {
 
       // Send Confirmation Email
       try {
-        let displayProgramName = body.program_name || "the Masterclass";
-        
-        // Override program name for email if it matches "Gradus FINLIT"
-        if (displayProgramName === "Gradus FINLIT") {
-            displayProgramName = "Masterclass on How To Achieve Financial Freedom";
-        }
-
         const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
           method: "POST",
           headers: {
@@ -68,7 +61,7 @@ Deno.serve(async (req) => {
             html: `
               <div style="font-family: Arial, sans-serif; color: #333;">
                 <h2>Welcome, ${body.name}!</h2>
-                <p>You have successfully registered for <strong>${displayProgramName}</strong>.</p>
+                <p>You have successfully registered for <strong>${body.program_name || "the Masterclass"}</strong>.</p>
                 <p>We are excited to have you on board. Our team will contact you shortly with further details.</p>
                 <br/>
                 <p>Best Regards,</p>
