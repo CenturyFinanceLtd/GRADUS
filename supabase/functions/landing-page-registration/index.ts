@@ -1,5 +1,6 @@
 /// <reference lib="deno.ns" />
-import { createClient } from "jsr:@supabase/supabase-js@2";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const getCorsHeaders = (req: Request) => {
   const origin = req.headers.get("Origin");
@@ -14,7 +15,7 @@ const getCorsHeaders = (req: Request) => {
   };
 };
 
-Deno.serve(async (req) => {
+serve(async (req) => {
   // Handle CORS for OPTIONS requests explicitly and early
   if (req.method === "OPTIONS") {
      return new Response("ok", { headers: getCorsHeaders(req) });
