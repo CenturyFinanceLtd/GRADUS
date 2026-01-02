@@ -89,7 +89,7 @@ VALUES (
     "bottomInfo": "Learn from Akhil''s expertise in software development, having mentored over 5,000+ students and built scalable Tech Products."
   }'::jsonb,
     '{
-    "programName": "Gradus TECH",
+    "programName": "Gradus X",
     "targetAudience": [
       {
         "icon": "💻",
