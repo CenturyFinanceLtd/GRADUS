@@ -81,8 +81,9 @@ serve(async (req: Request) => {
     const body = await req.json().catch(() => ({}));
     
     // Configuration
-    const RAZORPAY_KEY_ID = Deno.env.get("RAZORPAY_KEY_ID") || "rzp_test_RyCZoSEOEgE3zq";
-    const RAZORPAY_KEY_SECRET = Deno.env.get("RAZORPAY_KEY_SECRET") || "zfzkDOKkfvwhf4nGgClFk9EZ";
+    // FORCE TEST KEYS FOR NOW AS REQUESTED
+    const RAZORPAY_KEY_ID = "rzp_test_RyCZoSEOEgE3zq";
+    const RAZORPAY_KEY_SECRET = "zfzkDOKkfvwhf4nGgClFk9EZ";
     const GST_RATE = Number(Deno.env.get("RAZORPAY_GST_RATE") || 0.18);
 
     if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
