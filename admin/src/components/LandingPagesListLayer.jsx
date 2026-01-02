@@ -64,7 +64,7 @@ const LandingPagesListLayer = () => {
                         <table className="table table-borderless">
                             <thead>
                                 <tr>
-                                    <th>Slug</th>
+                                    <th>Working URL</th>
                                     <th>Created At</th>
                                     <th>Actions</th>
                                 </tr>
@@ -75,29 +75,34 @@ const LandingPagesListLayer = () => {
                                         <td colSpan="3" className="text-center">No landing pages found.</td>
                                     </tr>
                                 ) : (
-                                    pages.map(page => (
-                                        <tr key={page._id}>
-                                            <td>
-                                                <span className="h6 mb-0 fw-medium text-gray-300">/{page.slug}</span>
-                                            </td>
-                                            <td>
-                                                <span className="h6 mb-0 fw-medium text-gray-300">{new Date(page.createdAt).toLocaleDateString()}</span>
-                                            </td>
-                                            <td>
-                                                <div className="d-flex align-items-center gap-10">
-                                                    <Link to={`/edit-landing-page/${page.slug}`} className="remove-item-btn bg-info-50 text-info-600 bg-hover-info-600 text-hover-white w-40 h-40 flex-center text-xl rounded-circle">
-                                                        <Icon icon="ph:pencil-simple" />
-                                                    </Link>
-                                                    <button onClick={() => deletePage(page._id)} className="remove-item-btn bg-danger-50 text-danger-600 bg-hover-danger-600 text-hover-white w-40 h-40 flex-center text-xl rounded-circle">
-                                                        <Icon icon="ph:trash" />
-                                                    </button>
-                                                    <a href={`http://localhost:5173/${page.slug}`} target="_blank" rel="noreferrer" className="remove-item-btn bg-success-50 text-success-600 bg-hover-success-600 text-hover-white w-40 h-40 flex-center text-xl rounded-circle">
-                                                        <Icon icon="ph:eye" />
+                                    pages.map(page => {
+                                        const publicUrl = `http://localhost:5173/events/masterclass/${page._id}`;
+                                        return (
+                                            <tr key={page._id}>
+                                                <td>
+                                                    <a href={publicUrl} target="_blank" rel="noreferrer" className="h6 mb-0 fw-medium text-info-600">
+                                                        {publicUrl}
                                                     </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
+                                                </td>
+                                                <td>
+                                                    <span className="h6 mb-0 fw-medium text-gray-300">{new Date(page.createdAt).toLocaleDateString()}</span>
+                                                </td>
+                                                <td>
+                                                    <div className="d-flex align-items-center gap-10">
+                                                        <Link to={`/edit-landing-page/${page.slug}`} className="remove-item-btn bg-info-50 text-info-600 bg-hover-info-600 text-hover-white w-40 h-40 flex-center text-xl rounded-circle">
+                                                            <Icon icon="ph:pencil-simple" />
+                                                        </Link>
+                                                        <button onClick={() => deletePage(page._id)} className="remove-item-btn bg-danger-50 text-danger-600 bg-hover-danger-600 text-hover-white w-40 h-40 flex-center text-xl rounded-circle">
+                                                            <Icon icon="ph:trash" />
+                                                        </button>
+                                                        <a href={publicUrl} target="_blank" rel="noreferrer" className="remove-item-btn bg-success-50 text-success-600 bg-hover-success-600 text-hover-white w-40 h-40 flex-center text-xl rounded-circle">
+                                                            <Icon icon="ph:eye" />
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
                                 )}
                             </tbody>
                         </table>

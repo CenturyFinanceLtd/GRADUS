@@ -248,8 +248,8 @@ function App() {
             }
           />
           <Route path='/:programme/:course' element={<ProgrammeCoursePage />} />
+          <Route path='/events/masterclass/:id' element={<DynamicLandingPage />} />
           <Route path='/404' element={<NotFoundPage />} />
-          <Route path='/:slug' element={<DynamicLandingPage />} />
 
           <Route path='*' element={<NotFoundPage />} />
 

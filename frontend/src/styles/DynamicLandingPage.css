@@ -666,3 +666,13 @@
      color: #28a745 !important;
 }
 
+
+
+/* Fix check: Enforce white text on green theme buttons */
+.masterclass-akhil-page.theme-green .cta-button,
+.masterclass-akhil-page.theme-green .cta-button:hover,
+.masterclass-akhil-page.theme-green a.cta-button,
+.masterclass-akhil-page.theme-green a.cta-button:hover {
+    color: #ffffff !important;
+}
+

@@ -5,7 +5,7 @@ import '../styles/DynamicLandingPage.css'; // Renamed from masterclass-akhil.css
 import { supabase } from '../services/supabaseClient'; // Import supabase client
 
 const DynamicLandingPage = () => {
-    const { slug } = useParams();
+    const { id } = useParams();
     const [pageData, setPageData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
@@ -14,7 +14,7 @@ const DynamicLandingPage = () => {
         const fetchPageData = async () => {
             try {
                 // In production, this would be the actual API endpoint
-                const data = await apiClient.get(`/landing-pages/${slug}`);
+                const data = await apiClient.get(`/landing-pages/${id}`);
                 setPageData(data);
                 document.title = `${data.hero.titlePrefix} ${data.hero.highlight} | Gradus`;
             } catch (err) {
@@ -26,17 +26,27 @@ const DynamicLandingPage = () => {
         };
 
         fetchPageData();
-    }, [slug]);
+    }, [id]);
 
     if (loading) return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>;
     if (error || !pageData) return <Navigate to="/404" replace />;
 
     const { hero, middleSection, mentor, certificate, faq, stickyFooter } = pageData;
 
-    const isGreenTheme = slug === 'vaibhav';
+    const isGreenTheme = middleSection?.programName?.toLowerCase().includes('finlit');
 
     return (
         <div className={`masterclass-akhil-page ${isGreenTheme ? 'theme-green' : ''}`}>
+            {isGreenTheme && (
+                <style>{`
+                    .masterclass-akhil-page.theme-green .cta-button,
+                    .masterclass-akhil-page.theme-green a.cta-button,
+                    .masterclass-akhil-page.theme-green .cta-button:hover,
+                    .masterclass-akhil-page.theme-green a.cta-button:hover {
+                        color: #ffffff !important;
+                    }
+                `}</style>
+            )}
             <main className="hero-section">
                 {/* Header Title */}
                 <div className="hero-header">
