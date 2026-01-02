@@ -300,6 +300,10 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId }) => {
           color: #555;
           font-weight: 500;
           border-right: 1px solid #eee;
+          white-space: nowrap;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
         }
         .phone-input-wrapper input {
           border: none;
