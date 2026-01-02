@@ -3,13 +3,13 @@
  * Admin Email Templates API Edge Function
  * Handles transactional email templates
  */
-import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient, SupabaseClient } from "jsr:@supabase/supabase-js@2";
 import { verify } from "https://deno.land/x/djwt@v2.8/mod.ts";
 
 function getCorsHeaders(req: Request) {
-  const origin = req.headers.get("Origin") || req.headers.get("origin");
-  const allowedOrigin = origin || "http://localhost:5173"; 
+  const origin = req.headers.get("Origin");
+  // Default to admin domain if no origin (e.g. strict mode), or localhost
+  const allowedOrigin = origin || "https://admin.gradusindia.in"; 
 
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
@@ -54,10 +54,11 @@ async function verifyAdminToken(req: Request, supabase: SupabaseClient): Promise
 const TEMPLATE_DEFINITIONS: Record<string, any> = {
   "welcome_email": { key: "welcome_email", name: "Welcome Email", variables: [{ token: "{{name}}" }] },
   "reset_password": { key: "reset_password", name: "Reset Password", variables: [{ token: "{{link}}" }] },
+  "event_registration": { key: "event_registration", name: "Event Registration", variables: [{ token: "{{name}}" }, { token: "{{event_name}}" }] },
   // Add others as needed or fetch dynamically
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
@@ -65,15 +66,56 @@ serve(async (req) => {
     const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
     const url = new URL(req.url);
     const path = url.pathname.replace(/\/$/, "");
-    const pathParts = path.split("/").filter(Boolean);
-    const funcIndex = pathParts.indexOf("admin-email-templates-api");
-    const apiPath = "/" + pathParts.slice(funcIndex + 1).join("/");
+    
+    // Robust routing: Match suffix regardless of function name
+    // e.g. .../event_registration -> key=event_registration
+    const pathParts = path.split("/");
+    const lastPart = pathParts[pathParts.length - 1]; // could be key or 'admin-email-templates-api'
 
+    // If path ends with specific key
+    const potentialKey = lastPart;
+    
+    // Auth check
     const { admin, error: authError } = await verifyAdminToken(req, supabase);
     if (!admin) return jsonResponse({ error: authError || "Unauthorized" }, 401, cors);
 
-    // GET / - List
-    if ((apiPath === "/" || apiPath === "") && req.method === "GET") {
+    // GET / (List) - check if path ends with function name or is root
+    // Simplistic check: if match found in templates, return item, else list
+    // OR: check if path contains "admin-email-templates-api" and nothing after
+    
+    // Let's rely on TEMPLATE_DEFINITIONS presence
+    if (TEMPLATE_DEFINITIONS[potentialKey]) {
+        // GET /:key, PUT /:key
+        const key = potentialKey;
+        if (req.method === "GET") {
+            const { data: record } = await supabase.from("email_templates").select("*").eq("key", key).single();
+            const def = TEMPLATE_DEFINITIONS[key];
+            return jsonResponse({ item: {
+               key,
+               name: def?.name || key,
+               subject: record?.subject || "",
+               html: record?.html || "",
+               text: record?.text || ""
+            }}, 200, cors);
+        }
+        if (req.method === "PUT") {
+            const { subject, html, text } = await req.json().catch(() => ({}));
+            const { data, error } = await supabase.from("email_templates").upsert({
+               key,
+               subject,
+               html,
+               text,
+               updated_by: admin.id,
+               updated_at: new Date().toISOString()
+            }, { onConflict: "key" }).select().single();
+            
+            if (error) return jsonResponse({ error: error.message }, 500, cors);
+            return jsonResponse({ message: "Saved", item: data }, 200, cors);
+        }
+    }
+
+    // Default List if typical list path or empty suffix
+    if (req.method === "GET") {
         const { data: records } = await supabase.from("email_templates").select("*");
         const items = Object.values(TEMPLATE_DEFINITIONS).map(def => {
             const rec = records?.find((r: any) => r.key === def.key);
@@ -87,39 +129,6 @@ serve(async (req) => {
         return jsonResponse({ items }, 200, cors);
     }
     
-    // GET /:key
-    const keyMatch = apiPath.match(/^\/([\w_]+)$/);
-    if (keyMatch && req.method === "GET") {
-        const key = keyMatch[1];
-        const { data: record } = await supabase.from("email_templates").select("*").eq("key", key).single();
-        const def = TEMPLATE_DEFINITIONS[key];
-        // If def missing, we might still return record if it exists
-        return jsonResponse({ item: {
-           key,
-           subject: record?.subject || "",
-           html: record?.html || "",
-           text: record?.text || ""
-        }}, 200, cors);
-    }
-
-    // PUT /:key
-    if (keyMatch && req.method === "PUT") {
-        const key = keyMatch[1];
-        const { subject, html, text } = await req.json().catch(() => ({}));
-        
-        const { data, error } = await supabase.from("email_templates").upsert({
-           key,
-           subject,
-           html,
-           text,
-           updated_by: admin.id,
-           updated_at: new Date().toISOString()
-        }, { onConflict: "key" }).select().single();
-        
-        if (error) return jsonResponse({ error: error.message }, 500, cors);
-        return jsonResponse({ message: "Saved", item: data }, 200, cors);
-    }
-
     return jsonResponse({ error: "Not found" }, 404, cors);
 
   } catch (error) {
