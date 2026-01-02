@@ -555,6 +555,14 @@ enabled = true
 verify_jwt = false
 entrypoint = "./functions/admin-course-details-api/index.ts"
 
+[functions.admin-landing-pages-api]
+enabled = true
+verify_jwt = false
+
+[functions.content-api]
+enabled = true
+verify_jwt = false
+
 [functions.users-api]
 enabled = true
 verify_jwt = false
