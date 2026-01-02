@@ -1,14 +1,5 @@
 import React, { useState } from 'react';
-import { ComposableMap, Geographies, Geography } from "react-simple-maps";
-import { Tooltip } from 'react-tooltip';
 
-// Reliable TopoJSON for India
-const INDIA_STATES_TOPO_JSON = "https://raw.githubusercontent.com/Anujarya300/bubble_maps/master/data/geography-data/india.topo.json";
-
-const PROJECTION_CONFIG = {
-  scale: 1000,
-  center: [78.9629, 22.5937] // Center of India
-};
 
 
 const TopCountries = ({ analytics }) => {
@@ -49,49 +40,9 @@ const TopCountries = ({ analytics }) => {
           </div>
           <div className='row gy-4'>
             <div className='col-lg-6'>
-              {/* Map Section */}
-              <div className="h-100 border radius-8 overflow-hidden relative" style={{ minHeight: '300px' }}>
-                <ComposableMap
-                  projection="geoMercator"
-                  projectionConfig={PROJECTION_CONFIG}
-                  width={600}
-                  height={650}
-                  style={{ width: "100%", height: "100%" }}
-                >
-                  <Geographies geography={INDIA_STATES_TOPO_JSON}>
-                    {({ geographies }) =>
-                      geographies.map((geo) => {
-                        const stateName = geo.properties.st_nm || geo.properties.NAME_1 || geo.properties.name;
-                        const cur = data.find(s => s.state && stateName && s.state.toLowerCase() === stateName.toLowerCase());
-
-                        return (
-                          <Geography
-                            key={geo.rsmKey}
-                            geography={geo}
-                            fill={cur ? cur.color : "#D1D5DB"}
-                            stroke="#FFFFFF"
-                            strokeWidth={0.5}
-                            style={{
-                              default: { outline: "none" },
-                              hover: { fill: "#F53", outline: "none", cursor: "pointer" },
-                              pressed: { outline: "none" },
-                            }}
-                            onMouseEnter={() => {
-                              const visitors = cur ? cur.value : 0;
-                              setTooltipContent(`${stateName}: ${visitors} Visitors`);
-                            }}
-                            onMouseLeave={() => {
-                              setTooltipContent("");
-                            }}
-                            data-tooltip-id="my-tooltip"
-                            data-tooltip-content={tooltipContent}
-                          />
-                        );
-                      })
-                    }
-                  </Geographies>
-                </ComposableMap>
-                <Tooltip id="my-tooltip" style={{ backgroundColor: "#1F2937", color: "#F9FAFB", borderRadius: "8px", zIndex: 9999 }} />
+              {/* Map Section Removed due to react-simple-maps issues */}
+              <div className="h-100 border radius-8 overflow-hidden relative d-flex align-items-center justify-content-center" style={{ minHeight: '300px' }}>
+                <span className="text-secondary">Map visualization inactive</span>
               </div>
             </div>
             <div className='col-lg-6'>
