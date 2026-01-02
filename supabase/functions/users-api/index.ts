@@ -108,8 +108,7 @@ serve(async (req: Request) => {
         firstName: user.fullname ? user.fullname.split(' ')[0] : '',
         lastName: user.fullname ? user.fullname.split(' ').slice(1).join(' ') : '',
         email: user.email || '',
-        mobile: user.mobile || user.phone || '',
-        phone: user.phone || '',
+        phone: user.phone || user.mobile || '', // Prefer phone, fallback to mobile if DB not migrated
         personalDetails: {
           city: user.city || null,
           state: user.state || null,
@@ -363,7 +362,8 @@ serve(async (req: Request) => {
          }
       }
       if (body.email !== undefined) updates.email = body.email;
-      if (body.mobile !== undefined) updates.mobile = body.mobile;
+      if (body.phone !== undefined) updates.phone = body.phone;
+      if (body.mobile !== undefined) updates.phone = body.mobile; // Map legacy mobile payload to phone column
       if (body.profileImageUrl !== undefined) updates.profile_image_url = body.profileImageUrl;
 
       // Flat Personal Info

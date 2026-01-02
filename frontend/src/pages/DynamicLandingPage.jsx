@@ -236,6 +236,10 @@ const DynamicLandingPage = () => {
                 onClose={() => setIsModalOpen(false)}
                 programName={`${hero.titlePrefix} ${hero.highlight}`}
                 landingPageId={pageData.id || pageData._id}
+                mentorName={mentor.name || hero.mentorName}
+                date={hero.date}
+                time={hero.time}
+                keyBenefit={hero.highlight}
             />
         </div>
     );

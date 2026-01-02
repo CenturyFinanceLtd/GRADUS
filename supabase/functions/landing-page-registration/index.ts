@@ -34,43 +34,75 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     if (req.method === "POST") {
-      const body = await req.json();
-      
-      const { data, error } = await supabase
+      const { name, email, phone, state, qualification, program_name, landing_page_id, mentor_name, date, time, key_benefit } = await req.json();
+
+      // Insert registration data
+      const { data, error: insertError } = await supabase
         .from("landing_page_registrations")
-        .insert([body])
+        .insert([
+          {
+            name,
+            email,
+            phone,
+            state,
+            qualification,
+            program_name,
+            landing_page_id,
+          },
+        ])
         .select()
         .single();
-      
-      if (error) {
-           console.error("Insert Error:", error);
-           throw error;
+
+      if (insertError) {
+        console.error("Error inserting registration:", insertError);
+        return new Response(JSON.stringify({ error: insertError.message }), {
+          headers: { ...cors, "Content-Type": "application/json" },
+          status: 400,
+        });
+      }
+
+      // Determine Zoom Link based on Mentor Name
+      let zoomLink = "#";
+      const normalizedMentorName = (mentor_name || "").toLowerCase().trim();
+
+      if (normalizedMentorName.includes("vaibhav batra")) {
+        zoomLink = "https://us06web.zoom.us/j/84317772672?pwd=adYOZ0oj0FAeEAvYiaZeUGPQLGZOe2.1";
+      } else if (normalizedMentorName.includes("akhil pandey")) {
+        zoomLink = "https://us06web.zoom.us/j/89785000556?pwd=Om0roPIrvSjf7Jk6nRfaRYAxRZSuXa.1";
       }
 
       // Send Confirmation Email
       try {
-        const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+        const emailBody = `
+          <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+              <p>Hi ${name},</p>
+              <p>Thanks for registration. You’re invited to attend our FREE Masterclass, For exclusive users only!</p>
+              
+              <p><strong>📅 Date:</strong> ${date || "TBD"}<br>
+              <strong>⏰ Time:</strong> ${time || "TBD"}</p>
+              
+              <p>In this session, <strong>${mentor_name || "our expert"}</strong> will share valuable insights and practical takeaways to help you <strong>${key_benefit || "gain financial literacy"}</strong>.</p>
+              
+              <p>🎟 Seats are limited—don’t miss out!</p>
+              <p>👉 Joining Link : <a href="${zoomLink}">${zoomLink}</a></p>
+              
+              <p>We look forward to having you join us.</p>
+              <p>Best Regards,<br>Team Gradus</p>
+          </div>
+        `;
+
+        const emailResponse = await fetch("https://utxxhgoxsywhrdblwhbx.supabase.co/functions/v1/send-email", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${supabaseKey}`
+            "Authorization": `Bearer ${supabaseKey}`,
           },
           body: JSON.stringify({
-            to: body.email,
-            from: "contact@gradusindia.in",
-            subject: "Registration Successful - Gradus Masterclass",
-            html: `
-              <div style="font-family: Arial, sans-serif; color: #333;">
-                <h2>Welcome, ${body.name}!</h2>
-                <p>You have successfully registered for <strong>${body.program_name || "the Masterclass"}</strong>.</p>
-                <p>We are excited to have you on board. Our team will contact you shortly with further details.</p>
-                <br/>
-                <p>Best Regards,</p>
-                <p><strong>Gradus India Team</strong></p>
-                <p><a href="https://gradusindia.in">gradusindia.in</a></p>
-              </div>
-            `
-          })
+            to: email,
+            subject: `${program_name}: Registration Confirmed`,
+            html: emailBody,
+            from: "contact@gradusindia.in"
+          }),
         });
 
         if (!emailResponse.ok) {

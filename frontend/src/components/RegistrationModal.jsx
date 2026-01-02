@@ -4,7 +4,7 @@ import Select from "react-select";
 import { ToastContainer, toast } from 'react-toastify';
 import { supabase } from "../services/supabaseClient";
 
-const RegistrationModal = ({ isOpen, onClose, programName, landingPageId }) => {
+const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentorName, date, time, keyBenefit }) => {
     if (!isOpen) return null;
 
     const [formData, setFormData] = useState({
@@ -120,7 +120,11 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId }) => {
                 state: formData.state?.value || null,
                 qualification: formData.qualification?.value || null,
                 program_name: programName,
-                landing_page_id: landingPageId
+                landing_page_id: landingPageId,
+                mentor_name: mentorName,
+                date: date,
+                time: time,
+                key_benefit: keyBenefit
             };
 
             // Call endpoint to save registration
