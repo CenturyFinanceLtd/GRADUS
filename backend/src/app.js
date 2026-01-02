@@ -16,7 +16,7 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const config = require("./config/env");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
-const liveRoutes = require("./live/routes");
+const liveClassRoutes = require("./routes/liveClass");
 
 const app = express();
 app.set("trust proxy", 1); // Trust first proxy (Nginx)
@@ -94,7 +94,7 @@ app.get("/api/health", (req, res) => {
 
 // Route mounts
 // ONLY Live Routes are retained as other features are migrated to Supabase Edge Functions.
-app.use("/api/live", liveRoutes);
+app.use("/api/live", liveClassRoutes);
 
 // Serve Static Frontend Files (Must be after API routes)
 const frontendPath = path.join(__dirname, "../../frontend/dist");
