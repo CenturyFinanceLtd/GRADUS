@@ -39,6 +39,7 @@ const FUNCTION_MAP = {
   "/admin/inquiries": "inquiries-api/inquiries",
   "/admin/callback-requests": "inquiries-api/callback-requests",
   "/admin/event-registrations": "event-registrations-api",
+  "/event-registrations": "event-registrations-api", // Fix: Add mapping for non-admin prefixed path
   "/admin/landing-pages": "admin-landing-pages-api",
   "/live/sessions": "admin-live-sessions-api",
 };

@@ -4,12 +4,18 @@
  * Event Registrations API Edge Function
  * Handles Public Registration and Admin Management
  */
-import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+/// <reference lib="deno.ns" />
+
+/**
+ * Event Registrations API Edge Function
+ * Handles Public Registration and Admin Management
+ */
+import { createClient, SupabaseClient } from "jsr:@supabase/supabase-js@2";
 import { verify } from "https://deno.land/x/djwt@v2.8/mod.ts";
 
 function getCorsHeaders(req: Request) {
-  const origin = req.headers.get("Origin") || req.headers.get("origin");
+  const origin = req.headers.get("Origin");
+  // Allow localhost or admin domain. Since credentials are included, explicit origin is required.
   const allowedOrigin = origin || "http://localhost:5173"; 
 
   return {
@@ -30,15 +36,18 @@ function jsonResponse(data: any, status = 200, cors: any) {
 const JWT_SECRET = Deno.env.get("JWT_SECRET") || "fallback_secret_change_me";
 
 async function verifyAdminToken(req: Request, supabase: SupabaseClient): Promise<{ admin: any; error?: string }> {
-  /* ... simplified ... */
   const authHeader = req.headers.get("Authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) return { admin: null, error: "No authorization header" };
   const token = authHeader.split(" ")[1];
+  
+  // 1. Check Supabase Auth
   const { data: supabaseUser } = await supabase.auth.getUser(token);
   if (supabaseUser?.user) {
     const { data: adminData } = await supabase.from("admin_users").select("*").eq("supabase_id", supabaseUser.user.id).single();
     if (adminData) return { admin: adminData };
   }
+  
+  // 2. Check Legacy JWT
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey("raw", encoder.encode(JWT_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]);
   try {
@@ -72,15 +81,14 @@ async function verifyUser(req: Request, supabase: SupabaseClient): Promise<{ use
           ["verify"]
       );
       const payload = await verify(token, key);
-      // Construct a minimal user object akin to what Supabase returns
       return { user: { id: (payload as any).id || (payload as any).sub } };
   } catch (e) {
       return { user: null, error: "Invalid token" };
   }
 }
 
-serve(async (req: Request) => {
-  const cors = getCorsHeaders(req) as any;
+Deno.serve(async (req) => {
+  const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   try {
@@ -97,22 +105,45 @@ serve(async (req: Request) => {
         const { admin } = await verifyAdminToken(req, supabase);
         if (admin) {
              const search = url.searchParams.get("search");
-             let query = supabase.from("event_registrations").select("*"); // View with extra details
-             if (search) query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`);
              
-             const { data, error } = await query.order("created_at", { ascending: false });
-             if (error) return jsonResponse({ error: error.message }, 500, cors);
-             return jsonResponse({ items: data }, 200, cors);
+             // Fetch from Legacy Table
+             let queryLegacy = supabase.from("event_registrations").select("*");
+             if (search) queryLegacy = queryLegacy.or(`name.ilike.%${search}%,email.ilike.%${search}%`); // Adjusted search columns
+             const { data: legacyData, error: legacyError } = await queryLegacy;
+             
+             // Fetch from New Table
+             let queryNew = supabase.from("landing_page_registrations").select("*");
+             if (search) queryNew = queryNew.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
+             const { data: newData, error: newError } = await queryNew;
+
+             if (legacyError && !newData) return jsonResponse({ error: legacyError.message }, 500, cors);
+             if (newError && !legacyData) console.error("New table fetch error", newError);
+
+             const safeLegacy = legacyData || [];
+             const safeNew = newData || [];
+
+             // Normalize New Data to match Frontend expectations (EventRegistrationsTable.jsx uses 'course')
+             const normalizedNew = safeNew.map((item: any) => ({
+                 ...item,
+                 course: item.program_name || "Landing Page", // Map program_name to course
+                 message: `(From Landing Page: ${item.landing_page_id || "N/A"})` // Add hint in message
+             }));
+
+             // Combine and Sort
+             const combined = [...safeLegacy, ...normalizedNew].sort((a, b) => {
+                 return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+             });
+             
+             return jsonResponse({ items: combined }, 200, cors);
         }
 
         // 2. Try User
         const { user } = await verifyUser(req, supabase);
         if (user) {
-             // Return only this user's registrations
              const { data, error } = await supabase
                 .from("masterclass_registrations")
                 .select("*")
-                .eq("user_id", user.id); // Validated user ID
+                .eq("user_id", user.id);
              
              if (error) return jsonResponse({ error: error.message }, 500, cors);
              return jsonResponse({ items: data }, 200, cors);
@@ -121,7 +152,7 @@ serve(async (req: Request) => {
         return jsonResponse({ error: "Unauthorized" }, 401, cors);
     }
     
-    // POST / - Public Register
+    // POST / - Public Register (Legacy/Masterclass endpoint)
     if ((apiPath === "/" || apiPath === "") && req.method === "POST") {
         const body = await req.json().catch(() => ({}));
         
@@ -130,9 +161,7 @@ serve(async (req: Request) => {
         
         const userId = user.id;
 
-        console.log("[Registration] Body received:", JSON.stringify(body));
-
-        // Get event ID
+        // ... existing POST logic logic ...
         if (!body.eventSlug && !body.eventId) {
              return jsonResponse({ error: "Event ID or Slug required" }, 400, cors);
         }
@@ -144,7 +173,6 @@ serve(async (req: Request) => {
              eventId = event.id;
         }
 
-        // Check existing registration
         const { data: existing } = await supabase.from("masterclass_registrations")
             .select("id")
             .eq("event_id", eventId)
@@ -155,7 +183,6 @@ serve(async (req: Request) => {
              return jsonResponse({ message: "Already registered", alreadyRegistered: true }, 200, cors);
         }
 
-        // Insert registration with form data - trigger will update user profile
         const { data: newReg, error: regError } = await supabase.from("masterclass_registrations").insert([{
             event_id: eventId,
             user_id: userId,
@@ -169,13 +196,10 @@ serve(async (req: Request) => {
         
         if (regError) return jsonResponse({ error: regError.message }, 500, cors);
         
-        return jsonResponse({ 
-            success: true, 
-            item: newReg
-        }, 201, cors);
+        return jsonResponse({ success: true, item: newReg }, 201, cors);
     }
     
-    // POST /send-join-link ... etc (Admin) - Placeholder
+    // POST /send-join-link
     if (apiPath.includes("/send-join-link") && req.method === "POST") {
          const { admin } = await verifyAdminToken(req, supabase);
          if (!admin) return jsonResponse({ error: "Unauthorized" }, 401, cors);
@@ -187,8 +211,19 @@ serve(async (req: Request) => {
     if (idMatch && req.method === "GET") {
         const { admin } = await verifyAdminToken(req, supabase);
         if (!admin) return jsonResponse({ error: "Unauthorized" }, 401, cors);
-        const { data } = await supabase.from("event_registrations").select("*").eq("id", idMatch[1]).single();
-        return jsonResponse({ item: data }, 200, cors);
+        
+        // Try both tables
+        const id = idMatch[1];
+        let { data, error } = await supabase.from("event_registrations").select("*").eq("id", id).single();
+        if (!data) {
+            const { data: newData, error: newError } = await supabase.from("landing_page_registrations").select("*").eq("id", id).single();
+            if (newData) {
+                data = { ...newData, course: newData.program_name };
+            }
+        }
+        
+        if (data) return jsonResponse({ item: data }, 200, cors);
+        return jsonResponse({ error: "Not found" }, 404, cors);
     }
 
     return jsonResponse({ error: "Not found" }, 404, cors);
