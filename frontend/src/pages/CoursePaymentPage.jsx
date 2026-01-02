@@ -168,6 +168,8 @@ const CoursePaymentPage = () => {
 
   useEffect(() => {
     setProfileForm({
+      fullname: user?.fullname || "",
+      email: user?.email || "",
       whatsappNumber: normalizeWhatsappDigits(user?.whatsappNumber || user?.mobile || ""),
       stateName: sanitizeStateValue(user?.personalDetails?.state || ""),
       dateOfBirth: normalizeDateInput(user?.personalDetails?.dob || user?.dob || ""),
@@ -180,6 +182,17 @@ const CoursePaymentPage = () => {
 
   const validateProfileForm = (fields) => {
     const nextErrors = {};
+
+    if (!(fields.fullname || "").trim() || (fields.fullname === "User")) {
+      nextErrors.fullname = "Full name is required.";
+    }
+
+    if (!(fields.email || "").trim()) {
+      nextErrors.email = "Email address is required.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email)) {
+      nextErrors.email = "Invalid email format.";
+    }
+
     const whatsappDigits = normalizeWhatsappDigits(fields.whatsappNumber || "");
     if (!whatsappDigits) {
       nextErrors.whatsappNumber = "WhatsApp number is required.";
@@ -251,6 +264,8 @@ const CoursePaymentPage = () => {
       const response = await userService.updateProfile({
         token,
         data: {
+          fullname: profileForm.fullname.trim(),
+          email: profileForm.email.trim(),
           whatsappNumber: sanitizedWhatsapp,
           mobile: sanitizedWhatsapp,
           personalDetails: {
@@ -269,6 +284,8 @@ const CoursePaymentPage = () => {
         updateUser(returnedUser);
         setProfileForm((prev) => ({
           ...prev,
+          fullname: returnedUser?.fullname || prev.fullname,
+          email: returnedUser?.email || prev.email,
           stateName: sanitizeStateValue(returnedUser?.personalDetails?.state || prev.stateName),
           whatsappNumber: normalizeWhatsappDigits(returnedUser?.whatsappNumber || returnedUser?.mobile || prev.whatsappNumber),
           city: returnedUser?.personalDetails?.city || returnedUser?.city || prev.city,
@@ -489,7 +506,9 @@ const CoursePaymentPage = () => {
     });
 
     const isProfileComplete =
-      Boolean((user?.personalDetails?.state || user?.state) &&
+      Boolean(user?.fullname && user.fullname !== "User" &&
+        user?.email &&
+        (user?.personalDetails?.state || user?.state) &&
         (user?.personalDetails?.city || user?.city) &&
         (user?.educationDetails?.institutionName || user?.college) &&
         (user?.personalDetails?.dob || user?.dob || user?.personalDetails?.dateOfBirth));
@@ -517,12 +536,26 @@ const CoursePaymentPage = () => {
             {/* Full Name */}
             <div className='col-md-6'>
               <label className='form-label fw-semibold text-neutral-900'>Name</label>
-              <input
-                type='text'
-                className='form-control bg-neutral-20'
-                value={user?.fullname || `${user?.firstName || ""} ${user?.lastName || ""}`.trim()}
-                disabled
-              />
+              {user?.fullname && user.fullname !== "User" ? (
+                <input
+                  type='text'
+                  className='form-control bg-neutral-20'
+                  value={user.fullname}
+                  disabled
+                />
+              ) : (
+                <>
+                  <input
+                    type='text'
+                    className={`form-control ${profileErrors.fullname ? 'is-invalid' : ''}`}
+                    placeholder='Enter your full name'
+                    value={profileForm.fullname || ''}
+                    onChange={handleProfileChange("fullname")}
+                    disabled={profileSaving || enrolling}
+                  />
+                  {profileErrors.fullname && <div className='invalid-feedback d-block'>{profileErrors.fullname}</div>}
+                </>
+              )}
             </div>
 
             {/* Mobile Number */}
@@ -539,12 +572,26 @@ const CoursePaymentPage = () => {
             {/* Email ID */}
             <div className='col-12'>
               <label className='form-label fw-semibold text-neutral-900'>Email ID</label>
-              <input
-                type='text'
-                className='form-control bg-neutral-20'
-                value={user?.email || ""}
-                disabled
-              />
+              {user?.email ? (
+                <input
+                  type='text'
+                  className='form-control bg-neutral-20'
+                  value={user.email}
+                  disabled
+                />
+              ) : (
+                <>
+                  <input
+                    type='email'
+                    className={`form-control ${profileErrors.email ? 'is-invalid' : ''}`}
+                    placeholder='Enter your email address'
+                    value={profileForm.email || ''}
+                    onChange={handleProfileChange("email")}
+                    disabled={profileSaving || enrolling}
+                  />
+                  {profileErrors.email && <div className='invalid-feedback d-block'>{profileErrors.email}</div>}
+                </>
+              )}
             </div>
 
             {/* State */}

@@ -72,8 +72,9 @@ serve(async (req: Request) => {
     // Helper to map DB user to Frontend expected format
     const mapUserToFrontend = (user: any) => ({
       ...user,
-      firstName: user.first_name,
-      lastName: user.last_name,
+      fullname: user.fullname || '',
+      firstName: user.fullname ? user.fullname.split(' ')[0] : '',
+      lastName: user.fullname ? user.fullname.split(' ').slice(1).join(' ') : '',
       personalDetails: user.personal_details,
       emailVerified: user.email_verified,
       authProvider: user.auth_provider
@@ -186,8 +187,7 @@ serve(async (req: Request) => {
           id: authUser.user.id, // CRITICAL: Link IDs
           email: session.email,
           password_hash: hashPass, // Optional now, but keeping for schema consistency
-          first_name: payload.firstName,
-          last_name: payload.lastName,
+          fullname: `${payload.firstName} ${payload.lastName}`.trim(),
           mobile: payload.mobile,
           email_verified: true,
           personal_details: JSON.stringify(payload.personalDetails)
@@ -280,8 +280,11 @@ serve(async (req: Request) => {
        let user = existing;
        if (existing) {
          const updates: Record<string, unknown> = {};
-         if (!existing.first_name && firstName) updates.first_name = firstName;
-         if (!existing.last_name && lastName) updates.last_name = lastName;
+         // If fullname is missing or needs updating from Google data
+         const newFullname = `${firstName} ${lastName}`.trim();
+         if (newFullname && (!existing.fullname || existing.fullname !== newFullname)) {
+           updates.fullname = newFullname;
+         }
          if (!existing.auth_provider) updates.auth_provider = "google";
          if (emailVerified && !existing.email_verified) updates.email_verified = true;
 
@@ -300,8 +303,7 @@ serve(async (req: Request) => {
            .from("users")
            .insert([{
              email,
-             first_name: firstName,
-             last_name: lastName,
+             fullname: `${firstName} ${lastName}`.trim(),
              email_verified: emailVerified,
              auth_provider: "google",
            }])
@@ -348,18 +350,17 @@ serve(async (req: Request) => {
        }
        
        // Upsert by email, but always store/link the Supabase Auth user id
-       const { data: user, error } = await supabase
-         .from("users")
-         .upsert(
-           {
-             email: email.toLowerCase().trim(),
-             first_name: firstName,
-             last_name: lastName,
-             mobile,
-             supabase_id: supabaseId,
-           },
-           { onConflict: "email" },
-         )
+        const { data: user, error } = await supabase
+          .from("users")
+          .upsert(
+            {
+              email: email.toLowerCase().trim(),
+              fullname: `${firstName} ${lastName}`.trim(),
+              mobile,
+              supabase_id: supabaseId,
+            },
+            { onConflict: "email" },
+          )
          .select()
          .single();
 
@@ -414,8 +415,12 @@ serve(async (req: Request) => {
         const body = await req.json().catch(() => ({}));
         const updates: any = {};
         
-        if (body.firstName !== undefined) updates.first_name = body.firstName;
-        if (body.lastName !== undefined) updates.last_name = body.lastName;
+        if (body.fullname !== undefined) updates.fullname = body.fullname;
+        if (body.firstName !== undefined || body.lastName !== undefined) {
+          const fName = body.firstName || '';
+          const lName = body.lastName || '';
+          updates.fullname = `${fName} ${lName}`.trim();
+        }
         if (body.mobile !== undefined) updates.mobile = body.mobile;
         if (body.personalDetails !== undefined) updates.personal_details = body.personalDetails;
 
@@ -580,7 +585,7 @@ serve(async (req: Request) => {
       const TWO_FACTOR_API_KEY = "b7245c05-e7c8-11f0-a6b2-0200cd936042"; // From user image
       const formattedPhone = phone.replace("+91", "");
       
-      const response = await fetch(`https://2factor.in/API/V1/${TWO_FACTOR_API_KEY}/SMS/${formattedPhone}/AUTOGEN3`);
+      const response = await fetch(`https://2factor.in/API/V1/${TWO_FACTOR_API_KEY}/SMS/${formattedPhone}/AUTOGEN`);
       const data = await response.json();
 
       if (data.Status !== "Success") {
@@ -628,7 +633,7 @@ serve(async (req: Request) => {
         // Create basic profile if doesn't exist (Guest/Lead)
         const { data: newUser, error: cErr } = await supabase
           .from("users")
-          .insert([{ mobile: normalizedPhone.replace("+91", ""), first_name: "User" }])
+          .insert([{ mobile: normalizedPhone.replace("+91", ""), fullname: "" }])
           .select()
           .single();
         if (cErr) throw cErr;
