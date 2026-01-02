@@ -3,12 +3,14 @@ import { useParams, Navigate } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import '../styles/DynamicLandingPage.css'; // Renamed from masterclass-akhil.css
 import { supabase } from '../services/supabaseClient'; // Import supabase client
+import RegistrationModal from '../components/RegistrationModal';
 
 const DynamicLandingPage = () => {
     const { id } = useParams();
     const [pageData, setPageData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchPageData = async () => {
@@ -92,7 +94,7 @@ const DynamicLandingPage = () => {
 
                         {/* CTA & Social Proof */}
                         <div className="cta-container">
-                            <a href="#register" className="cta-button">Register Now For Free</a>
+                            <button onClick={() => setIsModalOpen(true)} className="cta-button">Register Now For Free</button>
                             <div className="social-proof">
                                 <div className="user-avatars">
                                     <img src="https://ui-avatars.com/api/?name=User+One&background=random" alt="User" />
@@ -143,7 +145,7 @@ const DynamicLandingPage = () => {
                         ))}
                     </div>
 
-                    <a href="#register" className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Register Now For Free</a>
+                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Register Now For Free</button>
 
                     {/* Part 2: What Will You Learn */}
                     <h2 className="learning-section-title">
@@ -168,7 +170,7 @@ const DynamicLandingPage = () => {
                         </div>
                     )}
 
-                    <a href="#register" className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Register Now For Free</a>
+                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Register Now For Free</button>
 
                     {/* --- Meet Your Mentor Section --- */}
                     <div className="mentor-grid">
@@ -198,7 +200,7 @@ const DynamicLandingPage = () => {
                                     ))}
                                 </ul>
                             </div>
-                            <a href="#register" className="cta-button" style={{ marginTop: '0' }}>Register Now For Free</a>
+                            <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ marginTop: '0' }}>Register Now For Free</button>
                         </div>
                     </div>
                 </div>
@@ -211,7 +213,7 @@ const DynamicLandingPage = () => {
                     <div className="certificate-image-wrapper">
                         <img src={certificate.image} alt="Certificate" className="certificate-image" />
                     </div>
-                    <a href="#register" className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Register Now For Free</a>
+                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Register Now For Free</button>
                 </div>
             </section>
 
@@ -227,7 +229,14 @@ const DynamicLandingPage = () => {
                 </div>
             </section>
 
-            <StickyFooter original={stickyFooter.priceOriginal} current={stickyFooter.priceCurrent} />
+            <StickyFooter original={stickyFooter.priceOriginal} current={stickyFooter.priceCurrent} onRegister={() => setIsModalOpen(true)} />
+
+            <RegistrationModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                programName={middleSection.programName}
+                landingPageId={pageData.id || pageData._id}
+            />
         </div>
     );
 };
@@ -247,7 +256,7 @@ const FAQItem = ({ question, answer }) => {
     );
 };
 
-const StickyFooter = ({ original, current }) => {
+const StickyFooter = ({ original, current, onRegister }) => {
     const [timeLeft, setTimeLeft] = useState(15 * 60);
     useEffect(() => {
         const timer = setInterval(() => setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0)), 1000);
@@ -267,7 +276,7 @@ const StickyFooter = ({ original, current }) => {
                     </div>
                     <div className="footer-timer-row">Offer Expires in <strong>{formatTime(timeLeft)}</strong></div>
                 </div>
-                <a href="#register" className="cta-button" style={{ margin: 0, width: 'auto', padding: '0.8rem 2rem' }}>Register Now For Free</a>
+                <button onClick={onRegister} className="cta-button" style={{ margin: 0, width: 'auto', padding: '0.8rem 2rem' }}>Register Now For Free</button>
             </div>
         </div>
     );

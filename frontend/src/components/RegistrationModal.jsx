@@ -1,0 +1,340 @@
+import React, { useState, useEffect } from "react";
+import apiClient from "../services/apiClient";
+import Select from "react-select";
+import { ToastContainer, toast } from 'react-toastify';
+import { supabase } from "../services/supabaseClient";
+
+const RegistrationModal = ({ isOpen, onClose, programName, landingPageId }) => {
+    if (!isOpen) return null;
+
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        state: null,
+        qualification: null,
+    });
+
+    const [loading, setLoading] = useState(false);
+
+    // Focus trap or simple overlay click to close
+    useEffect(() => {
+        const handleEsc = (e) => {
+            if (e.key === "Escape") onClose();
+        };
+        window.addEventListener("keydown", handleEsc);
+        return () => window.removeEventListener("keydown", handleEsc);
+    }, [onClose]);
+
+    const stateOptions = [
+        { value: "Andhra Pradesh", label: "Andhra Pradesh" },
+        { value: "Arunachal Pradesh", label: "Arunachal Pradesh" },
+        { value: "Assam", label: "Assam" },
+        { value: "Bihar", label: "Bihar" },
+        { value: "Chhattisgarh", label: "Chhattisgarh" },
+        { value: "Goa", label: "Goa" },
+        { value: "Gujarat", label: "Gujarat" },
+        { value: "Haryana", label: "Haryana" },
+        { value: "Himachal Pradesh", label: "Himachal Pradesh" },
+        { value: "Jharkhand", label: "Jharkhand" },
+        { value: "Karnataka", label: "Karnataka" },
+        { value: "Kerala", label: "Kerala" },
+        { value: "Madhya Pradesh", label: "Madhya Pradesh" },
+        { value: "Maharashtra", label: "Maharashtra" },
+        { value: "Manipur", label: "Manipur" },
+        { value: "Meghalaya", label: "Meghalaya" },
+        { value: "Mizoram", label: "Mizoram" },
+        { value: "Nagaland", label: "Nagaland" },
+        { value: "Odisha", label: "Odisha" },
+        { value: "Punjab", label: "Punjab" },
+        { value: "Rajasthan", label: "Rajasthan" },
+        { value: "Sikkim", label: "Sikkim" },
+        { value: "Tamil Nadu", label: "Tamil Nadu" },
+        { value: "Telangana", label: "Telangana" },
+        { value: "Tripura", label: "Tripura" },
+        { value: "Uttar Pradesh", label: "Uttar Pradesh" },
+        { value: "Uttarakhand", label: "Uttarakhand" },
+        { value: "West Bengal", label: "West Bengal" },
+        // Union Territories
+        { value: "Andaman and Nicobar Islands", label: "Andaman and Nicobar Islands" },
+        { value: "Chandigarh", label: "Chandigarh" },
+        { value: "Dadra and Nagar Haveli and Daman and Diu", label: "Dadra and Nagar Haveli and Daman and Diu" },
+        { value: "Delhi", label: "Delhi" },
+        { value: "Jammu and Kashmir", label: "Jammu and Kashmir" },
+        { value: "Ladakh", label: "Ladakh" },
+        { value: "Lakshadweep", label: "Lakshadweep" },
+        { value: "Puducherry", label: "Puducherry" },
+    ];
+
+    const qualificationOptions = [
+        { value: "High School", label: "High School" },
+        { value: "Undergraduate", label: "Undergraduate" },
+        { value: "Graduate", label: "Graduate" },
+        { value: "Post Graduate", label: "Post Graduate" },
+        { value: "PhD", label: "PhD" },
+        { value: "Other", label: "Other" },
+    ];
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSelectChange = (name, selectedOption) => {
+        setFormData({ ...formData, [name]: selectedOption });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!formData.name || !formData.email || !formData.phone) {
+            toast.error("Please fill in all required fields.");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            // Clean phone number (add +91 if missing, though user requested default +91 display, input might vary)
+            let phone = formData.phone.trim();
+            if (!phone.startsWith("+")) {
+                phone = "+91" + phone;
+            }
+
+            const payload = {
+                name: formData.name,
+                email: formData.email,
+                phone: phone,
+                state: formData.state?.value || null,
+                qualification: formData.qualification?.value || null,
+                program_name: programName,
+                landing_page_id: landingPageId
+            };
+
+            // Call endpoint to save registration
+            // Using direct supabase insert or via content-api if endpoint exists.
+            // User said "save data to supabase postgrace table event_registartions"
+            // content-api: POST /event-registrations maps to `event_registrations` insert (checked in index.ts)
+
+            await apiClient.post("/event-registrations", payload);
+
+            toast.success("Registration successful!");
+            setTimeout(() => {
+                onClose();
+                setFormData({
+                    name: "",
+                    email: "",
+                    phone: "",
+                    state: null,
+                    qualification: null
+                })
+            }, 1500);
+
+        } catch (error) {
+            console.error("Registration failed", error);
+            toast.error("Registration failed. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="modal-overlay">
+            <div className="modal-content">
+                <button className="modal-close" onClick={onClose}>
+                    &times;
+                </button>
+                <h2 className="modal-title">Register Now</h2>
+                <form onSubmit={handleSubmit} className="modal-form">
+                    <div className="form-group">
+                        <label>Name *</label>
+                        <input
+                            type="text"
+                            name="name"
+                            placeholder="Enter your full name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Email *</label>
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="you@email.com"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Phone *</label>
+                        <div className="phone-input-wrapper">
+                            <span className="phone-prefix">+91</span>
+                            <input
+                                type="tel"
+                                name="phone"
+                                placeholder="WhatsApp number"
+                                value={formData.phone}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label>State *</label>
+                        <Select
+                            options={stateOptions}
+                            value={formData.state}
+                            onChange={(opt) => handleSelectChange("state", opt)}
+                            placeholder="Select state"
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Qualification *</label>
+                        <Select
+                            options={qualificationOptions}
+                            value={formData.qualification}
+                            onChange={(opt) => handleSelectChange("qualification", opt)}
+                            placeholder="Select qualification"
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group checkbox-group">
+                        <input type="checkbox" id="auth-check" />
+                        <label htmlFor="auth-check" style={{ fontSize: '0.85rem', color: '#666', lineHeight: '1.4' }}>
+                            I authorize Gradus Team to reach out to me with updates and notifications via Email, SMS, WhatsApp and RCS.
+                        </label>
+                    </div>
+
+                    <button type="submit" className="cta-button modal-submit-btn" disabled={loading}>
+                        {loading ? "Registering..." : "Register For Free"}
+                    </button>
+                </form>
+            </div>
+
+            <style>{`
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          backdrop-filter: blur(4px);
+        }
+        .modal-content {
+          background: white;
+          padding: 2rem;
+          border-radius: 16px;
+          width: 90%;
+          max-width: 500px;
+          position: relative;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+          animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-close {
+          position: absolute;
+          top: 1rem;
+          right: 1.5rem;
+          background: none;
+          border: none;
+          font-size: 2rem;
+          cursor: pointer;
+          color: #666;
+        }
+        .modal-title {
+          font-size: 1.5rem;
+          font-weight: 700;
+          margin-bottom: 1.5rem;
+          color: #111;
+          text-align: center;
+        }
+        .form-group {
+          margin-bottom: 1rem;
+        }
+        .form-group label {
+          display: block;
+          font-size: 0.9rem;
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          color: #444;
+        }
+        .form-group input {
+          width: 100%;
+          padding: 0.75rem;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          font-size: 1rem;
+          transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+          border-color: #2168f6;
+          outline: none;
+        }
+        .phone-input-wrapper {
+          display: flex;
+          align-items: center;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          overflow: hidden;
+        }
+        .phone-input-wrapper:focus-within {
+           border-color: #2168f6;
+        }
+        .phone-prefix {
+          background: #f8f9fa;
+          padding: 0.75rem 0.5rem 0.75rem 1rem;
+          color: #555;
+          font-weight: 500;
+          border-right: 1px solid #eee;
+        }
+        .phone-input-wrapper input {
+          border: none;
+          border-radius: 0;
+        }
+        .phone-input-wrapper input:focus {
+          border-color: transparent;
+        }
+        .checkbox-group {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+          margin-top: 1rem;
+        }
+        .checkbox-group input {
+          width: auto;
+          margin-top: 0.2rem;
+        }
+        .modal-submit-btn {
+          width: 100%;
+          margin-top: 1rem;
+          border: none;
+          cursor: pointer;
+        }
+        /* Green Theme Overrides for Modal */
+        .theme-green .modal-content .modal-submit-btn,
+        .theme-green .phone-input-wrapper:focus-within,
+        .theme-green .form-group input:focus {
+             /* Green theme styles are inherited via css class if wrapper has it, 
+                but modal is often portal'd out. If portal'd, we might need specific logic. 
+                However, for simplicity assuming standard render tree or manual class injection. */
+        }
+      `}</style>
+        </div>
+    );
+};
+
+export default RegistrationModal;
