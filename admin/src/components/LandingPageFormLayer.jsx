@@ -3,11 +3,13 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import apiClient from '../services/apiClient';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '../context/AuthContext';
 
 const LandingPageFormLayer = ({ slug }) => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const isEdit = !!slug;
+    const { token } = useAuthContext();
 
     const { register, control, handleSubmit, setValue, reset, formState: { errors } } = useForm({
         defaultValues: {
@@ -54,7 +56,7 @@ const LandingPageFormLayer = ({ slug }) => {
     useEffect(() => {
         if (isEdit && slug) {
             setLoading(true);
-            apiClient(`/admin/landing-pages/${slug}`)
+            apiClient(`/admin/landing-pages/${slug}`, { token })
                 .then(data => {
                     // Transform flat arrays to object arrays for RHF if needed
                     // mentor.points: ["a", "b"] -> [{val: "a"}, {val: "b"}]
@@ -91,10 +93,10 @@ const LandingPageFormLayer = ({ slug }) => {
             if (isEdit) {
                 // We need ID for update, but we fetched by slug.
                 // The data object from reset(res.data) should contain _id.
-                await apiClient(`/admin/landing-pages/${data._id}`, { method: 'PUT', data });
+                await apiClient(`/admin/landing-pages/${data._id}`, { method: 'PUT', data, token });
                 toast.success('Landing Page updated successfully');
             } else {
-                await apiClient('/admin/landing-pages', { method: 'POST', data });
+                await apiClient('/admin/landing-pages', { method: 'POST', data, token });
                 toast.success('Landing Page created successfully');
             }
             navigate('/landing-pages');
