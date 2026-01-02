@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import '../styles/masterclass-akhil.css';
+import '../styles/DynamicLandingPage.css';
 
 // Ideally these icons would come from a library like react-icons or lucide-react
 // Using simple SVG placeholders or emoji if icons aren't available to keep it self-contained for now without deps

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import apiClient from '../services/apiClient';
-import '../styles/masterclass-akhil.css'; // Reusing existing styles
+import '../styles/DynamicLandingPage.css'; // Renamed from masterclass-akhil.css
 import { supabase } from '../services/supabaseClient'; // Import supabase client
 
 const DynamicLandingPage = () => {
