@@ -70,15 +70,24 @@ serve(async (req: Request) => {
     );
 
     // Helper to map DB user to Frontend expected format
-    const mapUserToFrontend = (user: any) => ({
-      ...user,
-      fullname: user.fullname || '',
-      firstName: user.fullname ? user.fullname.split(' ')[0] : '',
-      lastName: user.fullname ? user.fullname.split(' ').slice(1).join(' ') : '',
-      personalDetails: user.personal_details,
-      emailVerified: user.email_verified,
-      authProvider: user.auth_provider
-    });
+    // Helper to map DB user to Frontend expected format
+    const mapUserToFrontend = (user: any) => {
+      let finalName = user.fullname || "";
+      // Legacy fallback: if fullname is missing but we have first/last name
+      if (!finalName && (user.first_name || user.last_name)) {
+        finalName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
+      }
+
+      return {
+        ...user,
+        fullname: finalName,
+        firstName: finalName ? finalName.split(' ')[0] : (user.first_name || ''),
+        lastName: finalName ? finalName.split(' ').slice(1).join(' ') : (user.last_name || ''),
+        personalDetails: user.personal_details,
+        emailVerified: user.email_verified,
+        authProvider: user.auth_provider
+      };
+    };
 
     const body = await req.json().catch(() => ({}));
 
