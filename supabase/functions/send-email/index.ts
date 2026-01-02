@@ -134,7 +134,7 @@ serve(async (req: Request) => {
     
     const displayFrom = from || SMTP_USER;
     
-    await sendSmtp("smtp.gmail.com", 465, SMTP_USER, SMTP_PASS, SMTP_USER, to, subject, html || text);
+    await sendSmtp("smtp.gmail.com", 465, SMTP_USER, SMTP_PASS, displayFrom, to, subject, html || text);
 
     return new Response(JSON.stringify({ success: true, message: "Sent via Raw SMTP" }), {
       headers: { ...cors as any, "Content-Type": "application/json" },
