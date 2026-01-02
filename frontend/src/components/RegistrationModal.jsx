@@ -109,11 +109,8 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId }) => {
             };
 
             // Call endpoint to save registration
-            // Using direct supabase insert or via content-api if endpoint exists.
-            // User said "save data to supabase postgrace table event_registartions"
-            // content-api: POST /event-registrations maps to `event_registrations` insert (checked in index.ts)
-
-            await apiClient.post("/event-registrations", payload);
+            // Updated to use landing-page-registrations per user request
+            await apiClient.post("/landing-page-registrations", payload);
 
             toast.success("Registration successful!");
             setTimeout(() => {

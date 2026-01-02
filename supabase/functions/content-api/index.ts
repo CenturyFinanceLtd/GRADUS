@@ -121,11 +121,26 @@ serve(async (req: Request) => {
       });
     }
 
-    // 7. Event Registrations: POST /event-registrations
+    // 7. Event Registrations: POST /event-registrations (Legacy/Backup)
     if (req.method === "POST" && resource === "event-registrations") {
       const body = await req.json();
       const { data, error } = await supabase
         .from("event_registrations")
+        .insert([body])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return new Response(JSON.stringify(data), {
+        headers: { ...cors, "Content-Type": "application/json" },
+      });
+    }
+
+    // 7.1 Landing Page Registrations: POST /landing-page-registrations (New)
+    if (req.method === "POST" && resource === "landing-page-registrations") {
+      const body = await req.json();
+      const { data, error } = await supabase
+        .from("landing_page_registrations")
         .insert([body])
         .select()
         .single();
