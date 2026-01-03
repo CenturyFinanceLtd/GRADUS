@@ -84,6 +84,9 @@ serve(async (req) => {
            </div>`
         : "";
 
+      // Use dynamic Supabase URL for internal calls
+      const functionsUrl = `${supabaseUrl}/functions/v1/send-email`;
+
       // Send Confirmation Email
       try {
         const emailBody = `
@@ -105,7 +108,7 @@ serve(async (req) => {
           </div>
         `;
 
-        const emailResponse = await fetch("https://utxxhgoxsywhrdblwhbx.supabase.co/functions/v1/send-email", {
+        const emailResponse = await fetch(functionsUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -122,12 +125,21 @@ serve(async (req) => {
         if (!emailResponse.ok) {
            const errText = await emailResponse.text();
            console.error("Failed to send email:", errText);
+           // Return partial success or error? User likely wants to know if email failed.
+           // However, registration IS successful. 
+           // Let's include a warning in the response.
+           return new Response(JSON.stringify({ ...data, emailStatus: 'failed', emailError: errText }), {
+            headers: { ...cors, "Content-Type": "application/json" },
+          });
         }
-      } catch (emailErr) {
+      } catch (emailErr: any) {
         console.error("Email dispatch error:", emailErr);
+        return new Response(JSON.stringify({ ...data, emailStatus: 'failed', emailError: emailErr.message }), {
+            headers: { ...cors, "Content-Type": "application/json" },
+          });
       }
 
-      return new Response(JSON.stringify(data), {
+      return new Response(JSON.stringify({ ...data, emailStatus: 'sent' }), {
         headers: { ...cors, "Content-Type": "application/json" },
       });
     }
