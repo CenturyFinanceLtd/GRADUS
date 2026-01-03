@@ -4,7 +4,7 @@ import Select from "react-select";
 import { ToastContainer, toast } from 'react-toastify';
 import { supabase } from "../services/supabaseClient";
 
-const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentorName, date, time, keyBenefit }) => {
+const RegistrationModal = ({ isOpen, onClose, programName, programType, slug, landingPageId, mentorName, date, time, keyBenefit }) => {
     if (!isOpen) return null;
 
     const [formData, setFormData] = useState({
@@ -87,6 +87,56 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentor
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [successEmail, setSuccessEmail] = useState(""); // Track email for success display
+
+    // Track Facebook Pixel Lead event on successful registration
+    useEffect(() => {
+        if (isSuccess && window.fbq) {
+            // Determine which pixel to use based on slug or program type
+            const isAkhil = slug === 'akhil' || (programType && programType.toLowerCase().includes('gradus x'));
+            const isVaibhav = slug === 'vaibhav' || (programType && programType.toLowerCase().includes('gradus finlit'));
+            
+            // Pixel ID for akhil (Gradus X)
+            const akhilPixelId = '841851888624467';
+            // Pixel ID for vaibhav (will be set later)
+            const vaibhavPixelId = ''; // To be provided later
+            
+            if (isAkhil) {
+                // Track Lead event for akhil (Gradus X) successful registration
+                // Pixel is already initialized on page load for akhil slug
+                window.fbq('track', 'Lead', {
+                    content_name: programName,
+                    content_category: 'Gradus X Registration',
+                    value: 0.00,
+                    currency: 'INR'
+                });
+                
+                // Also track CompleteRegistration event
+                window.fbq('track', 'CompleteRegistration', {
+                    content_name: programName,
+                    status: true
+                });
+                
+                console.log('Facebook Pixel: Lead event tracked for akhil (Gradus X) registration');
+            } else if (isVaibhav && vaibhavPixelId) {
+                // Track Lead event for vaibhav (Gradus FINLIT) successful registration
+                // Pixel will be initialized on page load when vaibhav pixel ID is provided
+                window.fbq('track', 'Lead', {
+                    content_name: programName,
+                    content_category: 'Gradus FINLIT Registration',
+                    value: 0.00,
+                    currency: 'INR'
+                });
+                
+                // Also track CompleteRegistration event
+                window.fbq('track', 'CompleteRegistration', {
+                    content_name: programName,
+                    status: true
+                });
+                
+                console.log('Facebook Pixel: Lead event tracked for vaibhav (Gradus FINLIT) registration');
+            }
+        }
+    }, [isSuccess, programName, programType, slug]);
 
     const handleClose = () => {
         setIsSuccess(false);
