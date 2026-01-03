@@ -84,7 +84,7 @@ const RegistrationModal = ({ isOpen, onClose, programName, programType, slug, la
     };
 
 
-    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [isAuthorized, setIsAuthorized] = useState(true);
     const [isSuccess, setIsSuccess] = useState(false);
     const [successEmail, setSuccessEmail] = useState(""); // Track email for success display
 
@@ -94,12 +94,12 @@ const RegistrationModal = ({ isOpen, onClose, programName, programType, slug, la
             // Determine which pixel to use based on slug or program type
             const isAkhil = slug === 'akhil' || (programType && programType.toLowerCase().includes('gradus x'));
             const isVaibhav = slug === 'vaibhav' || (programType && programType.toLowerCase().includes('gradus finlit'));
-            
+
             // Pixel ID for akhil (Gradus X)
             const akhilPixelId = '841851888624467';
             // Pixel ID for vaibhav (will be set later)
             const vaibhavPixelId = ''; // To be provided later
-            
+
             if (isAkhil) {
                 // Track Lead event for akhil (Gradus X) successful registration
                 // Pixel is already initialized on page load for akhil slug
@@ -109,13 +109,13 @@ const RegistrationModal = ({ isOpen, onClose, programName, programType, slug, la
                     value: 0.00,
                     currency: 'INR'
                 });
-                
+
                 // Also track CompleteRegistration event
                 window.fbq('track', 'CompleteRegistration', {
                     content_name: programName,
                     status: true
                 });
-                
+
                 console.log('Facebook Pixel: Lead event tracked for akhil (Gradus X) registration');
             } else if (isVaibhav && vaibhavPixelId) {
                 // Track Lead event for vaibhav (Gradus FINLIT) successful registration
@@ -126,13 +126,13 @@ const RegistrationModal = ({ isOpen, onClose, programName, programType, slug, la
                     value: 0.00,
                     currency: 'INR'
                 });
-                
+
                 // Also track CompleteRegistration event
                 window.fbq('track', 'CompleteRegistration', {
                     content_name: programName,
                     status: true
                 });
-                
+
                 console.log('Facebook Pixel: Lead event tracked for vaibhav (Gradus FINLIT) registration');
             }
         }
@@ -140,6 +140,10 @@ const RegistrationModal = ({ isOpen, onClose, programName, programType, slug, la
 
     const handleClose = () => {
         setIsSuccess(false);
+        // Remove the registration query param on close, allow others to remain
+        const url = new URL(window.location.href);
+        url.searchParams.delete("registration");
+        window.history.pushState({ path: url.href }, '', url.href);
         onClose();
     };
 
@@ -191,7 +195,13 @@ const RegistrationModal = ({ isOpen, onClose, programName, programType, slug, la
                 state: null,
                 qualification: null
             });
-            setIsAuthorized(false);
+            // Keep authorized true for next time or reset? User said default check, so keeping it true or resetting to true is fine.
+            setIsAuthorized(true);
+
+            // Update URL for ad tracking, preserving existing params
+            const url = new URL(window.location.href);
+            url.searchParams.set("registration", "success");
+            window.history.pushState({ path: url.href }, '', url.href);
 
         } catch (error) {
             console.error("Registration failed", error);
@@ -267,7 +277,7 @@ const RegistrationModal = ({ isOpen, onClose, programName, programType, slug, la
                                 </div>
                             </div>
 
-                            <div className="form-group">
+                            <div className="form-group" style={{ display: 'none' }}>
                                 <label>State</label>
                                 <Select
                                     options={stateOptions}
@@ -277,7 +287,7 @@ const RegistrationModal = ({ isOpen, onClose, programName, programType, slug, la
                                 />
                             </div>
 
-                            <div className="form-group">
+                            <div className="form-group" style={{ display: 'none' }}>
                                 <label>Qualification</label>
                                 <Select
                                     options={qualificationOptions}
