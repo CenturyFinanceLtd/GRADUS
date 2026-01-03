@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import "../assets/DatePickerOverrides.css"; // Theme overrides
 import apiClient from '../services/apiClient';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
@@ -121,6 +124,10 @@ const LandingPageFormLayer = ({ slug }) => {
                         <div className="row">
                             <h5 className="mb-3">General</h5>
                             <div className="col-md-6 mb-3">
+                                <label className="form-label">Page Title</label>
+                                <input {...register('title')} className="form-control" placeholder="Internal or Page Title" />
+                            </div>
+                            <div className="col-md-6 mb-3">
                                 <label className="form-label">URL Slug (e.g., 'akhil')</label>
                                 <input {...register('slug', { required: true })} className="form-control" readOnly={isEdit} />
                                 {errors.slug && <span className="text-danger">Slug is required</span>}
@@ -148,7 +155,23 @@ const LandingPageFormLayer = ({ slug }) => {
                             </div>
                             <div className="col-md-3 mb-3">
                                 <label className="form-label">Date</label>
-                                <input {...register('hero.date')} className="form-control" />
+                                <Controller
+                                    control={control}
+                                    name="hero.date"
+                                    render={({ field }) => (
+                                        <DatePicker
+                                            className="form-control"
+                                            placeholderText="e.g. 18 December 2025"
+                                            selected={field.value ? new Date(field.value) : null}
+                                            onChange={(date) => {
+                                                // Format: 18 December 2025
+                                                const formatted = date ? new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(date) : '';
+                                                field.onChange(formatted);
+                                            }}
+                                            dateFormat="d MMMM yyyy"
+                                        />
+                                    )}
+                                />
                             </div>
                             <div className="col-md-3 mb-3">
                                 <label className="form-label">Time</label>

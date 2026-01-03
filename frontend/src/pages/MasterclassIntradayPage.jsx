@@ -280,7 +280,7 @@ const MasterclassIntradayPage = () => {
                            but for now, displaying the provided asset as the 'preview'.
                         */}
                         <img
-                            src="/assets/certificate-preview.png"
+                            src="/assets/certification.jpeg"
                             alt="Certificate of Participation"
                             className="certificate-image"
                         />

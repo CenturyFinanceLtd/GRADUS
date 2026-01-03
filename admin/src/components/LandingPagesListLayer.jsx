@@ -64,8 +64,8 @@ const LandingPagesListLayer = () => {
                         <table className="table table-borderless">
                             <thead>
                                 <tr>
-                                    <th>Working URL</th>
-                                    <th>Created At</th>
+                                    <th>Masterclass Details</th>
+                                    <th>Class Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -76,16 +76,28 @@ const LandingPagesListLayer = () => {
                                     </tr>
                                 ) : (
                                     pages.map(page => {
+                                        // Title Fallback: title -> hero.highlight -> slug
+                                        const displayTitle = page.title || page.hero?.highlight || page.slug;
+                                        // Host Fallback: mentor.name -> hero.mentorName -> "Unknown"
+                                        const displayHost = page.mentor?.name || page.hero?.mentorName || "Unknown Host";
+                                        // Date Fallback: hero.date + time -> createdAt
+                                        const displayDate = page.hero?.date ? `${page.hero.date} ${page.hero?.time || ''}` : new Date(page.createdAt).toLocaleDateString();
+
                                         const publicUrl = `https://gradusindia.in/events/masterclass/${page._id}`;
+
                                         return (
                                             <tr key={page._id}>
                                                 <td>
-                                                    <a href={publicUrl} target="_blank" rel="noreferrer" className="h6 mb-0 fw-medium text-info-600">
-                                                        {publicUrl}
-                                                    </a>
+                                                    <div className="d-flex flex-column">
+                                                        <h6 className="text-md fw-semibold mb-1">{displayTitle}</h6>
+                                                        <span className="text-sm text-gray-500">Host: {displayHost}</span>
+                                                        <a href={publicUrl} target="_blank" rel="noreferrer" className="text-xs text-info-600 mt-1">
+                                                            Visit Page <Icon icon="ph:arrow-square-out" className="ms-1" />
+                                                        </a>
+                                                    </div>
                                                 </td>
                                                 <td>
-                                                    <span className="h6 mb-0 fw-medium text-gray-300">{new Date(page.createdAt).toLocaleDateString()}</span>
+                                                    <span className="h6 mb-0 fw-medium text-gray-300">{displayDate}</span>
                                                 </td>
                                                 <td>
                                                     <div className="d-flex align-items-center gap-10">
