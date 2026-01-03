@@ -86,6 +86,7 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentor
 
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [successEmail, setSuccessEmail] = useState(""); // Track email for success display
 
     const handleClose = () => {
         setIsSuccess(false);
@@ -127,10 +128,12 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentor
                 key_benefit: keyBenefit
             };
 
-            // Call endpoint to save registration
-            await apiClient.post("/landing-page-registrations", payload, { credentials: "omit" });
+            // Store email for success message before clearing form
+            const registeredEmail = formData.email;
 
             setIsSuccess(true);
+            setSuccessEmail(registeredEmail); // New state for success message
+
             setFormData({
                 name: "",
                 email: "",
@@ -157,13 +160,15 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentor
 
                 {isSuccess ? (
                     <div className="success-view">
-                        <div className="success-icon">✅</div>
+                        <div className="success-icon-wrapper">
+                            <div className="success-icon">✓</div>
+                        </div>
                         <h2 className="modal-title">Registration Successful!</h2>
                         <p className="success-message">
                             Thank you for registering for <strong>{programName}</strong>.
                         </p>
                         <p className="success-subtext">
-                            We have sent a confirmation email to <strong>{formData.email}</strong>.
+                            We have sent a confirmation email to <strong>{successEmail}</strong>.
                         </p>
                         <button onClick={handleClose} className="cta-button modal-submit-btn">
                             Close
@@ -294,6 +299,7 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentor
           font-size: 2rem;
           cursor: pointer;
           color: #666;
+          z-index: 10;
         }
         .modal-title {
           font-size: 1.5rem;
@@ -302,6 +308,37 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentor
           color: #111;
           text-align: center;
         }
+        
+        /* Success View Styles */
+        .success-view {
+            text-align: center;
+            padding: 1rem 0;
+        }
+        .success-icon-wrapper {
+            width: 80px;
+            height: 80px;
+            background: #e6f4ea; /* Light Green BG */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem auto;
+        }
+        .success-icon {
+            font-size: 3rem;
+            color: #28a745; /* Success Green */
+            line-height: 1;
+        }
+        .success-message {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .success-subtext {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
         .form-group {
           margin-bottom: 1rem;
         }
@@ -372,9 +409,7 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentor
         .theme-green .modal-content .modal-submit-btn,
         .theme-green .phone-input-wrapper:focus-within,
         .theme-green .form-group input:focus {
-             /* Green theme styles are inherited via css class if wrapper has it, 
-                but modal is often portal'd out. If portal'd, we might need specific logic. 
-                However, for simplicity assuming standard render tree or manual class injection. */
+             /* Green theme styles are inherited via css class if wrapper has it */
         }
       `}</style>
         </div>
