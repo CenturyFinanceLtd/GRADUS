@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../services/apiClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { loginWithGoogle } from "../services/authService.js";
 
 const safeString = (value) => (typeof value === "string" ? value : "");
 
@@ -144,6 +145,15 @@ const ProfileInner = () => {
       setProfileStatus({ type: "success", message: "Profile updated successfully." });
     } catch (error) {
       setProfileStatus({ type: "error", message: error.message || "Profile update failed." });
+    }
+  };
+
+  const handleConnectGoogle = async () => {
+    try {
+      await loginWithGoogle();
+      // Redirect happens automatically
+    } catch (error) {
+      setProfileStatus({ type: "error", message: error.message || "Failed to connect Google account." });
     }
   };
 
@@ -380,13 +390,24 @@ const ProfileInner = () => {
                       <label className='fw-semibold text-neutral-700 mb-8' htmlFor='email'>
                         Email Id*
                       </label>
-                      <input
-                        type='email'
-                        className='common-input rounded-12 h-56 bg-neutral-10'
-                        id='email'
-                        value={profileData.email}
-                        disabled
-                      />
+                      {profileData.email ? (
+                        <input
+                          type='email'
+                          className='common-input rounded-12 h-56 bg-neutral-10'
+                          id='email'
+                          value={profileData.email}
+                          disabled
+                        />
+                      ) : (
+                        <button
+                          type='button'
+                          onClick={handleConnectGoogle}
+                          className='d-flex align-items-center justify-content-center gap-12 w-100 rounded-12 h-56 border border-neutral-300 bg-white text-neutral-700 fw-semibold transition-all hover-bg-neutral-50'
+                        >
+                          <img src='/assets/images/google-icon.svg' alt='Google' width='20' height='20' onError={(e) => e.target.style.display = 'none'} />
+                          <span>Connect with Google</span>
+                        </button>
+                      )}
                     </div>
                     <div className='col-sm-6'>
                       <label className='fw-semibold text-neutral-700 mb-8' htmlFor='mobile'>
