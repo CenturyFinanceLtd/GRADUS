@@ -517,39 +517,21 @@ serve(async (req: Request) => {
                     return jsonResponse({ error: "Unauthorized", success: false }, 401, cors);
                 }
 
-                // Get user's enrollments (use service role for query)
+                // Get user's enrollments - SIMPLIFIED: Direct query from public schema
                 const supabaseService = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || supabaseAnonKey);
                 console.log(`[live-class-api] Fetching enrollments for user ${userId}`);
                 
-                // Try "course" table first
-                let enrollments: any[] | null = null;
-                let enrollError: any = null;
-                
-                const { data: enrollData, error: enrollErr } = await supabaseService
+                // Simple query: enrollments -> course (public schema)
+                const { data: enrollments, error: enrollError } = await supabaseService
                     .from("enrollments")
-                    .select("course_id, course:course!inner(id, slug, name, image)")
+                    .select(`
+                        course_id,
+                        course:course!inner(id, slug, name, image),
+                        users!inner(id)
+                    `)
                     .eq("user_id", userId)
                     .eq("status", "ACTIVE")
                     .eq("payment_status", "PAID");
-                
-                if (enrollErr) {
-                    console.error(`[live-class-api] Error with "course" table, trying "courses":`, enrollErr);
-                    // Try "courses" table as fallback
-                    const { data: enrollData2, error: enrollErr2 } = await supabaseService
-                        .from("enrollments")
-                        .select("course_id, course:courses!inner(id, slug, name, image)")
-                        .eq("user_id", userId)
-                        .eq("status", "ACTIVE")
-                        .eq("payment_status", "PAID");
-                    
-                    if (!enrollErr2) {
-                        enrollments = enrollData2;
-                    } else {
-                        enrollError = enrollErr2;
-                    }
-                } else {
-                    enrollments = enrollData;
-                }
 
                 if (enrollError) {
                     console.error(`[live-class-api] Enrollment query error:`, enrollError);
@@ -561,8 +543,9 @@ serve(async (req: Request) => {
                     return jsonResponse({ success: true, classes: [] }, 200, cors);
                 }
 
+                console.log(`[live-class-api] Found ${enrollments.length} enrollments for user ${userId}`);
                 const courseIds = enrollments.map((e: any) => e.course_id).filter(Boolean);
-                console.log(`[live-class-api] User ${userId} enrolled in ${courseIds.length} courses`);
+                console.log(`[live-class-api] User enrolled in courses:`, courseIds);
                 
                 // Method 1: Query live_sessions table (most reliable)
                 console.log(`[live-class-api] Querying live_sessions for courseIds:`, courseIds);
