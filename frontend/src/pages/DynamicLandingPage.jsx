@@ -94,7 +94,7 @@ const DynamicLandingPage = () => {
 
                         {/* CTA & Social Proof */}
                         <div className="cta-container">
-                            <button onClick={() => setIsModalOpen(true)} className="cta-button">Register Now For Free</button>
+                            <button onClick={() => setIsModalOpen(true)} className="cta-button">Click to Register</button>
                             <div className="social-proof">
                                 <div className="user-avatars">
                                     <img src="https://ui-avatars.com/api/?name=User+One&background=random" alt="User" />
@@ -145,7 +145,7 @@ const DynamicLandingPage = () => {
                         ))}
                     </div>
 
-                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Register Now For Free</button>
+                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Click to Register</button>
 
                     {/* Part 2: What Will You Learn */}
                     <h2 className="learning-section-title">
@@ -170,7 +170,7 @@ const DynamicLandingPage = () => {
                         </div>
                     )}
 
-                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Register Now For Free</button>
+                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Click to Register</button>
 
                     {/* --- Meet Your Mentor Section --- */}
                     <div className="mentor-grid">
@@ -200,7 +200,7 @@ const DynamicLandingPage = () => {
                                     ))}
                                 </ul>
                             </div>
-                            <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ marginTop: '0' }}>Register Now For Free</button>
+                            <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ marginTop: '0' }}>Click to Register</button>
                         </div>
                     </div>
                 </div>
@@ -213,7 +213,7 @@ const DynamicLandingPage = () => {
                     <div className="certificate-image-wrapper">
                         <img src={certificate.image} alt="Certificate" className="certificate-image" />
                     </div>
-                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Register Now For Free</button>
+                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Click to Register</button>
                 </div>
             </section>
 
@@ -316,7 +316,7 @@ const StickyFooter = ({ original, current, onRegister, date, time }) => {
                     </div>
                     <div className="footer-timer-row">Offer Expires in <strong>{formatTime(timeLeft)}</strong></div>
                 </div>
-                <button onClick={onRegister} className="cta-button" style={{ margin: 0, width: 'auto', padding: '0.8rem 2rem' }}>Register Now For Free</button>
+                <button onClick={onRegister} className="cta-button" style={{ margin: 0, width: 'auto', padding: '0.8rem 2rem' }}>Click to Register</button>
             </div>
         </div>
     );

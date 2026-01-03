@@ -80,7 +80,7 @@ const MasterclassIntradayPage = () => {
                         {/* CTA & Social Proof */}
                         <div className="cta-container">
                             <a href="#register" className="cta-button">
-                                Register Now For Free
+                                Click to Register
                             </a>
 
                             <div className="social-proof">
@@ -159,7 +159,7 @@ const MasterclassIntradayPage = () => {
                     </div>
 
                     <a href="#register" className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>
-                        Register Now For Free
+                        Click to Register
                     </a>
 
 
@@ -197,7 +197,7 @@ const MasterclassIntradayPage = () => {
 
 
                     <a href="#register" className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>
-                        Register Now For Free
+                        Click to Register
                     </a>
 
 
@@ -257,7 +257,7 @@ const MasterclassIntradayPage = () => {
                             </div>
 
                             <a href="#register" className="cta-button" style={{ marginTop: '0' }}>
-                                Register Now For Free
+                                Click to Register
                             </a>
                         </div>
 
@@ -287,7 +287,7 @@ const MasterclassIntradayPage = () => {
                     </div>
 
                     <a href="#register" className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>
-                        Register Now For Free
+                        Click to Register
                     </a>
                 </div>
             </section>
@@ -399,7 +399,7 @@ const StickyFooter = () => {
                 </div>
 
                 <a href="#register" className="cta-button" style={{ margin: 0, width: 'auto', padding: '0.8rem 2rem' }}>
-                    Register Now For Free
+                    Click to Register
                 </a>
             </div>
         </div>
