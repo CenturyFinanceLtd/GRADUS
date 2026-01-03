@@ -217,7 +217,7 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentor
                                 </div>
                             </div>
 
-                            <div className="form-group">
+                            <div className="form-group" style={{ display: 'none' }}>
                                 <label>State</label>
                                 <Select
                                     options={stateOptions}
@@ -255,7 +255,7 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentor
                                 disabled={loading || !isAuthorized}
                                 style={{ opacity: isAuthorized ? 1 : 0.6, cursor: isAuthorized ? 'pointer' : 'not-allowed' }}
                             >
-                                {loading ? "Registering..." : "Register For Free"}
+                                {loading ? "Registering..." : "Click to Register"}
                             </button>
                         </form>
                     </>
