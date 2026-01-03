@@ -111,51 +111,51 @@ export const loginWithGoogle = async () => {
   return data;
 };
 
-// Store 2Factor sessionId for verification
-let lastOtpSessionId = null;
+// Store 2Factor sessionId is NO LONGER NEEDED for Supabase Native Auth
+// const lastOtpSessionId = null;
 
 /**
- * Trigger OTP SMS for phone login using 2Factor.in
+ * Trigger OTP SMS for phone login using Supabase Native Auth (Twilio)
  */
 export const signInWithPhone = async (phone) => {
   // Ensure phone starts with +
   const formattedPhone = phone.startsWith("+") ? phone : `+${phone}`;
 
-  const response = await apiClient("/auth/phone/otp/send", {
-    method: "POST",
-    data: { phone: formattedPhone },
+  const { data, error } = await supabase.auth.signInWithOtp({
+    phone: formattedPhone,
   });
 
-  // Store the 2Factor SessionId for verification
-  lastOtpSessionId = response.sessionId;
+  if (error) {
+    throw new Error(error.message);
+  }
 
-  return response;
+  return { sessionId: "SUPABASE_OTP" }; // Return dummy or data if needed
 };
 
 /**
- * Verify OTP and establish session using 2Factor.in
+ * Verify OTP and establish session using Supabase Native Auth
  */
 export const verifyPhoneOtp = async (phone, token) => {
   const formattedPhone = phone.startsWith("+") ? phone : `+${phone}`;
 
-  if (!lastOtpSessionId) {
-    throw new Error("No active OTP session found. Please resend OTP.");
-  }
-
-  const response = await apiClient("/auth/phone/otp/verify", {
-    method: "POST",
-    data: {
-      phone: formattedPhone,
-      otp: token,
-      sessionId: lastOtpSessionId,
-    },
+  const { data, error } = await supabase.auth.verifyOtp({
+    phone: formattedPhone,
+    token: token,
+    type: "sms",
   });
 
-  // response contains { token, user }
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data.user || !data.session) {
+    throw new Error("Verification successful but no session created.");
+  }
+
   return {
-    user: response.user,
-    token: response.token,
-    type: "jwt", // Now using custom JWT from Edge Function
+    user: data.user,
+    token: data.session.access_token,
+    type: "supabase",
   };
 };
 

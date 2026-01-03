@@ -592,123 +592,14 @@ serve(async (req: Request) => {
         // ... existing forgot password logic ...
     }
 
-    // 13. 2FACTOR.IN OTP SEND: POST /phone/otp/send
-    if (action === "phone-otp-send" && req.method === "POST") {
-      const { phone } = body; // Already using phone in body here
-      if (!phone) throw new Error("Phone number required");
-
-      const TWO_FACTOR_API_KEY = Deno.env.get("TWO_FACTOR_API_KEY") || "";
-      
-      // Robust cleaning: remove all non-digits (including + signs)
-      let cleanPhone = phone.replace(/\D/g, "");
-      
-      // If it starts with 91 and is 12 digits, strip the 91
-      if (cleanPhone.length === 12 && cleanPhone.startsWith("91")) {
-        cleanPhone = cleanPhone.slice(2);
-      }
-
-      // BYPASS FOR TEST NUMBER (due to low credits)
-      // match 9454971531 or 919454971531 or +919454971531
-      if (cleanPhone.endsWith("9454971531")) {
-        return new Response(JSON.stringify({ sessionId: "TEST_SESSION_ID", Status: "Success" }), {
-          headers: { ...cors, "Content-Type": "application/json" },
-        });
-      }
-      
-      const response = await fetch(`https://2factor.in/API/V1/${TWO_FACTOR_API_KEY}/SMS/${cleanPhone}/AUTOGEN`);
-      const data = await response.json();
-
-      if (data.Status !== "Success") {
-        throw new Error(data.Details || "Failed to send OTP via 2Factor");
-      }
-
-      return new Response(JSON.stringify({ sessionId: data.Details }), {
-        headers: { ...cors, "Content-Type": "application/json" },
-      });
+    // 13. 2FACTOR.IN OTP SEND: DEPRECATED/REMOVED
+    if (action === "phone-otp-send") {
+      return new Response(JSON.stringify({ error: "Endpoint removed. Use Supabase Auth." }), { status: 410, headers: cors });
     }
 
-    // 14. 2FACTOR.IN OTP VERIFY: POST /phone/otp/verify
-    if (action === "phone-otp-verify" && req.method === "POST") {
-      const { phone, otp, sessionId } = body;
-      if (!phone || !otp || !sessionId) throw new Error("Phone, OTP, and SessionId required");
-      
-      let cleanPhone = phone.replace(/\D/g, "");
-      if (cleanPhone.length === 12 && cleanPhone.startsWith("91")) {
-        cleanPhone = cleanPhone.slice(2);
-      }
-
-      // BYPASS VERIFICATION FOR TEST NUMBER
-      if (cleanPhone.endsWith("9454971531") && otp === "123456") {
-         // Allow proceed
-      } else {
-          const TWO_FACTOR_API_KEY = Deno.env.get("TWO_FACTOR_API_KEY") || "";
-          
-          const response = await fetch(`https://2factor.in/API/V1/${TWO_FACTOR_API_KEY}/SMS/VERIFY/${sessionId}/${otp}`);
-          const data = await response.json();
-
-          if (data.Status !== "Success" || data.Details !== "OTP Matched") {
-            throw new Error(data.Details || "Invalid OTP");
-          }
-      }
-
-      // 1. Find or Create User by phone
-      const normalizedPhone = phone.startsWith("+91") ? phone : `+91${phone}`;
-      
-      // Try to find by phone (new column) or mobile (old column fallback check? User said remove mobile. I will check 'phone')
-      let { data: user, error: uErr } = await supabase
-        .from("users")
-        .select("*")
-        .eq("phone", normalizedPhone.replace("+91", "")) // Database seems to store 10 digits
-        .maybeSingle();
-
-      if (!user) {
-        // Fallback check with full string if needed or handle as new user
-        const { data: userByFullMobile } = await supabase
-          .from("users")
-          .select("*")
-          .eq("phone", normalizedPhone) // use phone
-          .maybeSingle();
-        user = userByFullMobile;
-      }
-
-      // Special handling for Test User to skip profile completion
-      const isTestUser = cleanPhone.endsWith("9454971531");
-      const defaultName = isTestUser ? "Test User" : "";
-
-      if (!user) {
-        // Create basic profile if doesn't exist (Guest/Lead)
-        // FORCE default Name for test user
-        const { data: newUser, error: cErr } = await supabase
-          .from("users")
-          .insert([{ phone: normalizedPhone.replace("+91", ""), fullname: defaultName }]) // use phone
-          .select()
-          .single();
-        if (cErr) throw cErr;
-        user = newUser;
-      } else if (isTestUser && !user.fullname) {
-         // If test user exists but has no name, update it
-         const { data: updatedUser } = await supabase.from("users").update({ fullname: defaultName }).eq("id", user.id).select().single();
-         if (updatedUser) user = updatedUser;
-      }
-
-      // 2. Generate JWT
-      const key = await crypto.subtle.importKey(
-        "raw",
-        new TextEncoder().encode(JWT_SECRET),
-        { name: "HMAC", hash: "SHA-256" },
-        false,
-        ["sign", "verify"]
-      );
-
-      const token = await create(
-        { alg: "HS256", typ: "JWT" },
-        { id: user.id, exp: getNumericDate(60 * 60 * 24 * 30) },
-        key
-      );
-
-      return new Response(JSON.stringify({ token, user: mapUserToFrontend(user) }), {
-        headers: { ...cors, "Content-Type": "application/json" },
-      });
+    // 14. 2FACTOR.IN OTP VERIFY: DEPRECATED/REMOVED
+    if (action === "phone-otp-verify") {
+       return new Response(JSON.stringify({ error: "Endpoint removed. Use Supabase Auth." }), { status: 410, headers: cors });
     }
 
     return new Response(JSON.stringify({ 
