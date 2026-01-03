@@ -36,6 +36,35 @@
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/extra.css">
     <title>Gradus | Admin</title>
+    <script>
+        // Suppress known third-party library warnings (must run before any other scripts)
+        (function() {
+            if (typeof window === 'undefined') return;
+            const originalWarn = console.warn;
+            const originalError = console.error;
+            const patterns = [
+                /Form submission canceled because the form is not connected/,
+                /Multiple versions of @tldraw\/state detected/,
+                /\[DEPRECATED\] Default export is.*deprecated/,
+                /Default export is deprecated/,
+                /Instead use import \{ create \} from 'zustand'/,
+                /zustand.*deprecated/i,
+                /CPUPressureMonitor.*Failed to initialize/,
+                /Permissions policy violation: compute-pressure/,
+                /prod-in2\.100ms\.live/,
+                /hmsapi\/apps\/get-details/,
+                /404.*Not Found/,
+            ];
+            console.warn = function(...args) {
+                const msg = args.join(' ');
+                if (!patterns.some(p => p.test(msg))) originalWarn.apply(console, args);
+            };
+            console.error = function(...args) {
+                const msg = args.join(' ');
+                if (!patterns.some(p => p.test(msg))) originalError.apply(console, args);
+            };
+        })();
+    </script>
 </head>
 
 <body>

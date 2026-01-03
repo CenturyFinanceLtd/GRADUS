@@ -3,18 +3,23 @@
  * These warnings are from the 100ms SDK and other dependencies
  */
 
-if (typeof window !== 'undefined' && import.meta.env.DEV) {
+if (typeof window !== 'undefined') {
   const originalWarn = console.warn;
   const originalError = console.error;
 
-  // Patterns to suppress
+  // Patterns to suppress (both warnings and errors)
   const suppressPatterns = [
     /Form submission canceled because the form is not connected/,
     /Multiple versions of @tldraw\/state detected/,
     /\[DEPRECATED\] Default export is.*deprecated/,
-    /zustand.*deprecated/,
+    /Default export is deprecated/,
+    /Instead use import \{ create \} from 'zustand'/,
+    /zustand.*deprecated/i,
     /CPUPressureMonitor.*Failed to initialize/,
     /Permissions policy violation: compute-pressure/,
+    /prod-in2\.100ms\.live/,
+    /hmsapi\/apps\/get-details/,
+    /404.*Not Found/,
   ];
 
   console.warn = function (...args) {
