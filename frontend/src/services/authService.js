@@ -111,6 +111,26 @@ export const loginWithGoogle = async () => {
   return data;
 };
 
+/**
+ * Link Google Account to existing authenticated user
+ */
+export const linkGoogleAccount = async () => {
+  const redirectUrl = `${window.location.origin}/auth/google/callback`;
+
+  const { data, error } = await supabase.auth.linkIdentity({
+    provider: "google",
+    options: {
+      redirectTo: redirectUrl,
+    },
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
 // Store 2Factor sessionId is NO LONGER NEEDED for Supabase Native Auth
 // const lastOtpSessionId = null;
 

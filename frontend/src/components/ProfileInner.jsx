@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../services/apiClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
-import { loginWithGoogle } from "../services/authService.js";
+import { loginWithGoogle, linkGoogleAccount } from "../services/authService.js";
 
 const safeString = (value) => (typeof value === "string" ? value : "");
 
@@ -150,7 +150,7 @@ const ProfileInner = () => {
 
   const handleConnectGoogle = async () => {
     try {
-      await loginWithGoogle();
+      await linkGoogleAccount();
       // Redirect happens automatically
     } catch (error) {
       setProfileStatus({ type: "error", message: error.message || "Failed to connect Google account." });
