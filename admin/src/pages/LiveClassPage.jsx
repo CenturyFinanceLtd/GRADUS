@@ -230,236 +230,210 @@ const LiveClassPage = () => {
 
     return (
         <MasterLayout>
-            <div className="container-fluid" style={{ minHeight: '100vh', background: '#f8f9fa', padding: '1.5rem 2rem' }}>
-                {/* Header */}
-                <div className="row mb-5">
-                    <div className="col-12">
-                        <div className="d-flex align-items-center justify-content-between">
-                            <div className="d-flex align-items-center">
-                                <div className="icon-wrapper shadow-sm bg-white rounded-circle d-flex align-items-center justify-content-center me-3" style={{ width: '50px', height: '50px' }}>
-                                    <i className="ri-broadcast-fill text-danger fs-4"></i>
-                                </div>
-                                <div>
-                                    <h3 className="fw-bold text-dark mb-0">Live Studio</h3>
-                                    <small className="text-muted">Manage your live sessions and engage with students.</small>
-                                </div>
-                            </div>
-                            {isConfigured && activeRoom && (
-                                <span className="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill d-flex align-items-center">
-                                    <span className="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true"></span>
-                                    Live Now
-                                </span>
-                            )}
-                        </div>
+            <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
+                <div className="d-flex align-items-center gap-3">
+                    <span className="w-44-px h-44-px bg-primary-100 text-primary-600 d-flex justify-content-center align-items-center rounded-circle text-2xl">
+                        <i className="ri-broadcast-line" />
+                    </span>
+                    <div>
+                        <h6 className="fw-semibold mb-0">Live Studio</h6>
+                        <p className="text-secondary-light mb-0 text-sm">Manage sessions and engage with students</p>
                     </div>
                 </div>
-
-                {!isConfigured && (
-                    <div className="alert alert-warning border-0 shadow-sm mb-4 rounded-3 d-flex align-items-center p-3">
-                        <i className="ri-error-warning-line fs-4 me-3 text-warning"></i>
-                        <div>
-                            <h6 className="fw-bold mb-1">Configuration Missing</h6>
-                            <p className="mb-0 small text-muted">100ms credentials are missing. Please add them to your Supabase project secrets to enable live classes.</p>
-                        </div>
-                    </div>
+                {isConfigured && activeRoom && (
+                    <span className="text-sm fw-medium text-danger-600 bg-danger-100 px-12 py-4 radius-4 d-flex align-items-center gap-2">
+                        <span className="w-8-px h-8-px bg-danger-600 rounded-circle animate-pulse" />
+                        Live Now
+                    </span>
                 )}
+            </div>
 
-                {error && (
-                    <div className="alert alert-danger border-0 shadow-sm mb-4 rounded-3 d-flex align-items-center p-3 animate__animated animate__fadeIn">
-                        <i className="ri-close-circle-fill fs-4 me-3 text-danger"></i>
-                        <div>
-                            <h6 className="fw-bold mb-1">Error Occurred</h6>
-                            <p className="mb-0 small">{error}</p>
-                        </div>
+            {!isConfigured && (
+                <div className="alert alert-warning d-flex align-items-center p-16 mb-24 gap-2 radius-8">
+                    <i className="ri-error-warning-line text-xl" />
+                    <div>
+                        <h6 className="fw-semibold mb-0 text-warning-600">Configuration Missing</h6>
+                        <p className="text-sm mb-0">100ms credentials are missing. Please add them to your Supabase project secrets.</p>
                     </div>
-                )}
+                </div>
+            )}
 
-                {!activeRoom ? (
-                    <div className="row g-4">
-                        {/* Interactive Card */}
-                        <div className="col-lg-7 col-xl-8">
-                            <div className="card border-0 shadow-lg h-100 position-relative overflow-hidden" style={{ borderRadius: '24px', background: 'linear-gradient(145deg, #ffffff 0%, #fefefe 100%)' }}>
-                                <div className="card-body p-5 d-flex flex-column align-items-center justify-content-center text-center">
-                                    <div className="mb-4 position-relative">
-                                        <div className="position-absolute top-50 start-50 translate-middle" style={{ width: '120px', height: '120px', background: 'radial-gradient(circle, rgba(220, 53, 69, 0.1) 0%, rgba(255,255,255,0) 70%)', zIndex: 0 }}></div>
-                                        <i className="ri-mic-2-line position-relative" style={{ fontSize: '64px', color: '#dc3545', zIndex: 1, textShadow: '0 4px 12px rgba(220, 53, 69, 0.2)' }}></i>
-                                    </div>
+            {error && (
+                <div className="alert alert-danger d-flex align-items-center p-16 mb-24 gap-2 radius-8">
+                    <i className="ri-close-circle-line text-xl" />
+                    <div>
+                        <h6 className="fw-semibold mb-0 text-danger-600">Error Occurred</h6>
+                        <p className="text-sm mb-0">{error}</p>
+                    </div>
+                </div>
+            )}
 
-                                    <h2 className="fw-bold mb-2 text-dark">Ready to go live?</h2>
-                                    <p className="text-muted mb-5 text-center" style={{ maxWidth: '450px', fontSize: '0.95rem', lineHeight: '1.6' }}>
-                                        Select a course below to instantly create a secure classroom and invite your students.
-                                    </p>
+            {/* Main Content */}
+            {!activeRoom ? (
+                <div className="row gy-4">
+                    <div className="col-xxl-8 col-xl-7">
+                        <div className="card h-100">
+                            <div className="card-body p-24 d-flex flex-column align-items-center justify-content-center text-center">
+                                <div className="mb-24 p-24 bg-primary-50 rounded-circle d-inline-flex">
+                                    <i className="ri-mic-2-line text-6xl text-primary-600" />
+                                </div>
 
-                                    <div className="w-100" style={{ maxWidth: '420px' }}>
-                                        <div className="form-floating mb-3 shadow-sm rounded-3">
-                                            <select
-                                                className="form-select border-0 bg-light fw-medium"
-                                                id="courseSelect"
-                                                style={{ borderRadius: '12px', height: '60px', paddingLeft: '1.5rem' }}
-                                                value={selectedCourse}
-                                                onChange={(e) => setSelectedCourse(e.target.value)}
-                                                disabled={loadingCourses}
-                                            >
-                                                <option value="">Select a Course...</option>
-                                                {Array.isArray(courses) && courses.map((course) => (
-                                                    <option key={course.id || course.slug} value={course.id || course.slug}>
-                                                        {course.name || course.title}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            <label htmlFor="courseSelect" className="text-muted ps-4">Course</label>
-                                        </div>
+                                <h4 className="fw-semibold mb-8 text-neutral-800">Ready to go live?</h4>
+                                <p className="text-secondary-light mb-32" style={{ maxWidth: '400px' }}>
+                                    Select a course below to instantly create a secure classroom and invite your students.
+                                </p>
 
-                                        {/* Manual Role Selector */}
-                                        <div className="form-floating mb-4 shadow-sm rounded-3">
-                                            <select
-                                                className="form-select border-0 bg-light fw-medium"
-                                                id="roleSelect"
-                                                style={{ borderRadius: '12px', height: '60px', paddingLeft: '1.5rem' }}
-                                                value={manualRole}
-                                                onChange={(e) => setManualRole(e.target.value)}
-                                            >
-                                                <option value="auto">Auto-Detect Role (Recommended)</option>
-                                                <option value="teacher">Force Role: Teacher</option>
-                                                <option value="host">Force Role: Host</option>
-                                                <option value="broadcaster">Force Role: Broadcaster</option>
-                                            </select>
-                                            <label htmlFor="roleSelect" className="text-muted ps-4">Instructor Role (Template)</label>
-                                        </div>
-
-                                        <button
-                                            className="btn btn-danger w-100 py-3 fw-bold d-flex align-items-center justify-content-center shadow"
-                                            style={{ borderRadius: '12px', fontSize: '1.1rem', background: 'linear-gradient(90deg, #dc3545 0%, #e04b59 100%)', border: 'none', transition: 'all 0.3s ease' }}
-                                            onClick={handleStartClass}
-                                            disabled={loading || !isConfigured || !selectedCourse}
+                                <div className="w-100" style={{ maxWidth: '400px' }}>
+                                    <div className="mb-16 text-start">
+                                        <label className="form-label fw-semibold text-primary-light text-sm mb-8">Select Course</label>
+                                        <select
+                                            className="form-select form-control radius-8"
+                                            value={selectedCourse}
+                                            onChange={(e) => setSelectedCourse(e.target.value)}
+                                            disabled={loadingCourses}
                                         >
-                                            {loading ? (
-                                                <>
-                                                    <span className="spinner-border spinner-border-sm me-2"></span>
-                                                    Setting up Room...
-                                                </>
-                                            ) : (
-                                                <><i className="ri-broadcast-line me-2"></i> Start Streaming</>
-                                            )}
-                                        </button>
-                                        <div className="mt-3">
-                                            <small className="text-muted opacity-75">
-                                                <i className="ri-shield-check-line me-1 align-bottom"></i>
-                                                Secured by 100ms Live Infrastructure
-                                            </small>
-                                        </div>
+                                            <option value="">Start typing or select...</option>
+                                            {Array.isArray(courses) && courses.map((course) => (
+                                                <option key={course.id || course.slug} value={course.id || course.slug}>
+                                                    {course.name || course.title}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
+
+                                    <div className="mb-24 text-start">
+                                        <label className="form-label fw-semibold text-primary-light text-sm mb-8">Role</label>
+                                        <select
+                                            className="form-select form-control radius-8"
+                                            value={manualRole}
+                                            onChange={(e) => setManualRole(e.target.value)}
+                                        >
+                                            <option value="auto">Auto-Detect Role (Recommended)</option>
+                                            <option value="teacher">Force Role: Teacher</option>
+                                            <option value="host">Force Role: Host</option>
+                                            <option value="broadcaster">Force Role: Broadcaster</option>
+                                        </select>
+                                    </div>
+
+                                    <button
+                                        className="btn btn-primary-600 w-100 radius-8 py-12 d-flex align-items-center justify-content-center gap-2"
+                                        onClick={handleStartClass}
+                                        disabled={loading || !isConfigured || !selectedCourse}
+                                    >
+                                        {loading ? (
+                                            <>
+                                                <span className="spinner-border spinner-border-sm" />
+                                                Setting up...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <i className="ri-broadcast-line text-lg" />
+                                                Start Streaming
+                                            </>
+                                        )}
+                                    </button>
+                                    <p className="mt-16 text-xs text-secondary-light d-flex align-items-center justify-content-center gap-1">
+                                        <i className="ri-shield-check-line" />
+                                        Secured by 100ms Live Infrastructure
+                                    </p>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Sidebar: History & Tips */}
-                        <div className="col-lg-5 col-xl-4">
-                            {/* Tips Card */}
-                            <div className="card border-0 shadow-sm mb-4" style={{ borderRadius: '20px', background: 'linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)', color: 'white' }}>
-                                <div className="card-body p-4">
-                                    <div className="d-flex align-items-start mb-3">
-                                        <div className="p-2 bg-white bg-opacity-25 rounded-3 me-3">
-                                            <i className="ri-lightbulb-flash-line fs-4 text-white"></i>
-                                        </div>
-                                        <div>
-                                            <h5 className="fw-bold mb-1">Pro Tips</h5>
-                                            <p className="mb-0 small text-white-50">Optimize your streaming experience</p>
-                                        </div>
-                                    </div>
-                                    <ul className="mb-0 ps-3 small text-white-50" style={{ listStyleType: 'circle' }}>
-                                        <li className="mb-2">Ensure your webcam permissions are enabled.</li>
-                                        <li className="mb-2">Use a wired connection for best stability.</li>
-                                        <li>If the screen is blank, verify the <code>VITE_HMS_SYSTEM_SUBDOMAIN</code> in your environment config.</li>
-                                        <li>Try changing "Role" if you get a 400 error.</li>
-                                    </ul>
-                                </div>
+                    <div className="col-xxl-4 col-xl-5">
+                        <div className="card h-100">
+                            <div className="card-header border-bottom bg-base py-16 px-24">
+                                <h6 className="text-lg fw-semibold mb-0">Recent Sessions</h6>
                             </div>
-
-                            {/* Recent Sessions */}
-                            <div className="card border-0 shadow-sm" style={{ borderRadius: '20px', overflow: 'hidden' }}>
-                                <div className="card-header bg-white border-bottom border-light p-4 d-flex justify-content-between align-items-center">
-                                    <h6 className="fw-bold mb-0 text-dark">Recent Sessions</h6>
-                                    <button className="btn btn-sm btn-light text-primary rounded-pill px-3 fw-medium" onClick={fetchRooms}>
-                                        <i className="ri-refresh-line me-1"></i> Refresh
-                                    </button>
-                                </div>
-                                <div className="card-body p-0">
-                                    {rooms.length === 0 ? (
-                                        <div className="p-5 text-center">
-                                            <div className="mb-3 text-muted opacity-25">
-                                                <i className="ri-history-line display-4"></i>
-                                            </div>
-                                            <p className="text-muted small mb-0">No recent class history found.</p>
+                            <div className="card-body p-0">
+                                {rooms.length === 0 ? (
+                                    <div className="p-24 text-center">
+                                        <div className="w-44-px h-44-px bg-base rounded-circle d-inline-flex align-items-center justify-content-center mb-12">
+                                            <i className="ri-history-line text-xl text-secondary-light" />
                                         </div>
-                                    ) : (
-                                        <div className="list-group list-group-flush">
-                                            {rooms.slice(0, 5).map((room, idx) => (
-                                                <div key={room.id} className={`list-group-item p-3 border-light ${idx % 2 === 0 ? 'bg-light bg-opacity-10' : ''}`}>
-                                                    <div className="d-flex justify-content-between align-items-center">
-                                                        <div className="d-flex align-items-center overflow-hidden">
-                                                            <div className={`rounded-circle p-2 me-3 flex-shrink-0 ${room.enabled ? 'bg-success bg-opacity-10' : 'bg-secondary bg-opacity-10'}`}>
-                                                                <i className={`ri-video-${room.enabled ? 'chat' : 'off'}-line ${room.enabled ? 'text-success' : 'text-secondary'}`}></i>
-                                                            </div>
-                                                            <div className="text-truncate">
-                                                                <h6 className="mb-0 text-dark small fw-semibold text-truncate" style={{ maxWidth: '180px' }}>{room.name.replace(/_/g, ' ')}</h6>
-                                                                <small className="text-muted" style={{ fontSize: '0.75rem' }}>
-                                                                    {new Date(room.created_at || room.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                                                </small>
-                                                            </div>
-                                                        </div>
-                                                        <span className={`badge rounded-pill ${room.enabled ? 'bg-success text-white' : 'bg-light text-secondary border'}`} style={{ fontSize: '0.7rem' }}>
-                                                            {room.enabled ? 'Live' : 'Ended'}
+                                        <p className="text-secondary-light text-sm mb-0">No recent class history found.</p>
+                                    </div>
+                                ) : (
+                                    <div className="d-flex flex-column">
+                                        {rooms.slice(0, 5).map((room) => (
+                                            <div key={room.id} className="d-flex align-items-center justify-content-between p-16 border-bottom hover-bg-base transition-2">
+                                                <div className="d-flex align-items-center gap-3">
+                                                    <span className={`w-40-px h-40-px rounded-circle d-flex align-items-center justify-content-center text-xl shrink-0 ${room.enabled ? 'bg-success-100 text-success-600' : 'bg-gray-100 text-gray-400'}`}>
+                                                        <i className={`ri-video-${room.enabled ? 'chat' : 'off'}-line`} />
+                                                    </span>
+                                                    <div className="flex-grow-1">
+                                                        <h6 className="text-sm fw-medium mb-1 text-primary-light">{room.name.split('_')[0]}</h6>
+                                                        <span className="text-xs text-secondary-light">
+                                                            {new Date(room.created_at || room.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                                         </span>
                                                     </div>
                                                 </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
+                                                <span className={`text-xs px-8 py-4 radius-4 fw-medium ${room.enabled ? 'bg-success-100 text-success-600' : 'bg-gray-100 text-gray-500'}`}>
+                                                    {room.enabled ? 'Live' : 'Ended'}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
-                ) : (
-                    <div className="row animate__animated animate__fadeInUp">
-                        <div className="col-12">
-                            <div className="card border-0 shadow-lg overflow-hidden" style={{ borderRadius: '24px' }}>
-                                <div className="card-header bg-dark p-3 px-4 d-flex justify-content-between align-items-center border-0">
-                                    <div className="d-flex align-items-center">
-                                        <div className="d-flex align-items-center bg-danger rounded px-2 py-1 me-3">
-                                            <div className="spinner-grow spinner-grow-sm text-white me-2" style={{ width: '0.5rem', height: '0.5rem' }} role="status"></div>
-                                            <span className="text-white fw-bold small text-uppercase" style={{ letterSpacing: '1px' }}>Live</span>
-                                        </div>
-                                        <h6 className="text-white-50 mb-0 fw-normal border-start border-secondary ps-3 ms-1 d-none d-md-block">
-                                            {activeRoom.courseName || activeRoom.name}
-                                        </h6>
-                                    </div>
-                                    <div className="d-flex align-items-center">
-                                        <div className="input-group input-group-sm me-3 bg-secondary bg-opacity-25 rounded px-2 py-1 d-none d-md-flex" style={{ maxWidth: '300px' }}>
-                                            <span className="text-white-50 small me-2 mt-1">Student Link:</span>
-                                            <input type="text" className="bg-transparent border-0 text-white small fw-mono" value={getStudentJoinLink()} readOnly style={{ outline: 'none', width: '220px' }} />
-                                            <button className="btn btn-link p-0 text-warning" onClick={copyJoinLink}>
-                                                <i className="ri-file-copy-line"></i>
-                                            </button>
-                                        </div>
-                                        <button className="btn btn-danger btn-sm px-4 fw-bold shadow-sm" style={{ borderRadius: '8px' }} onClick={handleEndClass}>
-                                            <i className="ri-stop-circle-fill me-2"></i> End Session
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="card-body p-0 position-relative bg-black" style={{ height: '80vh' }}>
-                                    <iframe
-                                        title="Live Class"
-                                        src={getIframeUrl()}
-                                        style={{ width: '100%', height: '100%', border: 'none' }}
-                                        allow="camera; microphone; fullscreen; display-capture; autoplay; screen-wake-lock"
-                                    />
-                                </div>
+                </div>
+            ) : (
+                // Live Active View
+                <div className="card overflow-hidden">
+                    <div className="card-header bg-white border-bottom py-16 px-24 d-flex justify-content-between align-items-center">
+                        <div className="d-flex align-items-center gap-3">
+                            <span className="bg-danger-100 text-danger-600 text-xs fw-bold px-10 py-6 radius-4 d-flex align-items-center gap-2 border border-danger-200">
+                                <span className="w-8-px h-8-px bg-danger-600 rounded-circle animate-pulse" />
+                                LIVE ON AIR
+                            </span>
+                            <div className="d-flex flex-column">
+                                <h6 className="text-neutral-800 fw-bold mb-0 text-lg">
+                                    {activeRoom.courseName || activeRoom.name}
+                                </h6>
                             </div>
                         </div>
+                        <div className="d-flex align-items-center gap-16">
+                            {/* Link Copy Component */}
+                            <div className="d-none d-md-flex align-items-center gap-12 bg-neutral-50 px-16 py-8 radius-8 border border-neutral-200">
+                                <span className="text-secondary-light text-xs fw-medium text-uppercase tracking-wider">Student Link:</span>
+                                <div className="d-flex align-items-center gap-8 border-start border-neutral-300 ps-12">
+                                    <span className="text-primary-600 text-sm fw-semibold text-truncate" style={{ maxWidth: '200px' }}>
+                                        {getStudentJoinLink()}
+                                    </span>
+                                    <button
+                                        className="btn btn-icon p-0 w-32-px h-32-px d-flex justify-content-center align-items-center radius-4 hover-bg-primary-50 text-primary-600 transition-2"
+                                        onClick={copyJoinLink}
+                                        title="Copy Link"
+                                    >
+                                        <i className="ri-file-copy-line text-lg" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="w-1-px h-32-px bg-neutral-200 mx-8 d-none d-md-block"></div>
+
+                            <button
+                                className="btn btn-danger-600 radius-8 py-10 px-20 text-sm fw-semibold d-flex align-items-center gap-2 shadow-sm hover-shadow-md transition-2"
+                                onClick={handleEndClass}
+                            >
+                                <i className="ri-stop-circle-fill text-lg" />
+                                End Session
+                            </button>
+                        </div>
                     </div>
-                )}
-            </div>
+                    <div className="card-body p-0 bg-black" style={{ height: '75vh' }}>
+                        <iframe
+                            title="Live Class"
+                            src={getIframeUrl()}
+                            style={{ width: '100%', height: '100%', border: 'none' }}
+                            allow="camera; microphone; fullscreen; display-capture; autoplay; screen-wake-lock"
+                        />
+                    </div>
+                </div>
+            )}
         </MasterLayout>
     );
 };
