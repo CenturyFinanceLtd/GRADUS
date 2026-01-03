@@ -83,19 +83,24 @@ const GoogleAuthCallback = () => {
     const processSession = async (session) => {
       setProcessed(true);
 
-      // Sync user profile to database
+      // Force fetch latest user to ensure identities are populated (crucial for linking flow)
+      // session.user from the redirect hash might be stale regarding the `identities` array
+      const { data: { user } } = await supabase.auth.getUser();
+      const currentUser = user || session.user;
+
       // Sync user profile to database
       try {
         // Find Google identity to get the email if top-level email is missing/placeholder
-        const googleIdentity = session.user.identities?.find(
+        // This is the key fix for Phone-first users linking Google
+        const googleIdentity = currentUser.identities?.find(
           (id) => id.provider === "google"
         );
 
         const identityData = googleIdentity?.identity_data || {};
-        const userMetadata = session.user.user_metadata || {};
+        const userMetadata = currentUser.user_metadata || {};
 
         // Use identity email if available, otherwise fallback to session email
-        const emailToSync = identityData.email || session.user.email;
+        const emailToSync = identityData.email || currentUser.email;
         const nameToSync = identityData.full_name || identityData.name || userMetadata.full_name;
 
         // Extract names
@@ -111,7 +116,7 @@ const GoogleAuthCallback = () => {
         await apiClient("/auth/supabase/create-profile", {
           method: "POST",
           data: {
-            supabaseId: session.user.id,
+            supabaseId: currentUser.id,
             email: emailToSync,
             firstName: firstName,
             lastName: lastName,
@@ -125,13 +130,13 @@ const GoogleAuthCallback = () => {
 
       // Set auth context
       setAuth({
-        user: session.user,
+        user: currentUser,
         token: session.access_token,
         type: "supabase",
       });
 
-      // Navigate to dashboard
-      navigate("/", { replace: true });
+      // Navigate to profile to show the update
+      navigate("/profile", { replace: true });
     };
 
     handleAuth();
