@@ -91,6 +91,8 @@ const LiveClassPage = () => {
                 body: JSON.stringify({
                     name: roomName,
                     description: `Live class for ${courseName}`,
+                    courseSlug: selectedCourse,
+                    courseName: courseName,
                 }),
             });
 

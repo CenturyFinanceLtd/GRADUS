@@ -173,7 +173,7 @@ const DynamicLandingPage = () => {
                     <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Register Now For Free</button>
 
                     {/* --- Meet Your Mentor Section --- */}
-                    <div className="mentor-grid">
+                    <div className="mentor-grid" style={{ display: 'none' }}>
                         <div className="mentor-image-col">
                             <img
                                 src={
@@ -188,7 +188,7 @@ const DynamicLandingPage = () => {
                         </div>
                         <div className="mentor-content-col">
                             <h2 className="mentor-title">
-                                Meet Your <span className="text-highlight">Mentor</span>
+                                What you will learn in this master class:
                             </h2>
                             <div className="mentor-info-card">
                                 <ul className="mentor-points-list">
