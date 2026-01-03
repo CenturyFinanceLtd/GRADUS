@@ -183,7 +183,7 @@ const DynamicLandingPage = () => {
                                 }
                                 alt={mentor.name}
                                 className="mentor-image"
-                                style={{ maxHeight: '500px' }}
+                                style={{}} // Removed maxHeight to allow image to touch bottom
                             />
                         </div>
                         <div className="mentor-content-col">
@@ -229,7 +229,13 @@ const DynamicLandingPage = () => {
                 </div>
             </section>
 
-            <StickyFooter original={stickyFooter.priceOriginal} current={stickyFooter.priceCurrent} onRegister={() => setIsModalOpen(true)} />
+            <StickyFooter
+                original={stickyFooter.priceOriginal}
+                current={stickyFooter.priceCurrent}
+                onRegister={() => setIsModalOpen(true)}
+                date={hero.date}
+                time={hero.time}
+            />
 
             <RegistrationModal
                 isOpen={isModalOpen}
@@ -260,17 +266,47 @@ const FAQItem = ({ question, answer }) => {
     );
 };
 
-const StickyFooter = ({ original, current, onRegister }) => {
-    const [timeLeft, setTimeLeft] = useState(15 * 60);
+const StickyFooter = ({ original, current, onRegister, date, time }) => {
+
+    // Construct target date from props (e.g. "18 December 2025" and "6:00 PM")
+    // We'll attempt to parse parsing robustly or just standard Date parsing
+    const targetDateStr = `${date} ${time}`;
+    const targetDate = new Date(targetDateStr).getTime();
+
+    const [timeLeft, setTimeLeft] = useState(0);
+
     useEffect(() => {
-        const timer = setInterval(() => setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0)), 1000);
+        const calculateTimeLeft = () => {
+            const now = new Date().getTime();
+            // If invalid date, fallback to 0
+            if (isNaN(targetDate)) return 0;
+
+            const difference = targetDate - now;
+            return difference > 0 ? Math.floor(difference / 1000) : 0;
+        };
+
+        setTimeLeft(calculateTimeLeft());
+
+        const timer = setInterval(() => {
+            setTimeLeft(calculateTimeLeft());
+        }, 1000);
         return () => clearInterval(timer);
-    }, []);
+    }, [targetDate]);
+
     const formatTime = (seconds) => {
-        const m = Math.floor(seconds / 60);
+        if (seconds <= 0) return "00:00:00";
+
+        const d = Math.floor(seconds / (3600 * 24));
+        const h = Math.floor((seconds % (3600 * 24)) / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
         const s = seconds % 60;
-        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+
+        if (d > 0) {
+            return `${d}d ${h}h ${m}m ${s}s`;
+        }
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
+
     return (
         <div className="sticky-footer">
             <div className="sticky-footer-content">

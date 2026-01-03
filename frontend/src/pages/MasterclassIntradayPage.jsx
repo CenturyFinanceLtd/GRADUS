@@ -349,21 +349,41 @@ const FAQItem = ({ question, answer }) => {
 };
 
 // Internal Sticky Footer Component
+// Internal Sticky Footer Component
 const StickyFooter = () => {
-    // 15 minute countdown timer state
-    const [timeLeft, setTimeLeft] = React.useState(15 * 60); // 15 minutes in seconds
+    // Target Date: 16 December 2025 11:55 AM
+    const targetDate = new Date("December 16, 2025 11:55:00").getTime();
+
+    const [timeLeft, setTimeLeft] = React.useState(0);
 
     React.useEffect(() => {
+        const calculateTimeLeft = () => {
+            const now = new Date().getTime();
+            const difference = targetDate - now;
+            return difference > 0 ? Math.floor(difference / 1000) : 0;
+        };
+
+        setTimeLeft(calculateTimeLeft());
+
         const timer = setInterval(() => {
-            setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+            setTimeLeft(calculateTimeLeft());
         }, 1000);
+
         return () => clearInterval(timer);
     }, []);
 
     const formatTime = (seconds) => {
-        const m = Math.floor(seconds / 60);
+        if (seconds <= 0) return "00:00:00";
+
+        const d = Math.floor(seconds / (3600 * 24));
+        const h = Math.floor((seconds % (3600 * 24)) / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
         const s = seconds % 60;
-        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+
+        if (d > 0) {
+            return `${d}d ${h}h ${m}m ${s}s`;
+        }
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
 
     return (
