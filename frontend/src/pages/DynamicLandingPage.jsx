@@ -148,11 +148,11 @@ const DynamicLandingPage = () => {
                     <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Register Now For Free</button>
 
                     {/* Part 2: What Will You Learn */}
-                    <h2 className="learning-section-title">
+                    <h2 className="learning-section-title" style={{ display: 'none' }}>
                         What Will You learn in <span className="text-highlight">{middleSection.programName}</span>?
                     </h2>
 
-                    <div className="learning-cards-grid">
+                    <div className="learning-cards-grid" style={{ display: 'none' }}>
                         {(middleSection.learningCards || []).map((card, idx) => (
                             <div key={idx} className="learning-card">
                                 <div className="card-number">{card.number || idx + 1}</div>
@@ -170,10 +170,10 @@ const DynamicLandingPage = () => {
                         </div>
                     )}
 
-                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Register Now For Free</button>
+                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'none', width: 'auto', minWidth: '300px' }}>Register Now For Free</button>
 
                     {/* --- Meet Your Mentor Section --- */}
-                    <div className="mentor-grid" style={{ display: 'none' }}>
+                    <div className="mentor-grid">
                         <div className="mentor-image-col">
                             <img
                                 src={

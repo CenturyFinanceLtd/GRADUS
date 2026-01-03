@@ -1,3 +1,4 @@
+-- Create live_sessions table if it doesn't exist
 create table IF NOT EXISTS public.live_sessions (
   id uuid not null default gen_random_uuid (),
   title text not null,
@@ -24,19 +25,22 @@ create table IF NOT EXISTS public.live_sessions (
   created_at timestamp with time zone null default now(),
   updated_at timestamp with time zone null default now(),
   constraint live_sessions_pkey primary key (id),
-  constraint live_sessions_host_admin_id_fkey foreign KEY (host_admin_id) references admin_users (id) on delete set null,
+  -- Fix: Add unique constraint for upsert
+  constraint live_sessions_meeting_token_key unique (meeting_token),
   constraint live_sessions_status_check check (
     (
       status = any (
         array['scheduled'::text, 'live'::text, 'ended'::text]
       )
     )
-  ),
-  constraint live_sessions_meeting_token_key unique (meeting_token)
+  )
 ) TABLESPACE pg_default;
 
+-- Create indexes if they don't exist
 create index IF not exists idx_live_sessions_status on public.live_sessions using btree (status) TABLESPACE pg_default;
-
 create index IF not exists idx_live_sessions_course_id on public.live_sessions using btree (course_id) TABLESPACE pg_default;
 
-create index IF not exists idx_live_sessions_host_admin_id on public.live_sessions using btree (host_admin_id) TABLESPACE pg_default;
+-- Grant permissions to service_role and anon/authenticated
+GRANT ALL ON TABLE public.live_sessions TO service_role;
+GRANT SELECT ON TABLE public.live_sessions TO anon;
+GRANT SELECT ON TABLE public.live_sessions TO authenticated;

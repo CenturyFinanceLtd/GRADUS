@@ -524,13 +524,8 @@ serve(async (req: Request) => {
                 // Simple query: enrollments -> course (public schema)
                 const { data: enrollments, error: enrollError } = await supabaseService
                     .from("enrollments")
-                    .select(`
-                        course_id,
-                        course:course!inner(id, slug, name, image),
-                        users!inner(id)
-                    `)
+                    .select("course_id")
                     .eq("user_id", userId)
-                    .eq("status", "ACTIVE")
                     .eq("payment_status", "PAID");
 
                 if (enrollError) {
@@ -539,12 +534,29 @@ serve(async (req: Request) => {
                 }
 
                 if (!enrollments || enrollments.length === 0) {
-                    console.log(`[live-class-api] No enrollments found for user ${userId}`);
+                     console.log(`[live-class-api] No PAID enrollments found for user ${userId}`);
+                     return jsonResponse({ success: true, classes: [] }, 200, cors);
+                }
+
+                const courseIds = enrollments.map((e: any) => e.course_id).filter(Boolean);
+                
+                // Fetch courses manually to avoid strict FK join issues
+                const { data: courses, error: courseError } = await supabaseService
+                    .from("course")
+                    .select("id, slug, name, image")
+                    .in("id", courseIds);
+                
+                if (courseError) {
+                    console.error(`[live-class-api] Course fetch error:`, courseError);
                     return jsonResponse({ success: true, classes: [] }, 200, cors);
                 }
 
-                console.log(`[live-class-api] Found ${enrollments.length} enrollments for user ${userId}`);
-                const courseIds = enrollments.map((e: any) => e.course_id).filter(Boolean);
+                // Attach course objects to enrollment-like structure for downstream logic
+                enrollments.forEach((e: any) => {
+                    e.course = courses?.find((c: any) => c.id === e.course_id);
+                });
+
+                console.log(`[live-class-api] Found ${enrollments.length} enrollments, mapped to ${courses?.length} courses`);
                 console.log(`[live-class-api] User enrolled in courses:`, courseIds);
                 
                 // Method 1: Query live_sessions table (most reliable)
