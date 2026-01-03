@@ -352,7 +352,8 @@
     gap: 2rem;
     align-items: center;
     margin-top: 5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 0;
+    /* Removed margin to let image touch bottom */
     text-align: left;
 }
 
@@ -367,14 +368,21 @@
 .mentor-image-col {
     display: flex;
     justify-content: center;
+    align-items: flex-end;
+    /* Ensure image sits at bottom */
     position: relative;
-    /* To accommodate a large cutout image that might overflow slightly if needed, but keeping simple for now */
+    height: 100%;
 }
 
 .mentor-image {
-    max-width: 100%;
+    width: 135%;
+    /* Force image to be larger than column */
+    max-width: none;
     height: auto;
-    /* mask-image removed as image is now transparent */
+    margin-bottom: -4rem;
+    /* Push image down to touch dark section bottom */
+    position: relative;
+    z-index: 1;
 }
 
 .mentor-content-col {
