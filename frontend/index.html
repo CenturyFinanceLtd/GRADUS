@@ -26,6 +26,7 @@
                 /compute-pressure.*not allowed/i,
                 /prod-in2\.100ms\.live/i,
                 /hmsapi\/apps\/get-details/i,
+                /GET.*100ms.*404/i,
                 /404.*Not Found/i,
                 /Failed to execute 'observe' on 'PressureObserver'/i,
                 /Access to the feature "compute pressure" is disallowed/i,
@@ -98,13 +99,15 @@
     fbq('init', '841851888624467');
     fbq('track', 'PageView');
     </script>
-    <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=841851888624467&ev=PageView&noscript=1"
-    /></noscript>
     <!-- End Meta Pixel Code -->
 </head>
 
 <body>
+    <!-- Meta Pixel Noscript -->
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=841851888624467&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Noscript -->
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
 </body>

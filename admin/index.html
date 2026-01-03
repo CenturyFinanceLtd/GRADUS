@@ -43,25 +43,32 @@
             const originalWarn = console.warn;
             const originalError = console.error;
             const patterns = [
-                /Form submission canceled because the form is not connected/,
-                /Multiple versions of @tldraw\/state detected/,
-                /\[DEPRECATED\] Default export is.*deprecated/,
-                /Default export is deprecated/,
-                /Instead use import \{ create \} from 'zustand'/,
+                /Form submission canceled because the form is not connected/i,
+                /Multiple versions of @tldraw\/state detected/i,
+                /\[DEPRECATED\] Default export is.*deprecated/i,
+                /Default export is deprecated/i,
+                /Instead use import \{ create \} from 'zustand'/i,
                 /zustand.*deprecated/i,
-                /CPUPressureMonitor.*Failed to initialize/,
-                /Permissions policy violation: compute-pressure/,
-                /prod-in2\.100ms\.live/,
-                /hmsapi\/apps\/get-details/,
-                /404.*Not Found/,
+                /CPUPressureMonitor.*Failed to initialize/i,
+                /Permissions policy violation.*compute-pressure/i,
+                /compute-pressure.*not allowed/i,
+                /prod-in2\.100ms\.live/i,
+                /hmsapi\/apps\/get-details/i,
+                /GET.*100ms.*404/i,
+                /404.*Not Found/i,
+                /Failed to execute 'observe' on 'PressureObserver'/i,
+                /Access to the feature "compute pressure" is disallowed/i,
             ];
+            function shouldSuppress(msg) {
+                return patterns.some(p => p.test(msg));
+            }
             console.warn = function(...args) {
-                const msg = args.join(' ');
-                if (!patterns.some(p => p.test(msg))) originalWarn.apply(console, args);
+                const msg = String(args.join(' '));
+                if (!shouldSuppress(msg)) originalWarn.apply(console, args);
             };
             console.error = function(...args) {
-                const msg = args.join(' ');
-                if (!patterns.some(p => p.test(msg))) originalError.apply(console, args);
+                const msg = String(args.join(' '));
+                if (!shouldSuppress(msg)) originalError.apply(console, args);
             };
         })();
     </script>
