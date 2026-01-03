@@ -332,6 +332,8 @@ serve(async (req: Request) => {
     // PUT /me - Update user profile
     if (path.endsWith("/me") && req.method === "PUT") {
       const body = await req.json().catch(() => ({}));
+      console.log("[UsersAPI] PUT /me update request:", JSON.stringify(body));
+
       // Fetch current data first to ensure we don't overwrite other fields in JSON columns
       const { data: currentUser, error: fetchError } = await supabase
         .from("users")
@@ -351,7 +353,14 @@ serve(async (req: Request) => {
       const toNull = (val: any) => (val === "" || val === undefined) ? null : val;
 
       // Basic info
-      if (body.fullname !== undefined) updates.fullname = body.fullname;
+      if (body.fullname !== undefined) {
+         // Explicitly block 'EMPTY' and 'User Name' placeholders
+         if (body.fullname === 'EMPTY' || body.fullname === 'User Name') {
+             updates.fullname = null;
+         } else {
+             updates.fullname = body.fullname;
+         }
+      }
       // firstName and lastName are no longer columns in users table, they are derived from fullname
       if (body.firstName !== undefined || body.lastName !== undefined) {
          // If frontend sends firstName/lastName but not fullname, we should construct fullname
