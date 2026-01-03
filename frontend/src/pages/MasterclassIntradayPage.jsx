@@ -211,7 +211,7 @@ const MasterclassIntradayPage = () => {
                                 src="/assets/mentor-image-transparent.png"
                                 alt="Jagpreet Singh Narula"
                                 className="mentor-image"
-                                style={{ maxHeight: '500px' }} // Restrict height to prevent it being huge
+                                style={{}} // Removed maxHeight to allow image to touch bottom
                             />
                         </div>
 
