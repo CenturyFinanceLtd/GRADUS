@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import MasterLayout from "../masterLayout/MasterLayout";
 import Breadcrumb from "../components/Breadcrumb";
 import { useAuthContext } from "../context/AuthContext";
@@ -9,6 +10,7 @@ import {
     deleteAdminEvent,
 } from "../services/adminEvents";
 import { uploadImage } from "../services/uploads";
+import apiClient from "../services/apiClient";
 
 const EVENT_TYPE_OPTIONS = ["Masterclass", "Seminar", "Webinar", "Job fair", "Corporate Initiatives"];
 
@@ -70,20 +72,28 @@ const fromDatetimeLocal = (value) => {
     return date.toISOString();
 };
 
-const formatShortDate = (iso) => {
-    if (!iso) return "TBA";
+const formatShortDate = (val) => {
+    if (!val) return "TBA";
+    // If it's already a formatted string or doesn't look like an ISO date, just return it
+    if (typeof val === 'string' && !val.includes('T') && val.length < 20) {
+        // Simple heuristic: if it's short and no T separator, maybe it's just "12th Oct"
+        return val;
+    }
     try {
+        const date = new Date(val);
+        if (Number.isNaN(date.getTime())) return val; // Fallback to original string if parse fails
         return new Intl.DateTimeFormat("en-IN", {
             month: "short",
             day: "numeric",
             year: "numeric",
-        }).format(new Date(iso));
+        }).format(date);
     } catch {
-        return "TBA";
+        return val || "TBA";
     }
 };
 
 const MasterclassAdminPage = () => {
+    const navigate = useNavigate();
     const { token } = useAuthContext();
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -98,11 +108,33 @@ const MasterclassAdminPage = () => {
         try {
             setLoading(true);
             setError(null);
-            const data = await listAdminEvents({ token });
-            // Filter ONLY Masterclasses
-            setItems(data.filter(evt => evt.isMasterclass));
+            // Fetch landing pages instead/alongside events
+            // The user wants "Landing Pages" to be the masterclasses
+            const landingPages = await apiClient('/admin/landing-pages', { token });
+
+            // Map landing pages to the event structure expected by the list
+            const mappedItems = (landingPages || []).map(lp => ({
+                id: lp._id,
+                title: lp.title || lp.hero?.highlight || lp.slug,
+                host: {
+                    name: lp.mentor?.name || lp.hero?.mentorName || "Unknown Host"
+                },
+                schedule: {
+                    start: lp.hero?.date ? `${lp.hero.date} ${lp.hero?.time || ''}` : lp.createdAt,
+                    timezone: "IST" // Default
+                },
+                status: lp.isPublished ? "published" : "draft",
+                // Preserve original object for editing if needed (though editing might need redirect)
+                original: lp
+            }));
+
+            // If we still want to show legacy events, we could merge them. 
+            // But user said "these landing pages ARE master classes", implying exclusion of old table?
+            // Let's just show landing pages for now as requested.
+            setItems(mappedItems);
         } catch (err) {
-            setError(err?.message || "Failed to load events");
+            console.error(err);
+            setError(err?.message || "Failed to load masterclasses");
         } finally {
             setLoading(false);
         }
@@ -262,6 +294,12 @@ const MasterclassAdminPage = () => {
     };
 
     const handleEdit = (event) => {
+        // If it's a landing page (has original property), navigate to specific editor
+        if (event.original && event.original.slug) {
+            navigate(`/edit-landing-page/${event.original.slug}`);
+            return;
+        }
+        // Fallback for legacy events
         setEditing(event);
         setForm(mappedForm(event));
     };
@@ -270,7 +308,14 @@ const MasterclassAdminPage = () => {
         const confirmed = window.confirm(`Delete "${event.title}"? This cannot be undone.`);
         if (!confirmed) return;
         try {
-            await deleteAdminEvent({ token, id: event.id });
+            if (event.original && event.original._id) {
+                // Delete Landing Page
+                await apiClient(`/admin/landing-pages/${event.original._id}`, { method: 'DELETE', token });
+            } else {
+                // Delete Legacy Event
+                await deleteAdminEvent({ token, id: event.id });
+            }
+
             setItems((prev) => prev.filter((item) => item.id !== event.id));
             if (editing?.id === event.id) {
                 resetForm();

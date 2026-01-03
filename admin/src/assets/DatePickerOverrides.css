@@ -1,0 +1,80 @@
+/* React Datepicker Overrides */
+.react-datepicker-wrapper {
+    width: 100%;
+}
+
+.react-datepicker {
+    font-family: 'Inter', sans-serif !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--rounded-12) !important;
+    box-shadow: var(--shadow-2) !important;
+    overflow: hidden;
+    background-color: var(--white) !important;
+    font-size: 0.9rem !important;
+}
+
+.react-datepicker__header {
+    background-color: var(--neutral-50) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    padding-top: 12px !important;
+}
+
+.react-datepicker__current-month {
+    font-size: 1rem !important;
+    /* Fixed huge font issue */
+    font-weight: 600 !important;
+    color: var(--neutral-800) !important;
+    margin-bottom: 8px !important;
+}
+
+.react-datepicker__day-name {
+    color: var(--neutral-500) !important;
+    font-weight: 500 !important;
+    width: 2.5rem !important;
+    line-height: 2.5rem !important;
+    margin: 0 !important;
+}
+
+.react-datepicker__day {
+    width: 2.5rem !important;
+    line-height: 2.5rem !important;
+    margin: 0 !important;
+    color: var(--neutral-700) !important;
+    border-radius: var(--rounded-8) !important;
+}
+
+.react-datepicker__day:hover {
+    background-color: var(--primary-50) !important;
+    color: var(--primary-700) !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+    background-color: var(--primary-600) !important;
+    color: #fff !important;
+}
+
+.react-datepicker__day--today {
+    font-weight: bold;
+    color: var(--primary-600) !important;
+    position: relative;
+}
+
+/* Ensure today's date doesn't clash if selected */
+.react-datepicker__day--today.react-datepicker__day--selected {
+    color: #fff !important;
+}
+
+.react-datepicker__navigation {
+    top: 12px !important;
+}
+
+.react-datepicker__navigation-icon::before {
+    border-color: var(--neutral-500) !important;
+    border-width: 2px 2px 0 0 !important;
+}
+
+.react-datepicker-popper {
+    z-index: 1050 !important;
+    /* Above modals/forms */
+}
