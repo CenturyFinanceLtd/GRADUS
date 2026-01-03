@@ -368,12 +368,13 @@ serve(async (req: Request) => {
           .from("users")
           .upsert(
             {
+              id: supabaseId, // Use ID as primary key match
               email: email.toLowerCase().trim(),
               fullname: `${firstName} ${lastName}`.trim(),
-              phone, // Changed mobile to phone
-              supabase_id: supabaseId,
+              phone,
+              // supabase_id: supabaseId, // Removing potential legacy column if not needed, or keep if DB has it
             },
-            { onConflict: "email" },
+            { onConflict: "id" }, // Conflict on Primary Key to ensure UPDATE
           )
          .select()
          .single();

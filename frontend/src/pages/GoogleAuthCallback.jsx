@@ -84,17 +84,38 @@ const GoogleAuthCallback = () => {
       setProcessed(true);
 
       // Sync user profile to database
+      // Sync user profile to database
       try {
+        // Find Google identity to get the email if top-level email is missing/placeholder
+        const googleIdentity = session.user.identities?.find(
+          (id) => id.provider === "google"
+        );
+
+        const identityData = googleIdentity?.identity_data || {};
+        const userMetadata = session.user.user_metadata || {};
+
+        // Use identity email if available, otherwise fallback to session email
+        const emailToSync = identityData.email || session.user.email;
+        const nameToSync = identityData.full_name || identityData.name || userMetadata.full_name;
+
+        // Extract names
+        let firstName = userMetadata.first_name || "";
+        let lastName = userMetadata.last_name || "";
+
+        if (!firstName && nameToSync) {
+          const parts = nameToSync.split(" ");
+          firstName = parts[0];
+          lastName = parts.slice(1).join(" ");
+        }
+
         await apiClient("/auth/supabase/create-profile", {
           method: "POST",
           data: {
             supabaseId: session.user.id,
-            email: session.user.email,
-            firstName: session.user.user_metadata?.first_name ||
-              session.user.user_metadata?.full_name?.split(" ")[0] || "",
-            lastName: session.user.user_metadata?.last_name ||
-              session.user.user_metadata?.full_name?.split(" ").slice(1).join(" ") || "",
-            phone: session.user.user_metadata?.phone || session.user.user_metadata?.mobile || null,
+            email: emailToSync,
+            firstName: firstName,
+            lastName: lastName,
+            phone: userMetadata.phone || userMetadata.mobile || null,
           },
         });
       } catch (profileError) {
