@@ -84,7 +84,7 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentor
     };
 
 
-    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [isAuthorized, setIsAuthorized] = useState(true);
     const [isSuccess, setIsSuccess] = useState(false);
     const [successEmail, setSuccessEmail] = useState(""); // Track email for success display
 
@@ -227,7 +227,7 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentor
                                 />
                             </div>
 
-                            <div className="form-group">
+                            <div className="form-group" style={{ display: 'none' }}>
                                 <label>Qualification</label>
                                 <Select
                                     options={qualificationOptions}

@@ -353,21 +353,25 @@ serve(async (req: Request) => {
       const toNull = (val: any) => (val === "" || val === undefined) ? null : val;
 
       // Basic info
-      if (body.fullname !== undefined) {
-         // Explicitly block 'EMPTY' and 'User Name' placeholders
-         if (body.fullname === 'EMPTY' || body.fullname === 'User Name') {
-             updates.fullname = null;
-         } else {
-             updates.fullname = body.fullname;
-         }
+      // DEFENSIVE FIX: Only update fullname if it is a valid, non-empty string.
+      // This prevents "Ghost" clients from overwriting valid names with "" or "EMPTY".
+      if (body.fullname && typeof body.fullname === 'string') {
+          const cleanName = body.fullname.trim();
+          if (cleanName !== '' && cleanName !== 'EMPTY' && cleanName !== 'User Name') {
+              updates.fullname = cleanName;
+          }
       }
       // firstName and lastName are no longer columns in users table, they are derived from fullname
       if (body.firstName !== undefined || body.lastName !== undefined) {
          // If frontend sends firstName/lastName but not fullname, we should construct fullname
          if (body.fullname === undefined) {
-           const fName = body.firstName || '';
-           const lName = body.lastName || '';
-           updates.fullname = `${fName} ${lName}`.trim();
+            const fName = body.firstName || '';
+            const lName = body.lastName || '';
+            const constructed = `${fName} ${lName}`.trim();
+            // DEFENSIVE FIX: Only use constructed name if it is not empty
+            if (constructed !== '' && constructed !== 'EMPTY') {
+                updates.fullname = constructed;
+            }
          }
       }
       if (body.email !== undefined) updates.email = body.email;
