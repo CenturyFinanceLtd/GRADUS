@@ -12,14 +12,14 @@ import apiClient from "./apiClient";
  * Sign up new user with Supabase Auth
  */
 export const signup = async (credentials) => {
-  const { email, password, fullName, mobile } = credentials;
+  const { email, password, fullName, phone } = credentials;
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: {
         full_name: fullName,
-        mobile: mobile,
+        phone: phone,
       },
     },
   });
@@ -40,7 +40,7 @@ export const signup = async (credentials) => {
         supabaseId: authData.user.id,
         email: authData.user.email,
         fullname: fullName,
-        mobile,
+        phone,
       },
     });
   } catch (error) {
@@ -181,7 +181,7 @@ export const syncGoogleUserProfile = async (user) => {
                 user.user_metadata.last_name || ""
               }`.trim()
             : ""),
-        mobile: user.user_metadata?.mobile || null,
+        phone: user.user_metadata?.phone || user.user_metadata?.mobile || null,
       },
     });
     return data;

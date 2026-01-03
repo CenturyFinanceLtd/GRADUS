@@ -170,7 +170,7 @@ const CoursePaymentPage = () => {
     setProfileForm({
       fullname: user?.fullname || "",
       email: user?.email || "",
-      whatsappNumber: normalizeWhatsappDigits(user?.whatsappNumber || user?.mobile || ""),
+      whatsappNumber: normalizeWhatsappDigits(user?.whatsappNumber || user?.phone || user?.mobile || ""),
       stateName: sanitizeStateValue(user?.personalDetails?.state || ""),
       dateOfBirth: normalizeDateInput(user?.personalDetails?.dob || user?.dob || ""),
       city: user?.personalDetails?.city || user?.city || "",
@@ -267,7 +267,7 @@ const CoursePaymentPage = () => {
           fullname: profileForm.fullname.trim(),
           email: profileForm.email.trim(),
           whatsappNumber: sanitizedWhatsapp,
-          mobile: sanitizedWhatsapp,
+          phone: sanitizedWhatsapp,
           personalDetails: {
             state: sanitizedState,
             dob: profileForm.dateOfBirth.trim(),
@@ -287,7 +287,7 @@ const CoursePaymentPage = () => {
           fullname: returnedUser?.fullname || prev.fullname,
           email: returnedUser?.email || prev.email,
           stateName: sanitizeStateValue(returnedUser?.personalDetails?.state || prev.stateName),
-          whatsappNumber: normalizeWhatsappDigits(returnedUser?.whatsappNumber || returnedUser?.mobile || prev.whatsappNumber),
+          whatsappNumber: normalizeWhatsappDigits(returnedUser?.whatsappNumber || returnedUser?.phone || returnedUser?.mobile || prev.whatsappNumber),
           city: returnedUser?.personalDetails?.city || returnedUser?.city || prev.city,
           college: returnedUser?.educationDetails?.institutionName || returnedUser?.college || prev.college,
           dateOfBirth: normalizeDateInput(returnedUser?.personalDetails?.dob || returnedUser?.dob || prev.dateOfBirth),
@@ -366,7 +366,7 @@ const CoursePaymentPage = () => {
             email: user?.email || '',
             contact:
               normalizeWhatsappDigits(profileForm.whatsappNumber) ||
-              normalizeWhatsappDigits(user?.mobile || ''),
+              normalizeWhatsappDigits(user?.phone || user?.mobile || ''),
           },
           theme: { color: '#0066FF' },
           modal: {
@@ -564,7 +564,7 @@ const CoursePaymentPage = () => {
               <input
                 type='text'
                 className='form-control bg-neutral-20'
-                value={user?.mobile || user?.whatsappNumber || ""}
+                value={user?.phone || user?.mobile || user?.whatsappNumber || ""}
                 disabled
               />
             </div>
