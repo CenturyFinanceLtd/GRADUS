@@ -7,14 +7,16 @@ import apiClient from '../services/apiClient';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../context/AuthContext';
+import { supabase } from '../services/supabaseClient';
 
 const LandingPageFormLayer = ({ slug }) => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [uploadingMentorImage, setUploadingMentorImage] = useState(false);
     const isEdit = !!slug;
     const { token } = useAuthContext();
 
-    const { register, control, handleSubmit, setValue, reset, formState: { errors } } = useForm({
+    const { register, control, handleSubmit, setValue, reset, watch, formState: { errors } } = useForm({
         defaultValues: {
             slug: '',
             hero: { socialProofCount: '12K+', ratingText: '5k+ reviews (4.9 of 5)' },
@@ -55,6 +57,9 @@ const LandingPageFormLayer = ({ slug }) => {
         name: "faq"
     });
 
+    // Watch mentor image for preview
+    const mentorImageUrl = watch('mentor.image');
+
 
     useEffect(() => {
         if (isEdit && slug) {
@@ -84,6 +89,60 @@ const LandingPageFormLayer = ({ slug }) => {
                 });
         }
     }, [slug, isEdit, reset]);
+
+    const handleMentorImageUpload = async (e) => {
+        const file = e?.target?.files?.[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            toast.error('Please select an image file');
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('Image size should be less than 5MB');
+            return;
+        }
+
+        try {
+            setUploadingMentorImage(true);
+            
+            // Generate unique filename with timestamp
+            const fileExt = file.name.split('.').pop();
+            const fileName = `mentor_${Date.now()}.${fileExt}`;
+            
+            // Upload to Supabase storage bucket "landing_page"
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('landing_page')
+                .upload(fileName, file, {
+                    contentType: file.type,
+                    upsert: false
+                });
+
+            if (uploadError) {
+                throw new Error(uploadError.message || 'Upload failed');
+            }
+
+            // Get public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('landing_page')
+                .getPublicUrl(fileName);
+
+            // Update form field with the public URL
+            setValue('mentor.image', publicUrl);
+            toast.success('Image uploaded successfully');
+            
+            // Reset file input
+            e.target.value = '';
+        } catch (error) {
+            console.error('Upload error:', error);
+            toast.error(error.message || 'Failed to upload image');
+        } finally {
+            setUploadingMentorImage(false);
+        }
+    };
 
     const onSubmit = async (data) => {
         try {
@@ -239,8 +298,37 @@ const LandingPageFormLayer = ({ slug }) => {
                                 <input {...register('mentor.name')} className="form-control" />
                             </div>
                             <div className="col-md-6 mb-3">
-                                <label className="form-label">Mentor Image URL</label>
-                                <input {...register('mentor.image')} className="form-control" />
+                                <label className="form-label">Mentor Image</label>
+                                <div className="d-flex align-items-center gap-3 mb-2">
+                                    <div className="flex-grow-1">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="form-control"
+                                            onChange={handleMentorImageUpload}
+                                            disabled={uploadingMentorImage}
+                                        />
+                                        <small className="text-muted d-block mt-1">
+                                            {uploadingMentorImage ? 'Uploading...' : 'Upload to Supabase (max 5MB)'}
+                                        </small>
+                                    </div>
+                                    {mentorImageUrl && (
+                                        <div className="border rounded p-2 bg-light-subtle" style={{ flexShrink: 0 }}>
+                                            <img
+                                                src={mentorImageUrl}
+                                                alt="Mentor preview"
+                                                style={{ maxWidth: 96, maxHeight: 96, objectFit: "cover", display: "block", borderRadius: 8 }}
+                                                onError={(e) => {
+                                                    e.target.style.display = 'none';
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="form-label">Mentor Image URL</label>
+                                    <input {...register('mentor.image')} className="form-control" placeholder="Or enter image URL directly" />
+                                </div>
                             </div>
                             <div className="col-12 mb-3">
                                 <label className="form-label">Mentor Points</label>
