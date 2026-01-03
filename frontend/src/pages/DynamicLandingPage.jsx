@@ -12,57 +12,6 @@ const DynamicLandingPage = () => {
     const [error, setError] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Add Facebook Meta Pixel to head (only for akhil slug)
-    useEffect(() => {
-        // Only initialize pixel for akhil slug
-        if (id !== 'akhil') {
-            return;
-        }
-
-        // Check if script already exists
-        if (document.querySelector('script[src*="fbevents.js"]')) {
-            // If script exists, just track page view
-            if (window.fbq) {
-                window.fbq('track', 'PageView');
-            }
-            return;
-        }
-
-        // Initialize fbq function
-        window.fbq = window.fbq || function() {
-            (window.fbq.q = window.fbq.q || []).push(arguments);
-        };
-        window.fbq.l = +new Date();
-
-        // Create and inject the Meta Pixel script
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = 'https://connect.facebook.net/en_US/fbevents.js';
-        script.onload = () => {
-            if (window.fbq) {
-                window.fbq('init', '841851888624467');
-                window.fbq('track', 'PageView');
-            }
-        };
-        document.head.appendChild(script);
-
-        // Create and inject the noscript image
-        const noscript = document.createElement('noscript');
-        const img = document.createElement('img');
-        img.height = 1;
-        img.width = 1;
-        img.style.display = 'none';
-        img.src = 'https://www.facebook.com/tr?id=841851888624467&ev=PageView&noscript=1';
-        noscript.appendChild(img);
-        document.body.appendChild(noscript);
-
-        // Cleanup function
-        return () => {
-            // Note: We don't remove the script on unmount as it should persist
-            // The noscript tag can stay as well
-        };
-    }, [id]);
-
     useEffect(() => {
         const fetchPageData = async () => {
             try {
