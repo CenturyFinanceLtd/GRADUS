@@ -314,7 +314,7 @@ function ProgrammeCoursePage() {
             </div>
             <div className='d-flex flex-column gap-12'>
               <div className='text-end'>
-                {data?.enrollment?.payment_status === 'PAID' ? (
+                {data?.isEnrolled || data?.enrollment?.payment_status === 'PAID' ? (
                   <div className='fw-semibold text-success-600 text-lg'>Already enrolled</div>
                 ) : data?.enrollment ? (
                   <div className='fw-semibold text-warning-600 text-lg'>Payment Pending</div>
@@ -324,7 +324,7 @@ function ProgrammeCoursePage() {
                   </div>
                 )}
               </div>
-              {data?.enrollment?.payment_status === 'PAID' ? (
+              {data?.isEnrolled || data?.enrollment?.payment_status === 'PAID' ? (
                 <Link to={courseHomePath} className='btn btn-main w-100'>Go to Course</Link>
               ) : (
                 <Link
