@@ -12,52 +12,6 @@ const DynamicLandingPage = () => {
     const [error, setError] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Add Facebook Meta Pixel to head
-    useEffect(() => {
-        // Check if script already exists
-        if (document.querySelector('script[src*="fbevents.js"]')) {
-            // If script exists, just track page view
-            if (window.fbq) {
-                window.fbq('track', 'PageView');
-            }
-            return;
-        }
-
-        // Initialize fbq function
-        window.fbq = window.fbq || function() {
-            (window.fbq.q = window.fbq.q || []).push(arguments);
-        };
-        window.fbq.l = +new Date();
-
-        // Create and inject the Meta Pixel script
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = 'https://connect.facebook.net/en_US/fbevents.js';
-        script.onload = () => {
-            if (window.fbq) {
-                window.fbq('init', '2239669363230304');
-                window.fbq('track', 'PageView');
-            }
-        };
-        document.head.appendChild(script);
-
-        // Create and inject the noscript image
-        const noscript = document.createElement('noscript');
-        const img = document.createElement('img');
-        img.height = 1;
-        img.width = 1;
-        img.style.display = 'none';
-        img.src = 'https://www.facebook.com/tr?id=2239669363230304&ev=PageView&noscript=1';
-        noscript.appendChild(img);
-        document.body.appendChild(noscript);
-
-        // Cleanup function
-        return () => {
-            // Note: We don't remove the script on unmount as it should persist
-            // The noscript tag can stay as well
-        };
-    }, []);
-
     useEffect(() => {
         const fetchPageData = async () => {
             try {
@@ -140,7 +94,7 @@ const DynamicLandingPage = () => {
 
                         {/* CTA & Social Proof */}
                         <div className="cta-container">
-                            <button onClick={() => setIsModalOpen(true)} className="cta-button">Click to Register</button>
+                            <button onClick={() => setIsModalOpen(true)} className="cta-button">Register Now For Free</button>
                             <div className="social-proof">
                                 <div className="user-avatars">
                                     <img src="https://ui-avatars.com/api/?name=User+One&background=random" alt="User" />
@@ -161,21 +115,7 @@ const DynamicLandingPage = () => {
                     {/* Right Column: Hero Image Card */}
                     <div className="right-column">
                         <div className="hero-image-container">
-                            <img 
-                                src={
-                                    hero.image && (hero.image.startsWith('http') || hero.image.startsWith('/'))
-                                        ? hero.image
-                                        : hero.image
-                                            ? supabase.storage.from('landing_page').getPublicUrl(hero.image).data.publicUrl
-                                            : ''
-                                } 
-                                alt={hero.highlight} 
-                                className="hero-main-image" 
-                                onError={(e) => {
-                                    // Fallback handling if image fails to load
-                                    console.error('Hero image failed to load:', hero.image);
-                                }}
-                            />
+                            <img src={hero.image} alt={hero.highlight} className="hero-main-image" />
                         </div>
                     </div>
                 </div>
@@ -205,7 +145,7 @@ const DynamicLandingPage = () => {
                         ))}
                     </div>
 
-                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Click to Register</button>
+                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Register Now For Free</button>
 
                     {/* Part 2: What Will You Learn */}
                     <h2 className="learning-section-title">
@@ -230,7 +170,7 @@ const DynamicLandingPage = () => {
                         </div>
                     )}
 
-                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Click to Register</button>
+                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Register Now For Free</button>
 
                     {/* --- Meet Your Mentor Section --- */}
                     <div className="mentor-grid">
@@ -260,7 +200,7 @@ const DynamicLandingPage = () => {
                                     ))}
                                 </ul>
                             </div>
-                            <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ marginTop: '0' }}>Click to Register</button>
+                            <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ marginTop: '0' }}>Register Now For Free</button>
                         </div>
                     </div>
                 </div>
@@ -273,7 +213,7 @@ const DynamicLandingPage = () => {
                     <div className="certificate-image-wrapper">
                         <img src={certificate.image} alt="Certificate" className="certificate-image" />
                     </div>
-                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Click to Register</button>
+                    <button onClick={() => setIsModalOpen(true)} className="cta-button" style={{ display: 'inline-block', width: 'auto', minWidth: '300px' }}>Register Now For Free</button>
                 </div>
             </section>
 
@@ -376,7 +316,7 @@ const StickyFooter = ({ original, current, onRegister, date, time }) => {
                     </div>
                     <div className="footer-timer-row">Offer Expires in <strong>{formatTime(timeLeft)}</strong></div>
                 </div>
-                <button onClick={onRegister} className="cta-button" style={{ margin: 0, width: 'auto', padding: '0.8rem 2rem' }}>Click to Register</button>
+                <button onClick={onRegister} className="cta-button" style={{ margin: 0, width: 'auto', padding: '0.8rem 2rem' }}>Register Now For Free</button>
             </div>
         </div>
     );

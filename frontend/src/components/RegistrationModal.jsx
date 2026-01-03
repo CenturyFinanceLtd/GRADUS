@@ -84,30 +84,9 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentor
     };
 
 
-    const [isAuthorized, setIsAuthorized] = useState(true);
+    const [isAuthorized, setIsAuthorized] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [successEmail, setSuccessEmail] = useState(""); // Track email for success display
-
-    // Track Facebook Pixel Lead event on successful registration
-    useEffect(() => {
-        if (isSuccess && window.fbq) {
-            // Track Lead event for successful registration
-            window.fbq('track', 'Lead', {
-                content_name: programName,
-                content_category: 'Landing Page Registration',
-                value: 0.00,
-                currency: 'INR'
-            });
-            
-            // Also track CompleteRegistration event
-            window.fbq('track', 'CompleteRegistration', {
-                content_name: programName,
-                status: true
-            });
-            
-            console.log('Facebook Pixel: Lead event tracked for registration');
-        }
-    }, [isSuccess, programName]);
 
     const handleClose = () => {
         setIsSuccess(false);
@@ -238,7 +217,7 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentor
                                 </div>
                             </div>
 
-                            <div className="form-group" style={{ display: 'none' }}>
+                            <div className="form-group">
                                 <label>State</label>
                                 <Select
                                     options={stateOptions}
@@ -248,7 +227,7 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentor
                                 />
                             </div>
 
-                            <div className="form-group" style={{ display: 'none' }}>
+                            <div className="form-group">
                                 <label>Qualification</label>
                                 <Select
                                     options={qualificationOptions}
@@ -276,7 +255,7 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentor
                                 disabled={loading || !isAuthorized}
                                 style={{ opacity: isAuthorized ? 1 : 0.6, cursor: isAuthorized ? 'pointer' : 'not-allowed' }}
                             >
-                                {loading ? "Registering..." : "Click to Register"}
+                                {loading ? "Registering..." : "Register For Free"}
                             </button>
                         </form>
                     </>

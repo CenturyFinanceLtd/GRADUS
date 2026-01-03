@@ -410,7 +410,7 @@ const RegistrationCard = ({ event }) => {
               className='btn btn-main w-100 rounded-pill mt-20'
               disabled={status.submitting}
             >
-              {status.submitting ? "Registering..." : "Click to Register"}
+              {status.submitting ? "Registering..." : "Register for free"}
             </button>
           )}
           {status.success ? (
