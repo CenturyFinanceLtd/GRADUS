@@ -2,6 +2,7 @@
   Admin entrypoint
   - Loads vendor styles and mounts the admin React app with AuthProvider
 */
+import "./utils/suppressWarnings.js";
 import { createRoot } from "react-dom/client";
 import "react-quill-new/dist/quill.snow.css";
 import "jsvectormap/dist/css/jsvectormap.css";
