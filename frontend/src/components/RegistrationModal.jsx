@@ -182,6 +182,14 @@ const RegistrationModal = ({ isOpen, onClose, programName, programType, slug, la
                 key_benefit: keyBenefit
             };
 
+            // Send data to backend
+            const response = await apiClient.post("/landing-page-registrations", payload);
+
+            // internal check: log if email failed (backend newly configured to return this)
+            if (response?.emailStatus === 'failed') {
+                console.warn("Registration saved, but email failed:", response.emailError);
+            }
+
             // Store email for success message before clearing form
             const registeredEmail = formData.email;
 
