@@ -88,6 +88,27 @@ const RegistrationModal = ({ isOpen, onClose, programName, landingPageId, mentor
     const [isSuccess, setIsSuccess] = useState(false);
     const [successEmail, setSuccessEmail] = useState(""); // Track email for success display
 
+    // Track Facebook Pixel Lead event on successful registration
+    useEffect(() => {
+        if (isSuccess && window.fbq) {
+            // Track Lead event for successful registration
+            window.fbq('track', 'Lead', {
+                content_name: programName,
+                content_category: 'Landing Page Registration',
+                value: 0.00,
+                currency: 'INR'
+            });
+            
+            // Also track CompleteRegistration event
+            window.fbq('track', 'CompleteRegistration', {
+                content_name: programName,
+                status: true
+            });
+            
+            console.log('Facebook Pixel: Lead event tracked for registration');
+        }
+    }, [isSuccess, programName]);
+
     const handleClose = () => {
         setIsSuccess(false);
         onClose();
