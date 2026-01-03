@@ -577,3 +577,8 @@ verify_jwt = false
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/send-email/index.ts"
+
+[functions.live-class-api]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/live-class-api/index.ts"

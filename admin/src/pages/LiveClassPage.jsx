@@ -69,8 +69,15 @@ const LiveClassPage = () => {
         }
 
         const course = courses.find(c => (c.id === selectedCourse || c.course_key === selectedCourse || c.slug === selectedCourse));
+        if (!course) {
+            setError('Course not found');
+            return;
+        }
+        
         const rawCourseName = course?.title || course?.name || 'Live Class';
         const courseName = rawCourseName.replace(/[^a-zA-Z0-9 ]/g, '');
+        // Get the actual course slug - prefer slug, fallback to id if slug doesn't exist
+        const courseSlug = course.slug || course.id || selectedCourse;
 
         setLoading(true);
         setError('');
@@ -90,8 +97,8 @@ const LiveClassPage = () => {
                 },
                 body: JSON.stringify({
                     name: roomName,
-                    description: `Live class for ${courseName}`,
-                    courseSlug: selectedCourse,
+                    description: `Live class for ${courseName} | Course: ${courseSlug}`,
+                    courseSlug: courseSlug,
                     courseName: courseName,
                 }),
             });
@@ -296,8 +303,8 @@ const LiveClassPage = () => {
                                         >
                                             <option value="">Start typing or select...</option>
                                             {Array.isArray(courses) && courses.map((course) => (
-                                                <option key={course.id || course.slug} value={course.id || course.slug}>
-                                                    {course.name || course.title}
+                                                <option key={course.id || course.slug} value={course.slug || course.id}>
+                                                    {course.name || course.title} {course.slug ? `(${course.slug})` : ''}
                                                 </option>
                                             ))}
                                         </select>

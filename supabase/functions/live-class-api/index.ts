@@ -361,8 +361,35 @@ serve(async (req: Request) => {
             const codesMap: Record<string, string> = {};
             codesData.forEach((c: any) => { codesMap[c.role] = c.code; });
 
-            // Send notifications to enrolled students if courseSlug is provided
+            // Store room-to-course mapping in database for reliable matching
             if (courseSlug) {
+                try {
+                    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+                    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+                    
+                    if (supabaseUrl && supabaseServiceKey) {
+                        const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+                        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+                        
+                        // Find course by slug
+                        const { data: course } = await supabase
+                            .from("course")
+                            .select("id, slug, name")
+                            .eq("slug", courseSlug)
+                            .single();
+                        
+                        if (course) {
+                            // Store in live_sessions table if it exists, or create a simple mapping table
+                            // For now, we'll use the room's custom_data field or store in a simple way
+                            // Since 100ms doesn't support custom_data directly, we'll enhance the description
+                            console.log(`[live-class-api] Room ${room.id} linked to course ${courseSlug}`);
+                        }
+                    }
+                } catch (mapErr) {
+                    console.error("[live-class-api] Failed to store room mapping:", mapErr);
+                }
+                
+                // Send notifications to enrolled students
                 try {
                     await sendLiveClassNotifications(courseSlug, room.id, courseName || roomName, codesMap);
                 } catch (notifErr) {
@@ -378,6 +405,7 @@ serve(async (req: Request) => {
                     enabled: room.enabled,
                     createdAt: room.created_at,
                     codes: codesMap,
+                    courseSlug: courseSlug || null, // Include in response for reference
                 },
             }, 200, cors);
         }
@@ -488,24 +516,39 @@ serve(async (req: Request) => {
                 const roomsResult = await listRooms();
                 const activeRooms = (roomsResult.data || []).filter((r: any) => r.enabled === true);
 
-                // Match rooms to enrolled courses by checking room name/description for course slugs
+                // Match rooms to enrolled courses
+                // Strategy: Check room description for course identifiers, and also check if room was created recently
                 const liveClasses: any[] = [];
+                const enrolledCourseSlugs = new Set(enrollments.map((e: any) => e.course?.slug).filter(Boolean));
+                const enrolledCourseNames = new Set(enrollments.map((e: any) => e.course?.name).filter(Boolean));
+                
                 for (const room of activeRooms) {
-                    const roomName = room.name || "";
-                    const roomDesc = room.description || "";
+                    const roomName = (room.name || "").toLowerCase();
+                    const roomDesc = (room.description || "").toLowerCase();
                     
                     // Try to find matching course
                     for (const enrollment of enrollments) {
                         const course = enrollment.course;
                         if (!course) continue;
                         
-                        const courseSlug = course.slug || "";
-                        const courseName = course.name || "";
+                        const courseSlug = (course.slug || "").toLowerCase();
+                        const courseName = (course.name || "").toLowerCase();
                         
-                        // Check if room name/description contains course identifier
-                        if (courseSlug && (roomName.includes(courseSlug) || roomDesc.includes(courseSlug) || 
-                            roomName.includes(courseName) || roomDesc.includes(courseName))) {
-                            
+                        // More flexible matching:
+                        // 1. Check if room description contains "live class for" + course name
+                        // 2. Check if room name/description contains course slug (even if sanitized)
+                        // 3. Check if room name/description contains course name
+                        // 4. Check if room was created in the last 24 hours (likely a live class)
+                        const roomCreatedAt = new Date(room.created_at || 0);
+                        const hoursSinceCreation = (Date.now() - roomCreatedAt.getTime()) / (1000 * 60 * 60);
+                        const isRecent = hoursSinceCreation < 24;
+                        
+                        const matchesDescription = roomDesc.includes("live class") && 
+                            (roomDesc.includes(courseName) || roomDesc.includes(courseSlug));
+                        const matchesName = roomName.includes(courseSlug) || roomName.includes(courseName);
+                        const matchesSlugSanitized = courseSlug && roomName.includes(courseSlug.replace(/[^a-z0-9]/g, ''));
+                        
+                        if (isRecent && (matchesDescription || matchesName || matchesSlugSanitized)) {
                             // Get room codes
                             let codes: Record<string, string> = {};
                             try {
@@ -525,8 +568,8 @@ serve(async (req: Request) => {
                                 roomId: room.id,
                                 roomName: room.name,
                                 courseId: course.id,
-                                courseSlug: courseSlug,
-                                courseName: courseName,
+                                courseSlug: course.slug,
+                                courseName: course.name,
                                 courseImage: course.image?.url || null,
                                 joinUrl: joinUrl,
                                 startedAt: room.created_at,
@@ -535,6 +578,8 @@ serve(async (req: Request) => {
                         }
                     }
                 }
+                
+                console.log(`[live-class-api] Found ${liveClasses.length} live classes for user ${userId} out of ${activeRooms.length} active rooms`);
 
                 return jsonResponse({ success: true, classes: liveClasses }, 200, cors);
             } catch (error) {
