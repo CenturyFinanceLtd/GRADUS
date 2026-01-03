@@ -477,13 +477,12 @@ const ProfileInner = () => {
                         Date of Birth
                       </label>
                       <input
-                        type='text'
+                        type='date'
                         className='common-input rounded-12 h-56'
                         id='dob'
                         name='personalDetails.dob'
                         value={profileData.personalDetails.dob}
                         onChange={handleProfileChange}
-                        placeholder='DD/MM/YYYY'
                       />
                     </div>
                   </>

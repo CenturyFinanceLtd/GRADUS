@@ -14,9 +14,10 @@ const RequireAuth = ({ children }) => {
   }
 
   // Enforce profile completion if required (same as mobile)
-  if (isAuthenticated && !user?.fullname && location.pathname !== '/profile-completion') {
-    return <Navigate to='/profile-completion' replace />;
-  }
+  // Commented out to allow "Skip" to work without forcing data entry
+  // if (isAuthenticated && !user?.fullname && location.pathname !== '/profile-completion') {
+  //   return <Navigate to='/profile-completion' replace />;
+  // }
 
   return children;
 };

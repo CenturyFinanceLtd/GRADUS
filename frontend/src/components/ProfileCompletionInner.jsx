@@ -47,24 +47,8 @@ const ProfileCompletionInner = ({ isModal = false }) => {
         }
     };
 
-    const handleSkip = async () => {
-        setLoading(true);
-        try {
-            // Set a default name so the AuthGuard passes
-            const response = await apiClient.put("/users/me", {
-                fullname: "New User",
-            }, { token });
-
-            const updatedUserData = response.user || response;
-            updateUser(updatedUserData);
-
-            navigate("/my-courses", { replace: true });
-        } catch (err) {
-            console.error("Skip failed", err);
-            setError("Could not skip. Please enter your name to proceed.");
-        } finally {
-            setLoading(false);
-        }
+    const handleSkip = () => {
+        navigate("/my-courses", { replace: true });
     };
 
     return (
