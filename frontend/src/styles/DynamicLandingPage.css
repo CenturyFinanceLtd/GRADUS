@@ -390,8 +390,8 @@
 }
 
 .mentor-image {
-    width: 135%;
-    /* Force image to be larger than column */
+    width: 150%;
+    /* Increased to 150% as requested */
     max-width: none;
     height: auto;
     margin-bottom: -4rem;
