@@ -108,7 +108,7 @@ serve(async (req: Request) => {
         firstName: user.fullname ? user.fullname.split(' ')[0] : '',
         lastName: user.fullname ? user.fullname.split(' ').slice(1).join(' ') : '',
         email: user.email || '',
-        phone: user.phone || user.mobile || '', // Prefer phone, fallback to mobile if DB not migrated
+        phone: user.phone || '',
         personalDetails: {
           city: user.city || null,
           state: user.state || null,
