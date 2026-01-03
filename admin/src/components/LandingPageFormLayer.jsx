@@ -7,14 +7,18 @@ import apiClient from '../services/apiClient';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../context/AuthContext';
+import { uploadToSupabase } from '../services/uploads';
 
 const LandingPageFormLayer = ({ slug }) => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [uploadingHero, setUploadingHero] = useState(false);
+    const [uploadingMentor, setUploadingMentor] = useState(false);
+    const [uploadingCertificate, setUploadingCertificate] = useState(false);
     const isEdit = !!slug;
     const { token } = useAuthContext();
 
-    const { register, control, handleSubmit, setValue, reset, formState: { errors } } = useForm({
+    const { register, control, handleSubmit, setValue, reset, watch, formState: { errors } } = useForm({
         defaultValues: {
             slug: '',
             hero: { socialProofCount: '12K+', ratingText: '5k+ reviews (4.9 of 5)' },
@@ -84,6 +88,48 @@ const LandingPageFormLayer = ({ slug }) => {
                 });
         }
     }, [slug, isEdit, reset]);
+
+    const handleHeroImageUpload = async (file) => {
+        if (!file) return;
+        try {
+            setUploadingHero(true);
+            const uploaded = await uploadToSupabase({ file, token });
+            setValue('hero.image', uploaded.url);
+            toast.success('Hero image uploaded successfully');
+        } catch (err) {
+            toast.error(err?.message || 'Image upload failed');
+        } finally {
+            setUploadingHero(false);
+        }
+    };
+
+    const handleMentorImageUpload = async (file) => {
+        if (!file) return;
+        try {
+            setUploadingMentor(true);
+            const uploaded = await uploadToSupabase({ file, token });
+            setValue('mentor.image', uploaded.url);
+            toast.success('Mentor image uploaded successfully');
+        } catch (err) {
+            toast.error(err?.message || 'Image upload failed');
+        } finally {
+            setUploadingMentor(false);
+        }
+    };
+
+    const handleCertificateImageUpload = async (file) => {
+        if (!file) return;
+        try {
+            setUploadingCertificate(true);
+            const uploaded = await uploadToSupabase({ file, token });
+            setValue('certificate.image', uploaded.url);
+            toast.success('Certificate image uploaded successfully');
+        } catch (err) {
+            toast.error(err?.message || 'Image upload failed');
+        } finally {
+            setUploadingCertificate(false);
+        }
+    };
 
     const onSubmit = async (data) => {
         try {
@@ -186,8 +232,35 @@ const LandingPageFormLayer = ({ slug }) => {
                                 <input {...register('hero.duration')} className="form-control" />
                             </div>
                             <div className="col-md-6 mb-3">
-                                <label className="form-label">Hero Image URL</label>
-                                <input {...register('hero.image')} className="form-control" />
+                                <label className="form-label">Hero Image</label>
+                                <div className="d-flex align-items-center gap-3">
+                                    <div className="flex-grow-1">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="form-control"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    handleHeroImageUpload(file);
+                                                }
+                                                e.target.value = "";
+                                            }}
+                                            disabled={uploadingHero}
+                                        />
+                                        <small className="text-muted">Recommended: landscape image (max 5MB)</small>
+                                    </div>
+                                    {watch('hero.image') && (
+                                        <div className="border rounded p-2 bg-light-subtle">
+                                            <img
+                                                src={watch('hero.image')}
+                                                alt="Hero preview"
+                                                style={{ maxWidth: 100, maxHeight: 100, objectFit: "cover", display: "block", borderRadius: 8 }}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                                <input {...register('hero.image')} className="form-control mt-2" placeholder="Or enter image URL manually" />
                             </div>
                             <div className="col-md-12 mb-3">
                                 <label className="form-label">Bottom Info Bar Text</label>
@@ -239,8 +312,35 @@ const LandingPageFormLayer = ({ slug }) => {
                                 <input {...register('mentor.name')} className="form-control" />
                             </div>
                             <div className="col-md-6 mb-3">
-                                <label className="form-label">Mentor Image URL</label>
-                                <input {...register('mentor.image')} className="form-control" />
+                                <label className="form-label">Mentor Image</label>
+                                <div className="d-flex align-items-center gap-3">
+                                    <div className="flex-grow-1">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="form-control"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    handleMentorImageUpload(file);
+                                                }
+                                                e.target.value = "";
+                                            }}
+                                            disabled={uploadingMentor}
+                                        />
+                                        <small className="text-muted">Recommended: square image (max 5MB)</small>
+                                    </div>
+                                    {watch('mentor.image') && (
+                                        <div className="border rounded p-2 bg-light-subtle">
+                                            <img
+                                                src={watch('mentor.image')}
+                                                alt="Mentor preview"
+                                                style={{ maxWidth: 64, maxHeight: 64, objectFit: "cover", display: "block", borderRadius: 8 }}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                                <input {...register('mentor.image')} className="form-control mt-2" placeholder="Or enter image URL manually" />
                             </div>
                             <div className="col-12 mb-3">
                                 <label className="form-label">Mentor Points</label>
@@ -280,8 +380,35 @@ const LandingPageFormLayer = ({ slug }) => {
                                 <input {...register('certificate.headline')} className="form-control" />
                             </div>
                             <div className="col-md-6 mb-3">
-                                <label className="form-label">Certificate Image URL</label>
-                                <input {...register('certificate.image')} className="form-control" />
+                                <label className="form-label">Certificate Image</label>
+                                <div className="d-flex align-items-center gap-3">
+                                    <div className="flex-grow-1">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="form-control"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    handleCertificateImageUpload(file);
+                                                }
+                                                e.target.value = "";
+                                            }}
+                                            disabled={uploadingCertificate}
+                                        />
+                                        <small className="text-muted">Recommended: landscape image (max 5MB)</small>
+                                    </div>
+                                    {watch('certificate.image') && (
+                                        <div className="border rounded p-2 bg-light-subtle">
+                                            <img
+                                                src={watch('certificate.image')}
+                                                alt="Certificate preview"
+                                                style={{ maxWidth: 100, maxHeight: 100, objectFit: "cover", display: "block", borderRadius: 8 }}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                                <input {...register('certificate.image')} className="form-control mt-2" placeholder="Or enter image URL manually" />
                             </div>
                             <div className="col-md-6 mb-3">
                                 <label className="form-label">Original Price</label>

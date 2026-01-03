@@ -15,5 +15,17 @@ export const uploadImage = async ({ file, token }) => {
   };
 };
 
-export default { uploadImage };
+export const uploadToSupabase = async ({ file, token }) => {
+  if (!file) throw new Error('file is required');
+  const form = new FormData();
+  form.append('file', file);
+  const data = await apiClient('/admin/uploads/landing-page-image', { method: 'POST', data: form, token });
+  const item = data?.item || data;
+  return {
+    url: item?.url || '',
+    path: item?.path || '',
+  };
+};
+
+export default { uploadImage, uploadToSupabase };
 

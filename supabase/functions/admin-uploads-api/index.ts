@@ -114,6 +114,44 @@ serve(async (req) => {
         }, 201, cors);
     }
 
+    // POST /landing-page-image - Upload to Supabase storage landing_page bucket
+    if (apiPath === "/landing-page-image" && req.method === "POST") {
+        const formData = await req.formData();
+        const file = formData.get("file") as File;
+        if (!file) return jsonResponse({ error: "File required" }, 400, cors);
+
+        // Generate unique filename with timestamp
+        const timestamp = Date.now();
+        const fileExt = file.name.split('.').pop() || 'jpg';
+        const fileName = `hero-images/${timestamp}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+        // Upload to Supabase storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from("landing_page")
+            .upload(fileName, file, {
+                contentType: file.type || 'image/jpeg',
+                upsert: false
+            });
+
+        if (uploadError) {
+            console.error("Storage upload error:", uploadError);
+            return jsonResponse({ error: uploadError.message }, 500, cors);
+        }
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+            .from("landing_page")
+            .getPublicUrl(fileName);
+
+        return jsonResponse({
+            ok: true,
+            item: {
+                url: publicUrl,
+                path: fileName
+            }
+        }, 201, cors);
+    }
+
     return jsonResponse({ error: "Not found" }, 404, cors);
 
   } catch (error) {
