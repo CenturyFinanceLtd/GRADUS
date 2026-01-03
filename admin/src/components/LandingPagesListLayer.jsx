@@ -12,19 +12,46 @@ const LandingPagesListLayer = () => {
 
     const fetchPages = async () => {
         try {
-            const data = await apiClient('/admin/landing-pages', { token });
-            if (!data) {
+            // Fetch the list first
+            const listData = await apiClient('/admin/landing-pages', { token });
+
+            if (!listData || listData.length === 0) {
                 setPages([]);
-            } else {
-                setPages(data);
+                setLoading(false);
+                return;
             }
+
+            // Fetch details for each page to ensure we have hero/mentor data
+            // (The List API might be returning partial data if stale)
+            const detailsPromises = listData.map(page =>
+                apiClient(`/admin/landing-pages/${page.slug}`, { token })
+                    .catch(err => {
+                        console.warn(`Failed to fetch details for ${page.slug}`, err);
+                        return page; // Fallback to list item if detail fetch fails
+                    })
+            );
+
+            const detailedPages = await Promise.all(detailsPromises);
+
+            setPages(detailedPages.map(p => ({
+                _id: p._id || p.id,
+                slug: p.slug,
+                title: p.title,
+                hero: p.hero,
+                mentor: p.mentor,
+                createdAt: p.createdAt || p.created_at,
+                updatedAt: p.updatedAt || p.updated_at,
+                isPublished: p.isPublished || p.is_published
+            })));
+
             setLoading(false);
+
         } catch (error) {
-            // If it's a 404 or empty, just show empty state without error toast
+            console.error('Error fetching landing pages:', error);
+            // If it's a 404, valid empty state
             if (error.status === 404) {
                 setPages([]);
             } else {
-                console.error('Error fetching landing pages:', error);
                 toast.error('Failed to fetch landing pages');
             }
             setLoading(false);
@@ -100,15 +127,22 @@ const LandingPagesListLayer = () => {
                                                     <span className="h6 mb-0 fw-medium text-gray-300">{displayDate}</span>
                                                 </td>
                                                 <td>
-                                                    <div className="d-flex align-items-center gap-10">
-                                                        <Link to={`/edit-landing-page/${page.slug}`} className="remove-item-btn bg-info-50 text-info-600 bg-hover-info-600 text-hover-white w-40 h-40 flex-center text-xl rounded-circle">
-                                                            <Icon icon="ph:pencil-simple" />
+                                                    <div className="d-flex align-items-center gap-2">
+                                                        <Link to={`/edit-landing-page/${page.slug}`}
+                                                            className="w-32 h-32 d-flex align-items-center justify-content-center text-primary-600 bg-primary-50 rounded-circle bg-hover-primary-600 text-hover-white transition-2"
+                                                            title="Edit">
+                                                            <Icon icon="ph:pencil-simple" className="text-lg" />
                                                         </Link>
-                                                        <button onClick={() => deletePage(page._id)} className="remove-item-btn bg-danger-50 text-danger-600 bg-hover-danger-600 text-hover-white w-40 h-40 flex-center text-xl rounded-circle">
-                                                            <Icon icon="ph:trash" />
+                                                        <button
+                                                            onClick={() => deletePage(page.id || page._id)}
+                                                            className="w-32 h-32 d-flex align-items-center justify-content-center text-danger-600 bg-danger-50 rounded-circle bg-hover-danger-600 text-hover-white transition-2"
+                                                            title="Delete">
+                                                            <Icon icon="ph:trash" className="text-lg" />
                                                         </button>
-                                                        <a href={publicUrl} target="_blank" rel="noreferrer" className="remove-item-btn bg-success-50 text-success-600 bg-hover-success-600 text-hover-white w-40 h-40 flex-center text-xl rounded-circle">
-                                                            <Icon icon="ph:eye" />
+                                                        <a href={publicUrl} target="_blank" rel="noreferrer"
+                                                            className="w-32 h-32 d-flex align-items-center justify-content-center text-success-600 bg-success-50 rounded-circle bg-hover-success-600 text-hover-white transition-2"
+                                                            title="View Page">
+                                                            <Icon icon="ph:eye" className="text-lg" />
                                                         </a>
                                                     </div>
                                                 </td>
