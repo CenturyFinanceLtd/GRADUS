@@ -115,7 +115,21 @@ const DynamicLandingPage = () => {
                     {/* Right Column: Hero Image Card */}
                     <div className="right-column">
                         <div className="hero-image-container">
-                            <img src={hero.image} alt={hero.highlight} className="hero-main-image" />
+                            <img 
+                                src={
+                                    hero.image && (hero.image.startsWith('http') || hero.image.startsWith('/'))
+                                        ? hero.image
+                                        : hero.image
+                                            ? supabase.storage.from('landing_page').getPublicUrl(hero.image).data.publicUrl
+                                            : ''
+                                } 
+                                alt={hero.highlight} 
+                                className="hero-main-image" 
+                                onError={(e) => {
+                                    // Fallback handling if image fails to load
+                                    console.error('Hero image failed to load:', hero.image);
+                                }}
+                            />
                         </div>
                     </div>
                 </div>
